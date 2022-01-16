@@ -1,6 +1,6 @@
 name: MCPets
 main: fr.nocsy.almpet.MCPets
-version: 1.0.6
+version: 1.0.0
 description: Plugin made by Nocsy
 depends:
   - MythicMobs
@@ -12,6 +12,6 @@ api-version: 1.16
 commands:
   advancedpet:
     description: Command to manage your pets
-    Usage: /advancedpet
-    permission: advancedpet.use
+    Usage: /mcpets
+    permission: mcpets.use
     aliases: [pets]
