@@ -1,0 +1,17 @@
+name: MCPets
+main: fr.nocsy.almpet.MCPets
+version: 1.0.6
+description: Plugin made by Nocsy
+depends:
+  - MythicMobs
+  - ModelEngine
+softdepend:
+  - WorldGuard
+author: Nocsy
+api-version: 1.16
+commands:
+  advancedpet:
+    description: Command to manage your pets
+    Usage: /advancedpet
+    permission: advancedpet.use
+    aliases: [pets]
