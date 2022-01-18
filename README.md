@@ -1,21 +1,23 @@
-# 🌠 AdvancedPet 🌠
-
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/78101027/145074606-0f4e4fce-414c-455a-a26b-4619af0a6650.png" alt="AdvancedPet logo">
+  <img src="https://i.imgur.com/KByHeNB.png" alt="MC Pets logo">
 </p>
 
-Welcome to the AdvancedPet Wiki !
+Welcome to MC Pets!
 
 Navigate through the [wiki pages](https://github.com/AlexandreChaussard/AdvancedPet-Wiki/wiki) to find whatever information you need about the plugin.
 
-# ⚠️ Requirements ⚠️
+
+
+<img src="https://i.imgur.com/saPEOAJ.png" alt="Requirements">
 
 This plugin requires the following dependencies to work :
 - ModelEngine r2.2.0 at least
 - MythicMobs compatible with ModelEngine r2.2.0 (see dev builds)
 - (optional if you wan the custom flags) WorldGuard & WorldEdit
 
-# Overview
+
+
+<img src="https://i.imgur.com/OyR7gLr.png" alt="Overview">
 
 AdvancedPet is a plugin meant to setup advanced modeled pets for your server.
 The plugin relies on MythicMobs & ModelEngine to create your pet, maybe add it some skills and specific behaviors so that it get useful for the players or do some tricky stuff.
@@ -27,7 +29,9 @@ The plugin is still in BETA, so make sure to report any bug you encounter while 
 
 Want to try the plugin ? You can go on the DEMO server of Littleroom at : play.littleroom.dev
 
-# Features
+
+
+<img src="https://i.imgur.com/KadwjCO.png" alt="Features">
 
 - Create pets with MythicMobs with ANY behavior (AI, skills, etc...) and make them act as a pet thanks to AdvancedPet
 - GUI Interface to manage your pets (selection, rename, mount)
