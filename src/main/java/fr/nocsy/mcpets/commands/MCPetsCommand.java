@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 public class MCPetsCommand implements CCommand {
     @Override
     public String getName() {
-        return "advancedpet";
+        return "mcpets";
     }
 
     @Override

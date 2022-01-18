@@ -1,7 +1,7 @@
 name: MCPets
-main: fr.nocsy.almpet.MCPets
+main: fr.nocsy.mcpets.MCPets
 version: 1.0.0
-description: Plugin made by Nocsy
+description: More info at MCModels.net
 depends:
   - MythicMobs
   - ModelEngine
@@ -10,7 +10,7 @@ softdepend:
 author: Nocsy
 api-version: 1.16
 commands:
-  advancedpet:
+  mcpets:
     description: Command to manage your pets
     Usage: /mcpets
     permission: mcpets.use
