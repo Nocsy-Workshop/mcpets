@@ -846,7 +846,7 @@ public class Pet {
      */
     public static Pet getFromIcon(ItemStack icon)
     {
-        if(icon.getItemMeta().hasLocalizedName())
+        if(icon.hasItemMeta() && icon.getItemMeta().hasLocalizedName())
         {
             return fromString(icon.getItemMeta().getLocalizedName());
         }

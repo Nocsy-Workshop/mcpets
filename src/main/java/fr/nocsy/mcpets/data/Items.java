@@ -97,7 +97,11 @@ public enum Items {
         ItemStack it = objectPet.getIcon().clone();
         ItemMeta meta = it.getItemMeta();
 
-        ArrayList<String> lore = new ArrayList<>(meta.getLore());
+        ArrayList<String> lore;
+        if(meta.getLore() == null)
+            lore = new ArrayList<>();
+        else
+            lore = new ArrayList<>(meta.getLore());
 
         if(pet.getCurrentName() != null)
         {
