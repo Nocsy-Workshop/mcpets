@@ -46,6 +46,8 @@ public class PetInteractionMenuListener implements Listener {
                     openBackPetMenu(p);
                     return;
                 }
+                if(it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("AlmPetPage;"))
+                    return;
 
                 Pet pet = Pet.getFromLastInteractedWith(p);
 

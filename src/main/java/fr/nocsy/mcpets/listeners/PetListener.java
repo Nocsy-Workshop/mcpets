@@ -1,6 +1,5 @@
 package fr.nocsy.mcpets.listeners;
 
-import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
@@ -17,15 +16,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 public class PetListener implements Listener {
+
+    private HashMap<UUID, Pet> reconnectionPets = new HashMap<>();
 
     @EventHandler
     public void interact(PlayerInteractEntityEvent e)
@@ -81,6 +80,29 @@ public class PetListener implements Listener {
     }
 
     @EventHandler
+    public void disconnectPlayer(PlayerQuitEvent e)
+    {
+        Player p = e.getPlayer();
+        if(Pet.getActivePets().containsKey(p.getUniqueId()))
+        {
+            Pet pet = Pet.getActivePets().get(p.getUniqueId());
+            reconnectionPets.put(p.getUniqueId(), pet);
+        }
+    }
+
+    @EventHandler
+    public void reconnectionPlayer(PlayerJoinEvent e)
+    {
+        Player p = e.getPlayer();
+        if(reconnectionPets.containsKey(p.getUniqueId()))
+        {
+            Pet pet = reconnectionPets.get(p.getUniqueId());
+            pet.spawn(p.getLocation());
+            reconnectionPets.remove(p.getUniqueId());
+        }
+    }
+
+    @EventHandler
     public void teleport(PlayerChangedWorldEvent e)
     {
         Player p = e.getPlayer();
@@ -108,6 +130,9 @@ public class PetListener implements Listener {
     @EventHandler
     public void riding(EntityDamageEvent e)
     {
+        if(!GlobalConfig.getInstance().isDismountOnDamaged())
+            return;
+
         if(e.getEntity() instanceof Player)
         {
             Player p = (Player) e.getEntity();
@@ -171,29 +196,6 @@ public class PetListener implements Listener {
                     {
                         Language.REVOKED.sendMessage(owner);
                     }
-                }
-            }
-        }
-    }
-
-    /**
-     * Handle random despawn
-     * @param e
-     */
-    @EventHandler
-    public void despawn(EntityRemoveFromWorldEvent e)
-    {
-        e.getEntity();
-        Pet pet = Pet.getFromEntity(e.getEntity());
-        if(pet != null)
-        {
-            if(!pet.isRemoved())
-            {
-                pet.despawn(PetDespawnReason.UNKNOWN);
-                Player owner = Bukkit.getPlayer(pet.getOwner());
-                if(owner != null)
-                {
-                    Language.REVOKED.sendMessage(owner);
                 }
             }
         }
