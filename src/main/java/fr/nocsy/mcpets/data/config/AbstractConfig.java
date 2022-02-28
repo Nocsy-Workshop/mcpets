@@ -11,7 +11,7 @@ import java.io.IOException;
 public abstract class AbstractConfig {
 
     @Getter
-    private static String path = "./plugins/MCPets/";
+    private static final String path = "./plugins/MCPets/";
 
     @Getter
     @Setter
@@ -30,19 +30,17 @@ public abstract class AbstractConfig {
     @Getter
     private FileConfiguration config;
 
-    public void init(String folderName, String fileName)
-    {
+    public void init(String folderName, String fileName) {
         this.fileName = fileName;
         this.folderName = folderName;
 
         folder = new File(path + folderName);
-        if(!folder.exists())
+        if (!folder.exists())
             folder.mkdirs();
 
         file = new File(path + folderName + "/" + fileName);
 
-        if(!file.exists())
-        {
+        if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException e) {
@@ -53,8 +51,7 @@ public abstract class AbstractConfig {
         loadConfig();
     }
 
-    public void save()
-    {
+    public void save() {
         try {
             config.save(file);
         } catch (IOException e) {
@@ -62,8 +59,7 @@ public abstract class AbstractConfig {
         }
     }
 
-    public void loadConfig()
-    {
+    public void loadConfig() {
         config = YamlConfiguration.loadConfiguration(file);
     }
 

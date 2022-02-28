@@ -8,13 +8,21 @@ import org.bukkit.event.HandlerList;
 
 public class PetCastSkillEvent extends Event implements Cancellable {
 
-    private boolean isCancelled = false;
     private static final HandlerList HANDLERS = new HandlerList();
+    private boolean isCancelled = false;
+    @Getter
+    private final Pet pet;
+    @Getter
+    private final String signal;
 
-    @Getter
-    private Pet pet;
-    @Getter
-    private String signal;
+    public PetCastSkillEvent(Pet pet, String signal) {
+        this.pet = pet;
+        this.signal = signal;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 
     @Override
     public boolean isCancelled() {
@@ -29,15 +37,5 @@ public class PetCastSkillEvent extends Event implements Cancellable {
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
-    public PetCastSkillEvent(Pet pet, String signal)
-    {
-        this.pet = pet;
-        this.signal = signal;
     }
 }

@@ -8,11 +8,18 @@ import org.bukkit.event.HandlerList;
 
 public class PetSpawnEvent extends Event implements Cancellable {
 
-    private boolean isCancelled = false;
     private static final HandlerList HANDLERS = new HandlerList();
-
+    private boolean isCancelled = false;
     @Getter
-    private Pet pet;
+    private final Pet pet;
+
+    public PetSpawnEvent(Pet pet) {
+        this.pet = pet;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 
     @Override
     public boolean isCancelled() {
@@ -27,15 +34,6 @@ public class PetSpawnEvent extends Event implements Cancellable {
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
-    public PetSpawnEvent(Pet pet)
-    {
-        this.pet = pet;
     }
 
 }

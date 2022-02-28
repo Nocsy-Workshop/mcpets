@@ -1,9 +1,9 @@
 package fr.nocsy.mcpets.data.inventories;
 
-import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.Items;
-import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,43 +14,38 @@ import org.bukkit.inventory.Inventory;
 public class PetInteractionMenu {
 
     @Getter
-    private static String title = Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage();
+    private static final String title = Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage();
 
     @Getter
-    private Inventory inventory;
+    private final Inventory inventory;
 
-    public PetInteractionMenu(Pet pet)
-    {
+    public PetInteractionMenu(Pet pet) {
         inventory = Bukkit.createInventory(null, InventoryType.HOPPER, title);
 
-        if(GlobalConfig.getInstance().isActivateBackMenuIcon())
+        if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.PETMENU.getItem());
         else
             inventory.setItem(0, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
 
-        if(GlobalConfig.getInstance().isNameable())
+        if (GlobalConfig.getInstance().isNameable())
             inventory.setItem(1, Items.RENAME.getItem());
         else
             inventory.setItem(1, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
 
         inventory.setItem(2, Items.petInfo(pet));
 
-        if(GlobalConfig.getInstance().isMountable() && pet.isMountable()) {
+        if (GlobalConfig.getInstance().isMountable() && pet.isMountable()) {
             inventory.setItem(3, Items.MOUNT.getItem());
-        }
-        else
+        } else
             inventory.setItem(3, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
 
-        if(!pet.getSignals().isEmpty())
-        {
+        if (!pet.getSignals().isEmpty()) {
             inventory.setItem(4, pet.getSignalStick());
-        }
-        else
+        } else
             inventory.setItem(4, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
     }
 
-    public void open(Player p)
-    {
+    public void open(Player p) {
         p.openInventory(inventory);
     }
 

@@ -2,7 +2,7 @@ package fr.nocsy.mcpets.commands;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
-import fr.nocsy.mcpets.data.*;
+import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
@@ -29,36 +29,30 @@ public class MCPetsCommand implements CCommand {
 
     @Override
     public void execute(CommandSender sender, Command command, String label, String[] args) {
-        if(sender.hasPermission(getPermission()))
-        {
-            if(args.length == 4)
-            {
-                if(args[0].equalsIgnoreCase("spawn")
-                        && sender.hasPermission(getAdminPermission()))
-                {
+        if (sender.hasPermission(getPermission())) {
+            if (args.length == 4) {
+                if (args[0].equalsIgnoreCase("spawn")
+                        && sender.hasPermission(getAdminPermission())) {
 
                     String petId = args[1];
                     String playerName = args[2];
                     String booleanValue = args[3];
 
                     Player target = Bukkit.getPlayer(playerName);
-                    if(target == null)
-                    {
+                    if (target == null) {
                         Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
                         return;
                     }
 
                     Pet petObject = Pet.getFromId(petId);
-                    if(petObject == null)
-                    {
+                    if (petObject == null) {
                         Language.PET_DOESNT_EXIST.sendMessage(sender);
                         return;
                     }
                     Pet pet = petObject.copy();
 
                     boolean checkPermission = booleanValue.equalsIgnoreCase("true");
-                    if(checkPermission && !target.hasPermission(pet.getPermission()))
-                    {
+                    if (checkPermission && !target.hasPermission(pet.getPermission())) {
                         Language.NOT_ALLOWED.sendMessage(target);
                         return;
                     }
@@ -66,46 +60,37 @@ public class MCPetsCommand implements CCommand {
                     pet.spawnWithMessage(target, target.getLocation());
                     return;
                 }
-            }
-            else if(args.length == 2)
-            {
-                if(args[0].equalsIgnoreCase("open")
+            } else if (args.length == 2) {
+                if (args[0].equalsIgnoreCase("open")
                         && sender.hasPermission(getAdminPermission())
-                        && sender instanceof Player)
-                {
+                        && sender instanceof Player) {
                     String playerName = args[1];
                     Player playerToOpen = Bukkit.getPlayer(playerName);
-                    if(playerToOpen == null)
-                    {
+                    if (playerToOpen == null) {
                         Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
                         return;
                     }
 
                     PetMenu menu = new PetMenu(playerToOpen, 0, false);
-                    menu.open((Player)sender);
+                    menu.open((Player) sender);
                     return;
                 }
-            }
-            else if(args.length == 1)
-            {
-                if(args[0].equalsIgnoreCase("reload")
-                        && sender.hasPermission(getAdminPermission()) )
-                {
+            } else if (args.length == 1) {
+                if (args[0].equalsIgnoreCase("reload")
+                        && sender.hasPermission(getAdminPermission())) {
                     MCPets.loadConfigs();
                     Language.RELOAD_SUCCESS.sendMessage(sender);
                     Language.HOW_MANY_PETS_LOADED.sendMessageFormated(sender, new FormatArg("%numberofpets%", Integer.toString(Pet.getObjectPets().size())));
                     return;
                 }
-                if(sender instanceof Player
+                if (sender instanceof Player
                         && (args[0].equalsIgnoreCase("name")
-                            || args[0].equalsIgnoreCase("mount"))
-                            || args[0].equalsIgnoreCase("revoke"))
-                {
-                    Player p = (Player)sender;
+                        || args[0].equalsIgnoreCase("mount"))
+                        || args[0].equalsIgnoreCase("revoke")) {
+                    Player p = (Player) sender;
                     Pet pet = Pet.fromOwner(p.getUniqueId());
 
-                    if(pet == null)
-                    {
+                    if (pet == null) {
                         Language.NO_ACTIVE_PET.sendMessage(p);
                         return;
                     }
@@ -122,20 +107,16 @@ public class MCPetsCommand implements CCommand {
                             return;
                     }
                 }
-            }
-            else if(args.length == 0
-                    && sender instanceof Player)
-            {
-                PetMenu menu = new PetMenu((Player)sender, 0, false);
-                menu.open((Player)sender);
+            } else if (args.length == 0
+                    && sender instanceof Player) {
+                PetMenu menu = new PetMenu((Player) sender, 0, false);
+                menu.open((Player) sender);
                 return;
             }
 
-            if(sender.hasPermission(getAdminPermission()))
+            if (sender.hasPermission(getAdminPermission()))
                 Language.USAGE.sendMessage(sender);
-        }
-        else
-        {
+        } else {
             Language.NO_PERM.sendMessage(sender);
         }
     }

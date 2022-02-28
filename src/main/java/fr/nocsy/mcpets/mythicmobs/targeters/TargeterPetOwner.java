@@ -21,7 +21,7 @@ public class TargeterPetOwner extends IEntitySelector {
         HashSet<AbstractEntity> hashSet = new HashSet();
         AbstractEntity abstractEntity = paramSkillMetadata.getCaster().getEntity();
         Pet pet = Pet.getFromEntity(abstractEntity.getBukkitEntity());
-        if(pet != null && Bukkit.getPlayer(pet.getOwner()) != null)
+        if (pet != null && Bukkit.getPlayer(pet.getOwner()) != null)
             hashSet.add(BukkitAdapter.adapt(Bukkit.getPlayer(pet.getOwner())));
         return hashSet;
     }

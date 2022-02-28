@@ -10,19 +10,17 @@ public class BlacklistConfig extends AbstractConfig {
     public static BlacklistConfig instance;
 
     @Getter
-    private ArrayList<String> blackListedWords = new ArrayList<>();
+    private final ArrayList<String> blackListedWords = new ArrayList<>();
 
-    public static BlacklistConfig getInstance()
-    {
+    public static BlacklistConfig getInstance() {
 
-        if(instance == null)
+        if (instance == null)
             instance = new BlacklistConfig();
 
         return instance;
     }
 
-    public void init()
-    {
+    public void init() {
         super.init("", "blacklist.yml");
         save();
         reload();

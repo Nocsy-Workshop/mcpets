@@ -17,27 +17,24 @@ import org.bukkit.entity.Player;
 public abstract class AbstractFlag {
 
     @Getter
-    private StateFlag flag;
-
-    @Getter
-    private  final MCPets MCPetsInstance;
+    private final MCPets MCPetsInstance;
     @Getter
     private final String flagName;
     @Getter
     private final boolean defaultValue;
+    @Getter
+    private StateFlag flag;
 
-    public AbstractFlag(String flagName, boolean defaultValue, MCPets instance)
-    {
-        this.flagName       = flagName;
-        this.defaultValue   = defaultValue;
+    public AbstractFlag(String flagName, boolean defaultValue, MCPets instance) {
+        this.flagName = flagName;
+        this.defaultValue = defaultValue;
         MCPetsInstance = instance;
     }
 
     /**
      * Register the given flag in WorldGuard
      */
-    public void register()
-    {
+    public void register() {
         FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
         ((SimpleFlagRegistry) WorldGuard.getInstance().getFlagRegistry()).setInitialized(false);
 
@@ -56,10 +53,10 @@ public abstract class AbstractFlag {
             // some other plugin registered a flag by the same name already.
             // you can use the existing flag, but this may cause conflicts - be sure to check type
             Flag<?> existing = registry.get(flagName);
-            MCPets.getLog().warning(MCPets.getLogName() +  getFlagName() + " has been considered as " + existing + " by Worldguard");
+            MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " has been considered as " + existing + " by Worldguard");
             if (existing instanceof StateFlag) {
                 this.flag = (StateFlag) existing;
-                MCPets.getLog().info(MCPets.getLogName() +  getFlagName() + " flag attached successfully !");
+                MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " flag attached successfully !");
             } else {
                 // types don't match - this is bad news! some other plugin conflicts with you
                 // hopefully this never actually happens
@@ -71,11 +68,11 @@ public abstract class AbstractFlag {
 
     /**
      * Test if the state flag is allowed at player's location
+     *
      * @param p
      * @return
      */
-    public boolean testState(Player p)
-    {
+    public boolean testState(Player p) {
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
         Location loc = localPlayer.getLocation();
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();

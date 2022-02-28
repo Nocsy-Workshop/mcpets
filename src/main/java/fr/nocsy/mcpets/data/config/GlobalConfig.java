@@ -52,44 +52,42 @@ public class GlobalConfig extends AbstractConfig {
     @Setter
     private boolean databaseSupport = false;
 
-    public static GlobalConfig getInstance()
-    {
+    public static GlobalConfig getInstance() {
 
-        if(instance == null)
+        if (instance == null)
             instance = new GlobalConfig();
 
         return instance;
     }
 
-    public void init()
-    {
+    public void init() {
         super.init("", "config.yml");
 
-        if(getConfig().get("Prefix") == null)
+        if (getConfig().get("Prefix") == null)
             getConfig().set("Prefix", prefix);
-        if(getConfig().get("DefaultName") == null)
+        if (getConfig().get("DefaultName") == null)
             getConfig().set("DefaultName", defaultName);
-        if(getConfig().get("RightClickToOpenMenu") == null)
+        if (getConfig().get("RightClickToOpenMenu") == null)
             getConfig().set("RightClickToOpenMenu", true);
-        if(getConfig().get("LeftClickToOpenMenu") == null)
+        if (getConfig().get("LeftClickToOpenMenu") == null)
             getConfig().set("LeftClickToOpenMenu", true);
-        if(getConfig().get("DismountOnDamaged") == null)
+        if (getConfig().get("DismountOnDamaged") == null)
             getConfig().set("DismountOnDamaged", true);
-        if(getConfig().get("SpawnPetOnReconnect") == null)
+        if (getConfig().get("SpawnPetOnReconnect") == null)
             getConfig().set("SpawnPetOnReconnect", true);
-        if(getConfig().get("SneakMode") == null)
+        if (getConfig().get("SneakMode") == null)
             getConfig().set("SneakMode", false);
-        if(getConfig().get("Nameable") == null)
+        if (getConfig().get("Nameable") == null)
             getConfig().set("Nameable", true);
-        if(getConfig().get("Mountable") == null)
+        if (getConfig().get("Mountable") == null)
             getConfig().set("Mountable", true);
-        if(getConfig().get("DistanceTeleport") == null)
+        if (getConfig().get("DistanceTeleport") == null)
             getConfig().set("DistanceTeleport", 30);
-        if(getConfig().get("MaxNameLenght") == null)
+        if (getConfig().get("MaxNameLenght") == null)
             getConfig().set("MaxNameLenght", maxNameLenght);
-        if(getConfig().get("InventorySize") == null)
+        if (getConfig().get("InventorySize") == null)
             getConfig().set("InventorySize", -1);
-        if(getConfig().get("ActivateBackMenuIcon") == null)
+        if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
         if (getConfig().get("MySQL.User") == null)
             getConfig().set("MySQL.User", "user");
@@ -116,34 +114,34 @@ public class GlobalConfig extends AbstractConfig {
 
         loadConfig();
 
-        prefix                  = getConfig().getString("Prefix");
-        defaultName             = getConfig().getString("DefaultName");
-        rightClickToOpen        = getConfig().getBoolean("RightClickToOpenMenu");
-        leftClickToOpen         = getConfig().getBoolean("LeftClickToOpenMenu");
-        sneakMode               = getConfig().getBoolean("SneakMode");
-        nameable                = getConfig().getBoolean("Nameable");
-        mountable               = getConfig().getBoolean("Mountable");
-        dismountOnDamaged       = getConfig().getBoolean("DismountOnDamaged");
-        spawnPetOnReconnect     = getConfig().getBoolean("SpawnPetOnReconnect");
-        distanceTeleport        = getConfig().getInt("DistanceTeleport");
-        maxNameLenght           = getConfig().getInt("MaxNameLenght");
-        activateBackMenuIcon    = getConfig().getBoolean("ActivateBackMenuIcon");
-        adaptiveInventory       = getConfig().getInt("InventorySize");
+        prefix = getConfig().getString("Prefix");
+        defaultName = getConfig().getString("DefaultName");
+        rightClickToOpen = getConfig().getBoolean("RightClickToOpenMenu");
+        leftClickToOpen = getConfig().getBoolean("LeftClickToOpenMenu");
+        sneakMode = getConfig().getBoolean("SneakMode");
+        nameable = getConfig().getBoolean("Nameable");
+        mountable = getConfig().getBoolean("Mountable");
+        dismountOnDamaged = getConfig().getBoolean("DismountOnDamaged");
+        spawnPetOnReconnect = getConfig().getBoolean("SpawnPetOnReconnect");
+        distanceTeleport = getConfig().getInt("DistanceTeleport");
+        maxNameLenght = getConfig().getInt("MaxNameLenght");
+        activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
+        adaptiveInventory = getConfig().getInt("InventorySize");
         // Says it'll be an adaptive inventory
-        if(adaptiveInventory <= 0)
+        if (adaptiveInventory <= 0)
             adaptiveInventory = -1;
         // Inventory can't grow over 54
-        if(adaptiveInventory > 54)
+        if (adaptiveInventory > 54)
             adaptiveInventory = 54;
         // Get the size of the inventory to place
         while (adaptiveInventory > 0 && adaptiveInventory % 9 != 0 && adaptiveInventory < 54)
             adaptiveInventory++;
 
-        MySQL_USER          = getConfig().getString("MySQL.User");
-        MySQL_PASSWORD      = getConfig().getString("MySQL.Password");
-        MySQL_HOST          = getConfig().getString("MySQL.Host");
-        MySQL_PORT          = getConfig().getString("MySQL.Port");
-        MySQL_DB            = getConfig().getString("MySQL.Database");
+        MySQL_USER = getConfig().getString("MySQL.User");
+        MySQL_PASSWORD = getConfig().getString("MySQL.Password");
+        MySQL_HOST = getConfig().getString("MySQL.Host");
+        MySQL_PORT = getConfig().getString("MySQL.Port");
+        MySQL_DB = getConfig().getString("MySQL.Database");
 
     }
 

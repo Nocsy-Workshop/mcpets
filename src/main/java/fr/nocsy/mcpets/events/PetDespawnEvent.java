@@ -15,19 +15,18 @@ public class PetDespawnEvent extends Event {
     @Getter
     private final PetDespawnReason reason;
 
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
+    public PetDespawnEvent(Pet pet, PetDespawnReason reason) {
+        this.pet = pet;
+        this.reason = reason;
     }
 
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 
-    public PetDespawnEvent(Pet pet, PetDespawnReason reason)
-    {
-        this.pet = pet;
-        this.reason = reason;
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
     }
 
 }

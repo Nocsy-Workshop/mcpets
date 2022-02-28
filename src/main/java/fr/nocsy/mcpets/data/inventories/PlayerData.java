@@ -11,7 +11,7 @@ import java.util.UUID;
 public class PlayerData {
 
     @Getter
-    private static HashMap<UUID, PlayerData> registeredData = new HashMap<>();
+    private static final HashMap<UUID, PlayerData> registeredData = new HashMap<>();
     @Getter
     @Setter
     private HashMap<String, String> mapOfRegisteredNames = new HashMap<>();
@@ -20,25 +20,21 @@ public class PlayerData {
     @Getter
     private UUID uuid;
 
-    private PlayerData(UUID uuid)
-    {
+    private PlayerData(UUID uuid) {
         this.uuid = uuid;
         init();
         save();
     }
-    private PlayerData() {}
 
-    public static PlayerData get(UUID owner)
-    {
+    private PlayerData() {
+    }
 
-        if(registeredData.containsKey(owner))
-        {
+    public static PlayerData get(UUID owner) {
+
+        if (registeredData.containsKey(owner)) {
             return registeredData.get(owner);
-        }
-        else
-        {
-            if(!GlobalConfig.getInstance().isDatabaseSupport())
-            {
+        } else {
+            if (!GlobalConfig.getInstance().isDatabaseSupport()) {
                 PlayerData data = new PlayerData();
                 data.setUuid(owner);
                 PlayerDataNoDatabase pdn = PlayerDataNoDatabase.get(owner);
@@ -54,48 +50,41 @@ public class PlayerData {
         }
     }
 
-    public static PlayerData getEmpty(UUID owner)
-    {
+    public static PlayerData getEmpty(UUID owner) {
         PlayerData data = new PlayerData();
         data.setUuid(owner);
         return data;
     }
 
-    public void init()
-    {
-        reload();
-    }
-
-    public static void initAll()
-    {
+    public static void initAll() {
         reloadAll();
     }
 
+    public static void saveDB() {
+        Databases.saveData();
+    }
+
+    public static void reloadAll() {
+        Databases.loadData();
+    }
+
+    public void init() {
+        reload();
+    }
+
     public void save() {
-        if(GlobalConfig.getInstance().isDatabaseSupport())
+        if (GlobalConfig.getInstance().isDatabaseSupport())
             saveDB();
-        else
-        {
+        else {
             PlayerDataNoDatabase pdn = PlayerDataNoDatabase.get(uuid);
             pdn.setMapOfRegisteredNames(mapOfRegisteredNames);
             pdn.save();
         }
     }
 
-    public static void saveDB()
-    {
-        Databases.saveData();
-    }
-
-    public void reload()
-    {
-        if(!Databases.loadData())
-        {
+    public void reload() {
+        if (!Databases.loadData()) {
             PlayerDataNoDatabase.get(uuid).reload();
         }
-    }
-
-    public static void reloadAll() {
-        Databases.loadData();
     }
 }

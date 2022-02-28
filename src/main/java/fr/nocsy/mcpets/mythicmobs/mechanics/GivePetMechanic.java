@@ -18,7 +18,7 @@ public class GivePetMechanic extends SkillMechanic implements ITargetedEntitySki
     public GivePetMechanic(MythicLineConfig config) {
         super(config.getLine(), config);
         setAsyncSafe(false);
-        this.petId = config.getString(new String[] { "id" }, this.petId);
+        this.petId = config.getString(new String[]{"id"}, this.petId);
     }
 
     public boolean castAtEntity(SkillMetadata data, AbstractEntity target) {
@@ -26,7 +26,7 @@ public class GivePetMechanic extends SkillMechanic implements ITargetedEntitySki
         if (player instanceof Player) {
 
             Pet pet = Pet.getFromId(petId);
-            if(pet == null)
+            if (pet == null)
                 return false;
             player.addAttachment(MCPets.getInstance(), pet.getPermission(), true);
         }

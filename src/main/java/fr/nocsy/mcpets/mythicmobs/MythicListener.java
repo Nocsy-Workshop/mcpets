@@ -18,8 +18,8 @@ public class MythicListener implements Listener {
 
         String str = paramMythicTargeterLoadEvent.getTargeterName();
 
-        if ("PETOWNER".equals(str.toUpperCase())) {
-            paramMythicTargeterLoadEvent.register((SkillTargeter) new TargeterPetOwner(paramMythicTargeterLoadEvent.getConfig()));
+        if ("PETOWNER".equalsIgnoreCase(str)) {
+            paramMythicTargeterLoadEvent.register(new TargeterPetOwner(paramMythicTargeterLoadEvent.getConfig()));
         }
 
     }
@@ -28,7 +28,7 @@ public class MythicListener implements Listener {
     public void onMythicMechanicLoad(MythicMechanicLoadEvent event) {
         if (event.getMechanicName().equalsIgnoreCase("GivePet")) {
             GivePetMechanic givePetMechanic = new GivePetMechanic(event.getConfig());
-            event.register((SkillMechanic) givePetMechanic);
+            event.register(givePetMechanic);
 
             MCPets.getLog().info("[MCPets] : GivePet Mechanic loaded successfully");
 

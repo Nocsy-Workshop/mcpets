@@ -11,8 +11,7 @@ public enum PPermission {
     @Getter
     private final String permission;
 
-    PPermission(String permission)
-    {
+    PPermission(String permission) {
         this.permission = permission;
     }
 
