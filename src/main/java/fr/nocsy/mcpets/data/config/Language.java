@@ -54,55 +54,47 @@ public enum Language {
     REQUIRES_MODELENGINE("§cThis plugin requires ModelEngine r2.3.1. It seems that this requirement is not satisfied."),
 
     USAGE("§7Usage : §6/mcpets §8..." +
-                                        "\n§8   ... §areload " +
-                                        "\n§8   ... §7(nothing here to open the GUI) " +
-                                        "\n§8   ... §aopen §8<§7player§8>" +
-                                        "\n§8   ... §aspawn §8<§7id§8> <§7player§8> §atrue§8/§cfalse §7(check if the player have the permission to spawn the pet or not)" +
-                                        "\n§8   ... §arevoke" +
-                                        "\n§8   ... §aname" +
-                                        "\n§8   ... §amount"),
+            "\n§8   ... §areload " +
+            "\n§8   ... §7(nothing here to open the GUI) " +
+            "\n§8   ... §aopen §8<§7player§8>" +
+            "\n§8   ... §aspawn §8<§7id§8> <§7player§8> §atrue§8/§cfalse §7(check if the player have the permission to spawn the pet or not)" +
+            "\n§8   ... §arevoke" +
+            "\n§8   ... §aname" +
+            "\n§8   ... §amount"),
     NO_PERM("§cYou're not allowed to use this command.");
 
     @Getter
     private String message;
 
-    Language(String message)
-    {
+    Language(String message) {
         this.message = message;
     }
 
-    public void reload()
-    {
-        if(LanguageConfig.getInstance().getMap().containsKey(this.name().toLowerCase()))
-        {
+    public void reload() {
+        if (LanguageConfig.getInstance().getMap().containsKey(this.name().toLowerCase())) {
             this.message = LanguageConfig.getInstance().getMap().get(this.name().toLowerCase());
         }
     }
 
-    public void sendMessage(Player p)
-    {
+    public void sendMessage(Player p) {
         p.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + message);
     }
-    public void sendMessage(CommandSender sender)
-    {
+
+    public void sendMessage(CommandSender sender) {
         sender.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + message);
     }
 
-    public void sendMessageFormated(CommandSender sender, FormatArg... args)
-    {
-        String toSend = new String(message);
-        for(FormatArg arg : args)
-        {
+    public void sendMessageFormated(CommandSender sender, FormatArg... args) {
+        String toSend = message;
+        for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);
         }
         sender.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + toSend);
     }
 
-    public String getMessageFormatted(FormatArg... args)
-    {
-        String toSend = new String(message);
-        for(FormatArg arg : args)
-        {
+    public String getMessageFormatted(FormatArg... args) {
+        String toSend = message;
+        for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);
         }
         return toSend;

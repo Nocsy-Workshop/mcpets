@@ -20,10 +20,8 @@ public enum Items {
     @Getter
     private ItemStack item;
 
-    Items(String name)
-    {
-        switch (name)
-        {
+    Items(String name) {
+        switch (name) {
             case "mount":
                 item = mount();
                 break;
@@ -36,8 +34,7 @@ public enum Items {
         }
     }
 
-    private static ItemStack mount()
-    {
+    private static ItemStack mount() {
         ItemStack it = new ItemStack(Material.SADDLE);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.MOUNT_ITEM_NAME.getMessage());
@@ -49,8 +46,7 @@ public enum Items {
         return it;
     }
 
-    private static ItemStack rename()
-    {
+    private static ItemStack rename() {
         ItemStack it = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.RENAME_ITEM_NAME.getMessage());
@@ -62,8 +58,7 @@ public enum Items {
         return it;
     }
 
-    private static ItemStack backToPets()
-    {
+    private static ItemStack backToPets() {
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage().split("\n")));
 
         ItemStack it = Utils.createHead(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage(), lore, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI5M2E2MDcwNTAzMTcyMDcxZjM1ZjU4YzgyMjA0ZTgxOGNkMDY1MTg2OTAxY2ExOWY3ZGFkYmRhYzE2NWU0NCJ9fX0=");
@@ -75,8 +70,7 @@ public enum Items {
         return it;
     }
 
-    public static ItemStack page(int index)
-    {
+    public static ItemStack page(int index) {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessage());
@@ -90,21 +84,19 @@ public enum Items {
         return it;
     }
 
-    public static ItemStack petInfo(Pet pet)
-    {
+    public static ItemStack petInfo(Pet pet) {
         Pet objectPet = Pet.getFromId(pet.getId());
 
         ItemStack it = objectPet.getIcon().clone();
         ItemMeta meta = it.getItemMeta();
 
         ArrayList<String> lore;
-        if(meta.getLore() == null)
+        if (meta.getLore() == null)
             lore = new ArrayList<>();
         else
             lore = new ArrayList<>(meta.getLore());
 
-        if(pet.getCurrentName() != null)
-        {
+        if (pet.getCurrentName() != null) {
             lore.add(" ");
             lore.add(Language.NICKNAME.getMessageFormatted(new FormatArg("%nickname%", pet.getCurrentName())));
             lore.add(" ");
@@ -118,8 +110,7 @@ public enum Items {
         return it;
     }
 
-    public static ItemStack deco(Material mat)
-    {
+    public static ItemStack deco(Material mat) {
         ItemStack it = new ItemStack(mat);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§0");
@@ -132,8 +123,7 @@ public enum Items {
         return it;
     }
 
-    public static boolean isSignalStick(ItemStack it)
-    {
+    public static boolean isSignalStick(ItemStack it) {
         return it != null && it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().equals(Pet.SIGNAL_STICK_TAG);
     }
 

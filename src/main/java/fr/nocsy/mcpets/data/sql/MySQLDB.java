@@ -49,7 +49,7 @@ public class MySQLDB {
     }
 
     public void close() {
-        if(!GlobalConfig.getInstance().isDatabaseSupport())
+        if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
         try {
             this.sqlCon.close();
@@ -63,7 +63,7 @@ public class MySQLDB {
     }
 
     public ResultSet query(String s) {
-        if(!GlobalConfig.getInstance().isDatabaseSupport())
+        if (!GlobalConfig.getInstance().isDatabaseSupport())
             return null;
         try {
             if (!this.sqlCon.isValid(2)) {
@@ -79,8 +79,7 @@ public class MySQLDB {
             if (s.toLowerCase().startsWith("select")) {
                 set = stat.executeQuery(s);
                 closeStat(stat);
-            }
-            else {
+            } else {
                 stat.executeUpdate(s);
                 stat.close();
             }
@@ -92,7 +91,7 @@ public class MySQLDB {
     }
 
     private void closeStat(final Statement stat) {
-        if(!GlobalConfig.getInstance().isDatabaseSupport())
+        if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
 
         new BukkitRunnable() {

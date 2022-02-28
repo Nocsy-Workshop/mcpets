@@ -9,14 +9,12 @@ public class FlagsManager {
 
     public static StateFlag ALMPET;
 
-    private static ArrayList<AbstractFlag> flags = new ArrayList<>();
+    private static final ArrayList<AbstractFlag> flags = new ArrayList<>();
 
-    public static void init(MCPets instance)
-    {
+    public static void init(MCPets instance) {
         ArrayList<AbstractFlag> flags = new ArrayList<>();
 
-        if(instance == null)
-        {
+        if (instance == null) {
             MCPets.getLog().warning("The main instance is null. The flags could not be registered...");
             return;
         }
@@ -24,19 +22,15 @@ public class FlagsManager {
         flags.add(new DismountPetFlag(instance));
         flags.add(new DespawnPetFlag(instance));
 
-        for(AbstractFlag flag : flags)
-        {
+        for (AbstractFlag flag : flags) {
             flag.register();
         }
 
     }
 
-    public static void stopFlags()
-    {
-        for(AbstractFlag flag : flags)
-        {
-            if(flag instanceof StoppableFlag)
-            {
+    public static void stopFlags() {
+        for (AbstractFlag flag : flags) {
+            if (flag instanceof StoppableFlag) {
                 ((StoppableFlag) flag).stop();
             }
         }

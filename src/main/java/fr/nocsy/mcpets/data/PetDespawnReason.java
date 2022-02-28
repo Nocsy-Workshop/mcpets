@@ -19,15 +19,13 @@ public enum PetDespawnReason {
 
 
     @Getter
-    private String reason;
+    private final String reason;
 
-    PetDespawnReason(String reason)
-    {
+    PetDespawnReason(String reason) {
         this.reason = reason;
     }
 
-    public boolean equals(PetDespawnReason reason)
-    {
+    public boolean equals(PetDespawnReason reason) {
         return this.getReason().equals(reason.getReason());
     }
 

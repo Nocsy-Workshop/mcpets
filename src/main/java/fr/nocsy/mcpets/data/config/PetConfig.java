@@ -19,12 +19,44 @@ public class PetConfig extends AbstractConfig {
     /**
      * Base constructor of a pet configuration (one to one)
      * It will initialize the variables while loading the data
+     *
      * @param fileName
      */
-    public PetConfig(String folderName, String fileName)
-    {
+    public PetConfig(String folderName, String fileName) {
         super.init(folderName, fileName);
         reload();
+    }
+
+    /**
+     * Load all the existing pets
+     *
+     * @param folderPath : folder where to seek for the pets
+     * @param clearPets  : whether or not the loaded pets should be cleared (only first call should do that)
+     */
+    public static void loadPets(String folderPath, boolean clearPets) {
+        if (clearPets) {
+            Pet.getObjectPets().clear();
+        }
+
+        File folder = new File(folderPath);
+        if (!folder.exists())
+            folder.mkdirs();
+
+        for (File file : folder.listFiles()) {
+            if (file.isDirectory()) {
+                loadPets(file.getPath().replace("\\", "/"), false);
+                continue;
+            }
+
+            PetConfig petConfig = new PetConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
+
+            if (petConfig.getPet() != null)
+                Pet.getObjectPets().add(petConfig.getPet());
+
+        }
+
+        if (clearPets)
+            MCPets.getLog().info(MCPets.getLogName() + Pet.getObjectPets().size() + " pets registered successfully !");
     }
 
     /**
@@ -44,34 +76,33 @@ public class PetConfig extends AbstractConfig {
         loadConfig();
 
         // Setting up the data
-        String id                   = getConfig().getString("Id");
-        String mobType              = getConfig().getString("MythicMob");
-        String permission           = getConfig().getString("Permission");
-        int distance                = getConfig().getInt("Distance");
-        int spawnRange              = getConfig().getInt("SpawnRange");
-        int comingbackRange         = getConfig().getInt("ComingBackRange");
-        String despawnSkillName     = getConfig().getString("DespawnSkill");
-        boolean autoRide            = getConfig().getBoolean("AutoRide");
-        String mountType            = getConfig().getString("MountType");
+        String id = getConfig().getString("Id");
+        String mobType = getConfig().getString("MythicMob");
+        String permission = getConfig().getString("Permission");
+        int distance = getConfig().getInt("Distance");
+        int spawnRange = getConfig().getInt("SpawnRange");
+        int comingbackRange = getConfig().getInt("ComingBackRange");
+        String despawnSkillName = getConfig().getString("DespawnSkill");
+        boolean autoRide = getConfig().getBoolean("AutoRide");
+        String mountType = getConfig().getString("MountType");
 
-        String iconName             = getConfig().getString("Icon.Name");
-        String materialType         = getConfig().getString("Icon.Material");
-        int customModelData         = getConfig().getInt("Icon.CustomModelData");
-        String textureBase64        = getConfig().getString("Icon.TextureBase64");
-        List<String> description    = getConfig().getStringList("Icon.Description");
+        String iconName = getConfig().getString("Icon.Name");
+        String materialType = getConfig().getString("Icon.Material");
+        int customModelData = getConfig().getInt("Icon.CustomModelData");
+        String textureBase64 = getConfig().getString("Icon.TextureBase64");
+        List<String> description = getConfig().getStringList("Icon.Description");
 
-        List<String> signals                    = getConfig().getStringList("Signals.Values");
-        String signalStick_Name                 = getConfig().getString("Signals.Item.Name");
-        String signalStick_Mat                  = getConfig().getString("Signals.Item.Material");
-        int signalStick_Data                    = getConfig().getInt("Signals.Item.CustomModelData");
-        String signalStick_64                   = getConfig().getString("Signals.Item.TextureBase64");
-        List<String> signalStick_Description    = getConfig().getStringList("Signals.Item.Description");
+        List<String> signals = getConfig().getStringList("Signals.Values");
+        String signalStick_Name = getConfig().getString("Signals.Item.Name");
+        String signalStick_Mat = getConfig().getString("Signals.Item.Material");
+        int signalStick_Data = getConfig().getInt("Signals.Item.CustomModelData");
+        String signalStick_64 = getConfig().getString("Signals.Item.TextureBase64");
+        List<String> signalStick_Description = getConfig().getStringList("Signals.Item.Description");
 
-        if( id              == null ||
-                mobType         == null ||
-                permission      == null ||
-                iconName        == null)
-        {
+        if (id == null ||
+                mobType == null ||
+                permission == null ||
+                iconName == null) {
             // Warning case on which something essential would be missing
             MCPets.getLog().warning(MCPets.getLogName() + "This pet could not be registered. Please check the configuration file to make sure you didn't miss anything.");
             MCPets.getLog().warning(MCPets.getLogName() + "Information about the registered pet : ");
@@ -84,12 +115,12 @@ public class PetConfig extends AbstractConfig {
         Pet pet = new Pet(id);
         pet.setMythicMobName(mobType);
         pet.setPermission(permission);
-        if(getConfig().get("Mountable") == null) {
+        if (getConfig().get("Mountable") == null) {
             pet.setMountable(GlobalConfig.getInstance().isMountable());
         } else {
             pet.setMountable(getConfig().getBoolean("Mountable"));
         }
-        if(mountType == null)
+        if (mountType == null)
             mountType = "walking";
         pet.setAutoRide(autoRide);
         pet.setDistance(distance);
@@ -98,15 +129,13 @@ public class PetConfig extends AbstractConfig {
         pet.setMountType(mountType);
         pet.setSignals(signals);
 
-        if(despawnSkillName != null)
-        {
+        if (despawnSkillName != null) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     Optional<Skill> optionalSkill = MythicMobs.inst().getSkillManager().getSkill(despawnSkillName);
                     optionalSkill.ifPresent(pet::setDespawnSkill);
-                    if(pet.getDespawnSkill() == null)
-                    {
+                    if (pet.getDespawnSkill() == null) {
                         MCPets.getLog().warning(MCPets.getLogName() + "Impossible to link the despawn skill \"" + despawnSkillName + "\" to the pet \"" + pet.getId() + "\", because this skill doesn't exist.");
                     }
                 }
@@ -117,40 +146,5 @@ public class PetConfig extends AbstractConfig {
         pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Pet.SIGNAL_STICK_TAG, signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
 
         this.pet = pet;
-    }
-
-    /**
-     * Load all the existing pets
-     * @param folderPath : folder where to seek for the pets
-     * @param clearPets : whether or not the loaded pets should be cleared (only first call should do that)
-     */
-    public static void loadPets(String folderPath, boolean clearPets)
-    {
-        if(clearPets)
-        {
-            Pet.getObjectPets().clear();
-        }
-
-        File folder = new File(folderPath);
-        if(!folder.exists())
-            folder.mkdirs();
-
-        for(File file : folder.listFiles())
-        {
-            if(file.isDirectory())
-            {
-                loadPets(file.getPath().replace("\\", "/"), false);
-                continue;
-            }
-
-            PetConfig petConfig = new PetConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
-
-            if(petConfig.getPet() != null)
-                Pet.getObjectPets().add(petConfig.getPet());
-
-        }
-
-        if(clearPets)
-            MCPets.getLog().info(MCPets.getLogName() + Pet.getObjectPets().size() + " pets registered successfully !");
     }
 }

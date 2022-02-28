@@ -1,7 +1,9 @@
 package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.PPermission;
-import fr.nocsy.mcpets.data.*;
+import fr.nocsy.mcpets.data.Items;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
@@ -22,62 +24,71 @@ import java.util.UUID;
 
 public class PetInteractionMenuListener implements Listener {
 
+    @Getter
+    private static final ArrayList<UUID> waitingForAnswer = new ArrayList<>();
+
+    public static void changeName(Player p) {
+        if (!waitingForAnswer.contains(p.getUniqueId()))
+            waitingForAnswer.add(p.getUniqueId());
+        Language.TYPE_NAME_IN_CHAT.sendMessage(p);
+        Language.IF_WISH_TO_REMOVE_NAME.sendMessageFormated(p, new FormatArg("%tag%", Language.TAG_TO_REMOVE_NAME.getMessage()));
+    }
+
+    public static void mount(Player p, Pet pet) {
+        if (p.isInsideVehicle()) {
+            Language.ALREADY_INSIDE_VEHICULE.sendMessage(p);
+        } else if (!pet.setMount(p)) {
+            Language.NOT_MOUNTABLE.sendMessage(p);
+        }
+    }
+
+    public static void revoke(Player p, Pet pet) {
+        pet.despawn(PetDespawnReason.REVOKE);
+        Language.REVOKED.sendMessage(p);
+    }
+
     @EventHandler
-    public void click(InventoryClickEvent e)
-    {
-        if(e.getView().getTitle().equalsIgnoreCase(PetInteractionMenu.getTitle()))
-        {
+    public void click(InventoryClickEvent e) {
+        if (e.getView().getTitle().equalsIgnoreCase(PetInteractionMenu.getTitle())) {
             e.setCancelled(true);
 
             Player p = (Player) e.getWhoClicked();
 
-            if(e.getClickedInventory() == null && GlobalConfig.getInstance().isActivateBackMenuIcon())
-            {
+            if (e.getClickedInventory() == null && GlobalConfig.getInstance().isActivateBackMenuIcon()) {
                 openBackPetMenu(p);
                 return;
             }
 
             ItemStack it = e.getCurrentItem();
-            if(it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName())
-            {
+            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName()) {
 
-                if(it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().equals(Items.PETMENU.getItem().getItemMeta().getLocalizedName()))
-                {
+                if (it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().equals(Items.PETMENU.getItem().getItemMeta().getLocalizedName())) {
                     openBackPetMenu(p);
                     return;
                 }
-                if(it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("AlmPetPage;"))
+                if (it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("AlmPetPage;"))
                     return;
 
                 Pet pet = Pet.getFromLastInteractedWith(p);
 
-                if(pet == null)
-                {
+                if (pet == null) {
                     p.closeInventory();
                     return;
                 }
 
-                if(!pet.isStillHere())
-                {
+                if (!pet.isStillHere()) {
                     Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
                     p.closeInventory();
                     return;
                 }
 
-                if(e.getSlot() == 2)
-                {
+                if (e.getSlot() == 2) {
                     revoke(p, pet);
-                }
-                else if(it.isSimilar(Items.MOUNT.getItem()))
-                {
+                } else if (it.isSimilar(Items.MOUNT.getItem())) {
                     mount(p, pet);
-                }
-                else if(it.isSimilar(Items.RENAME.getItem()))
-                {
+                } else if (it.isSimilar(Items.RENAME.getItem())) {
                     changeName(p);
-                }
-                else if(it.isSimilar(pet.getSignalStick()))
-                {
+                } else if (it.isSimilar(pet.getSignalStick())) {
                     pet.giveStickSignals(p);
                 }
                 p.closeInventory();
@@ -87,16 +98,11 @@ public class PetInteractionMenuListener implements Listener {
 
     }
 
-    @Getter
-    private static ArrayList<UUID> waitingForAnswer = new ArrayList<>();
-
     @EventHandler
-    public void chat(AsyncPlayerChatEvent e)
-    {
+    public void chat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
 
-        if(waitingForAnswer.contains(p.getUniqueId()))
-        {
+        if (waitingForAnswer.contains(p.getUniqueId())) {
             waitingForAnswer.remove(p.getUniqueId());
             e.setCancelled(true);
 
@@ -105,63 +111,32 @@ public class PetInteractionMenuListener implements Listener {
             name = Utils.hex(name);
 
             String blackListedWord = Utils.isInBlackList(name);
-            if(blackListedWord != null)
-            {
+            if (blackListedWord != null) {
                 Language.BLACKLISTED_WORD.sendMessageFormated(p, new FormatArg("%word%", blackListedWord));
                 return;
             }
 
             Pet pet = Pet.getFromLastInteractedWith(p);
 
-            if(pet != null && pet.isStillHere())
-            {
-                if(!p.hasPermission(PPermission.COLOR.getPermission()))
+            if (pet != null && pet.isStillHere()) {
+                if (!p.hasPermission(PPermission.COLOR.getPermission()))
                     name = ChatColor.stripColor(name);
-                
+
                 pet.setDisplayName(name, true);
 
                 Language.NICKNAME_CHANGED_SUCCESSFULY.sendMessage(p);
-            }
-            else
-            {
+            } else {
                 Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
             }
 
         }
     }
 
-    private void openBackPetMenu(Player p)
-    {
+    private void openBackPetMenu(Player p) {
         UUID uuid = p.getUniqueId();
 
         PetMenu menu = new PetMenu(p, 0, false);
         menu.open(p);
-    }
-
-    public static void changeName(Player p)
-    {
-        if(!waitingForAnswer.contains(p.getUniqueId()))
-            waitingForAnswer.add(p.getUniqueId());
-        Language.TYPE_NAME_IN_CHAT.sendMessage(p);
-        Language.IF_WISH_TO_REMOVE_NAME.sendMessageFormated(p, new FormatArg("%tag%", Language.TAG_TO_REMOVE_NAME.getMessage()));
-    }
-
-    public static void mount(Player p, Pet pet)
-    {
-        if(p.isInsideVehicle())
-        {
-            Language.ALREADY_INSIDE_VEHICULE.sendMessage(p);
-        }
-        else if(!pet.setMount(p))
-        {
-            Language.NOT_MOUNTABLE.sendMessage(p);
-        }
-    }
-
-    public static void revoke(Player p, Pet pet)
-    {
-        pet.despawn(PetDespawnReason.REVOKE);
-        Language.REVOKED.sendMessage(p);
     }
 
 }

@@ -14,4 +14,4 @@ commands:
     description: Command to manage your pets
     Usage: /mcpets
     permission: mcpets.use
-    aliases: [pets]
+    aliases: [ pets ]

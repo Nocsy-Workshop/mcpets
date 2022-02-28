@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class EventListener implements Listener {
 
-    private static ArrayList<Listener> listeners = new ArrayList<>();
+    private static final ArrayList<Listener> listeners = new ArrayList<>();
 
     public static void init(JavaPlugin plugin) {
 

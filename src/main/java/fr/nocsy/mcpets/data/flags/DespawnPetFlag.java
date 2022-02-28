@@ -1,37 +1,33 @@
 package fr.nocsy.mcpets.data.flags;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.Pet;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class DespawnPetFlag extends AbstractFlag implements StoppableFlag{
+public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
+
+    int task;
 
     public DespawnPetFlag(MCPets instance) {
         super("despawnPet", false, instance);
     }
 
     @Override
-    public void register()
-    {
+    public void register() {
         super.register();
         launch();
     }
 
-    int task;
-    private void launch()
-    {
-        if(getFlag() == null)
-        {
+    private void launch() {
+        if (getFlag() == null) {
             MCPets.getLog().warning(MCPets.getLogName() + "Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
             return;
-        }
-        else
-        {
+        } else {
             MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
         }
 
@@ -39,17 +35,14 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag{
             @Override
             public void run() {
 
-                for(UUID owner : Pet.getActivePets().keySet())
-                {
+                for (UUID owner : Pet.getActivePets().keySet()) {
                     Pet pet = Pet.getActivePets().get(owner);
                     Player p = Bukkit.getPlayer(owner);
 
-                    if(p != null)
-                    {
+                    if (p != null) {
                         boolean hasToBeRemoved = testState(p);
 
-                        if(hasToBeRemoved)
-                        {
+                        if (hasToBeRemoved) {
                             pet.despawn(PetDespawnReason.FLAG);
                             Language.CANT_FOLLOW_HERE.sendMessage(p);
                         }

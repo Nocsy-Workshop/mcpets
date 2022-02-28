@@ -9,17 +9,26 @@ import org.bukkit.event.HandlerList;
 
 public class PetChangeNameEvent extends Event implements Cancellable {
 
-    private boolean isCancelled = false;
     private static final HandlerList HANDLERS = new HandlerList();
-
+    private boolean isCancelled = false;
     @Getter
-    private Pet pet;
+    private final Pet pet;
     @Getter
     @Setter
     private String name;
     @Getter
     @Setter
     private boolean saveChanges;
+
+    public PetChangeNameEvent(Pet pet, String name, boolean saveChanges) {
+        this.pet = pet;
+        this.name = name;
+        this.saveChanges = saveChanges;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 
     @Override
     public boolean isCancelled() {
@@ -34,16 +43,5 @@ public class PetChangeNameEvent extends Event implements Cancellable {
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
-    public PetChangeNameEvent(Pet pet, String name, boolean saveChanges)
-    {
-        this.pet = pet;
-        this.name = name;
-        this.saveChanges = saveChanges;
     }
 }

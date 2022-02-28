@@ -1,9 +1,9 @@
 package fr.nocsy.mcpets.listeners;
 
-import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PlayerSignal;
+import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.entity.Player;
@@ -20,28 +20,25 @@ import java.util.UUID;
 public class SignalStickListener implements Listener {
 
     @EventHandler
-    public void switchSignal(PlayerInteractEvent e)
-    {
-        if(e.getAction() == Action.LEFT_CLICK_AIR ||
-            e.getAction() == Action.LEFT_CLICK_BLOCK)
-        {
+    public void switchSignal(PlayerInteractEvent e) {
+        if (e.getAction() == Action.LEFT_CLICK_AIR ||
+                e.getAction() == Action.LEFT_CLICK_BLOCK) {
             Player p = e.getPlayer();
             ItemStack stick = p.getInventory().getItemInMainHand();
 
-            if(!Items.isSignalStick(stick))
-            {
+            if (!Items.isSignalStick(stick)) {
                 stick = p.getInventory().getItemInOffHand();
-                if(!Items.isSignalStick(stick))
+                if (!Items.isSignalStick(stick))
                     return;
             }
 
             UUID owner = p.getUniqueId();
-            if(Pet.fromOwner(owner) == null)
+            if (Pet.fromOwner(owner) == null)
                 return;
 
             String nextSignal = PlayerSignal.getNextSignal(owner);
 
-            if(nextSignal == null)
+            if (nextSignal == null)
                 return;
 
             PlayerSignal.setSignal(owner, nextSignal);
@@ -50,41 +47,35 @@ public class SignalStickListener implements Listener {
     }
 
     @EventHandler
-    public void castSkill(PlayerInteractEvent e)
-    {
-        if(e.getAction() == Action.RIGHT_CLICK_AIR ||
-            e.getAction() == Action.RIGHT_CLICK_BLOCK)
-        {
-            if(checkSkillCast(e.getPlayer()))
+    public void castSkill(PlayerInteractEvent e) {
+        if (e.getAction() == Action.RIGHT_CLICK_AIR ||
+                e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (checkSkillCast(e.getPlayer()))
                 e.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void castSkill(PlayerInteractAtEntityEvent e)
-    {
-        if(checkSkillCast(e.getPlayer()))
+    public void castSkill(PlayerInteractAtEntityEvent e) {
+        if (checkSkillCast(e.getPlayer()))
             e.setCancelled(true);
     }
 
-    private boolean checkSkillCast(Player p)
-    {
+    private boolean checkSkillCast(Player p) {
         ItemStack stick = p.getInventory().getItemInMainHand();
 
-        if(!Items.isSignalStick(stick))
-        {
+        if (!Items.isSignalStick(stick)) {
             stick = p.getInventory().getItemInOffHand();
-            if(!Items.isSignalStick(stick))
+            if (!Items.isSignalStick(stick))
                 return false;
         }
 
         Pet pet = Pet.fromOwner(p.getUniqueId());
-        if(pet == null)
+        if (pet == null)
             return false;
         String signal = PlayerSignal.getSignalTag(p.getUniqueId());
 
-        if(pet.isStillHere())
-        {
+        if (pet.isStillHere()) {
             pet.castSkill(signal);
             return true;
         }
@@ -92,12 +83,10 @@ public class SignalStickListener implements Listener {
     }
 
     @EventHandler
-    public void dropStick(PlayerDropItemEvent e)
-    {
+    public void dropStick(PlayerDropItemEvent e) {
         ItemStack it = e.getItemDrop().getItemStack();
 
-        if(Items.isSignalStick(it))
-        {
+        if (Items.isSignalStick(it)) {
             e.getItemDrop().remove();
         }
     }
