@@ -11,12 +11,12 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.Utils;
-import fr.nocsy.mcpets.utils.VolatileAIHandler;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.adapters.AbstractLocation;
 import io.lumine.xikage.mythicmobs.api.exceptions.InvalidMobTypeException;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 import io.lumine.xikage.mythicmobs.skills.*;
+import io.lumine.xikage.mythicmobs.volatilecode.handlers.VolatileAIHandler;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -344,30 +344,29 @@ public class Pet {
                     if(p.isDead())
                         return;
 
-                    Location ownerLoc = p.getLocation();
+                    final Location petLocation = p.getLocation();
+                    Location ownerLoc = petLocation;
                     Location petLoc = getInstance().getActiveMob().getEntity().getBukkitEntity().getLocation();
 
                     if(!ownerLoc.getWorld().getName().equals(petLoc.getWorld().getName()))
                     {
                         getInstance().despawn(PetDespawnReason.TELEPORT);
-                        getInstance().spawn(p, p.getLocation());
+                        getInstance().spawn(p, petLocation);
                         return;
                     }
 
                     double distance = Utils.distance(ownerLoc, petLoc);
 
+                    final VolatileAIHandler aiHandler = MythicMobs.inst().getVolatileCodeHandler().getAIHandler();
                     if(distance < getInstance().getComingBackRange())
                     {
-                        MythicMobs.inst().getVolatileCodeHandler().getAIHandler().navigateToLocation(getInstance().getActiveMob().getEntity(), getInstance().getActiveMob().getEntity().getLocation(), Double.POSITIVE_INFINITY);
+                        aiHandler.navigateToLocation(getInstance().getActiveMob().getEntity(), getInstance().getActiveMob().getEntity().getLocation(), Double.POSITIVE_INFINITY);
                     }
                     else if(distance > getInstance().getDistance() &&
                         distance < GlobalConfig.getInstance().getDistanceTeleport())
                     {
-                        AbstractLocation aloc = new AbstractLocation(getInstance().getActiveMob().getEntity().getWorld(),
-                                                                    p.getLocation().getX(),
-                                                                    p.getLocation().getY(),
-                                                                    p.getLocation().getZ());
-                        VolatileAIHandler.navigateToLocation(getInstance().getActiveMob().getEntity(), aloc);
+                        AbstractLocation aloc = new AbstractLocation(activeMob.getEntity().getWorld(), petLocation.getX(), petLocation.getY(), petLocation.getZ());
+                        aiHandler.navigateToLocation(activeMob.getEntity(), aloc, Double.POSITIVE_INFINITY);
                     }
                     else if(distance > GlobalConfig.getInstance().getDistanceTeleport()
                             && !p.isFlying()
