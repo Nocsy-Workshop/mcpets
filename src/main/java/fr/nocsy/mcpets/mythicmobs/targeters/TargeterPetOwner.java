@@ -1,11 +1,12 @@
 package fr.nocsy.mcpets.mythicmobs.targeters;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
-import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
-import io.lumine.xikage.mythicmobs.adapters.bukkit.BukkitAdapter;
-import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
-import io.lumine.xikage.mythicmobs.skills.SkillMetadata;
-import io.lumine.xikage.mythicmobs.skills.targeters.IEntitySelector;
+import io.lumine.mythic.api.adapters.AbstractEntity;
+import io.lumine.mythic.api.config.MythicLineConfig;
+import io.lumine.mythic.api.skills.SkillMetadata;
+import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.core.skills.targeters.IEntitySelector;
 import org.bukkit.Bukkit;
 
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.HashSet;
 public class TargeterPetOwner extends IEntitySelector {
 
     public TargeterPetOwner(MythicLineConfig paramMythicLineConfig) {
-        super(paramMythicLineConfig);
+        super(MCPets.getMythicMobs().getSkillManager(),paramMythicLineConfig);
     }
 
     public Collection<AbstractEntity> getEntities(SkillMetadata paramSkillMetadata) {

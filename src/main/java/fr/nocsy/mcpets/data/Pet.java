@@ -14,20 +14,16 @@ import fr.nocsy.mcpets.events.PetCastSkillEvent;
 import fr.nocsy.mcpets.events.PetDespawnEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import fr.nocsy.mcpets.utils.Utils;
-import io.lumine.xikage.mythicmobs.MythicMobs;
-import io.lumine.xikage.mythicmobs.adapters.AbstractLocation;
-import io.lumine.xikage.mythicmobs.api.exceptions.InvalidMobTypeException;
-import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
-import io.lumine.xikage.mythicmobs.skills.Skill;
-import io.lumine.xikage.mythicmobs.skills.SkillMetadata;
-import io.lumine.xikage.mythicmobs.skills.SkillTrigger;
-import io.lumine.xikage.mythicmobs.volatilecode.handlers.VolatileAIHandler;
+import io.lumine.mythic.api.adapters.AbstractLocation;
+import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
+import io.lumine.mythic.api.skills.Skill;
+import io.lumine.mythic.api.volatilecode.handlers.VolatileAIHandler;
+import io.lumine.mythic.core.mobs.ActiveMob;
+import io.lumine.mythic.core.skills.SkillMetadataImpl;
+import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -304,8 +300,12 @@ public class Pet {
      * @return
      */
     public int spawn(Location loc) {
+
         PetSpawnEvent event = new PetSpawnEvent(this);
         Utils.callEvent(event);
+
+        if(loc == null)
+            return BLOCKED;
 
         if (event.isCancelled()) {
             despawn(PetDespawnReason.SPAWN_ISSUE);
@@ -345,16 +345,25 @@ public class Pet {
         try {
 
             Entity ent = null;
-            if (autoRide) {
-                ent = MythicMobs.inst().getAPIHelper().spawnMythicMob(mythicMobName, loc);
-            } else {
-                ent = MythicMobs.inst().getAPIHelper().spawnMythicMob(mythicMobName, Utils.bruised(loc, getSpawnRange()));
+            try
+            {
+                if (autoRide) {
+                    ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, loc);
+                } else {
+                    ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, Utils.bruised(loc, getSpawnRange()));
+                }
             }
+            catch (NullPointerException ex)
+            {
+                despawn(PetDespawnReason.SPAWN_ISSUE);
+                return MYTHIC_MOB_NULL;
+            }
+
             if (ent == null) {
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
             }
-            Optional<ActiveMob> maybeHere = MythicMobs.inst().getMobManager().getActiveMob(ent.getUniqueId());
+            Optional<ActiveMob> maybeHere = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
             maybeHere.ifPresent(mob -> activeMob = mob);
             if (activeMob == null) {
                 despawn(PetDespawnReason.SPAWN_ISSUE);
@@ -366,7 +375,7 @@ public class Pet {
                 ent.setInvulnerable(false);
             }
             activeMob.setOwner(owner);
-            this.ia();
+            this.AI();
 
             boolean returnDespawned = false;
 
@@ -382,6 +391,7 @@ public class Pet {
 
             PlayerData pd = PlayerData.get(owner);
             String name = pd.getMapOfRegisteredNames().get(this.id);
+            setRemoved(false);
             if (name != null) {
                 setDisplayName(name, false);
             } else {
@@ -404,8 +414,6 @@ public class Pet {
             }
 
             PlayerSignal.setDefaultSignal(owner, this);
-
-            setRemoved(false);
 
             if (returnDespawned)
                 return DESPAWNED_PREVIOUS;
@@ -450,9 +458,9 @@ public class Pet {
     }
 
     /**
-     * Activate the following IA of the mob
+     * Activate the following AI of the mob
      */
-    public void ia() {
+    public void AI() {
 
         task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), new Runnable() {
 
@@ -485,7 +493,7 @@ public class Pet {
 
                     double distance = Utils.distance(ownerLoc, petLoc);
 
-                    final VolatileAIHandler aiHandler = MythicMobs.inst().getVolatileCodeHandler().getAIHandler();
+                    final VolatileAIHandler aiHandler = MCPets.getMythicMobs().getVolatileCodeHandler().getAIHandler();
                     if (distance < getInstance().getComingBackRange()) {
                         aiHandler.navigateToLocation(getInstance().getActiveMob().getEntity(), getInstance().getActiveMob().getEntity().getLocation(), Double.POSITIVE_INFINITY);
                     } else if (distance > getInstance().getDistance() &&
@@ -545,7 +553,7 @@ public class Pet {
 
             if (despawnSkill != null) {
                 try {
-                    despawnSkill.execute(new SkillMetadata(SkillTrigger.CUSTOM, activeMob, activeMob.getEntity()));
+                    despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
                 } catch (NullPointerException ex) {
                     if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
                         activeMob.getEntity().getBukkitEntity().remove();
@@ -619,7 +627,6 @@ public class Pet {
             }
 
             currentName = name;
-
             if (isStillHere()) {
 
                 if (name == null || name.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
@@ -631,7 +638,7 @@ public class Pet {
                         public void run() {
                             setNameTag(name, false);
                         }
-                    }.runTaskLater(MCPets.getInstance(), 20L);
+                    }.runTaskLater(MCPets.getInstance(), 10L);
 
                     if (save) {
                         PlayerData pd = PlayerData.get(owner);
@@ -650,7 +657,7 @@ public class Pet {
                     public void run() {
                         setNameTag(name, true);
                     }
-                }.runTaskLater(MCPets.getInstance(), 20L);
+                }.runTaskLater(MCPets.getInstance(), 10L);
 
                 if (save) {
                     PlayerData pd = PlayerData.get(owner);
@@ -763,8 +770,7 @@ public class Pet {
                     return;
                 }
                 IMountHandler localIMountHandler = localModeledEntity.getMountHandler();
-                localIMountHandler.removePassenger(ent);
-                localIMountHandler.setDriver(null);
+                localIMountHandler.dismountAll();
             }
 
         } catch (NoClassDefFoundError ignored) {

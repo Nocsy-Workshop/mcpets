@@ -13,7 +13,7 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
     private int task;
 
     public DismountPetFlag(MCPets instance) {
-        super("dismountPet", false, instance);
+        super("mcpets-dismount", false, instance);
     }
 
     @Override

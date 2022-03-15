@@ -73,7 +73,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.18-R0.1-SNAPSHOT</version>
+            <version>1.18.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -88,19 +88,19 @@
         <dependency>
             <groupId>io.lumine</groupId>
             <artifactId>Mythic-Dist</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <version>5.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
-            <version>7.0.6-SNAPSHOT</version>
+            <version>7.0.7-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.ticxo.modelengine</groupId>
             <artifactId>api</artifactId>
-            <version>R2.3.1</version>
+            <version>R2.5.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

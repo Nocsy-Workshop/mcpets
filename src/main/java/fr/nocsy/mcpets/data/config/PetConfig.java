@@ -2,12 +2,12 @@ package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
-import io.lumine.xikage.mythicmobs.MythicMobs;
-import io.lumine.xikage.mythicmobs.skills.Skill;
+import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +54,14 @@ public class PetConfig extends AbstractConfig {
                 Pet.getObjectPets().add(petConfig.getPet());
 
         }
+
+
+        Pet.getObjectPets().sort(new Comparator<Pet>() {
+            @Override
+            public int compare(Pet o1, Pet o2) {
+                return o1.getId().compareTo(o2.getId());
+            }
+        });
 
         if (clearPets)
             MCPets.getLog().info(MCPets.getLogName() + Pet.getObjectPets().size() + " pets registered successfully !");
@@ -133,7 +141,7 @@ public class PetConfig extends AbstractConfig {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Optional<Skill> optionalSkill = MythicMobs.inst().getSkillManager().getSkill(despawnSkillName);
+                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(despawnSkillName);
                     optionalSkill.ifPresent(pet::setDespawnSkill);
                     if (pet.getDespawnSkill() == null) {
                         MCPets.getLog().warning(MCPets.getLogName() + "Impossible to link the despawn skill \"" + despawnSkillName + "\" to the pet \"" + pet.getId() + "\", because this skill doesn't exist.");

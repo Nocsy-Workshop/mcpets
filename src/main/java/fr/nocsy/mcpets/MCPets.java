@@ -12,6 +12,7 @@ import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.listeners.EventListener;
+import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.IllegalPluginAccessException;
@@ -23,6 +24,8 @@ public class MCPets extends JavaPlugin {
 
     @Getter
     private static MCPets instance;
+    @Getter
+    private static MythicBukkit mythicMobs;
     @Getter
     private static final Logger log = Bukkit.getLogger();
 
@@ -45,6 +48,11 @@ public class MCPets extends JavaPlugin {
     public void onEnable() {
 
         instance = this;
+        if(!checkMythicMobs())
+        {
+            getLog().severe("MCPets could not be loaded : MythicMobs could not be found or this version is not compatible with the plugin.");
+            return;
+        }
         checkWorldGuard();
         CommandHandler.init(this);
         EventListener.init(this);
@@ -84,6 +92,17 @@ public class MCPets extends JavaPlugin {
             GlobalConfig.getInstance().setWorldguardsupport(false);
             getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
         }
+    }
+    public boolean checkMythicMobs() {
+        try {
+            MythicBukkit inst = MythicBukkit.inst();
+            if (inst != null)
+                mythicMobs = inst;
+                return true;
+        } catch (NoClassDefFoundError error) {
+            getLogger().warning("[MCPets] : MythicMobs could not be found.");
+        }
+        return false;
     }
 
 }

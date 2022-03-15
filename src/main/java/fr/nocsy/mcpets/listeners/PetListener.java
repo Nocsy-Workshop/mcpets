@@ -6,8 +6,8 @@ import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
-import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
-import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDespawnEvent;
+import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
+import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -105,7 +106,12 @@ public class PetListener implements Listener {
         if (Pet.getActivePets().containsKey(p.getUniqueId())) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
             pet.despawn(PetDespawnReason.TELEPORT);
-            pet.spawn(p, p.getLocation());
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    pet.spawn(p, p.getLocation());
+                }
+            }.runTaskLater(MCPets.getInstance(), 5L);
         }
 
     }
