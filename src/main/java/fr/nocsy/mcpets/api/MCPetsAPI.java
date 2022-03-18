@@ -69,4 +69,17 @@ public class MCPetsAPI {
         return Pet.getAvailablePets(p);
     }
 
+    /**
+     * Set the active pet of the player
+     * Returns a value giving what happened after calling the method
+     * @param pet
+     * @param p
+     * @param checkPermission
+     * @return
+     */
+    public static int setActivePet(Pet pet, Player p, boolean checkPermission)
+    {
+        pet.setCheckPermission(checkPermission);
+        return pet.spawn(p.getLocation());
+    }
 }

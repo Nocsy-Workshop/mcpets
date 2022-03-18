@@ -287,6 +287,9 @@ public class Pet {
         return pets;
     }
 
+    /**
+     * Clear the list of pets
+     */
     public static void clearPets() {
         for (Pet pet : Pet.getActivePets().values()) {
             pet.despawn(PetDespawnReason.RELOAD);
@@ -554,7 +557,7 @@ public class Pet {
             if (despawnSkill != null) {
                 try {
                     despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
-                } catch (NullPointerException ex) {
+                } catch (Exception ex) {
                     if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
                         activeMob.getEntity().getBukkitEntity().remove();
                 }
@@ -584,6 +587,7 @@ public class Pet {
      */
     public void teleport(Location loc) {
         if (isStillHere()) {
+            this.activeMob.remove();
             this.despawn(PetDespawnReason.TELEPORT);
             this.spawn(loc);
         }

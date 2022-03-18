@@ -20,10 +20,10 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
     @Override
     public void register() {
         super.register();
-        launch();
     }
 
-    private void launch() {
+    @Override
+    public void launch() {
         if (getFlag() == null) {
             MCPets.getLog().warning(MCPets.getLogName() + "Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
             return;
@@ -34,6 +34,9 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
         task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), new Runnable() {
             @Override
             public void run() {
+
+                if(MCPets.getMythicMobs() == null)
+                    return;
 
                 for (UUID owner : Pet.getActivePets().keySet()) {
                     Pet pet = Pet.getActivePets().get(owner);

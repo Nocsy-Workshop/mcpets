@@ -1,18 +1,15 @@
 package fr.nocsy.mcpets.data.flags;
 
-import com.sk89q.worldguard.protection.flags.StateFlag;
 import fr.nocsy.mcpets.MCPets;
 
 import java.util.ArrayList;
 
 public class FlagsManager {
 
-    public static StateFlag ALMPET;
-
-    private static final ArrayList<AbstractFlag> flags = new ArrayList<>();
+    private static ArrayList<AbstractFlag> flags = new ArrayList<>();
 
     public static void init(MCPets instance) {
-        ArrayList<AbstractFlag> flags = new ArrayList<>();
+        flags = new ArrayList<>();
 
         if (instance == null) {
             MCPets.getLog().warning("The main instance is null. The flags could not be registered...");
@@ -28,6 +25,24 @@ public class FlagsManager {
 
     }
 
+    /**
+     * Start the schedulers
+     */
+    public static void launchFlags() {
+        MCPets.getLog().info("-=- Launching Flags -=-");
+        int count = 0;
+        for (AbstractFlag flag : flags) {
+            if (flag instanceof StoppableFlag) {
+                ((StoppableFlag) flag).launch();
+                count++;
+            }
+        }
+        MCPets.getLog().info(count + " flags launched.");
+    }
+
+    /**
+     * Stop the schedulers
+     */
     public static void stopFlags() {
         for (AbstractFlag flag : flags) {
             if (flag instanceof StoppableFlag) {

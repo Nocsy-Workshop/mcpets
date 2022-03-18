@@ -8,6 +8,7 @@ import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.flags.registry.SimpleFlagRegistry;
+import com.sk89q.worldguard.protection.flags.registry.UnknownFlag;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import fr.nocsy.mcpets.MCPets;
@@ -36,7 +37,6 @@ public abstract class AbstractFlag {
      */
     public void register() {
         FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-        ((SimpleFlagRegistry) WorldGuard.getInstance().getFlagRegistry()).setInitialized(false);
 
         try {
 
@@ -61,9 +61,12 @@ public abstract class AbstractFlag {
                 // types don't match - this is bad news! some other plugin conflicts with you
                 // hopefully this never actually happens
                 MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " Flag couldn't be attached... Server restart will be necessary to fix the issue.");
+                MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " has raised the following exception : " + e.getClass().getSimpleName());
+                e.printStackTrace();
             }
 
         }
+
     }
 
     /**
