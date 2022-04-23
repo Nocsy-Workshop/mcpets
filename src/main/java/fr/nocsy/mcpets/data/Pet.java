@@ -13,6 +13,7 @@ import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetCastSkillEvent;
 import fr.nocsy.mcpets.events.PetDespawnEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.utils.PathFindingUtils;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.adapters.AbstractLocation;
 import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
@@ -496,13 +497,12 @@ public class Pet {
 
                     double distance = Utils.distance(ownerLoc, petLoc);
 
-                    final VolatileAIHandler aiHandler = MCPets.getMythicMobs().getVolatileCodeHandler().getAIHandler();
                     if (distance < getInstance().getComingBackRange()) {
-                        aiHandler.navigateToLocation(getInstance().getActiveMob().getEntity(), getInstance().getActiveMob().getEntity().getLocation(), Double.POSITIVE_INFINITY);
+                        PathFindingUtils.stop(activeMob.getEntity());
                     } else if (distance > getInstance().getDistance() &&
                             distance < GlobalConfig.getInstance().getDistanceTeleport()) {
                         AbstractLocation aloc = new AbstractLocation(activeMob.getEntity().getWorld(), petLocation.getX(), petLocation.getY(), petLocation.getZ());
-                        aiHandler.navigateToLocation(activeMob.getEntity(), aloc, Double.POSITIVE_INFINITY);
+                        PathFindingUtils.moveTo(activeMob.getEntity(), aloc);
                     } else if (distance > GlobalConfig.getInstance().getDistanceTeleport()
                             && !p.isFlying()
                             && p.isOnGround()

@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.listeners;
 
+import com.sk89q.worldguard.bukkit.event.entity.SpawnEntityEvent;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
@@ -8,6 +9,7 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
+import io.lumine.mythic.bukkit.events.MythicMobSpawnEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -81,6 +83,7 @@ public class PetListener implements Listener {
         Player p = e.getPlayer();
         if (Pet.getActivePets().containsKey(p.getUniqueId())) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
+            pet.despawn(PetDespawnReason.DISCONNECTION);
             reconnectionPets.put(p.getUniqueId(), pet);
         }
     }

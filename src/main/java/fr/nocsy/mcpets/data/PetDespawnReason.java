@@ -15,6 +15,7 @@ public enum PetDespawnReason {
     MYTHICMOBS("mythicmobs"),
     SPAWN_ISSUE("spawn issue"),
     LOOP_SPAWN("loop spawn"),
+    DISCONNECTION("owner disconnected"),
     UNKNOWN("unkown");
 
 
