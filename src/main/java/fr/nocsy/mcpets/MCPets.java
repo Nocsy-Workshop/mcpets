@@ -3,11 +3,7 @@ package fr.nocsy.mcpets;
 import com.sk89q.worldguard.WorldGuard;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.config.AbstractConfig;
-import fr.nocsy.mcpets.data.config.BlacklistConfig;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.LanguageConfig;
-import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.config.*;
 import fr.nocsy.mcpets.data.flags.AbstractFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
@@ -37,6 +33,7 @@ public class MCPets extends JavaPlugin {
     private static final String logName = "[MCPets] : ";
 
     public static void loadConfigs() {
+        ItemsListConfig.getInstance().init();
         GlobalConfig.getInstance().init();
         LanguageConfig.getInstance().init();
         BlacklistConfig.getInstance().init();

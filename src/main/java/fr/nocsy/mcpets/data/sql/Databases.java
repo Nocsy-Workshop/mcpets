@@ -18,6 +18,11 @@ public class Databases {
     public static MySQLDB mySQL;
 
     public static boolean init() {
+        if(GlobalConfig.getInstance().isDisableMySQL())
+        {
+            MCPets.getInstance().getLogger().info("MySQL is disabled. Flat support will be used.");
+            return false;
+        }
         Databases.setMySQL(new MySQLDB(GlobalConfig.getInstance().getMySQL_USER(),
                 GlobalConfig.getInstance().getMySQL_PASSWORD(),
                 GlobalConfig.getInstance().getMySQL_HOST(),

@@ -3,6 +3,8 @@ package fr.nocsy.mcpets.data.config;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
+
 public class GlobalConfig extends AbstractConfig {
 
     public static GlobalConfig instance;
@@ -38,6 +40,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean activateBackMenuIcon = true;
     @Getter
+    private boolean disableMySQL = false;
+    @Getter
     private String MySQL_USER;
     @Getter
     private String MySQL_PASSWORD;
@@ -53,7 +57,6 @@ public class GlobalConfig extends AbstractConfig {
     private boolean databaseSupport = false;
 
     public static GlobalConfig getInstance() {
-
         if (instance == null)
             instance = new GlobalConfig();
 
@@ -89,6 +92,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("InventorySize", -1);
         if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
+        if (getConfig().get("DisableMySQL") == null)
+            getConfig().set("DisableMySQL", disableMySQL);
         if (getConfig().get("MySQL.User") == null)
             getConfig().set("MySQL.User", "user");
         if (getConfig().get("MySQL.Password") == null)
@@ -137,6 +142,7 @@ public class GlobalConfig extends AbstractConfig {
         while (adaptiveInventory > 0 && adaptiveInventory % 9 != 0 && adaptiveInventory < 54)
             adaptiveInventory++;
 
+        disableMySQL = getConfig().getBoolean("DisableMySQL");
         MySQL_USER = getConfig().getString("MySQL.User");
         MySQL_PASSWORD = getConfig().getString("MySQL.Password");
         MySQL_HOST = getConfig().getString("MySQL.Host");

@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
@@ -21,6 +22,11 @@ public enum Items {
     private ItemStack item;
 
     Items(String name) {
+        if(ItemsListConfig.getInstance().getItemStack(name) != null)
+        {
+            item = ItemsListConfig.getInstance().getItemStack(name);
+            return;
+        }
         switch (name) {
             case "mount":
                 item = mount();
@@ -29,12 +35,18 @@ public enum Items {
                 item = rename();
                 break;
             case "petmenu":
-                item = backToPets();
+                item = petmenu();
                 break;
         }
     }
 
+    public void setItem(ItemStack item)
+    {
+        this.item = item;
+    }
+
     private static ItemStack mount() {
+
         ItemStack it = new ItemStack(Material.SADDLE);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.MOUNT_ITEM_NAME.getMessage());
@@ -58,7 +70,7 @@ public enum Items {
         return it;
     }
 
-    private static ItemStack backToPets() {
+    private static ItemStack petmenu() {
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage().split("\n")));
 
         ItemStack it = Utils.createHead(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage(), lore, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI5M2E2MDcwNTAzMTcyMDcxZjM1ZjU4YzgyMjA0ZTgxOGNkMDY1MTg2OTAxY2ExOWY3ZGFkYmRhYzE2NWU0NCJ9fX0=");
@@ -124,7 +136,10 @@ public enum Items {
     }
 
     public static boolean isSignalStick(ItemStack it) {
-        return it != null && it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().equals(Pet.SIGNAL_STICK_TAG);
+        return it != null &&
+                it.hasItemMeta() &&
+                it.getItemMeta().hasLocalizedName() &&
+                it.getItemMeta().getLocalizedName().equals(Pet.SIGNAL_STICK_TAG);
     }
 
 }
