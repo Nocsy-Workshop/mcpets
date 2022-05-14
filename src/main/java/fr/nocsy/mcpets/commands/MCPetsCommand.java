@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.commands;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
@@ -13,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 
@@ -199,6 +201,30 @@ public class MCPetsCommand implements CCommand {
                         return;
                     }
 
+                }
+                if(args[0].equalsIgnoreCase("signalstick")
+                        && sender.hasPermission(getAdminPermission())
+                        && sender instanceof Player)
+                {
+                    String petId = args[1];
+                    Pet pet = Pet.getFromId(petId);
+                    if(pet == null)
+                    {
+                        Language.PET_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    Player p = ((Player)sender);
+                    ItemStack it = p.getInventory().getItemInMainHand();
+                    if(it == null ||
+                            it.getType().isAir())
+                    {
+                        Language.REQUIRES_ITEM_IN_HAND.sendMessage(p);
+                        return;
+                    }
+
+                    ((Player)sender).getInventory().setItemInMainHand(Items.turnIntoSignalStick(it, pet));
+                    return;
                 }
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("reload")

@@ -3,7 +3,9 @@ package fr.nocsy.mcpets.data.config;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class GlobalConfig extends AbstractConfig {
 
@@ -28,6 +30,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean leftClickToOpen;
     @Getter
+    private boolean disableInventoryWhileHoldingSignalStick;
+    @Getter
     private boolean sneakMode;
     @Getter
     private boolean dismountOnDamaged;
@@ -51,6 +55,8 @@ public class GlobalConfig extends AbstractConfig {
     private String MySQL_PORT;
     @Getter
     private String MySQL_DB;
+    @Getter
+    private List<String> blackListedWorlds;
 
     @Getter
     @Setter
@@ -74,6 +80,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("RightClickToOpenMenu", true);
         if (getConfig().get("LeftClickToOpenMenu") == null)
             getConfig().set("LeftClickToOpenMenu", true);
+        if (getConfig().get("DisableInventoryWhileHoldingSignalStick") == null)
+            getConfig().set("DisableInventoryWhileHoldingSignalStick", true);
         if (getConfig().get("DismountOnDamaged") == null)
             getConfig().set("DismountOnDamaged", true);
         if (getConfig().get("SpawnPetOnReconnect") == null)
@@ -104,6 +112,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("MySQL.Port", "2560");
         if (getConfig().get("MySQL.Database") == null)
             getConfig().set("MySQL.Database", "advancedpet_db");
+        if(getConfig().get("BlackListedWorlds") == null)
+            getConfig().set("BlackListedWorlds", new ArrayList<String>());
 
         save();
         reload();
@@ -123,6 +133,7 @@ public class GlobalConfig extends AbstractConfig {
         defaultName = getConfig().getString("DefaultName");
         rightClickToOpen = getConfig().getBoolean("RightClickToOpenMenu");
         leftClickToOpen = getConfig().getBoolean("LeftClickToOpenMenu");
+        disableInventoryWhileHoldingSignalStick = getConfig().getBoolean("DisableInventoryWhileHoldingSignalStick");
         sneakMode = getConfig().getBoolean("SneakMode");
         nameable = getConfig().getBoolean("Nameable");
         mountable = getConfig().getBoolean("Mountable");
@@ -148,7 +159,12 @@ public class GlobalConfig extends AbstractConfig {
         MySQL_HOST = getConfig().getString("MySQL.Host");
         MySQL_PORT = getConfig().getString("MySQL.Port");
         MySQL_DB = getConfig().getString("MySQL.Database");
+        blackListedWorlds = getConfig().getStringList("BlackListedWorlds");
+    }
 
+    public boolean hasBlackListedWorld(String worldName)
+    {
+        return blackListedWorlds.contains(worldName);
     }
 
 }

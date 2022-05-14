@@ -2,11 +2,13 @@ package fr.nocsy.mcpets.listeners;
 
 import com.sk89q.worldguard.bukkit.event.entity.SpawnEntityEvent;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
+import fr.nocsy.mcpets.events.PetSpawnEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
 import io.lumine.mythic.bukkit.events.MythicMobSpawnEvent;
@@ -19,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -38,6 +41,13 @@ public class PetListener implements Listener {
 
         if (GlobalConfig.getInstance().isSneakMode() && !p.isSneaking())
             return;
+
+        if(GlobalConfig.getInstance().isDisableInventoryWhileHoldingSignalStick())
+        {
+            ItemStack it = p.getInventory().getItemInMainHand();
+            if(Items.isSignalStick(it))
+                return;
+        }
 
         Entity ent = e.getRightClicked();
 
@@ -204,6 +214,30 @@ public class PetListener implements Listener {
                         Language.REVOKED.sendMessage(owner);
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Blacklisted world system
+     * @param e
+     */
+    @EventHandler
+    public void blacklistedWorld(PetSpawnEvent e)
+    {
+        if(e.getPet() == null
+                || e.getPet().getActiveMob() == null
+                || e.getPet().getActiveMob().getLocation() == null
+                || e.getPet().getActiveMob().getLocation().getWorld() == null)
+            return;
+
+        if(GlobalConfig.getInstance().hasBlackListedWorld(e.getPet().getActiveMob().getLocation().getWorld().getName()))
+        {
+            e.setCancelled(true);
+            Player p = Bukkit.getPlayer(e.getPet().getOwner());
+            if(p != null)
+            {
+                Language.BLACKLISTED_WORLD.sendMessage(p);
             }
         }
     }

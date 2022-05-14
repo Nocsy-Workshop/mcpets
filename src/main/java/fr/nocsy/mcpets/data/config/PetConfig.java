@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
@@ -101,6 +102,7 @@ public class PetConfig extends AbstractConfig {
         List<String> description = getConfig().getStringList("Icon.Description");
 
         List<String> signals = getConfig().getStringList("Signals.Values");
+        boolean enableSignalStickFromMenu = getConfig().getBoolean("Signals.Item.GetFromMenu");
         String signalStick_Name = getConfig().getString("Signals.Item.Name");
         String signalStick_Mat = getConfig().getString("Signals.Item.Material");
         int signalStick_Data = getConfig().getInt("Signals.Item.CustomModelData");
@@ -136,6 +138,7 @@ public class PetConfig extends AbstractConfig {
         pet.setComingBackRange(comingbackRange);
         pet.setMountType(mountType);
         pet.setSignals(signals);
+        pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
 
         if (despawnSkillName != null) {
             new BukkitRunnable() {
@@ -151,7 +154,7 @@ public class PetConfig extends AbstractConfig {
         }
 
         pet.setIcon(pet.buildItem(pet.getIcon(), pet.toString(), iconName, description, materialType, customModelData, textureBase64));
-        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Pet.SIGNAL_STICK_TAG, signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
+        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
 
         this.pet = pet;
     }

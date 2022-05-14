@@ -38,6 +38,7 @@ public class MCPets extends JavaPlugin {
         LanguageConfig.getInstance().init();
         BlacklistConfig.getInstance().init();
         PetConfig.loadPets(AbstractConfig.getPath() + "Pets/", true);
+        CategoryConfig.load(AbstractConfig.getPath() + "Categories/", true);
         Databases.init();
         PlayerData.initAll();
     }

@@ -121,6 +121,10 @@ public class Pet {
     @Setter
     private List<String> signals;
 
+    @Getter
+    @Setter
+    private boolean enableSignalStickFromMenu;
+
     //********** Living entity **********
 
     @Setter
@@ -168,13 +172,15 @@ public class Pet {
      *
      * @param p
      */
-    public static void clearStickSignals(Player p) {
+    public static void clearStickSignals(Player p, String petId) {
         if (p == null)
             return;
 
         for (int i = 0; i < p.getInventory().getSize(); i++) {
             ItemStack item = p.getInventory().getItem(i);
-            if (Items.isSignalStick(item)) {
+            if (Items.isSignalStick(item)
+                    && Pet.getFromSignalStick(item) != null
+                    && Pet.getFromSignalStick(item).getId().equals(petId)) {
                 p.getInventory().setItem(i, new ItemStack(Material.AIR));
             }
         }
@@ -263,6 +269,20 @@ public class Pet {
                 p.getMetadata("AlmPetInteracted").get(0).value() != null) {
             return (Pet) p.getMetadata("AlmPetInteracted").get(0).value();
         }
+        return null;
+    }
+
+    /**
+     * Return the pet from the signal stick item
+     * null if none is found matching the id
+     * @param signalStick
+     * @return
+     */
+    public static Pet getFromSignalStick(ItemStack signalStick)
+    {
+        String petId = Items.getPetTag(signalStick);
+        if(petId != null)
+            return Pet.getFromId(petId);
         return null;
     }
 
@@ -461,6 +481,31 @@ public class Pet {
             }
     }
 
+    public void changeActiveMobTo(ActiveMob mob)
+    {
+        Entity ent = mob.getEntity().getBukkitEntity();
+        ent.setMetadata("AlmPet", new FixedMetadataValue(MCPets.getInstance(), this));
+        if (ent.isInvulnerable() && GlobalConfig.getInstance().isLeftClickToOpen()) {
+            this.invulnerable = true;
+            ent.setInvulnerable(false);
+        }
+        activeMob.setOwner(owner);
+        this.AI();
+
+        activePets.put(owner, this);
+
+        PlayerData pd = PlayerData.get(owner);
+        String name = pd.getMapOfRegisteredNames().get(this.id);
+        setRemoved(false);
+        if (name != null) {
+            setDisplayName(name, false);
+        } else {
+            setDisplayName(Language.TAG_TO_REMOVE_NAME.getMessage(), false);
+        }
+
+        PlayerSignal.setDefaultSignal(owner, this);
+    }
+
     /**
      * Activate the following AI of the mob
      */
@@ -570,7 +615,8 @@ public class Pet {
 
             if (ownerPlayer != null) {
                 this.dismount(ownerPlayer);
-                Pet.clearStickSignals(ownerPlayer);
+                if(enableSignalStickFromMenu)
+                    Pet.clearStickSignals(ownerPlayer, this.id);
             }
 
             activePets.remove(owner);
@@ -807,7 +853,8 @@ public class Pet {
         if (p == null)
             return;
 
-        clearStickSignals(p);
+        if(enableSignalStickFromMenu)
+            clearStickSignals(p, this.id);
 
         p.getInventory().addItem(this.getSignalStick());
 

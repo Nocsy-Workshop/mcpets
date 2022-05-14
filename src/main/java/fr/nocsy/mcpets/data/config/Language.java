@@ -70,8 +70,11 @@ public enum Language {
             "\n§8   ... §aname" +
             "\n§8   ... §amount" +
             "\n§8   ... §aitem §7<§elist§8/§8add/§8§7remove> <key>" +
-            "\n§8   ... §asignalstick §7<§eplayer§7>"),
-    NO_PERM("§cYou're not allowed to use this command.");
+            "\n§8   ... §asignalstick §7<§eplayer§7> §7<§epet§7>"),
+    NO_PERM("§cYou're not allowed to use this command."),
+    BLACKLISTED_WORLD("§cMCPets is disabled in this world."),
+
+    CATEGORY_PET_AMOUNT("§e%petamount% §6registered");
 
     @Getter
     private String message;

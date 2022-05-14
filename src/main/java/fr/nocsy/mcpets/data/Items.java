@@ -16,7 +16,8 @@ public enum Items {
 
     MOUNT("mount"),
     RENAME("rename"),
-    PETMENU("petmenu");
+    PETMENU("petmenu"),
+    UNKNOWN("unkown");
 
     @Getter
     private ItemStack item;
@@ -37,12 +38,29 @@ public enum Items {
             case "petmenu":
                 item = petmenu();
                 break;
+            default:
+                item = unknown();
         }
     }
 
     public void setItem(ItemStack item)
     {
         this.item = item;
+    }
+
+    private static ItemStack unknown()
+    {
+        ArrayList<String> lore = new ArrayList<>();
+
+        ItemStack it = Utils.createHead("Unknown",
+                lore,
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzhmM2Q3NjkxZDZkNWQ1NDZjM2NmMjIyNDNiM2U4MzA5YTEwNzAxMWYyZWU5Mzg0OGIxZThjNjU3NjgxYTU2ZCJ9fX0=");
+        ItemMeta meta = it.getItemMeta();
+        meta.setLocalizedName("AlmPet;Unknown");
+
+        it.setItemMeta(meta);
+
+        return it;
     }
 
     private static ItemStack mount() {
@@ -139,7 +157,39 @@ public enum Items {
         return it != null &&
                 it.hasItemMeta() &&
                 it.getItemMeta().hasLocalizedName() &&
-                it.getItemMeta().getLocalizedName().equals(Pet.SIGNAL_STICK_TAG);
+                it.getItemMeta().getLocalizedName().contains(Pet.SIGNAL_STICK_TAG);
+    }
+
+    public static ItemStack turnIntoSignalStick(ItemStack it, Pet pet)
+    {
+        if(it == null ||
+                it.getType().isAir() ||
+                pet == null)
+            return it;
+        ItemMeta meta = it.getItemMeta();
+        meta.setLocalizedName(buildSignalStickTag(pet));
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    public static String buildSignalStickTag(Pet pet)
+    {
+        if(pet == null)
+            return null;
+        return Pet.SIGNAL_STICK_TAG + ";" + pet.getId();
+    }
+
+    public static String getPetTag(ItemStack it)
+    {
+        if(it != null &&
+            it.hasItemMeta() &&
+            it.getItemMeta().hasLocalizedName())
+        {
+            String[] split = it.getItemMeta().getLocalizedName().split(";");
+            if(split.length == 2)
+                return split[1];
+        }
+        return null;
     }
 
 }
