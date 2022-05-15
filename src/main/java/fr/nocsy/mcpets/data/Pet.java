@@ -664,6 +664,11 @@ public class Pet {
                 !removed;
     }
 
+    public boolean has(Player p)
+    {
+        return p.hasPermission(this.getPermission());
+    }
+
     /**
      * Set the display name of the pet
      */

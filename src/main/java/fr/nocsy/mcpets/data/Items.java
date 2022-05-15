@@ -103,11 +103,30 @@ public enum Items {
     public static ItemStack page(int index) {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
+        meta.setCustomModelData(960);
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessage());
 
         meta.setLocalizedName("AlmPetPage;" + index);
 
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.TURNPAGE_ITEM_DESCRIPTION.getMessage().split("\n")));
+        meta.setLore(lore);
+
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    public static ItemStack page(Category category, int index) {
+        ItemStack it = new ItemStack(Material.PAPER);
+        ItemMeta meta = it.getItemMeta();
+        meta.setCustomModelData(960);
+        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("currentPage", Integer.toString(index)),
+                                                                            new FormatArg("maxPage", Integer.toString(category.getMaxPages()))));
+        meta.setLocalizedName("MCPetsPage;" + category.getId() + ";" + index);
+
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.TURNPAGE_ITEM_DESCRIPTION.getMessageFormatted(
+                                                        new FormatArg("currentPage", Integer.toString(index)),
+                                                        new FormatArg("maxPage", Integer.toString(category.getMaxPages())))
+                                                        .split("\n")));
         meta.setLore(lore);
 
         it.setItemMeta(meta);

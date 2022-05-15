@@ -7,7 +7,6 @@ import fr.nocsy.mcpets.data.Pet;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -78,6 +77,7 @@ public class CategoryConfig extends AbstractConfig {
                 if(pet != null)
                     category.addPet(pet);
             }
+            category.countMaxPages();
         }
         if (getConfig().get("Icon") != null)
         {

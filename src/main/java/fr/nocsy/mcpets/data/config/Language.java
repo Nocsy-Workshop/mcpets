@@ -18,7 +18,7 @@ public enum Language {
     BACK_TO_PETMENU_ITEM_NAME("§cBack to menu"),
     BACK_TO_PETMENU_ITEM_DESCRIPTION("§7Click to get back to the menu"),
 
-    TURNPAGE_ITEM_NAME("§6Next page"),
+    TURNPAGE_ITEM_NAME("§6Next page §7(§e%currentPage%/§7%maxPage%)"),
     TURNPAGE_ITEM_DESCRIPTION("§eRight click§7 to go forward \n§aLeft click§7 to go backward"),
 
     NICKNAME("§9Nickname : §7%nickname%"),
@@ -74,7 +74,8 @@ public enum Language {
     NO_PERM("§cYou're not allowed to use this command."),
     BLACKLISTED_WORLD("§cMCPets is disabled in this world."),
 
-    CATEGORY_PET_AMOUNT("§e%petamount% §6registered");
+    CATEGORY_PET_AMOUNT("§e%petamount% §6registered"),
+    CATEGORY_MENU_TITLE("§0☀ §4Pets §8- §0%category% §0☀");
 
     @Getter
     private String message;
