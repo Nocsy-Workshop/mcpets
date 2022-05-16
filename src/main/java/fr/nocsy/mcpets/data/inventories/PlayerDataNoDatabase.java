@@ -17,6 +17,9 @@ public class PlayerDataNoDatabase extends AbstractConfig {
     @Getter
     @Setter
     public HashMap<String, String> mapOfRegisteredNames = new HashMap<>();
+    @Getter
+    @Setter
+    public HashMap<String, String> mapOfRegisteredInventories = new HashMap<>();
 
     private PlayerDataNoDatabase(UUID uuid) {
         this.uuid = uuid;
@@ -39,6 +42,8 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
         if (getConfig().get("Names") == null)
             getConfig().set("Names", new ArrayList<String>());
+        if (getConfig().get("Inventories") == null)
+            getConfig().set("Inventories", new ArrayList<String>());
 
         reload();
     }
@@ -56,6 +61,20 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
         getConfig().set("Names", serializedMap);
 
+        serializedMap.clear();
+        mapOfRegisteredInventories.clear();
+        HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(this.getUuid());
+
+        for(String petId : inventories.keySet())
+        {
+            mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
+            String seriaInv = mapOfRegisteredInventories.get(petId);
+            String seria = petId + ";" + seriaInv;
+            serializedMap.add(seria);
+        }
+
+        getConfig().set("Inventories", serializedMap);
+
         super.save();
     }
 
@@ -70,6 +89,16 @@ public class PlayerDataNoDatabase extends AbstractConfig {
             String name = table[1];
 
             mapOfRegisteredNames.put(id, name);
+        }
+
+        mapOfRegisteredInventories.clear();
+        for (String seria : getConfig().getStringList("Inventories")) {
+            String[] table = seria.split(";");
+            String id = table[0];
+            String seriaInventory = table[1];
+
+            mapOfRegisteredInventories.put(id, seriaInventory);
+            PetInventory.unserialize(seriaInventory, this.getUuid());
         }
 
     }

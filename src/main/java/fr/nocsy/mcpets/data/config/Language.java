@@ -75,7 +75,9 @@ public enum Language {
     BLACKLISTED_WORLD("§cMCPets is disabled in this world."),
 
     CATEGORY_PET_AMOUNT("§e%petamount% §6registered"),
-    CATEGORY_MENU_TITLE("§0☀ §4Pets §8- §0%category% §0☀");
+    CATEGORY_MENU_TITLE("§0☀ §4Pets §8- §0%category% §0☀"),
+
+    PET_INVENTORY_TITLE("§0☀ §4%pet% §8- §0Inventory §0☀§");
 
     @Getter
     private String message;

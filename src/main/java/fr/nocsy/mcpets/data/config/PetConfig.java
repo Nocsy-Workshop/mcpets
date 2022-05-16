@@ -94,6 +94,9 @@ public class PetConfig extends AbstractConfig {
         String despawnSkillName = getConfig().getString("DespawnSkill");
         boolean autoRide = getConfig().getBoolean("AutoRide");
         String mountType = getConfig().getString("MountType");
+        int inventorySize = Math.min(getConfig().getInt("InventorySize"), 54);
+        while(inventorySize < 54 && inventorySize % 9 != 0)
+            inventorySize++;
 
         String iconName = getConfig().getString("Icon.Name");
         String materialType = getConfig().getString("Icon.Material");
@@ -137,6 +140,7 @@ public class PetConfig extends AbstractConfig {
         pet.setSpawnRange(spawnRange);
         pet.setComingBackRange(comingbackRange);
         pet.setMountType(mountType);
+        pet.setInventorySize(inventorySize);
         pet.setSignals(signals);
         pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
 

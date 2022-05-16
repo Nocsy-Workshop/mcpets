@@ -1,20 +1,27 @@
 package fr.nocsy.mcpets.data.inventories;
 
+import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.sql.Databases;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PlayerData {
 
     @Getter
     private static final HashMap<UUID, PlayerData> registeredData = new HashMap<>();
+
     @Getter
     @Setter
     private HashMap<String, String> mapOfRegisteredNames = new HashMap<>();
+    @Getter
+    @Setter
+    private HashMap<String, String> mapOfRegisteredInventories = new HashMap<>();
 
     @Setter
     @Getter
@@ -39,6 +46,7 @@ public class PlayerData {
                 data.setUuid(owner);
                 PlayerDataNoDatabase pdn = PlayerDataNoDatabase.get(owner);
                 data.setMapOfRegisteredNames(pdn.mapOfRegisteredNames);
+                data.setMapOfRegisteredInventories(pdn.mapOfRegisteredInventories);
                 registeredData.put(owner, data);
 
                 return data;
@@ -78,6 +86,16 @@ public class PlayerData {
         else {
             PlayerDataNoDatabase pdn = PlayerDataNoDatabase.get(uuid);
             pdn.setMapOfRegisteredNames(mapOfRegisteredNames);
+
+            mapOfRegisteredInventories.clear();
+            HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(this.getUuid());
+
+            for(String petId : inventories.keySet())
+            {
+                mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
+            }
+
+            pdn.setMapOfRegisteredInventories(mapOfRegisteredInventories);
             pdn.save();
         }
     }

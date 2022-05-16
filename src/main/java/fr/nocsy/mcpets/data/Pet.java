@@ -119,6 +119,10 @@ public class Pet {
 
     @Getter
     @Setter
+    private int inventorySize;
+
+    @Getter
+    @Setter
     private List<String> signals;
 
     @Getter
@@ -742,6 +746,7 @@ public class Pet {
         pet.setDespawnSkill(despawnSkill);
         pet.setMountable(mountable);
         pet.setMountType(mountType);
+        pet.setInventorySize(inventorySize);
         pet.setAutoRide(autoRide);
         pet.setIcon(icon);
         pet.setSignalStick(signalStick);
