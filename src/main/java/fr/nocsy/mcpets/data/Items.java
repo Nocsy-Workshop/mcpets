@@ -17,6 +17,9 @@ public enum Items {
     MOUNT("mount"),
     RENAME("rename"),
     PETMENU("petmenu"),
+    INVENTORY("inventory"),
+    SKINS("skins"),
+    EQUIPMENT("equipment"),
     UNKNOWN("unkown");
 
     @Getter
@@ -37,6 +40,15 @@ public enum Items {
                 break;
             case "petmenu":
                 item = petmenu();
+                break;
+            case "inventory":
+                item = inventory();
+                break;
+            case "skins":
+                item = skins();
+                break;
+            case "equipment":
+                item = equipment();
                 break;
             default:
                 item = unknown();
@@ -94,6 +106,45 @@ public enum Items {
         ItemStack it = Utils.createHead(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage(), lore, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI5M2E2MDcwNTAzMTcyMDcxZjM1ZjU4YzgyMjA0ZTgxOGNkMDY1MTg2OTAxY2ExOWY3ZGFkYmRhYzE2NWU0NCJ9fX0=");
         ItemMeta meta = it.getItemMeta();
         meta.setLocalizedName("AlmPet;BackToPetMenu");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
+    private static ItemStack inventory() {
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.INVENTORY_ITEM_DESCRIPTION.getMessage().split("\n")));
+
+        ItemStack it = new ItemStack(Material.CHEST);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.INVENTORY_ITEM_NAME.getMessage());
+        meta.setLocalizedName("AlmPet;Inventory");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
+    private static ItemStack skins() {
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.SKINS_ITEM_DESCRIPTION.getMessage().split("\n")));
+
+        ItemStack it = new ItemStack(Material.MAGMA_CREAM);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.SKINS_ITEM_NAME.getMessage());
+        meta.setLocalizedName("AlmPet;Skins");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
+    private static ItemStack equipment() {
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.EQUIPMENT_ITEM_NAME.getMessage().split("\n")));
+
+        ItemStack it = new ItemStack(Material.LEATHER_HORSE_ARMOR);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.EQUIPMENT_ITEM_NAME.getMessage());
+        meta.setLocalizedName("AlmPet;Inventory");
 
         it.setItemMeta(meta);
 

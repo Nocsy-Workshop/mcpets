@@ -1,13 +1,16 @@
 package fr.nocsy.mcpets.data.inventories;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.BukkitSerialization;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -20,6 +23,7 @@ public class PetInventory {
     @Getter
     private static HashMap<UUID, HashMap<String, PetInventory>> petInventories = new HashMap<>();
 
+    @Setter
     private Inventory inventory;
 
     private final Pet pet;
@@ -116,11 +120,51 @@ public class PetInventory {
 
     /**
      * Open the inventory to the said player
+     * and add the tracing metadata
      * @param p
      */
     public void open(Player p)
     {
         p.openInventory(this.inventory);
+        p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), this.pet.getId()));
+    }
+
+    /**
+     * Close the inventory of the said player, removes the metadata
+     * and save the inventory in the DB
+     * @param p
+     */
+    public void close(Player p)
+    {
+        p.closeInventory();
+        p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), null));
+        PlayerData.saveDB();
+    }
+
+    /**
+     * Get the PetInventory related to the player looking at
+     * a certain inventory
+     * @param p
+     * @return
+     */
+    public static PetInventory fromCurrentView(Player p)
+    {
+        if(p.hasMetadata("MCPets;petInventory"))
+        {
+            if(p.getMetadata("MCPets;petInventory").size() > 0 &&
+                p.getMetadata("MCPets;petInventory").get(0) != null &&
+                p.getMetadata("MCPets;petInventory").get(0).value() instanceof String)
+            {
+                String petId = (String)p.getMetadata("MCPets;petInventory").get(0).value();
+                UUID owner = p.getUniqueId();
+                HashMap<String, PetInventory> map = petInventories.get(owner);
+                if(map != null)
+                {
+                    return map.get(petId);
+                }
+            }
+        }
+        return null;
     }
 
     /**

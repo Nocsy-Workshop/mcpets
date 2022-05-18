@@ -253,6 +253,9 @@ public class MCPetsCommand implements CCommand {
                         case "mount":
                             PetInteractionMenuListener.mount(p, pet);
                             return;
+                        case "inventory":
+                            PetInteractionMenuListener.inventory(p, pet);
+                            return;
                         case "revoke":
                             PetInteractionMenuListener.revoke(p, pet);
                             return;

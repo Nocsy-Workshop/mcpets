@@ -18,6 +18,15 @@ public enum Language {
     BACK_TO_PETMENU_ITEM_NAME("§cBack to menu"),
     BACK_TO_PETMENU_ITEM_DESCRIPTION("§7Click to get back to the menu"),
 
+    INVENTORY_ITEM_NAME("§6Inventory"),
+    INVENTORY_ITEM_DESCRIPTION("§7Click to open the pet's inventory"),
+
+    SKINS_ITEM_NAME("§6Skins"),
+    SKINS_ITEM_DESCRIPTION("§7Click to change your pet's skin"),
+
+    EQUIPMENT_ITEM_NAME("§6Equipment"),
+    EQUIPMENT_DESCRIPTION("§7Click to open your pet's equipment"),
+
     TURNPAGE_ITEM_NAME("§6Next page §7(§e%currentPage%/§7%maxPage%)"),
     TURNPAGE_ITEM_DESCRIPTION("§eRight click§7 to go forward \n§aLeft click§7 to go backward"),
 
