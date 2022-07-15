@@ -16,7 +16,7 @@ public class GlobalConfig extends AbstractConfig {
     private boolean worldguardsupport = true;
 
     @Getter
-    private String prefix = "§8[§6MCPets§8] »";
+    private String prefix = "§8[§6MCPets§8] » ";
     @Getter
     private String defaultName = "§9Pet of %player%";
     @Getter

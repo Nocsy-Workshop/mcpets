@@ -36,16 +36,24 @@ public class MCPetsCommand implements CCommand {
     @Override
     public void execute(CommandSender sender, Command command, String label, String[] args) {
         if (sender.hasPermission(getPermission())) {
-            if (args.length == 4) {
+            if (args.length == 4 || args.length == 5)
+            {
                 if (args[0].equalsIgnoreCase("spawn")
-                        && sender.hasPermission(getAdminPermission())) {
+                        && sender.hasPermission(getAdminPermission()))
+                {
 
                     String petId = args[1];
                     String playerName = args[2];
                     String booleanValue = args[3];
+                    boolean silent = false;
+                    if (args.length == 5 && args[4].equals("-s"))
+                    {
+                        silent = true;
+                    }
 
                     Player target = Bukkit.getPlayer(playerName);
-                    if (target == null) {
+                    if (target == null)
+                    {
                         Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
                         return;
                     }
@@ -58,12 +66,16 @@ public class MCPetsCommand implements CCommand {
                     Pet pet = petObject.copy();
 
                     boolean checkPermission = booleanValue.equalsIgnoreCase("true");
-                    if (checkPermission && !target.hasPermission(pet.getPermission())) {
+                    if (checkPermission && !target.hasPermission(pet.getPermission()))
+                    {
                         Language.NOT_ALLOWED.sendMessage(target);
                         return;
                     }
                     pet.setCheckPermission(checkPermission);
-                    pet.spawnWithMessage(target, target.getLocation());
+                    if (silent)
+                        pet.spawn(target, target.getLocation());
+                    else
+                        pet.spawnWithMessage(target, target.getLocation());
                     return;
                 }
             }

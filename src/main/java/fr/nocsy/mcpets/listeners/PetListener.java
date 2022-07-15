@@ -22,7 +22,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -56,7 +55,7 @@ public class PetListener implements Listener {
         if (pet != null &&
                 (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
             PetInteractionMenu menu = new PetInteractionMenu(pet);
-            p.setMetadata("AlmPetInteracted", new FixedMetadataValue(MCPets.getInstance(), pet));
+            pet.setLastInteractedWith(p);
             menu.open(p);
         }
     }
@@ -81,7 +80,7 @@ public class PetListener implements Listener {
         if (pet != null &&
                 (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
             PetInteractionMenu menu = new PetInteractionMenu(pet);
-            p.setMetadata("AlmPetInteracted", new FixedMetadataValue(MCPets.getInstance(), pet));
+            pet.setLastInteractedWith(p);
             menu.open(p);
             e.setCancelled(true);
             e.setDamage(0);

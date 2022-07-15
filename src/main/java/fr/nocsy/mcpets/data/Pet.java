@@ -277,6 +277,15 @@ public class Pet {
     }
 
     /**
+     * Associate the said player to the pet as last interacted with
+     * @param p
+     */
+    public void setLastInteractedWith(Player p)
+    {
+        p.setMetadata("AlmPetInteracted", new FixedMetadataValue(MCPets.getInstance(), this));
+    }
+
+    /**
      * Return the pet from the signal stick item
      * null if none is found matching the id
      * @param signalStick
@@ -579,6 +588,7 @@ public class Pet {
      */
     public int spawn(@NotNull Player owner, Location loc) {
         this.owner = owner.getUniqueId();
+        setLastInteractedWith(owner);
         return spawn(loc);
     }
 

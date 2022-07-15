@@ -80,7 +80,6 @@ public class PetInteractionMenuListener implements Listener {
                     return;
 
                 Pet pet = Pet.getFromLastInteractedWith(p);
-
                 if (pet == null) {
                     p.closeInventory();
                     return;

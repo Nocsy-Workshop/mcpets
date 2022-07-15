@@ -74,7 +74,7 @@ public enum Language {
             "\n§8   ... §areload " +
             "\n§8   ... §7(nothing here to open the GUI) " +
             "\n§8   ... §aopen §8<§7player§8>" +
-            "\n§8   ... §aspawn §8<§7id§8> <§7player§8> §atrue§8/§cfalse §7(check if the player have the permission to spawn the pet or not)" +
+            "\n§8   ... §aspawn §8<§7id§8> <§7player§8> §atrue§8/§cfalse §7(check if the player have the permission to spawn the pet or not) -s (set silent or not)" +
             "\n§8   ... §arevoke" +
             "\n§8   ... §aname" +
             "\n§8   ... §amount" +
@@ -106,7 +106,7 @@ public enum Language {
     }
 
     public void sendMessage(CommandSender sender) {
-        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + message);
+        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
     }
 
     public void sendMessageFormated(CommandSender sender, FormatArg... args) {
