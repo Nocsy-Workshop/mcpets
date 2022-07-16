@@ -24,30 +24,15 @@ public class PetInteractionMenu {
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.PETMENU.getItem());
-        else
-            inventory.setItem(0, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
-
         if (GlobalConfig.getInstance().isNameable())
             inventory.setItem(3, Items.RENAME.getItem());
-        else
-            inventory.setItem(3, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
-
-        inventory.setItem(4, Items.petInfo(pet));
-
-        if (GlobalConfig.getInstance().isMountable() && pet.isMountable()) {
+        if (GlobalConfig.getInstance().isMountable() && pet.isMountable())
             inventory.setItem(5, Items.MOUNT.getItem());
-        } else
-            inventory.setItem(5, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
-
-        if (!pet.getSignals().isEmpty()) {
+        if (!pet.getSignals().isEmpty() && pet.isEnableSignalStickFromMenu())
             inventory.setItem(6, pet.getSignalStick());
-        } else
-            inventory.setItem(6, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
-
-        if (pet.getInventorySize() > 0) {
+        if (pet.getInventorySize() > 0)
             inventory.setItem(7, Items.INVENTORY.getItem());
-        } else
-            inventory.setItem(7, Items.deco(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
+        inventory.setItem(4, Items.petInfo(pet));
     }
 
     public void open(Player p) {

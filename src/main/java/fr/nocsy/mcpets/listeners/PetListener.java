@@ -224,13 +224,7 @@ public class PetListener implements Listener {
     @EventHandler
     public void blacklistedWorld(PetSpawnEvent e)
     {
-        if(e.getPet() == null
-                || e.getPet().getActiveMob() == null
-                || e.getPet().getActiveMob().getLocation() == null
-                || e.getPet().getActiveMob().getLocation().getWorld() == null)
-            return;
-
-        if(GlobalConfig.getInstance().hasBlackListedWorld(e.getPet().getActiveMob().getLocation().getWorld().getName()))
+        if(GlobalConfig.getInstance().hasBlackListedWorld(e.getWhere().getWorld().getName()))
         {
             e.setCancelled(true);
             Player p = Bukkit.getPlayer(e.getPet().getOwner());

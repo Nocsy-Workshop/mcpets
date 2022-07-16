@@ -49,7 +49,7 @@ public class PetMenu {
             Pet pet = availablePets.get(i);
 
             if (i % 53 == 0 && i > page * 53) {
-                inventory.setItem(invSize - 1, Items.page(page));
+                inventory.setItem(invSize - 1, Items.page(page, p));
                 break;
             }
             inventory.addItem(pet.getIcon());
@@ -57,7 +57,7 @@ public class PetMenu {
         }
 
         if (addPager) {
-            inventory.setItem(invSize - 1, Items.page(page));
+            inventory.setItem(invSize - 1, Items.page(page, p));
         }
 
     }

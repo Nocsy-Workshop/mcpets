@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,10 +17,10 @@ import java.util.Optional;
 public class Category {
 
     @Getter
-    private static ArrayList<Category> categories;
+    private static ArrayList<Category> categories = new ArrayList<Category>();
 
     @Getter
-    private String id;
+    private final String id;
 
     @Getter
     @Setter
@@ -42,7 +43,7 @@ public class Category {
 
     public boolean openInventory(Player p, int page)
     {
-        if(page > maxPages)
+        if(page > maxPages || page < 0)
             return false;
 
         int invSize = pets.size() - page*52;
@@ -57,7 +58,7 @@ public class Category {
                 break;
             Pet pet = pets.get(i);
             if(pet.has(p))
-                showedPets.add(pets.get(i));
+                showedPets.add(pet);
         }
 
         if(showedPets.isEmpty() && page > 0)
@@ -71,12 +72,14 @@ public class Category {
             Pet pet = showedPets.get(i);
             inventory.setItem(i, pet.getIcon());
         }
+        p.openInventory(inventory);
         return true;
     }
 
     public void addPet(Pet pet)
     {
-        pets.add(pet);
+        if(!pets.contains(pet))
+            pets.add(pet);
     }
 
     public void countMaxPages()
@@ -102,12 +105,13 @@ public class Category {
     {
         ItemMeta meta = icon.getItemMeta();
         meta.setLocalizedName("MCPetsCategory;" + this.getId());
+        meta.setDisplayName(displayName);
         ArrayList<String> lore = (ArrayList<String>) meta.getLore() != null
                 ? (ArrayList<String>) meta.getLore()
                 : new ArrayList<>();
 
         lore.add(" ");
-        lore.add(Language.CATEGORY_PET_AMOUNT.getMessageFormatted(new FormatArg("petamount", Integer.toString(pets.size()))));
+        lore.add(Language.CATEGORY_PET_AMOUNT.getMessageFormatted(new FormatArg("%petAmount%", Integer.toString(pets.size()))));
         meta.setLore(lore);
         icon.setItemMeta(meta);
     }

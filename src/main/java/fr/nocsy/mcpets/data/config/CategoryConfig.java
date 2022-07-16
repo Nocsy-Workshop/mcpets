@@ -41,6 +41,7 @@ public class CategoryConfig extends AbstractConfig {
     public void init(String folderName, String fileName) {
         super.init(folderName, fileName);
 
+        this.id = fileName.replace(".yml", "");
         this.category = new Category(id);
 
         if (getConfig().get("DisplayName") == null)
@@ -64,6 +65,7 @@ public class CategoryConfig extends AbstractConfig {
 
         loadConfig();
 
+        category.getPets().clear();
 
         if (getConfig().get("DisplayName") != null)
         {
@@ -117,7 +119,7 @@ public class CategoryConfig extends AbstractConfig {
                 continue;
             }
 
-            CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName().replace(".yml", ""));
+            CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
 
             if (config.getCategory() != null)
                 Category.add(config.getCategory());

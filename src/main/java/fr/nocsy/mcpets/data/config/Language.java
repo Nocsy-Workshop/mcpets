@@ -27,7 +27,7 @@ public enum Language {
     EQUIPMENT_ITEM_NAME("§6Equipment"),
     EQUIPMENT_DESCRIPTION("§7Click to open your pet's equipment"),
 
-    TURNPAGE_ITEM_NAME("§6Next page §7(§e%currentPage%/§7%maxPage%)"),
+    TURNPAGE_ITEM_NAME("§6Next page §7(§e%currentPage%§8/§7%maxPage%)"),
     TURNPAGE_ITEM_DESCRIPTION("§eRight click§7 to go forward \n§aLeft click§7 to go backward"),
 
     NICKNAME("§9Nickname : §7%nickname%"),
@@ -78,13 +78,13 @@ public enum Language {
             "\n§8   ... §arevoke" +
             "\n§8   ... §aname" +
             "\n§8   ... §amount" +
-            "\n§8   ... §aitem §7<§elist§8/§8add/§8§7remove> <key>" +
-            "\n§8   ... §asignalstick §7<§eplayer§7> §7<§epet§7>"),
+            "\n§8   ... §aitem §7<§elist§8/§eadd§8/§eremove§7> <§ekey§7>" +
+            "\n§8   ... §asignalstick §7<§eplayer§8/§epet§7> §7<§epet§7>"),
     NO_PERM("§cYou're not allowed to use this command."),
     BLACKLISTED_WORLD("§cMCPets is disabled in this world."),
 
-    CATEGORY_PET_AMOUNT("§e%petamount% §6registered"),
-    CATEGORY_MENU_TITLE("§0☀ §4Pets §8- §0%category% §0☀"),
+    CATEGORY_PET_AMOUNT("§e%petAmount% §6registered"),
+    CATEGORY_MENU_TITLE("§0☀ §4Pets §8- Pick a category §0☀"),
 
     PET_INVENTORY_TITLE("§0☀ §4%pet% §8- §0Inventory §0☀§");
 
@@ -102,7 +102,7 @@ public enum Language {
     }
 
     public void sendMessage(Player p) {
-        p.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + message);
+        p.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
     }
 
     public void sendMessage(CommandSender sender) {
@@ -114,7 +114,7 @@ public enum Language {
         for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);
         }
-        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + toSend);
+        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + toSend);
     }
 
     public String getMessageFormatted(FormatArg... args) {

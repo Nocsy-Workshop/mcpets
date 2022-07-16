@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.data.inventories;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.BukkitSerialization;
 import lombok.Getter;
@@ -10,7 +11,9 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -39,11 +42,22 @@ public class PetInventory {
         if(pet == null)
             throw new NullPointerException("Pet can not be null.");
         this.pet = pet;
-        String title = Language.PET_INVENTORY_TITLE.getMessageFormatted(new FormatArg("pet", pet.getIcon().getItemMeta().getDisplayName()));
-        if(premadeInventory == null)
-            this.inventory = Bukkit.createInventory(null, pet.getInventorySize(), title);
-        else
-            this.inventory = premadeInventory;
+        String title = Language.PET_INVENTORY_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName()));
+
+        this.inventory = Bukkit.createInventory(null, pet.getInventorySize(), title);
+        if(premadeInventory != null)
+        {
+            if(premadeInventory.getContents().length <= inventory.getContents().length)
+                inventory.setContents(premadeInventory.getContents());
+            else
+            {
+                for(ItemStack it : premadeInventory.getContents())
+                {
+                    if(it != null)
+                        inventory.addItem(it);
+                }
+            }
+        }
 
         HashMap<String, PetInventory> builtIn = petInventories.get(pet.getOwner());
         if(builtIn == null)
@@ -70,10 +84,9 @@ public class PetInventory {
         if(pet.getOwner() == null)
             return null;
         HashMap<String, PetInventory> registeredMap = petInventories.get(pet.getOwner());
-        if(registeredMap != null)
+        if(registeredMap != null && registeredMap.get(pet.getId()) != null)
         {
-            PetInventory instance = registeredMap.get(pet.getId());
-            return instance;
+            return registeredMap.get(pet.getId());
         }
         return new PetInventory(pet, null);
     }
@@ -125,8 +138,18 @@ public class PetInventory {
      */
     public void open(Player p)
     {
-        p.openInventory(this.inventory);
-        p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), this.pet.getId()));
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                p.openInventory(inventory);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), pet.getId()));
+                    }
+                }.runTaskLater(MCPets.getInstance(), 2L);
+            }
+        }.runTaskLater(MCPets.getInstance(), 2L);
     }
 
     /**
@@ -136,9 +159,12 @@ public class PetInventory {
      */
     public void close(Player p)
     {
-        p.closeInventory();
         p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), null));
-        PlayerData.saveDB();
+
+        if(!GlobalConfig.getInstance().isDatabaseSupport())
+            PlayerDataNoDatabase.get(p.getUniqueId()).save();
+        else
+            PlayerData.saveDB();
     }
 
     /**

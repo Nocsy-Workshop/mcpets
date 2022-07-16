@@ -27,12 +27,14 @@ public class CategoryMenuListener implements Listener {
                 if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("MCPetsPage;")) {
 
                     int currentPage = category.getCurrentPage(e.getClickedInventory());
-                    p.closeInventory();
+                    boolean opened = true;
                     if (e.getClick() == ClickType.LEFT) {
-                        category.openInventory(p, Math.max(currentPage - 1, 0));
+                        opened = category.openInventory(p, currentPage - 1);
                     } else {
-                        category.openInventory(p, Math.max(currentPage + 1, 0));
+                        opened = category.openInventory(p, currentPage + 1);
                     }
+                    if(opened)
+                        p.closeInventory();
                     return;
                 }
 

@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data.inventories;
 
 import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -13,24 +14,24 @@ public class CategoriesMenu {
     @Getter
     private static final String title = Language.CATEGORY_MENU_TITLE.getMessage();
 
-    private static Inventory inventory;
-
-    public static void init()
+    public static void open(Player p)
     {
         int invSize = Category.getCategories().size();
         while(invSize == 0 || invSize%9 != 0)
             invSize++;
 
-        inventory = Bukkit.createInventory(null, invSize, title);
+        Inventory inventory = Bukkit.createInventory(null, invSize, title);
 
         Category.getCategories()
                 .forEach(category -> {
-                    inventory.addItem(category.getIcon());
+                    for(Pet pet : category.getPets())
+                        if (pet.has(p))
+                        {
+                            inventory.addItem(category.getIcon());
+                            break;
+                        }
                 });
-    }
 
-    public static void open(Player p)
-    {
         p.openInventory(inventory);
     }
 

@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
 import fr.nocsy.mcpets.data.flags.AbstractFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
+import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.listeners.EventListener;

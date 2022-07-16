@@ -12,6 +12,7 @@ import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.core.mobs.ActiveMob;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Optional;
 
@@ -33,12 +34,22 @@ public class SetPetMechanic implements ITargetedEntitySkill {
             if (pet == null)
                 return SkillResult.CONDITION_FAILED;
 
-            Pet currentPet = Pet.fromOwner(player.getUniqueId());
-            if(currentPet != null)
-                currentPet.despawn(PetDespawnReason.REVOKE);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
 
-            Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId());
-            opt.ifPresent(pet::changeActiveMobTo);
+                    Pet currentPet = Pet.fromOwner(player.getUniqueId());
+                    if(currentPet != null)
+                    {
+                        currentPet.despawn(PetDespawnReason.REPLACED);
+                    }
+
+                    Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId());
+                    opt.ifPresent(activeMob -> pet.changeActiveMobTo(activeMob, (Player) player));
+
+                }
+            }.runTaskLater(MCPets.getInstance(), 1L);
+
         }
         return SkillResult.SUCCESS;
     }

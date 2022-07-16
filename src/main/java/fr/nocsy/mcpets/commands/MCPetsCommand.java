@@ -144,6 +144,7 @@ public class MCPetsCommand implements CCommand {
 
                             ItemsListConfig.getInstance().setItemStack(key, item);
                             Language.KEY_ADDED.sendMessage(p);
+                            return;
                         }
                         else if(action.equalsIgnoreCase("give"))
                         {
@@ -204,12 +205,12 @@ public class MCPetsCommand implements CCommand {
                     if(ItemsListConfig.getInstance().getItemStack(key) != null)
                     {
                         ItemsListConfig.getInstance().setItemStack(key, item);
-                        Language.ITEM_UPDATED.sendMessageFormated(p, new FormatArg("key", key));
+                        Language.ITEM_UPDATED.sendMessageFormated(p, new FormatArg("%key%", key));
                         return;
                     }
                     else
                     {
-                        Language.ITEM_DOESNT_EXIST.sendMessageFormated(p, new FormatArg("key", key));
+                        Language.ITEM_DOESNT_EXIST.sendMessageFormated(p, new FormatArg("%key%", key));
                         return;
                     }
 

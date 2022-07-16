@@ -51,29 +51,31 @@ public class PlayerDataNoDatabase extends AbstractConfig {
     @Override
     public void save() {
 
-        ArrayList<String> serializedMap = new ArrayList<>();
+        ArrayList<String> serializedNamesMap = new ArrayList<>();
 
         for (String id : mapOfRegisteredNames.keySet()) {
             String name = mapOfRegisteredNames.get(id);
             String seria = id + ";" + name;
-            serializedMap.add(seria);
+            serializedNamesMap.add(seria);
         }
 
-        getConfig().set("Names", serializedMap);
+        getConfig().set("Names", serializedNamesMap);
 
-        serializedMap.clear();
+        ArrayList<String> serializedInventoriesMap = new ArrayList<>();
         mapOfRegisteredInventories.clear();
-        HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(this.getUuid());
-
-        for(String petId : inventories.keySet())
+        if(PetInventory.getPetInventories().containsKey(uuid))
         {
-            mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
-            String seriaInv = mapOfRegisteredInventories.get(petId);
-            String seria = petId + ";" + seriaInv;
-            serializedMap.add(seria);
+            HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(uuid);
+            for(String petId : inventories.keySet())
+            {
+                mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
+                String seriaInv = mapOfRegisteredInventories.get(petId);
+                String seria = petId + ";" + seriaInv;
+                serializedInventoriesMap.add(seria);
+            }
         }
 
-        getConfig().set("Inventories", serializedMap);
+        getConfig().set("Inventories", serializedInventoriesMap);
 
         super.save();
     }
@@ -82,7 +84,6 @@ public class PlayerDataNoDatabase extends AbstractConfig {
     public void reload() {
 
         mapOfRegisteredNames.clear();
-
         for (String seria : getConfig().getStringList("Names")) {
             String[] table = seria.split(";");
             String id = table[0];
@@ -98,7 +99,7 @@ public class PlayerDataNoDatabase extends AbstractConfig {
             String seriaInventory = table[1];
 
             mapOfRegisteredInventories.put(id, seriaInventory);
-            PetInventory.unserialize(seriaInventory, this.getUuid());
+            PetInventory.unserialize(seria, uuid);
         }
 
     }

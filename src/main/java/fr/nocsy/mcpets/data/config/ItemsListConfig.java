@@ -32,6 +32,10 @@ public class ItemsListConfig extends AbstractConfig {
             getConfig().set("rename", Items.RENAME.getItem());
         if (getConfig().get("petmenu") == null)
             getConfig().set("petmenu", Items.PETMENU.getItem());
+        if (getConfig().get("skins") == null)
+            getConfig().set("skins", Items.SKINS.getItem());
+        if (getConfig().get("equipment") == null)
+            getConfig().set("equipment", Items.EQUIPMENT.getItem());
 
         save();
         reload();
@@ -75,6 +79,7 @@ public class ItemsListConfig extends AbstractConfig {
 
     public void removeItemStack(String key)
     {
+        items.remove(key);
         getConfig().set(key, null);
         save();
     }

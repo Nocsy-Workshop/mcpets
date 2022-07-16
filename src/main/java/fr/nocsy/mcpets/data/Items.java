@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -151,11 +152,12 @@ public enum Items {
         return it;
     }
 
-    public static ItemStack page(int index) {
+    public static ItemStack page(int index, Player p) {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
         meta.setCustomModelData(960);
-        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessage());
+        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
+                                                                            new FormatArg("%maxPage%", Integer.toString((int)(Pet.getAvailablePets(p).size()/54 + 0.5)))));
 
         meta.setLocalizedName("AlmPetPage;" + index);
 
@@ -170,13 +172,13 @@ public enum Items {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
         meta.setCustomModelData(960);
-        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("currentPage", Integer.toString(index)),
-                                                                            new FormatArg("maxPage", Integer.toString(category.getMaxPages()))));
+        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
+                                                                            new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
         meta.setLocalizedName("MCPetsPage;" + category.getId() + ";" + index);
 
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.TURNPAGE_ITEM_DESCRIPTION.getMessageFormatted(
-                                                        new FormatArg("currentPage", Integer.toString(index)),
-                                                        new FormatArg("maxPage", Integer.toString(category.getMaxPages())))
+                                                        new FormatArg("%currentPage%", Integer.toString(index)),
+                                                        new FormatArg("%maxPage%", Integer.toString(category.getMaxPages())))
                                                         .split("\n")));
         meta.setLore(lore);
 

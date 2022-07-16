@@ -22,6 +22,7 @@ public class CategoriesMenuListener implements Listener {
             {
                 CategoriesMenu.openSubCategory((Player) e.getWhoClicked(), icon);
             }
+            e.setCancelled(true);
         }
 
     }

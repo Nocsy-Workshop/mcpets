@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.mythicmobs;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.mythicmobs.mechanics.GivePetMechanic;
+import fr.nocsy.mcpets.mythicmobs.mechanics.PetFollowMechanic;
 import fr.nocsy.mcpets.mythicmobs.mechanics.SetPetMechanic;
 import fr.nocsy.mcpets.mythicmobs.targeters.TargeterPetOwner;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
@@ -25,13 +26,21 @@ public class MythicListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onMythicMechanicLoad(MythicMechanicLoadEvent event) {
-        if (event.getMechanicName().equalsIgnoreCase("GivePet")) {
+        if (event.getMechanicName().equalsIgnoreCase("GivePet"))
+        {
             GivePetMechanic mechanic = new GivePetMechanic(event.getConfig());
             event.register(mechanic);
             MCPets.getLog().info("[MCPets] : " + event.getMechanicName() + " Mechanic loaded successfully");
         }
-        else if (event.getMechanicName().equalsIgnoreCase("SetPet")) {
+        else if (event.getMechanicName().equalsIgnoreCase("SetPet"))
+        {
             SetPetMechanic mechanic = new SetPetMechanic(event.getConfig());
+            event.register(mechanic);
+            MCPets.getLog().info("[MCPets] : " + event.getMechanicName() + " Mechanic loaded successfully");
+        }
+        else if (event.getMechanicName().equalsIgnoreCase("PetFollow"))
+        {
+            PetFollowMechanic mechanic = new PetFollowMechanic(event.getConfig());
             event.register(mechanic);
             MCPets.getLog().info("[MCPets] : " + event.getMechanicName() + " Mechanic loaded successfully");
         }

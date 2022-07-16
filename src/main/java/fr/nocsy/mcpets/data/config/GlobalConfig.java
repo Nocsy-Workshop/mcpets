@@ -22,6 +22,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private int adaptiveInventory = -1;
     @Getter
+    private boolean useDefaultMythicMobNames;
+    @Getter
     private boolean nameable;
     @Getter
     private boolean mountable;
@@ -76,6 +78,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("Prefix", prefix);
         if (getConfig().get("DefaultName") == null)
             getConfig().set("DefaultName", defaultName);
+        if (getConfig().get("UseDefaultMythicMobsNames") == null)
+            getConfig().set("UseDefaultMythicMobsNames", false);
         if (getConfig().get("RightClickToOpenMenu") == null)
             getConfig().set("RightClickToOpenMenu", true);
         if (getConfig().get("LeftClickToOpenMenu") == null)
@@ -131,6 +135,7 @@ public class GlobalConfig extends AbstractConfig {
 
         prefix = getConfig().getString("Prefix");
         defaultName = getConfig().getString("DefaultName");
+        useDefaultMythicMobNames = getConfig().getBoolean("UseDefaultMythicMobsNames");
         rightClickToOpen = getConfig().getBoolean("RightClickToOpenMenu");
         leftClickToOpen = getConfig().getBoolean("LeftClickToOpenMenu");
         disableInventoryWhileHoldingSignalStick = getConfig().getBoolean("DisableInventoryWhileHoldingSignalStick");

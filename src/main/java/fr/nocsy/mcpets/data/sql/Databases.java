@@ -66,7 +66,7 @@ public class Databases {
                 for(String petId : pd.getMapOfRegisteredInventories().keySet())
                 {
                     String seriaInv = pd.getMapOfRegisteredInventories().get(petId);
-                    PetInventory.unserialize(seriaInv, pd.getUuid());
+                    PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
                 }
 
                 PlayerData.getRegisteredData().put(uuid, pd);

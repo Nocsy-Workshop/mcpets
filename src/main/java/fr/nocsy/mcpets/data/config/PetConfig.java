@@ -105,7 +105,10 @@ public class PetConfig extends AbstractConfig {
         List<String> description = getConfig().getStringList("Icon.Description");
 
         List<String> signals = getConfig().getStringList("Signals.Values");
-        boolean enableSignalStickFromMenu = getConfig().getBoolean("Signals.Item.GetFromMenu");
+        boolean enableSignalStickFromMenu = true;
+        if(getConfig().get("Signals.Item.GetFromMenu") != null)
+            enableSignalStickFromMenu = getConfig().getBoolean("Signals.Item.GetFromMenu");
+
         String signalStick_Name = getConfig().getString("Signals.Item.Name");
         String signalStick_Mat = getConfig().getString("Signals.Item.Material");
         int signalStick_Data = getConfig().getInt("Signals.Item.CustomModelData");
