@@ -26,10 +26,15 @@ public enum Items {
     @Getter
     private ItemStack item;
 
+    @Getter
+    private String name;
+
     Items(String name) {
+        this.name = name;
         if(ItemsListConfig.getInstance().getItemStack(name) != null)
         {
             item = ItemsListConfig.getInstance().getItemStack(name);
+            prepareItem();
             return;
         }
         switch (name) {
@@ -54,11 +59,24 @@ public enum Items {
             default:
                 item = unknown();
         }
+        prepareItem();
     }
 
     public void setItem(ItemStack item)
     {
         this.item = item;
+    }
+
+    private void prepareItem()
+    {
+        ItemMeta meta = item.getItemMeta();
+        meta.setLocalizedName(getLocalizedName());
+        item.setItemMeta(meta);
+    }
+
+    public String getLocalizedName()
+    {
+        return "MCPetsMenu;" + name;
     }
 
     private static ItemStack unknown()

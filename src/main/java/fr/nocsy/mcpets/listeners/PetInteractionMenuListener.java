@@ -82,12 +82,26 @@ public class PetInteractionMenuListener implements Listener {
                 return;
             }
 
-            ItemStack it = e.getCurrentItem();
-            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName()) {
-
-                if (it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("AlmPetPage;"))
+            if (e.getSlot() == 4) {
+                Pet pet = Pet.getFromLastInteractedWith(p);
+                if (pet == null || !pet.isStillHere()) {
+                    p.closeInventory();
+                    Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
                     return;
-                if(it.isSimilar(Items.PETMENU.getItem()))
+                }
+                revoke(p, pet);
+                p.closeInventory();
+                return;
+            }
+
+            ItemStack it = e.getCurrentItem();
+            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName() && it.getItemMeta().hasLocalizedName()) {
+
+                String localizedName = it.getItemMeta().getLocalizedName();
+                if (localizedName.contains("AlmPetPage;"))
+                    return;
+
+                if(localizedName.equals(Items.PETMENU.getLocalizedName()))
                 {
                     openBackPetMenu(p);
                     return;
@@ -105,17 +119,15 @@ public class PetInteractionMenuListener implements Listener {
                     return;
                 }
 
-                if (e.getSlot() == 4) {
-                    revoke(p, pet);
-                } else if (it.isSimilar(Items.MOUNT.getItem())) {
+                if (localizedName.equals(Items.MOUNT.getLocalizedName())) {
                     mount(p, pet);
-                } else if (it.isSimilar(Items.RENAME.getItem())) {
+                } else if (localizedName.equals(Items.RENAME.getLocalizedName())) {
                     changeName(p);
-                } else if (it.isSimilar(Items.INVENTORY.getItem())) {
+                } else if (localizedName.equals(Items.INVENTORY.getLocalizedName())) {
                     inventory(p, pet);
-                } else if (it.isSimilar(pet.getSignalStick())) {
+                } else if (pet.getSignalStick() != null && it.isSimilar(pet.getSignalStick())) {
                     pet.giveStickSignals(p);
-                } else if(it.isSimilar(Items.SKINS.getItem())) {
+                } else if(localizedName.equals(Items.SKINS.getLocalizedName())) {
                     skins(p, pet);
                 }
                 p.closeInventory();
