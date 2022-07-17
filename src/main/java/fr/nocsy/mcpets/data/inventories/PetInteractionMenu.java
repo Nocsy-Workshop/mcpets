@@ -24,6 +24,8 @@ public class PetInteractionMenu {
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.PETMENU.getItem());
+        if (pet.hasSkins())
+            inventory.setItem(2, Items.SKINS.getItem());
         if (GlobalConfig.getInstance().isNameable())
             inventory.setItem(3, Items.RENAME.getItem());
         if (GlobalConfig.getInstance().isMountable() && pet.isMountable())

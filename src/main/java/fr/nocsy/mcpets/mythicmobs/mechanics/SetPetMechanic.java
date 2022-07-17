@@ -41,7 +41,7 @@ public class SetPetMechanic implements ITargetedEntitySkill {
                     Pet currentPet = Pet.fromOwner(player.getUniqueId());
                     if(currentPet != null)
                     {
-                        currentPet.despawn(PetDespawnReason.REPLACED);
+                        currentPet.despawn(PetDespawnReason.SETPET_REPLACED);
                     }
 
                     Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId());

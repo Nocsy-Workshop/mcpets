@@ -26,7 +26,6 @@ public class PetInventory {
     @Getter
     private static HashMap<UUID, HashMap<String, PetInventory>> petInventories = new HashMap<>();
 
-    @Setter
     private Inventory inventory;
 
     private final Pet pet;
@@ -89,6 +88,13 @@ public class PetInventory {
             return registeredMap.get(pet.getId());
         }
         return new PetInventory(pet, null);
+    }
+
+    public void setInventory(Inventory inventory)
+    {
+        this.inventory = inventory;
+        PlayerData pd = PlayerData.get(pet.getOwner());
+        pd.setPetInventory(this);
     }
 
     /**
@@ -160,11 +166,14 @@ public class PetInventory {
     public void close(Player p)
     {
         p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), null));
-
-        if(!GlobalConfig.getInstance().isDatabaseSupport())
-            PlayerDataNoDatabase.get(p.getUniqueId()).save();
-        else
-            PlayerData.saveDB();
+        new Thread(new Runnable() {
+            public void run() {
+                if(!GlobalConfig.getInstance().isDatabaseSupport())
+                    PlayerDataNoDatabase.get(p.getUniqueId()).save();
+                else
+                    PlayerData.saveDB();
+            }
+        }).start();
     }
 
     /**
@@ -210,6 +219,15 @@ public class PetInventory {
      */
     private static Inventory unserializeInventory(String serialized) throws IOException {
         return BukkitSerialization.fromBase64(serialized);
+    }
+
+    /**
+     * Get the pet ID
+     * @return
+     */
+    public String getPetId()
+    {
+        return pet.getId();
     }
 
 }

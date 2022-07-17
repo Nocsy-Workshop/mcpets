@@ -80,6 +80,15 @@ public class PlayerData {
         reload();
     }
 
+    /**
+     * Register the Pet inventory for future save
+     * @param petInventory
+     */
+    public void setPetInventory(PetInventory petInventory)
+    {
+        mapOfRegisteredInventories.put(petInventory.getPetId(), petInventory.serialize());
+    }
+
     public void save() {
         if (GlobalConfig.getInstance().isDatabaseSupport())
             saveDB();

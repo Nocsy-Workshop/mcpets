@@ -189,7 +189,7 @@ public class PetListener implements Listener {
                     pet.despawn(PetDespawnReason.MYTHICMOBS);
                     Player owner = Bukkit.getPlayer(pet.getOwner());
                     if (owner != null) {
-                        Language.REVOKED.sendMessage(owner);
+                        Language.REVOKED_UNKNOWN.sendMessage(owner);
                     }
                 }
             }

@@ -19,6 +19,8 @@ public class Databases {
     @Setter
     public static MySQLDB mySQL;
 
+    private static String table = "mcpets_player_data";
+
     public static boolean init() {
         if(GlobalConfig.getInstance().isDisableMySQL())
         {
@@ -44,14 +46,14 @@ public class Databases {
     public static void createSQLTables() {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
-        getMySQL().query("CREATE TABLE IF NOT EXISTS player_data (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, primary key (id));");
+        getMySQL().query("CREATE TABLE IF NOT EXISTS " + table + " (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, inventories TEXT, data TEXT, primary key (id));");
     }
 
     public static boolean loadData() {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return false;
 
-        ResultSet playerData = getMySQL().query("SELECT * FROM player_data;");
+        ResultSet playerData = getMySQL().query("SELECT * FROM " + table + ";");
         if (playerData == null)
             return true;
         try {
@@ -70,7 +72,6 @@ public class Databases {
                 }
 
                 PlayerData.getRegisteredData().put(uuid, pd);
-
             }
         } catch (SQLException e1) {
             return false;
@@ -83,16 +84,17 @@ public class Databases {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
 
-        getMySQL().query("TRUNCATE player_data");
+        getMySQL().query("TRUNCATE " + table);
 
         for (PlayerData pd : PlayerData.getRegisteredData().values()) {
             UUID uuid = pd.getUuid();
 
             String names = buildStringSerialized(pd.getMapOfRegisteredNames());
-            getMySQL().query("INSERT INTO player_data (uuid, names) VALUES ('" + uuid.toString() + "', '" + names + "')");
-
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
-            getMySQL().query("INSERT INTO player_data (uuid, inventories) VALUES ('" + uuid.toString() + "', '" + inventories + "')");
+            getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
+                                                                                                    + "', '" + names
+                                                                                                    + "', '" + inventories
+                                                                                                    + "', '" + null + "')");
         }
     }
 

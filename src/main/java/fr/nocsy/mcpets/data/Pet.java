@@ -38,7 +38,7 @@ public class Pet {
     public static final String SIGNAL_STICK_TAG = "&MCPets-SignalSticks&";
 
     //---------------------------------------------------------------------
-    public static final int BLOCKED = 1;
+    public static final int BLOCKED = 2;
     public static final int MOB_SPAWN = 0;
     public static final int DESPAWNED_PREVIOUS = 1;
     public static final int OWNER_NULL = -1;
@@ -617,7 +617,7 @@ public class Pet {
         if (ownerPlayer != null) {
             if (reason.equals(PetDespawnReason.UNKNOWN) ||
                     reason.equals(PetDespawnReason.SPAWN_ISSUE)) {
-                Language.REVOKED.sendMessage(ownerPlayer);
+                Language.REVOKED_UNKNOWN.sendMessage(ownerPlayer);
             }
         }
 
@@ -921,6 +921,15 @@ public class Pet {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Says whether or not the pet has skins
+     * @return
+     */
+    public boolean hasSkins()
+    {
+        return PetSkin.getSkins(this) != null && PetSkin.getSkins(this).size() > 0;
     }
 
     /**

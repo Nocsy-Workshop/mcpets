@@ -8,6 +8,7 @@ public enum PetDespawnReason {
     DEATH("death"),
     REVOKE("revoke"),
     REPLACED("replaced"),
+    SETPET_REPLACED("setpet replaced"),
     OWNER_NOT_HERE("owner not here"),
     RELOAD("reload"),
     FLAG("flag"),

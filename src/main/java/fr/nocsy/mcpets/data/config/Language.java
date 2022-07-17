@@ -36,6 +36,10 @@ public enum Language {
     SUMMONED("§7A pet has been summoned !"),
     REVOKED("§7Your pet was revoked."),
     REVOKED_FOR_NEW_ONE("§7Your previous pet was revoked to summon the new one."),
+    REVOKED_UNKNOWN("§cThe pet could not be spawned due to one of the following reasons :" +
+            "\n§7- The world is on §cpeaceful or easy mode§7." +
+            "\n§7- A region §cprevents the mob from spawning§7 (the anchor is an aggressive mob most likely)." +
+            "\n§7- You have a §cspawn protector plugin§7, try to spawn the mob in another world or far from spawn."),
     MYTHICMOB_NULL("§cThis pet could not be summoned. The associated mythicMob entity or file is null or was removed."),
     NO_MOB_MATCH("§cThis pet could not be summoned. The associated mythicmob isn't registered in MythicMobs."),
     NOT_ALLOWED("§cYou're not allowed to summon this pet."),
@@ -86,7 +90,12 @@ public enum Language {
     CATEGORY_PET_AMOUNT("§e%petAmount% §6registered"),
     CATEGORY_MENU_TITLE("§0☀ §4Pets §8- Pick a category §0☀"),
 
-    PET_INVENTORY_TITLE("§0☀ §4%pet% §8- §0Inventory §0☀§");
+    PET_INVENTORY_TITLE("§0☀ §4%pet% §8- §0Inventory §0☀§"),
+
+    PET_SKINS_TITLE("§0☀ §4%pet% §8- §0Skins §0☀§"),
+
+    SKIN_COULD_NOT_APPLY("§cThe skin could not be applied to the pet."),
+    SKIN_APPLIED("§aSkin changed successfully !");
 
     @Getter
     private String message;
