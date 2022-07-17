@@ -9,10 +9,7 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
-import fr.nocsy.mcpets.events.EntityMountPetEvent;
-import fr.nocsy.mcpets.events.PetCastSkillEvent;
-import fr.nocsy.mcpets.events.PetDespawnEvent;
-import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.PathFindingUtils;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.adapters.AbstractLocation;
@@ -33,11 +30,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class Pet {
 
@@ -45,7 +38,7 @@ public class Pet {
     public static final String SIGNAL_STICK_TAG = "&MCPets-SignalSticks&";
 
     //---------------------------------------------------------------------
-    public static final int BLOCKED = 1;
+    public static final int BLOCKED = 2;
     public static final int MOB_SPAWN = 0;
     public static final int DESPAWNED_PREVIOUS = 1;
     public static final int OWNER_NULL = -1;
@@ -119,7 +112,15 @@ public class Pet {
 
     @Getter
     @Setter
+    private int inventorySize;
+
+    @Getter
+    @Setter
     private List<String> signals;
+
+    @Getter
+    @Setter
+    private boolean enableSignalStickFromMenu;
 
     //********** Living entity **********
 
@@ -146,6 +147,10 @@ public class Pet {
     @Setter
     private boolean firstSpawn;
 
+    @Getter
+    @Setter
+    private boolean followOwner;
+
     // Debug variables
 
     private boolean recurrent_spawn = false;
@@ -168,13 +173,15 @@ public class Pet {
      *
      * @param p
      */
-    public static void clearStickSignals(Player p) {
+    public static void clearStickSignals(Player p, String petId) {
         if (p == null)
             return;
 
         for (int i = 0; i < p.getInventory().getSize(); i++) {
             ItemStack item = p.getInventory().getItem(i);
-            if (Items.isSignalStick(item)) {
+            if (Items.isSignalStick(item)
+                    && Pet.getFromSignalStick(item) != null
+                    && Pet.getFromSignalStick(item).getId().equals(petId)) {
                 p.getInventory().setItem(i, new ItemStack(Material.AIR));
             }
         }
@@ -267,6 +274,29 @@ public class Pet {
     }
 
     /**
+     * Associate the said player to the pet as last interacted with
+     * @param p
+     */
+    public void setLastInteractedWith(Player p)
+    {
+        p.setMetadata("AlmPetInteracted", new FixedMetadataValue(MCPets.getInstance(), this));
+    }
+
+    /**
+     * Return the pet from the signal stick item
+     * null if none is found matching the id
+     * @param signalStick
+     * @return
+     */
+    public static Pet getFromSignalStick(ItemStack signalStick)
+    {
+        String petId = Items.getPetTag(signalStick);
+        if(petId != null)
+            return Pet.getFromId(petId);
+        return null;
+    }
+
+    /**
      * List of pets available for the specified player (using permissions)
      *
      * @param p
@@ -305,8 +335,10 @@ public class Pet {
      */
     public int spawn(Location loc) {
 
-        PetSpawnEvent event = new PetSpawnEvent(this);
+        PetSpawnEvent event = new PetSpawnEvent(this, loc);
         Utils.callEvent(event);
+
+        followOwner = true;
 
         if(loc == null)
             return BLOCKED;
@@ -357,7 +389,7 @@ public class Pet {
                     ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, Utils.bruised(loc, getSpawnRange()));
                 }
             }
-            catch (NullPointerException ex)
+            catch (NullPointerException | NoSuchElementException ex)
             {
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
@@ -395,6 +427,9 @@ public class Pet {
 
             PlayerData pd = PlayerData.get(owner);
             String name = pd.getMapOfRegisteredNames().get(this.id);
+            if(GlobalConfig.getInstance().isUseDefaultMythicMobNames())
+                name = activeMob.getDisplayName();
+
             setRemoved(false);
             if (name != null) {
                 setDisplayName(name, false);
@@ -461,6 +496,34 @@ public class Pet {
             }
     }
 
+    public void changeActiveMobTo(ActiveMob mob, Player p)
+    {
+        activeMob = mob;
+        Entity ent = mob.getEntity().getBukkitEntity();
+        ent.setMetadata("AlmPet", new FixedMetadataValue(MCPets.getInstance(), this));
+        if (ent.isInvulnerable() && GlobalConfig.getInstance().isLeftClickToOpen()) {
+            this.invulnerable = true;
+            ent.setInvulnerable(false);
+        }
+        owner = p.getUniqueId();
+        activeMob.setOwner(owner);
+        followOwner = true;
+        this.AI();
+
+        activePets.put(owner, this);
+
+        PlayerData pd = PlayerData.get(owner);
+        String name = pd.getMapOfRegisteredNames().get(this.id);
+        setRemoved(false);
+        if (name != null) {
+            setDisplayName(name, false);
+        } else {
+            setDisplayName(Language.TAG_TO_REMOVE_NAME.getMessage(), false);
+        }
+
+        PlayerSignal.setDefaultSignal(owner, this);
+    }
+
     /**
      * Activate the following AI of the mob
      */
@@ -482,6 +545,7 @@ public class Pet {
                 }
 
                 if (p != null) {
+
                     if (p.isDead())
                         return;
 
@@ -501,6 +565,8 @@ public class Pet {
                         PathFindingUtils.stop(activeMob.getEntity());
                     } else if (distance > getInstance().getDistance() &&
                             distance < GlobalConfig.getInstance().getDistanceTeleport()) {
+                        if(!followOwner)
+                            return;
                         AbstractLocation aloc = new AbstractLocation(activeMob.getEntity().getWorld(), petLocation.getX(), petLocation.getY(), petLocation.getZ());
                         PathFindingUtils.moveTo(activeMob.getEntity(), aloc);
                     } else if (distance > GlobalConfig.getInstance().getDistanceTeleport()
@@ -530,6 +596,7 @@ public class Pet {
      */
     public int spawn(@NotNull Player owner, Location loc) {
         this.owner = owner.getUniqueId();
+        setLastInteractedWith(owner);
         return spawn(loc);
     }
 
@@ -539,8 +606,10 @@ public class Pet {
      * @return
      */
     public boolean despawn(PetDespawnReason reason) {
+
         PetDespawnEvent event = new PetDespawnEvent(this, reason);
         Utils.callEvent(event);
+
         Bukkit.getScheduler().cancelTask(task);
         removed = true;
 
@@ -548,7 +617,7 @@ public class Pet {
         if (ownerPlayer != null) {
             if (reason.equals(PetDespawnReason.UNKNOWN) ||
                     reason.equals(PetDespawnReason.SPAWN_ISSUE)) {
-                Language.REVOKED.sendMessage(ownerPlayer);
+                Language.REVOKED_UNKNOWN.sendMessage(ownerPlayer);
             }
         }
 
@@ -570,7 +639,8 @@ public class Pet {
 
             if (ownerPlayer != null) {
                 this.dismount(ownerPlayer);
-                Pet.clearStickSignals(ownerPlayer);
+                if(enableSignalStickFromMenu)
+                    Pet.clearStickSignals(ownerPlayer, this.id);
             }
 
             activePets.remove(owner);
@@ -616,6 +686,11 @@ public class Pet {
                 !activeMob.isDead() &&
                 getActivePets().containsValue(this) &&
                 !removed;
+    }
+
+    public boolean has(Player p)
+    {
+        return p.hasPermission(this.getPermission());
     }
 
     /**
@@ -671,7 +746,7 @@ public class Pet {
             }
 
         } catch (Exception ex) {
-            MCPets.getLog().warning("[AlmPet] : Une exception " + ex.getClass().getSimpleName() + " a été soulevé par setDisplayName(" + Language.TAG_TO_REMOVE_NAME.getMessage() + "), concernant le pet " + this.id);
+            MCPets.getLog().warning("[MCPets] : Exception raised while naming the pet " + ex.getClass().getSimpleName() + " | setDisplayName(" + Language.TAG_TO_REMOVE_NAME.getMessage() + ") for the pet " + this.id);
             ex.printStackTrace();
         }
     }
@@ -691,12 +766,14 @@ public class Pet {
         pet.setDespawnSkill(despawnSkill);
         pet.setMountable(mountable);
         pet.setMountType(mountType);
+        pet.setInventorySize(inventorySize);
         pet.setAutoRide(autoRide);
         pet.setIcon(icon);
         pet.setSignalStick(signalStick);
         pet.setOwner(owner);
         pet.setActiveMob(activeMob);
         pet.setSignals(signals);
+        pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
         return pet;
     }
 
@@ -782,12 +859,22 @@ public class Pet {
 
     }
 
+    /**
+     * Set the name of the pet to the specified name
+     * If the global config states we should use MM default naming, then it won't change the name, but you can turn off the visibility
+     * @param name
+     * @param visible
+     */
     public void setNameTag(String name, boolean visible) {
         if (isStillHere()) {
             ModeledEntity localModeledEntity = ModelEngineAPI.api.getModelManager().getModeledEntity(this.activeMob.getEntity().getUniqueId());
             if (localModeledEntity == null) {
                 return;
             }
+
+            if (GlobalConfig.getInstance().isUseDefaultMythicMobNames())
+                name = activeMob.getDisplayName();
+
             activeMob.getEntity().getBukkitEntity().setCustomNameVisible(visible);
             INametagHandler nameTagHandler = localModeledEntity.getNametagHandler();
             nameTagHandler.setCustomName("name", name);
@@ -807,9 +894,11 @@ public class Pet {
         if (p == null)
             return;
 
-        clearStickSignals(p);
+        if(enableSignalStickFromMenu)
+            clearStickSignals(p, this.id);
 
-        p.getInventory().addItem(this.getSignalStick());
+        if(!p.getInventory().contains(signalStick))
+            p.getInventory().addItem(signalStick);
 
     }
 
@@ -832,6 +921,15 @@ public class Pet {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Says whether or not the pet has skins
+     * @return
+     */
+    public boolean hasSkins()
+    {
+        return PetSkin.getSkins(this) != null && PetSkin.getSkins(this).size() > 0;
     }
 
     /**

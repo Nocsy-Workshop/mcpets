@@ -2,7 +2,6 @@ package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.inventories.PetMenu;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,25 +9,32 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class PetMenuListener implements Listener {
+public class CategoryMenuListener implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent e) {
-        if (e.getView().getTitle().equals(PetMenu.getTitle()) && Category.getCategories().size() == 0) {
+
+        if(Category.getCategories().size() == 0)
+            return;
+
+        Category category = Category.getFromInventory(e.getClickedInventory());
+
+        if (category != null) {
             e.setCancelled(true);
             Player p = (Player) e.getWhoClicked();
             ItemStack it = e.getCurrentItem();
             if (it != null) {
-                if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("AlmPetPage;")) {
-                    int page = Integer.parseInt(it.getItemMeta().getLocalizedName().split(";")[1]);
-                    p.closeInventory();
+                if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("MCPetsPage;")) {
+
+                    int currentPage = category.getCurrentPage(e.getClickedInventory());
+                    boolean opened = true;
                     if (e.getClick() == ClickType.LEFT) {
-                        PetMenu menu = new PetMenu(p, Math.max(page - 1, 0), true);
-                        menu.open(p);
+                        opened = category.openInventory(p, currentPage - 1);
                     } else {
-                        PetMenu menu = new PetMenu(p, page + 1, true);
-                        menu.open(p);
+                        opened = category.openInventory(p, currentPage + 1);
                     }
+                    if(opened)
+                        p.closeInventory();
                     return;
                 }
 
@@ -42,5 +48,4 @@ public class PetMenuListener implements Listener {
 
         }
     }
-
 }

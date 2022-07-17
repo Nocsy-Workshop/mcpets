@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data.sql;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Databases {
@@ -17,7 +19,14 @@ public class Databases {
     @Setter
     public static MySQLDB mySQL;
 
+    private static String table = "mcpets_player_data";
+
     public static boolean init() {
+        if(GlobalConfig.getInstance().isDisableMySQL())
+        {
+            MCPets.getInstance().getLogger().info("MySQL is disabled. Flat support will be used.");
+            return false;
+        }
         Databases.setMySQL(new MySQLDB(GlobalConfig.getInstance().getMySQL_USER(),
                 GlobalConfig.getInstance().getMySQL_PASSWORD(),
                 GlobalConfig.getInstance().getMySQL_HOST(),
@@ -37,45 +46,32 @@ public class Databases {
     public static void createSQLTables() {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
-        getMySQL().query("CREATE TABLE IF NOT EXISTS player_data (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, primary key (id));");
+        getMySQL().query("CREATE TABLE IF NOT EXISTS " + table + " (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, inventories TEXT, data TEXT, primary key (id));");
     }
 
     public static boolean loadData() {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return false;
 
-        ResultSet playerData = getMySQL().query("SELECT * FROM player_data;");
+        ResultSet playerData = getMySQL().query("SELECT * FROM " + table + ";");
         if (playerData == null)
             return true;
         try {
             while (playerData.next()) {
+
                 String uuidStr = playerData.getString("uuid");
                 UUID uuid = UUID.fromString(uuidStr);
-                String names = playerData.getString("names");
-                HashMap<String, String> mapName = new HashMap<>();
+                PlayerData pd = PlayerData.getEmpty(uuid);
 
-                String[] namesTable = names.split(";;;");
-
-                for (String seriaPetName : namesTable) {
-                    // treats the case in which input is empty or wrongly formatted
-                    if (seriaPetName == null || seriaPetName.length() == 0 || !seriaPetName.contains(";;"))
-                        continue;
-
-                    String[] seriaId_Name = seriaPetName.split(";;");
-                    try {
-                        String pet_id = seriaId_Name[0];
-                        String custom_name = seriaId_Name[1];
-                        mapName.put(pet_id, custom_name);
-                    } catch (IndexOutOfBoundsException ex) {
-                        ex.printStackTrace();
-                        MCPets.getInstance().getLogger().severe("[Database] Index out of bound for (65) : " + seriaPetName);
-                    }
+                pd.setMapOfRegisteredNames(unserializeData(playerData, "names"));
+                pd.setMapOfRegisteredInventories(unserializeData(playerData, "inventories"));
+                for(String petId : pd.getMapOfRegisteredInventories().keySet())
+                {
+                    String seriaInv = pd.getMapOfRegisteredInventories().get(petId);
+                    PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
                 }
 
-                PlayerData pd = PlayerData.getEmpty(uuid);
-                pd.setMapOfRegisteredNames(mapName);
                 PlayerData.getRegisteredData().put(uuid, pd);
-
             }
         } catch (SQLException e1) {
             return false;
@@ -88,23 +84,58 @@ public class Databases {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
 
-        getMySQL().query("TRUNCATE player_data");
+        getMySQL().query("TRUNCATE " + table);
 
         for (PlayerData pd : PlayerData.getRegisteredData().values()) {
             UUID uuid = pd.getUuid();
-            String names = "";
 
-            for (String pet_id : pd.getMapOfRegisteredNames().keySet()) {
-                String custom_name = pd.getMapOfRegisteredNames().get(pet_id);
-                String seriaId_name = pet_id + ";;" + custom_name;
-
-                if (names.equals(""))
-                    names = seriaId_name;
-                else
-                    names = names + ";;;" + seriaId_name;
-            }
-
-            getMySQL().query("INSERT INTO player_data (uuid, names) VALUES ('" + uuid.toString() + "', '" + names + "')");
+            String names = buildStringSerialized(pd.getMapOfRegisteredNames());
+            String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+            getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
+                                                                                                    + "', '" + names
+                                                                                                    + "', '" + inventories
+                                                                                                    + "', '" + null + "')");
         }
+    }
+
+    private static String buildStringSerialized(Map<String,String> map)
+    {
+        String builder = "";
+        for(String id : map.keySet())
+        {
+            String seria = map.get(id);
+            String seriaId = id + ";;" + seria;
+            if(builder.isBlank())
+                builder = seriaId;
+            else
+                builder = builder + ";;;" + seriaId;
+        }
+        return builder;
+    }
+
+    public static HashMap<String, String> unserializeData(ResultSet resultSet, String targetedColumn) throws SQLException
+    {
+        String targetedResults = resultSet.getString(targetedColumn);
+        HashMap<String, String> outputMap = new HashMap<>();
+
+        String[] seriaTable = targetedResults.split(";;;");
+
+        for (String seriaContents : seriaTable) {
+            // treats the case in which input is empty or wrongly formatted
+            if (seriaContents == null || !seriaContents.contains(";;"))
+                continue;
+
+            String[] seriaData = seriaContents.split(";;");
+            try {
+                String pet_id = seriaData[0];
+                String content = seriaData[1];
+                outputMap.put(pet_id, content);
+            } catch (IndexOutOfBoundsException ex) {
+                ex.printStackTrace();
+                MCPets.getInstance().getLogger().severe("[Database] Index out of bound for (147) : " + seriaContents);
+            }
+        }
+
+        return outputMap;
     }
 }

@@ -1,10 +1,12 @@
 package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -15,12 +17,21 @@ public enum Items {
 
     MOUNT("mount"),
     RENAME("rename"),
-    PETMENU("petmenu");
+    PETMENU("petmenu"),
+    INVENTORY("inventory"),
+    SKINS("skins"),
+    EQUIPMENT("equipment"),
+    UNKNOWN("unkown");
 
     @Getter
     private ItemStack item;
 
     Items(String name) {
+        if(ItemsListConfig.getInstance().getItemStack(name) != null)
+        {
+            item = ItemsListConfig.getInstance().getItemStack(name);
+            return;
+        }
         switch (name) {
             case "mount":
                 item = mount();
@@ -29,12 +40,44 @@ public enum Items {
                 item = rename();
                 break;
             case "petmenu":
-                item = backToPets();
+                item = petmenu();
                 break;
+            case "inventory":
+                item = inventory();
+                break;
+            case "skins":
+                item = skins();
+                break;
+            case "equipment":
+                item = equipment();
+                break;
+            default:
+                item = unknown();
         }
     }
 
+    public void setItem(ItemStack item)
+    {
+        this.item = item;
+    }
+
+    private static ItemStack unknown()
+    {
+        ArrayList<String> lore = new ArrayList<>();
+
+        ItemStack it = Utils.createHead("Unknown",
+                lore,
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzhmM2Q3NjkxZDZkNWQ1NDZjM2NmMjIyNDNiM2U4MzA5YTEwNzAxMWYyZWU5Mzg0OGIxZThjNjU3NjgxYTU2ZCJ9fX0=");
+        ItemMeta meta = it.getItemMeta();
+        meta.setLocalizedName("AlmPet;Unknown");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
     private static ItemStack mount() {
+
         ItemStack it = new ItemStack(Material.SADDLE);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.MOUNT_ITEM_NAME.getMessage());
@@ -58,7 +101,7 @@ public enum Items {
         return it;
     }
 
-    private static ItemStack backToPets() {
+    private static ItemStack petmenu() {
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage().split("\n")));
 
         ItemStack it = Utils.createHead(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage(), lore, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI5M2E2MDcwNTAzMTcyMDcxZjM1ZjU4YzgyMjA0ZTgxOGNkMDY1MTg2OTAxY2ExOWY3ZGFkYmRhYzE2NWU0NCJ9fX0=");
@@ -70,14 +113,73 @@ public enum Items {
         return it;
     }
 
-    public static ItemStack page(int index) {
+    private static ItemStack inventory() {
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.INVENTORY_ITEM_DESCRIPTION.getMessage().split("\n")));
+
+        ItemStack it = new ItemStack(Material.CHEST);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.INVENTORY_ITEM_NAME.getMessage());
+        meta.setLocalizedName("AlmPet;Inventory");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
+    private static ItemStack skins() {
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.SKINS_ITEM_DESCRIPTION.getMessage().split("\n")));
+
+        ItemStack it = new ItemStack(Material.MAGMA_CREAM);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.SKINS_ITEM_NAME.getMessage());
+        meta.setLocalizedName("AlmPet;Skins");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
+    private static ItemStack equipment() {
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.EQUIPMENT_ITEM_NAME.getMessage().split("\n")));
+
+        ItemStack it = new ItemStack(Material.LEATHER_HORSE_ARMOR);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.EQUIPMENT_ITEM_NAME.getMessage());
+        meta.setLocalizedName("AlmPet;Inventory");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
+    public static ItemStack page(int index, Player p) {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessage());
+        meta.setCustomModelData(960);
+        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
+                                                                            new FormatArg("%maxPage%", Integer.toString((int)(Pet.getAvailablePets(p).size()/54 + 0.5)))));
 
         meta.setLocalizedName("AlmPetPage;" + index);
 
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.TURNPAGE_ITEM_DESCRIPTION.getMessage().split("\n")));
+        meta.setLore(lore);
+
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    public static ItemStack page(Category category, int index) {
+        ItemStack it = new ItemStack(Material.PAPER);
+        ItemMeta meta = it.getItemMeta();
+        meta.setCustomModelData(960);
+        meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
+                                                                            new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
+        meta.setLocalizedName("MCPetsPage;" + category.getId() + ";" + index);
+
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.TURNPAGE_ITEM_DESCRIPTION.getMessageFormatted(
+                                                        new FormatArg("%currentPage%", Integer.toString(index)),
+                                                        new FormatArg("%maxPage%", Integer.toString(category.getMaxPages())))
+                                                        .split("\n")));
         meta.setLore(lore);
 
         it.setItemMeta(meta);
@@ -124,7 +226,42 @@ public enum Items {
     }
 
     public static boolean isSignalStick(ItemStack it) {
-        return it != null && it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().equals(Pet.SIGNAL_STICK_TAG);
+        return it != null &&
+                it.hasItemMeta() &&
+                it.getItemMeta().hasLocalizedName() &&
+                it.getItemMeta().getLocalizedName().contains(Pet.SIGNAL_STICK_TAG);
+    }
+
+    public static ItemStack turnIntoSignalStick(ItemStack it, Pet pet)
+    {
+        if(it == null ||
+                it.getType().isAir() ||
+                pet == null)
+            return it;
+        ItemMeta meta = it.getItemMeta();
+        meta.setLocalizedName(buildSignalStickTag(pet));
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    public static String buildSignalStickTag(Pet pet)
+    {
+        if(pet == null)
+            return null;
+        return Pet.SIGNAL_STICK_TAG + ";" + pet.getId();
+    }
+
+    public static String getPetTag(ItemStack it)
+    {
+        if(it != null &&
+            it.hasItemMeta() &&
+            it.getItemMeta().hasLocalizedName())
+        {
+            String[] split = it.getItemMeta().getLocalizedName().split(";");
+            if(split.length == 2)
+                return split[1];
+        }
+        return null;
     }
 
 }

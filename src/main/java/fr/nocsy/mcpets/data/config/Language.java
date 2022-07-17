@@ -18,7 +18,16 @@ public enum Language {
     BACK_TO_PETMENU_ITEM_NAME("§cBack to menu"),
     BACK_TO_PETMENU_ITEM_DESCRIPTION("§7Click to get back to the menu"),
 
-    TURNPAGE_ITEM_NAME("§6Next page"),
+    INVENTORY_ITEM_NAME("§6Inventory"),
+    INVENTORY_ITEM_DESCRIPTION("§7Click to open the pet's inventory"),
+
+    SKINS_ITEM_NAME("§6Skins"),
+    SKINS_ITEM_DESCRIPTION("§7Click to change your pet's skin"),
+
+    EQUIPMENT_ITEM_NAME("§6Equipment"),
+    EQUIPMENT_DESCRIPTION("§7Click to open your pet's equipment"),
+
+    TURNPAGE_ITEM_NAME("§6Next page §7(§e%currentPage%§8/§7%maxPage%)"),
     TURNPAGE_ITEM_DESCRIPTION("§eRight click§7 to go forward \n§aLeft click§7 to go backward"),
 
     NICKNAME("§9Nickname : §7%nickname%"),
@@ -27,6 +36,10 @@ public enum Language {
     SUMMONED("§7A pet has been summoned !"),
     REVOKED("§7Your pet was revoked."),
     REVOKED_FOR_NEW_ONE("§7Your previous pet was revoked to summon the new one."),
+    REVOKED_UNKNOWN("§cThe pet could not be spawned due to one of the following reasons :" +
+            "\n§7- The world is on §cpeaceful or easy mode§7." +
+            "\n§7- A region §cprevents the mob from spawning§7 (the anchor is an aggressive mob most likely)." +
+            "\n§7- You have a §cspawn protector plugin§7, try to spawn the mob in another world or far from spawn."),
     MYTHICMOB_NULL("§cThis pet could not be summoned. The associated mythicMob entity or file is null or was removed."),
     NO_MOB_MATCH("§cThis pet could not be summoned. The associated mythicmob isn't registered in MythicMobs."),
     NOT_ALLOWED("§cYou're not allowed to summon this pet."),
@@ -47,6 +60,14 @@ public enum Language {
     SIGNAL_STICK_GIVEN("§aYou've received an order stick. Right click to cast an order, left click to switch orders."),
     SIGNAL_STICK_SIGNAL("§6Active order : §e%signal%"),
     LOOP_SPAWN("§cYour pet was revoked because it seems to struggle with numerous teleportations."),
+    REQUIRES_ITEM_IN_HAND("§cYou must holding an item in your hand it update it in the config."),
+    ITEM_UPDATED("§aItem updated successful with the key : §e%key%"),
+    ITEM_DOESNT_EXIST("§aThe item with the key §e%key%§c doesn't exist. If you want to add it you can use the §eadd§c argument instead."),
+    KEY_DOESNT_EXIST("§cThe specified key is not registered."),
+    KEY_REMOVED("§aThe key item was removed succesfully."),
+    KEY_ALREADY_EXISTS("§cThis key is already registered. Use it to replace the current item."),
+    KEY_ADDED("§aKey added successfully with the corresponding item."),
+    KEY_LIST("§aAvailable keys :"),
 
     RELOAD_SUCCESS("§aReloaded successfully."),
     HOW_MANY_PETS_LOADED("§a%numberofpets% were registered successfully"),
@@ -57,11 +78,24 @@ public enum Language {
             "\n§8   ... §areload " +
             "\n§8   ... §7(nothing here to open the GUI) " +
             "\n§8   ... §aopen §8<§7player§8>" +
-            "\n§8   ... §aspawn §8<§7id§8> <§7player§8> §atrue§8/§cfalse §7(check if the player have the permission to spawn the pet or not)" +
+            "\n§8   ... §aspawn §8<§7id§8> <§7player§8> §atrue§8/§cfalse §7(check if the player have the permission to spawn the pet or not) -s (set silent or not)" +
             "\n§8   ... §arevoke" +
             "\n§8   ... §aname" +
-            "\n§8   ... §amount"),
-    NO_PERM("§cYou're not allowed to use this command.");
+            "\n§8   ... §amount" +
+            "\n§8   ... §aitem §7<§elist§8/§eadd§8/§eremove§7> <§ekey§7>" +
+            "\n§8   ... §asignalstick §7<§eplayer§8/§epet§7> §7<§epet§7>"),
+    NO_PERM("§cYou're not allowed to use this command."),
+    BLACKLISTED_WORLD("§cMCPets is disabled in this world."),
+
+    CATEGORY_PET_AMOUNT("§e%petAmount% §6registered"),
+    CATEGORY_MENU_TITLE("§0☀ §4Pets §8- Pick a category §0☀"),
+
+    PET_INVENTORY_TITLE("§0☀ §4%pet% §8- §0Inventory §0☀§"),
+
+    PET_SKINS_TITLE("§0☀ §4%pet% §8- §0Skins §0☀§"),
+
+    SKIN_COULD_NOT_APPLY("§cThe skin could not be applied to the pet."),
+    SKIN_APPLIED("§aSkin changed successfully !");
 
     @Getter
     private String message;
@@ -77,11 +111,11 @@ public enum Language {
     }
 
     public void sendMessage(Player p) {
-        p.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + message);
+        p.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
     }
 
     public void sendMessage(CommandSender sender) {
-        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + message);
+        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
     }
 
     public void sendMessageFormated(CommandSender sender, FormatArg... args) {
@@ -89,7 +123,7 @@ public enum Language {
         for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);
         }
-        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + " " + toSend);
+        sender.sendMessage(GlobalConfig.getInstance().getPrefix() + toSend);
     }
 
     public String getMessageFormatted(FormatArg... args) {

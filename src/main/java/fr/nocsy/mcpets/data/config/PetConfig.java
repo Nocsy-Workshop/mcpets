@@ -1,15 +1,19 @@
 package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetSkin;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class PetConfig extends AbstractConfig {
 
@@ -93,6 +97,9 @@ public class PetConfig extends AbstractConfig {
         String despawnSkillName = getConfig().getString("DespawnSkill");
         boolean autoRide = getConfig().getBoolean("AutoRide");
         String mountType = getConfig().getString("MountType");
+        int inventorySize = Math.min(getConfig().getInt("InventorySize"), 54);
+        while(inventorySize < 54 && inventorySize % 9 != 0)
+            inventorySize++;
 
         String iconName = getConfig().getString("Icon.Name");
         String materialType = getConfig().getString("Icon.Material");
@@ -101,6 +108,10 @@ public class PetConfig extends AbstractConfig {
         List<String> description = getConfig().getStringList("Icon.Description");
 
         List<String> signals = getConfig().getStringList("Signals.Values");
+        boolean enableSignalStickFromMenu = true;
+        if(getConfig().get("Signals.Item.GetFromMenu") != null)
+            enableSignalStickFromMenu = getConfig().getBoolean("Signals.Item.GetFromMenu");
+
         String signalStick_Name = getConfig().getString("Signals.Item.Name");
         String signalStick_Mat = getConfig().getString("Signals.Item.Material");
         int signalStick_Data = getConfig().getInt("Signals.Item.CustomModelData");
@@ -135,7 +146,9 @@ public class PetConfig extends AbstractConfig {
         pet.setSpawnRange(spawnRange);
         pet.setComingBackRange(comingbackRange);
         pet.setMountType(mountType);
+        pet.setInventorySize(inventorySize);
         pet.setSignals(signals);
+        pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
 
         if (despawnSkillName != null) {
             new BukkitRunnable() {
@@ -151,7 +164,25 @@ public class PetConfig extends AbstractConfig {
         }
 
         pet.setIcon(pet.buildItem(pet.getIcon(), pet.toString(), iconName, description, materialType, customModelData, textureBase64));
-        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Pet.SIGNAL_STICK_TAG, signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
+        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
+
+        PetSkin.clearList();
+        for(String key : getConfig().getKeys(true).stream()
+                                                        .filter(key ->
+                                                                   key.contains("Skins") &&
+                                                                   key.replace(".", ";").split(";").length == 2)
+                                                        .collect(Collectors.toList()))
+        {
+            String modelSkinId = getConfig().getString(key + ".Model");
+            String skinPerm = getConfig().getString(key + ".Permission");
+
+            PetSkin.load(pet, modelSkinId, skinPerm, pet.buildItem(null, "",
+                                                                        getConfig().getString(key + ".Icon.DisplayName"),
+                                                                        getConfig().getStringList(key + ".Icon.Lore"),
+                                                                        getConfig().getString(key + ".Icon.Material"),
+                                                                        getConfig().getInt(key + ".Icon.CustomModelData"),
+                                                                        getConfig().getString(key + ".Icon.TextureBase64")));
+        }
 
         this.pet = pet;
     }

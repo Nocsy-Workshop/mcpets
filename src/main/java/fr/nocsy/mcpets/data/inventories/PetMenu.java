@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.inventories;
 
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
@@ -48,7 +49,7 @@ public class PetMenu {
             Pet pet = availablePets.get(i);
 
             if (i % 53 == 0 && i > page * 53) {
-                inventory.setItem(invSize - 1, Items.page(page));
+                inventory.setItem(invSize - 1, Items.page(page, p));
                 break;
             }
             inventory.addItem(pet.getIcon());
@@ -56,12 +57,17 @@ public class PetMenu {
         }
 
         if (addPager) {
-            inventory.setItem(invSize - 1, Items.page(page));
+            inventory.setItem(invSize - 1, Items.page(page, p));
         }
 
     }
 
     public void open(Player p) {
+        if(Category.getCategories().size() > 0)
+        {
+            CategoriesMenu.open(p);
+            return;
+        }
         p.openInventory(inventory);
     }
 

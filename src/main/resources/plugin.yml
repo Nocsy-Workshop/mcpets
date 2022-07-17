@@ -1,6 +1,6 @@
 name: MCPets
 main: fr.nocsy.mcpets.MCPets
-version: 1.0.4
+version: 2.0.0
 description: More info at MCModels.net
 depends:
   - MythicMobs

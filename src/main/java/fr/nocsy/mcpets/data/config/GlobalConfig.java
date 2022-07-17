@@ -3,6 +3,10 @@ package fr.nocsy.mcpets.data.config;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class GlobalConfig extends AbstractConfig {
 
     public static GlobalConfig instance;
@@ -12,11 +16,13 @@ public class GlobalConfig extends AbstractConfig {
     private boolean worldguardsupport = true;
 
     @Getter
-    private String prefix = "§8[§6MCPets§8] »";
+    private String prefix = "§8[§6MCPets§8] » ";
     @Getter
     private String defaultName = "§9Pet of %player%";
     @Getter
     private int adaptiveInventory = -1;
+    @Getter
+    private boolean useDefaultMythicMobNames;
     @Getter
     private boolean nameable;
     @Getter
@@ -25,6 +31,8 @@ public class GlobalConfig extends AbstractConfig {
     private boolean rightClickToOpen;
     @Getter
     private boolean leftClickToOpen;
+    @Getter
+    private boolean disableInventoryWhileHoldingSignalStick;
     @Getter
     private boolean sneakMode;
     @Getter
@@ -38,6 +46,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean activateBackMenuIcon = true;
     @Getter
+    private boolean disableMySQL = false;
+    @Getter
     private String MySQL_USER;
     @Getter
     private String MySQL_PASSWORD;
@@ -47,13 +57,14 @@ public class GlobalConfig extends AbstractConfig {
     private String MySQL_PORT;
     @Getter
     private String MySQL_DB;
+    @Getter
+    private List<String> blackListedWorlds;
 
     @Getter
     @Setter
     private boolean databaseSupport = false;
 
     public static GlobalConfig getInstance() {
-
         if (instance == null)
             instance = new GlobalConfig();
 
@@ -67,10 +78,14 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("Prefix", prefix);
         if (getConfig().get("DefaultName") == null)
             getConfig().set("DefaultName", defaultName);
+        if (getConfig().get("UseDefaultMythicMobsNames") == null)
+            getConfig().set("UseDefaultMythicMobsNames", false);
         if (getConfig().get("RightClickToOpenMenu") == null)
             getConfig().set("RightClickToOpenMenu", true);
         if (getConfig().get("LeftClickToOpenMenu") == null)
             getConfig().set("LeftClickToOpenMenu", true);
+        if (getConfig().get("DisableInventoryWhileHoldingSignalStick") == null)
+            getConfig().set("DisableInventoryWhileHoldingSignalStick", true);
         if (getConfig().get("DismountOnDamaged") == null)
             getConfig().set("DismountOnDamaged", true);
         if (getConfig().get("SpawnPetOnReconnect") == null)
@@ -89,6 +104,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("InventorySize", -1);
         if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
+        if (getConfig().get("DisableMySQL") == null)
+            getConfig().set("DisableMySQL", disableMySQL);
         if (getConfig().get("MySQL.User") == null)
             getConfig().set("MySQL.User", "user");
         if (getConfig().get("MySQL.Password") == null)
@@ -99,6 +116,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("MySQL.Port", "2560");
         if (getConfig().get("MySQL.Database") == null)
             getConfig().set("MySQL.Database", "advancedpet_db");
+        if(getConfig().get("BlackListedWorlds") == null)
+            getConfig().set("BlackListedWorlds", new ArrayList<String>());
 
         save();
         reload();
@@ -116,8 +135,10 @@ public class GlobalConfig extends AbstractConfig {
 
         prefix = getConfig().getString("Prefix");
         defaultName = getConfig().getString("DefaultName");
+        useDefaultMythicMobNames = getConfig().getBoolean("UseDefaultMythicMobsNames");
         rightClickToOpen = getConfig().getBoolean("RightClickToOpenMenu");
         leftClickToOpen = getConfig().getBoolean("LeftClickToOpenMenu");
+        disableInventoryWhileHoldingSignalStick = getConfig().getBoolean("DisableInventoryWhileHoldingSignalStick");
         sneakMode = getConfig().getBoolean("SneakMode");
         nameable = getConfig().getBoolean("Nameable");
         mountable = getConfig().getBoolean("Mountable");
@@ -137,12 +158,18 @@ public class GlobalConfig extends AbstractConfig {
         while (adaptiveInventory > 0 && adaptiveInventory % 9 != 0 && adaptiveInventory < 54)
             adaptiveInventory++;
 
+        disableMySQL = getConfig().getBoolean("DisableMySQL");
         MySQL_USER = getConfig().getString("MySQL.User");
         MySQL_PASSWORD = getConfig().getString("MySQL.Password");
         MySQL_HOST = getConfig().getString("MySQL.Host");
         MySQL_PORT = getConfig().getString("MySQL.Port");
         MySQL_DB = getConfig().getString("MySQL.Database");
+        blackListedWorlds = getConfig().getStringList("BlackListedWorlds");
+    }
 
+    public boolean hasBlackListedWorld(String worldName)
+    {
+        return blackListedWorlds.contains(worldName);
     }
 
 }
