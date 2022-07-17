@@ -33,16 +33,14 @@ public class Utils {
         headMeta.setLore(lore);
 
         item.setItemMeta(headMeta);
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        GameProfile profile = new GameProfile(UUID.randomUUID(), "MCPetsHeads");
         profile.getProperties().put("textures", new Property("textures", base64));
         Field profileField = null;
         try {
             profileField = headMeta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
             profileField.set(headMeta, profile);
-        } catch (NoSuchFieldException localNoSuchFieldException) {
-        } catch (IllegalArgumentException localIllegalArgumentException) {
-        } catch (IllegalAccessException localIllegalAccessException) {
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException localNoSuchFieldException) {
         }
         item.setItemMeta(headMeta);
         return item;

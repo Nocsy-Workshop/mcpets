@@ -98,10 +98,12 @@ public class PlayerData {
 
             mapOfRegisteredInventories.clear();
             HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(this.getUuid());
-
-            for(String petId : inventories.keySet())
+            if(inventories != null)
             {
-                mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
+                for(String petId : inventories.keySet())
+                {
+                    mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
+                }
             }
 
             pdn.setMapOfRegisteredInventories(mapOfRegisteredInventories);
