@@ -846,9 +846,6 @@ public class Pet {
         if (ent == null)
             return;
 
-        EntityDismountEvent vanillaDismountEvent = new EntityDismountEvent(ent, activeMob.getEntity().getBukkitEntity());
-        Utils.callEvent(vanillaDismountEvent);
-
         // Try - catch to prevent onDisable no class def found print
         try {
             if (isStillHere()) {
@@ -859,6 +856,9 @@ public class Pet {
                 }
                 IMountHandler localIMountHandler = localModeledEntity.getMountHandler();
                 localIMountHandler.dismountAll();
+
+                EntityDismountEvent vanillaDismountEvent = new EntityDismountEvent(ent, activeMob.getEntity().getBukkitEntity());
+                Utils.callEvent(vanillaDismountEvent);
             }
 
         } catch (NoClassDefFoundError ignored) {
