@@ -1,0 +1,74 @@
+# The unique ID of your pet
+Id: your_pet_id
+# The mythicmob attached to the pet
+MythicMob: the_mythicmob_attached_to_the_pet
+# Custom permission to summon your pet
+Permission: permission.to.summon.the.pet.can.be.custom
+# Show the mount option or not
+# If it's on true make sure your pet has a "mount" bone (refer to ModelEngine)
+# (references on https://github.com/Ticxo/Model-Engine-Wiki/wiki/Mechanics/#mountmodel)
+Mountable: false
+# Says what type of mount controller this pet should have (default to "walking") & (optional)
+# (references on https://github.com/Ticxo/Model-Engine-Wiki/wiki/Mechanics/#mountmodel)
+MountType: walking
+# If the pet is a mount, chose whether or not the player should automatically mount it on spawn (optional)
+AutoRide: false
+# Set the skill to execute on despawn (can be removed)
+# | WARNING : this will block the auto-remove from AdvancedPet
+# | So please execute a 'remove @self' mechanic at the end of the
+# | despawn skill.
+DespawnSkill: DespawnSkill_MM
+# Minimum distance before the pet start to get back to its owner
+Distance: 10
+# Minimum distance in which the pet is summoned
+SpawnRange: 1
+# Minimum distance in which the pet comes back when it's too far
+ComingBackRange: 3
+# If you would like to pet to be able to carry items, you can chose an inventory size (this is not a mandatory field, you can remove it)
+# Put any value, it'll be rounded up to a multiple of 9 in game
+InventorySize: 9
+# Icon in the menu
+Icon:
+  # Set the name of the icon
+  Name: Name of the icon
+  # Set the Material of the icon (remove this line if you want a custom head)
+  Material: STONE
+  # Use this if you want a custom head texture (optional)
+  # Texture of the icon (base64)
+  # Most custom textures can be found on https://minecraft-heads.com/custom-heads
+  TextureBase64: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTU1Mjc3Mjc3MDlmMDhiYjVmOTFhYWM4NTBmZTZmOTQ0YzViYzM0OGEwODBiM2I1NjNkNDQ5YzcyYjgxYmY4NiJ9fX0=
+  # Set the customModelData of the item if you want to use texture pack resources
+  CustomModelData: 0
+  # Set the lores of the item
+  Description:
+  - This is a line of description
+  - This is another one
+Signals:
+  # List the signals you want to cast to the pet (can be empty)
+  # Make sure the pet is actually listening to these signals or nothing will happen
+  Values:
+  - ATTACK
+  - JUMP
+  # Setup the Signal Stick item, it uses the same constructor type as the icon
+  Item:
+    GetFromMenu: true # put false if you want players to get it from another way (like if you added a crafting method, or an NPC that could give it etc...)
+    Name: Signal stick name
+    Material: STICK
+    CustomModelData: 0
+    Description:
+    - You have a ton to explain here
+    - on how to use the stick maybe
+Skins:
+  # Add the skins of the pet if it has various skins (this is not mandatory)
+  Skin1: # Create a section
+    Model: modelengine_blueprint_name # put any model engine blueprint here referencing to a skin you'd like to apply
+    Permission: skin.permission # Set the permission to access the skin, it can be the same as the pet permission for instance
+    Icon: # Set the icon of the skin, just like before almost same syntax
+      Material: STONE
+      CustomModelData: 0
+      DisplayName: "Skin 1"
+      Lore:
+      - "This is a lore"
+      TextureBase64: anybase64youwant # this is not mandatory. Remove the Material field if you wanna use it
+  Skin2:
+     # Do the same syntax with as many skins as you want. Remember to add your default skin as well !
