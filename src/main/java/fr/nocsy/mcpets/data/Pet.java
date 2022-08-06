@@ -29,6 +29,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.spigotmc.event.entity.EntityDismountEvent;
+import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.util.*;
 
@@ -784,9 +786,11 @@ public class Pet {
      */
     public boolean setMount(Entity ent) {
         EntityMountPetEvent event = new EntityMountPetEvent(ent, this);
+        EntityMountEvent vanillaMountEvent = new EntityMountEvent(ent, activeMob.getEntity().getBukkitEntity());
+        Utils.callEvent(vanillaMountEvent);
         Utils.callEvent(event);
 
-        if (event.isCancelled())
+        if (event.isCancelled() || vanillaMountEvent.isCancelled())
             return false;
 
         if (isStillHere()) {
@@ -852,6 +856,9 @@ public class Pet {
                 }
                 IMountHandler localIMountHandler = localModeledEntity.getMountHandler();
                 localIMountHandler.dismountAll();
+
+                EntityDismountEvent vanillaDismountEvent = new EntityDismountEvent(ent, activeMob.getEntity().getBukkitEntity());
+                Utils.callEvent(vanillaDismountEvent);
             }
 
         } catch (NoClassDefFoundError ignored) {

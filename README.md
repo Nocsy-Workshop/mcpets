@@ -4,7 +4,7 @@
 
 Welcome to MC Pets!
 
-Navigate through the [wiki pages](https://github.com/MC-Models/mcpets/wiki) to find whatever information you need about the plugin.
+Navigate through the [wiki pages](https://alexandre-chaussard.gitbook.io/mcpets/) to find whatever information you need about the plugin.
 
 
 
