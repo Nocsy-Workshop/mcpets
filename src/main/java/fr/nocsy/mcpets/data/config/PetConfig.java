@@ -166,7 +166,7 @@ public class PetConfig extends AbstractConfig {
         pet.setIcon(pet.buildItem(pet.getIcon(), pet.toString(), iconName, description, materialType, customModelData, textureBase64));
         pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
 
-        PetSkin.clearList();
+        PetSkin.clearList(pet);
         for(String key : getConfig().getKeys(true).stream()
                                                         .filter(key ->
                                                                    key.contains("Skins") &&

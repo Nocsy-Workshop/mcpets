@@ -153,9 +153,12 @@ public class PetSkin {
     /**
      * Clear previous entries
      */
-    public static void clearList()
+    public static void clearList(Pet pet)
     {
-        petSkins.clear();
+        if(pet.hasSkins())
+        {
+            petSkins.put(pet.getId(), new ArrayList<>());
+        }
     }
 
     /**
