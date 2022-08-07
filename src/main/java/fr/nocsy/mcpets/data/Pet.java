@@ -641,6 +641,13 @@ public class Pet {
 
         if (activeMob != null) {
 
+            ModeledEntity model = ModelEngineAPI.getModeledEntity(activeMob.getEntity().getUniqueId());
+            if (model != null)
+            {
+                MountManager mountManager = model.getMountManager();
+                mountManager.dismountAll();
+            }
+
             if (despawnSkill != null) {
                 try {
                     despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
@@ -653,12 +660,6 @@ public class Pet {
                     activeMob.getEntity().remove();
                 if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
                     activeMob.getEntity().getBukkitEntity().remove();
-            }
-
-            if (ownerPlayer != null) {
-                this.dismount(ownerPlayer);
-                if(enableSignalStickFromMenu)
-                    Pet.clearStickSignals(ownerPlayer, this.id);
             }
 
             activePets.remove(owner);
@@ -824,6 +825,9 @@ public class Pet {
                 if (controller == null) {
                     controller = (MountController)ModelEngineAPI.getControllerRegistry().getDefault();
                 }
+                if(ent.getVehicle() != null)
+                    ent.getVehicle().eject();
+                mountManager.removeRiders(mountManager.getDriver());
                 mountManager.setDriver(ent, controller);
                 mountManager.setCanDamageMount(ent.getUniqueId(), false);
             } catch (NoClassDefFoundError error) {
@@ -873,6 +877,8 @@ public class Pet {
                 MountManager mountManager = model.getMountManager();
                 mountManager.removeRiders(ent);
 
+                if(ent.getVehicle() != null)
+                    ent.getVehicle().eject();
                 EntityDismountEvent vanillaDismountEvent = new EntityDismountEvent(ent, activeMob.getEntity().getBukkitEntity());
                 Utils.callEvent(vanillaDismountEvent);
             }
