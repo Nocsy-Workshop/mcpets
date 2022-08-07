@@ -242,7 +242,6 @@ public class PetListener implements Listener {
     public void despawnOnDismount(EntityDismountEvent e)
     {
         Pet pet = Pet.getFromEntity(e.getDismounted());
-        e.getEntity().sendMessage("dismounting " + pet);
         if(pet != null && pet.isDespawnOnDismount())
         {
             pet.despawn(PetDespawnReason.DISMOUNT);
