@@ -1,10 +1,11 @@
 package fr.nocsy.mcpets.data;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
+import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.mount.controller.MountController;
-import com.ticxo.modelengine.api.model.mount.handler.IMountHandler;
-import com.ticxo.modelengine.api.model.nametag.INametagHandler;
+import com.ticxo.modelengine.api.mount.MountManager;
+import com.ticxo.modelengine.api.mount.controller.MountController;
+import com.ticxo.modelengine.mythic.MythicUtils;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
@@ -75,6 +76,10 @@ public class Pet {
     @Setter
     @Getter
     private boolean mountable;
+
+    @Setter
+    @Getter
+    private boolean despawnOnDismount;
 
     @Getter
     @Setter
@@ -152,6 +157,10 @@ public class Pet {
     @Getter
     @Setter
     private boolean followOwner;
+
+    @Getter
+    @Setter
+    private PetSkin activeSkin;
 
     // Debug variables
 
@@ -335,7 +344,7 @@ public class Pet {
      * @param loc
      * @return
      */
-    public int spawn(Location loc) {
+    public int spawn(Location loc, boolean bruise) {
 
         PetSpawnEvent event = new PetSpawnEvent(this, loc);
         Utils.callEvent(event);
@@ -372,6 +381,10 @@ public class Pet {
             despawn(PetDespawnReason.SPAWN_ISSUE);
             return NOT_ALLOWED;
         }
+
+        if(activeSkin != null)
+            mythicMobName = activeSkin.getMythicMobId();
+
         if (mythicMobName == null) {
             despawn(PetDespawnReason.SPAWN_ISSUE);
             return MYTHIC_MOB_NULL;
@@ -388,7 +401,10 @@ public class Pet {
                 if (autoRide) {
                     ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, loc);
                 } else {
-                    ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, Utils.bruised(loc, getSpawnRange()));
+                    Location spawnLoc = loc;
+                    if(bruise)
+                        spawnLoc = Utils.bruised(loc, getSpawnRange());
+                    ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, spawnLoc);
                 }
             }
             catch (NullPointerException | NoSuchElementException ex)
@@ -599,7 +615,7 @@ public class Pet {
     public int spawn(@NotNull Player owner, Location loc) {
         this.owner = owner.getUniqueId();
         setLastInteractedWith(owner);
-        return spawn(loc);
+        return spawn(loc, true);
     }
 
     /**
@@ -661,7 +677,7 @@ public class Pet {
         if (isStillHere()) {
             this.activeMob.remove();
             this.despawn(PetDespawnReason.TELEPORT);
-            this.spawn(loc);
+            this.spawn(loc, true);
         }
     }
 
@@ -767,6 +783,7 @@ public class Pet {
         pet.setComingBackRange(comingBackRange);
         pet.setDespawnSkill(despawnSkill);
         pet.setMountable(mountable);
+        pet.setDespawnOnDismount(despawnOnDismount);
         pet.setMountType(mountType);
         pet.setInventorySize(inventorySize);
         pet.setAutoRide(autoRide);
@@ -796,20 +813,19 @@ public class Pet {
         if (isStillHere()) {
             try {
                 UUID petUUID = activeMob.getEntity().getUniqueId();
-                ModeledEntity localModeledEntity = ModelEngineAPI.api.getModelManager().getModeledEntity(petUUID);
-                if (localModeledEntity == null) {
+                ModeledEntity model = ModelEngineAPI.getModeledEntity(petUUID);
+                if (model == null) {
                     activeMob.getEntity().getBukkitEntity().addPassenger(ent);
                     return false;
                 }
-                IMountHandler localIMountHandler = localModeledEntity.getMountHandler();
+                MountManager mountManager = model.getMountManager();
 
-                MountController localMountController = ModelEngineAPI.api.getControllerManager().createController(mountType);
-                if (localMountController == null) {
-                    localMountController = ModelEngineAPI.api.getControllerManager().createController("walking");
+                MountController controller = (MountController)ModelEngineAPI.getControllerRegistry().get(mountType);
+                if (controller == null) {
+                    controller = (MountController)ModelEngineAPI.getControllerRegistry().getDefault();
                 }
-
-                localIMountHandler.setDriver(ent, localMountController);
-                localIMountHandler.setCanDamageMount(ent, false);
+                mountManager.setDriver(ent, controller);
+                mountManager.setCanDamageMount(ent.getUniqueId(), false);
             } catch (NoClassDefFoundError error) {
                 MCPets.getLog().warning(Language.REQUIRES_MODELENGINE.getMessage());
                 if (ent instanceof Player)
@@ -828,13 +844,13 @@ public class Pet {
     public boolean hasMount(Entity ent) {
         if (isStillHere()) {
             UUID petUUID = activeMob.getEntity().getUniqueId();
-            ModeledEntity localModeledEntity = ModelEngineAPI.api.getModelManager().getModeledEntity(petUUID);
-            if (localModeledEntity == null) {
+            ModeledEntity model = ModelEngineAPI.getModeledEntity(petUUID);
+            if (model == null) {
                 return false;
             }
-            IMountHandler localIMountHandler = localModeledEntity.getMountHandler();
+            MountManager mountManager = model.getMountManager();
 
-            return localIMountHandler.hasDriver() || localIMountHandler.hasPassengers();
+            return mountManager.getDriver() != null && mountManager.getDriver().getUniqueId().equals(ent.getUniqueId());
         }
         return false;
     }
@@ -850,12 +866,12 @@ public class Pet {
         try {
             if (isStillHere()) {
                 UUID localUUID = activeMob.getEntity().getUniqueId();
-                ModeledEntity localModeledEntity = ModelEngineAPI.api.getModelManager().getModeledEntity(localUUID);
-                if (localModeledEntity == null) {
+                ModeledEntity model = ModelEngineAPI.getModeledEntity(localUUID);
+                if (model == null) {
                     return;
                 }
-                IMountHandler localIMountHandler = localModeledEntity.getMountHandler();
-                localIMountHandler.dismountAll();
+                MountManager mountManager = model.getMountManager();
+                mountManager.removeRiders(ent);
 
                 EntityDismountEvent vanillaDismountEvent = new EntityDismountEvent(ent, activeMob.getEntity().getBukkitEntity());
                 Utils.callEvent(vanillaDismountEvent);
@@ -874,19 +890,51 @@ public class Pet {
      */
     public void setNameTag(String name, boolean visible) {
         if (isStillHere()) {
-            ModeledEntity localModeledEntity = ModelEngineAPI.api.getModelManager().getModeledEntity(this.activeMob.getEntity().getUniqueId());
-            if (localModeledEntity == null) {
-                return;
-            }
 
             if (GlobalConfig.getInstance().isUseDefaultMythicMobNames())
                 name = activeMob.getDisplayName();
 
-            activeMob.getEntity().getBukkitEntity().setCustomNameVisible(visible);
-            INametagHandler nameTagHandler = localModeledEntity.getNametagHandler();
-            nameTagHandler.setCustomName("name", name);
-            nameTagHandler.setCustomNameVisibility("name", visible);
+            com.ticxo.modelengine.api.model.bone.Nameable bone = getNameBone();
+            if (bone == null)
+                return;
+            bone.setCustomName(name);
+            bone.setCustomNameVisible(visible);
+
         }
+    }
+
+    /**
+     * Returns the name bone
+     * Null if it's null or invisible
+     * @return
+     */
+    public com.ticxo.modelengine.api.model.bone.Nameable getNameBone()
+    {
+        if (isStillHere()) {
+
+            UUID localUUID = activeMob.getEntity().getUniqueId();
+            ModeledEntity model = ModelEngineAPI.getModeledEntity(localUUID);
+            if (model == null) {
+                return null;
+            }
+            if(model.getModels().size() == 0)
+            {
+                return null;
+            }
+            Optional<ActiveModel> opt = model.getModels().values().stream().findFirst();
+            ActiveModel activeModel = null;
+            if(opt.isPresent())
+                activeModel = opt.get();
+            else
+                return null;
+
+            com.ticxo.modelengine.api.model.bone.Nameable bone = (com.ticxo.modelengine.api.model.bone.Nameable)activeModel.getNametagHandler().getBones().get("name");
+            if (bone == null)
+                return null;
+            return bone;
+
+        }
+        return null;
     }
 
     /**

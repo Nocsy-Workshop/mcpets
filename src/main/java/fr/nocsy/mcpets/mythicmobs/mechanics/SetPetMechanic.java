@@ -49,8 +49,8 @@ public class SetPetMechanic implements ITargetedEntitySkill {
 
                 }
             }.runTaskLater(MCPets.getInstance(), 1L);
-
+            return SkillResult.SUCCESS;
         }
-        return SkillResult.SUCCESS;
+        return SkillResult.CONDITION_FAILED;
     }
 }

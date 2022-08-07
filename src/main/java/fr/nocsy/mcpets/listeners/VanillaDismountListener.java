@@ -21,12 +21,12 @@ public class VanillaDismountListener implements Listener {
 
 		UUID petUUID = e.getDismounted().getUniqueId();
 
-		ModeledEntity localModeledEntity = ModelEngineAPI.api.getModelManager().getModeledEntity(petUUID);
+		ModeledEntity localModeledEntity = ModelEngineAPI.getModeledEntity(petUUID);
 		if (localModeledEntity == null) {
 			return;
 		}
 
-		var mountManager = localModeledEntity.getMountHandler();
+		var mountManager = localModeledEntity.getMountManager();
 		var driver = mountManager.getDriver();
 		if (driver == null) {
 			mountManager.removePassenger(entity);

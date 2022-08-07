@@ -46,7 +46,7 @@ public class Category {
         if(page > maxPages || page < 0)
             return false;
 
-        int invSize = pets.size() - page*52;
+        int invSize = pets.size() - page*52 + 1; //Adding 1 for the page manager
         while(invSize <= 0 || invSize%9 != 0)
         {
             invSize++;

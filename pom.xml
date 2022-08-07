@@ -97,11 +97,5 @@
             <version>7.0.7-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.ticxo.modelengine</groupId>
-            <artifactId>api</artifactId>
-            <version>R2.5.0</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>

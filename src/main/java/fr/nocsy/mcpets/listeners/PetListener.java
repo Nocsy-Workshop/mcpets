@@ -23,7 +23,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -102,7 +104,7 @@ public class PetListener implements Listener {
         Player p = e.getPlayer();
         if (reconnectionPets.containsKey(p.getUniqueId())) {
             Pet pet = reconnectionPets.get(p.getUniqueId());
-            pet.spawn(p.getLocation());
+            pet.spawn(p.getLocation(), true);
             reconnectionPets.remove(p.getUniqueId());
         }
     }
@@ -232,6 +234,18 @@ public class PetListener implements Listener {
             {
                 Language.BLACKLISTED_WORLD.sendMessage(p);
             }
+        }
+    }
+
+    //@EventHandler
+    // Waiting for an implementation of a custom event in MEG, coz this one isn't triggered when dismounting the pet
+    public void despawnOnDismount(EntityDismountEvent e)
+    {
+        Pet pet = Pet.getFromEntity(e.getDismounted());
+        e.getEntity().sendMessage("dismounting " + pet);
+        if(pet != null && pet.isDespawnOnDismount())
+        {
+            pet.despawn(PetDespawnReason.DISMOUNT);
         }
     }
 

@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -97,6 +98,7 @@ public class PetConfig extends AbstractConfig {
         String despawnSkillName = getConfig().getString("DespawnSkill");
         boolean autoRide = getConfig().getBoolean("AutoRide");
         String mountType = getConfig().getString("MountType");
+        boolean despawnOnDismount = getConfig().getBoolean("DespawnOnDismount");
         int inventorySize = Math.min(getConfig().getInt("InventorySize"), 54);
         while(inventorySize < 54 && inventorySize % 9 != 0)
             inventorySize++;
@@ -141,6 +143,7 @@ public class PetConfig extends AbstractConfig {
         }
         if (mountType == null)
             mountType = "walking";
+        pet.setDespawnOnDismount(despawnOnDismount);
         pet.setAutoRide(autoRide);
         pet.setDistance(distance);
         pet.setSpawnRange(spawnRange);
@@ -173,10 +176,10 @@ public class PetConfig extends AbstractConfig {
                                                                    key.replace(".", ";").split(";").length == 2)
                                                         .collect(Collectors.toList()))
         {
-            String modelSkinId = getConfig().getString(key + ".Model");
+            String mythicMobId = getConfig().getString(key + ".MythicMob");
             String skinPerm = getConfig().getString(key + ".Permission");
 
-            PetSkin.load(pet, modelSkinId, skinPerm, pet.buildItem(null, "",
+            PetSkin.load(pet, mythicMobId, skinPerm, pet.buildItem(null, "",
                                                                         getConfig().getString(key + ".Icon.DisplayName"),
                                                                         getConfig().getStringList(key + ".Icon.Lore"),
                                                                         getConfig().getString(key + ".Icon.Material"),

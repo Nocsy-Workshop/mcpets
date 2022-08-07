@@ -41,6 +41,7 @@ public class PetSkinsMenuListener implements Listener {
                     else
                         Language.SKIN_COULD_NOT_APPLY.sendMessage(p);
 
+                    pet.setActiveSkin(petSkin);
                     p.closeInventory();
                 }
             }

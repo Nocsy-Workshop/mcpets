@@ -17,6 +17,8 @@ public enum PetDespawnReason {
     SPAWN_ISSUE("spawn issue"),
     LOOP_SPAWN("loop spawn"),
     DISCONNECTION("owner disconnected"),
+    DISMOUNT("pet despawn on dismount"),
+    SKIN("changing skin"),
     UNKNOWN("unkown");
 
 
