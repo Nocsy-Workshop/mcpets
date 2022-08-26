@@ -5,24 +5,29 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.mount.MountManager;
 import com.ticxo.modelengine.api.mount.controller.MountController;
-import com.ticxo.modelengine.mythic.MythicUtils;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
-import fr.nocsy.mcpets.events.*;
+import fr.nocsy.mcpets.data.livingpets.PetType;
+import fr.nocsy.mcpets.events.EntityMountPetEvent;
+import fr.nocsy.mcpets.events.PetCastSkillEvent;
+import fr.nocsy.mcpets.events.PetDespawnEvent;
+import fr.nocsy.mcpets.events.PetSpawnEvent;
 import fr.nocsy.mcpets.utils.PathFindingUtils;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.adapters.AbstractLocation;
 import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
 import io.lumine.mythic.api.skills.Skill;
-import io.lumine.mythic.api.volatilecode.handlers.VolatileAIHandler;
 import io.lumine.mythic.core.mobs.ActiveMob;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -64,6 +69,10 @@ public class Pet {
 
     @Getter
     private final String id;
+
+    @Getter
+    @Setter
+    private PetType petType;
 
     @Setter
     @Getter
@@ -129,7 +138,7 @@ public class Pet {
     @Setter
     private boolean enableSignalStickFromMenu;
 
-    //********** Living entity **********
+    //********** Entity features **********
 
     @Setter
     @Getter
@@ -170,7 +179,6 @@ public class Pet {
     /**
      * Constructor only used to create a fundamental Pet. If you wish to use a pet instance, please refer to copy()
      *
-     * @param id
      */
     public Pet(String id) {
         this.id = id;
@@ -777,6 +785,7 @@ public class Pet {
      */
     public Pet copy() {
         Pet pet = new Pet(id);
+        pet.setPetType(petType);
         pet.setMythicMobName(mythicMobName);
         pet.setPermission(permission);
         pet.setDistance(distance);
