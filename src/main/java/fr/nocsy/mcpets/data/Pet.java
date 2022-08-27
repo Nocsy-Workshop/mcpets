@@ -9,6 +9,7 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.livingpets.PetType;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetCastSkillEvent;
@@ -72,7 +73,7 @@ public class Pet {
 
     @Getter
     @Setter
-    private PetType petType;
+    private PetStats petStats;
 
     @Setter
     @Getter
@@ -785,7 +786,7 @@ public class Pet {
      */
     public Pet copy() {
         Pet pet = new Pet(id);
-        pet.setPetType(petType);
+        pet.setPetStats(petStats);
         pet.setMythicMobName(mythicMobName);
         pet.setPermission(permission);
         pet.setDistance(distance);
