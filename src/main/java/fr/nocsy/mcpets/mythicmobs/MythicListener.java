@@ -1,10 +1,7 @@
 package fr.nocsy.mcpets.mythicmobs;
 
 import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.mythicmobs.mechanics.GivePetMechanic;
-import fr.nocsy.mcpets.mythicmobs.mechanics.PetFollowMechanic;
-import fr.nocsy.mcpets.mythicmobs.mechanics.PetNameMechanic;
-import fr.nocsy.mcpets.mythicmobs.mechanics.SetPetMechanic;
+import fr.nocsy.mcpets.mythicmobs.mechanics.*;
 import fr.nocsy.mcpets.mythicmobs.targeters.TargeterPetOwner;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicTargeterLoadEvent;
@@ -45,6 +42,16 @@ public class MythicListener implements Listener {
         else if (event.getMechanicName().equalsIgnoreCase("PetName"))
         {
             PetNameMechanic mechanic = new PetNameMechanic(event.getConfig());
+            event.register(mechanic);
+        }
+        else if (event.getMechanicName().equalsIgnoreCase("PetExperience"))
+        {
+            PetExperienceMechanic mechanic = new PetExperienceMechanic(event.getConfig());
+            event.register(mechanic);
+        }
+        else if (event.getMechanicName().equalsIgnoreCase("PetDamage"))
+        {
+            PetDamageMechanic mechanic = new PetDamageMechanic(event.getConfig());
             event.register(mechanic);
         }
     }

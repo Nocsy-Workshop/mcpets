@@ -1,15 +1,17 @@
 package fr.nocsy.mcpets.data.livingpets;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.events.PetDamageEvent;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
+import fr.nocsy.mcpets.utils.PetTimer;
 import fr.nocsy.mcpets.utils.Utils;
-import io.lumine.mythic.api.skills.SkillResult;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Base64;
 
 public class PetStats {
 
@@ -21,6 +23,8 @@ public class PetStats {
     @Getter
     // Handles the health of the Pet
     private double currentHealth;
+    @Getter
+    private PetTimer regenerationTimer;
 
     @Getter
     // Handles the experience of the pet
@@ -33,12 +37,103 @@ public class PetStats {
 
     @Getter
     // How long before the pet can be respawned after being dead
+    // In seconds
     // -1 Indicating permanent death
-    private float respawnCooldown;
+    private PetTimer respawnTimer;
+
     @Getter
     // How long before the pet can be respawned after being revoked
+    // In seconds
     // -1 Indicating deletion of the pet
-    private float revokeCooldown;
+    private PetTimer revokeTimer;
+
+    /**
+     * Update the pet's health for the stats
+     */
+    public void updateHealth()
+    {
+        if(pet.isStillHere())
+        {
+            this.currentHealth = pet.getActiveMob().getEntity().getHealth();
+        }
+    }
+
+    /**
+     * Launch how much the pet should be regenerating
+     * Can not be launched multiple times
+     */
+    public void launchRegenerationTimer()
+    {
+        if(regenerationTimer != null && regenerationTimer.isRunning())
+            return;
+        regenerationTimer = new PetTimer(Integer.MAX_VALUE, 1);
+        regenerationTimer.launch(new Runnable() {
+            @Override
+            public void run() {
+                currentHealth = currentHealth + currentLevel.getRegeneration();
+            }
+        });
+    }
+
+    /**
+     * Launch the respawn timer
+     */
+    public void launchRespawnTimer()
+    {
+        if(respawnTimer != null)
+            respawnTimer.launch(null);
+    }
+
+    /**
+     * Launch the revoke timer
+     */
+    public void launchRevokeTimer()
+    {
+        if(revokeTimer != null)
+            revokeTimer.launch(null);
+    }
+
+    /**
+     * Says if the pet is dead according to the saved health
+     * Useful when the pet is not spawned yet or doesn't have its stats applied on spawn
+     * @return
+     */
+    public boolean isDead()
+    {
+        return currentHealth <= 0;
+    }
+
+    /**
+     * Reset the Max Health of the pet to the given value
+     */
+    public void refreshMaxHealth()
+    {
+        if(pet.isStillHere())
+            pet.getActiveMob().getEntity().setMaxHealth(currentLevel.getMaxHealth());
+    }
+
+    /**
+     * Set health to a given value
+     */
+    public void setHealth(double value)
+    {
+        if(value >= currentLevel.getMaxHealth())
+            value = currentLevel.getMaxHealth();
+        if(pet.isStillHere())
+            pet.getActiveMob().getEntity().setHealth(value);
+            currentHealth = value;
+    }
+
+    /**
+     * Value of the health when the pet should be respawning
+     * Minimum is 1% of pet's health
+     * Maximum is 100% of pet's health
+     * @return
+     */
+    public double getRespawnHealth()
+    {
+        return Math.min(1, Math.max(0.01, GlobalConfig.getInstance().getPercentHealthOnRespawn())) * currentLevel.getMaxHealth();
+    }
 
     /**
      * Add the given amount of experience to the pet
@@ -93,4 +188,43 @@ public class PetStats {
         return value * currentLevel.getResistanceModifier();
     }
 
+    /**
+     * Serialize the pet stats into a string object
+     * @return
+     */
+    public String serialize()
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        try
+        {
+            String jsonStr = mapper.writeValueAsString(this);
+            jsonStr = Base64.getEncoder().encodeToString(jsonStr.getBytes());
+            return jsonStr;
+        }
+        catch(JsonProcessingException ex)
+        {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Unserialize the PetStats object
+     * @param base64Str
+     * @return
+     */
+    public static PetStats unzerialize(String base64Str)
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        try
+        {
+           String decoded = new String(Base64.getDecoder().decode(base64Str.getBytes()));
+            return mapper.readValue(decoded, PetStats.class);
+        }
+        catch(JsonProcessingException ex)
+        {
+            ex.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -19,6 +19,8 @@ public enum PetDespawnReason {
     DISCONNECTION("owner disconnected"),
     DISMOUNT("pet despawn on dismount"),
     SKIN("changing skin"),
+    RESPAWN_TIMER("respawn timer"),
+    REVOKE_TIMER("revoke timer"),
     UNKNOWN("unkown");
 
 

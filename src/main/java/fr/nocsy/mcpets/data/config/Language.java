@@ -95,7 +95,10 @@ public enum Language {
     PET_SKINS_TITLE("§0☀ §4%pet% §8- §0Skins §0☀§"),
 
     SKIN_COULD_NOT_APPLY("§cThe skin could not be applied to the pet."),
-    SKIN_APPLIED("§aSkin changed successfully !");
+    SKIN_APPLIED("§aSkin changed successfully !"),
+
+    RESPAWN_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%."),
+    REVOKE_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%.");
 
     @Getter
     private String message;

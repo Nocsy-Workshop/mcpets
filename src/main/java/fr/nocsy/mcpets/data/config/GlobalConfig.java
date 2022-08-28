@@ -48,6 +48,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean disableMySQL = false;
     @Getter
+    private double percentHealthOnRespawn = 0.2;
+    @Getter
     private String MySQL_USER;
     @Getter
     private String MySQL_PASSWORD;
@@ -102,6 +104,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("MaxNameLenght", maxNameLenght);
         if (getConfig().get("InventorySize") == null)
             getConfig().set("InventorySize", -1);
+        if (getConfig().get("PercentHealthOnRespawn") == null)
+            getConfig().set("PercentHealthOnRespawn", percentHealthOnRespawn);
         if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
         if (getConfig().get("DisableMySQL") == null)
@@ -148,6 +152,7 @@ public class GlobalConfig extends AbstractConfig {
         maxNameLenght = getConfig().getInt("MaxNameLenght");
         activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
         adaptiveInventory = getConfig().getInt("InventorySize");
+        percentHealthOnRespawn = getConfig().getDouble("PercentHealthOnRespawn");
         // Says it'll be an adaptive inventory
         if (adaptiveInventory <= 0)
             adaptiveInventory = -1;

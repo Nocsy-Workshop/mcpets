@@ -11,10 +11,7 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.livingpets.PetType;
-import fr.nocsy.mcpets.events.EntityMountPetEvent;
-import fr.nocsy.mcpets.events.PetCastSkillEvent;
-import fr.nocsy.mcpets.events.PetDespawnEvent;
-import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.PathFindingUtils;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.adapters.AbstractLocation;
@@ -480,6 +477,9 @@ public class Pet {
             }
 
             PlayerSignal.setDefaultSignal(owner, this);
+
+            PetSpawnedEvent petSpawnedEvent = new PetSpawnedEvent(this);
+            Utils.callEvent(petSpawnedEvent);
 
             if (returnDespawned)
                 return DESPAWNED_PREVIOUS;
