@@ -1,12 +1,15 @@
 package fr.nocsy.mcpets.data.inventories;
 
 import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PlayerDataNoDatabase extends AbstractConfig {
 
@@ -44,6 +47,8 @@ public class PlayerDataNoDatabase extends AbstractConfig {
             getConfig().set("Names", new ArrayList<String>());
         if (getConfig().get("Inventories") == null)
             getConfig().set("Inventories", new ArrayList<String>());
+        if (getConfig().get("PetStats") == null)
+            getConfig().set("PetStats", new ArrayList<String>());
 
         reload();
     }
@@ -77,6 +82,18 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
         getConfig().set("Inventories", serializedInventoriesMap);
 
+
+        ArrayList<String> serializedStatsMap = new ArrayList<>();
+
+        for(PetStats stats : PetStats.getPetStatsList().stream()
+                                                        .filter(stat -> stat.getPet().getOwner().equals(uuid))
+                                                        .collect(Collectors.toList()))
+        {
+            serializedStatsMap.add(stats.serialize());
+        }
+
+        getConfig().set("PetStats", serializedStatsMap);
+
         super.save();
     }
 
@@ -100,6 +117,13 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
             mapOfRegisteredInventories.put(id, seriaInventory);
             PetInventory.unserialize(seria, uuid);
+        }
+
+        PetStats.getPetStatsList().removeIf(petStats -> petStats.getPet().getOwner().equals(uuid));
+        for(String seria : getConfig().getStringList("PetStats"))
+        {
+            PetStats stats = PetStats.unzerialize(seria);
+            PetStats.getPetStatsList().add(stats);
         }
 
     }

@@ -10,11 +10,16 @@ import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Base64;
+import java.util.*;
 
 public class PetStats {
 
+    //------------ Static code -------------//
+    @Getter
+    @Setter
+    private static List<PetStats> petStatsList = new ArrayList<>();
+
+    //------------ Object code -------------//
     @Getter
     @Setter
     // Reference to the actual pet
@@ -33,7 +38,6 @@ public class PetStats {
     @Getter
     // Handles the levels
     private PetLevel currentLevel;
-    private ArrayList<PetLevel> levels;
 
     @Getter
     // How long before the pet can be respawned after being dead
@@ -46,6 +50,27 @@ public class PetStats {
     // In seconds
     // -1 Indicating deletion of the pet
     private PetTimer revokeTimer;
+
+    /**
+     * Set up the basic parameters
+     * Launch the various pet stats schedulers
+     * @param pet
+     * @param experience
+     */
+    public PetStats(Pet pet,
+                    double experience,
+                    PetLevel currentLevel)
+    {
+        this.pet = pet;
+        this.experience = experience;
+        this.currentLevel = currentLevel;
+
+        this.respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 1);
+        this.revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 1);
+
+        updateHealth();
+        launchRegenerationTimer();
+    }
 
     /**
      * Update the pet's health for the stats
@@ -62,7 +87,7 @@ public class PetStats {
      * Launch how much the pet should be regenerating
      * Can not be launched multiple times
      */
-    public void launchRegenerationTimer()
+    private void launchRegenerationTimer()
     {
         if(regenerationTimer != null && regenerationTimer.isRunning())
             return;
@@ -70,7 +95,12 @@ public class PetStats {
         regenerationTimer.launch(new Runnable() {
             @Override
             public void run() {
-                currentHealth = currentHealth + currentLevel.getRegeneration();
+                if(pet.isStillHere())
+                {
+                    double value = Math.max(currentHealth + currentLevel.getRegeneration(), currentLevel.getMaxHealth());
+                    pet.getActiveMob().getEntity().setHealth(value);
+                    updateHealth();
+                }
             }
         });
     }
@@ -136,6 +166,16 @@ public class PetStats {
     }
 
     /**
+     * Get the extended inventory size value
+     * Depends of the actual pet inventory size and the current level bonuses
+     * @return
+     */
+    public int getExtendedInventorySize()
+    {
+        return pet.getDefaultInventorySize() + currentLevel.getInventoryExtension();
+    }
+
+    /**
      * Add the given amount of experience to the pet
      * @param value
      * @return
@@ -143,7 +183,7 @@ public class PetStats {
     public boolean addExperience(double value)
     {
         // That's the case for which the pet has already reached the maximum level, so it doesn't need to exp anymore
-        if(currentLevel.equals(levels.get(levels.size()-1)))
+        if(currentLevel.equals(pet.getPetLevels().get(pet.getPetLevels().size()-1)))
             return false;
 
         PetGainExperienceEvent event = new PetGainExperienceEvent(pet, value);
@@ -153,7 +193,7 @@ public class PetStats {
 
         experience = event.getExperience();
 
-        for(PetLevel petLevel : levels)
+        for(PetLevel petLevel : pet.getPetLevels())
         {
             if(experience < petLevel.getExpThreshold())
             {

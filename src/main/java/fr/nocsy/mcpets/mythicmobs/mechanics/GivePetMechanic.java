@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.mythicmobs.mechanics;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
@@ -27,7 +28,7 @@ public class GivePetMechanic implements ITargetedEntitySkill {
             Pet pet = Pet.getFromId(petId);
             if (pet == null)
                 return SkillResult.CONDITION_FAILED;
-            player.addAttachment(MCPets.getInstance(), pet.getPermission(), true);
+            Utils.givePermission(player.getUniqueId(), pet.getPermission());
         }
         return SkillResult.SUCCESS;
     }

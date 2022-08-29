@@ -9,8 +9,10 @@ import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +27,7 @@ public class PetLevel {
 
     @Getter
     // If the pet has an evolution, specify it and it will turn into the evolution
-    private Pet evolution;
+    private String evolutionId;
     @Getter
     // Chose how long the evolution will be taking in ticks, 0 if instant
     // otherwise put the length of your evolution animation !
@@ -49,6 +51,18 @@ public class PetLevel {
     // Handles the power of the pet
     // Used for the spells for instance
     private double power;
+
+    @Getter
+    // Handles the inventory extension per level
+    private int inventoryExtension;
+
+    @Getter
+    // Respawn cooldown at this level
+    private int respawnCooldown;
+
+    @Getter
+    // Revoke cooldown at this level
+    private int revokeCooldown;
 
     //---------- Everything Handling the level transition ----------//
 
@@ -81,13 +95,16 @@ public class PetLevel {
     private String mythicSkill;
 
     public PetLevel(Pet pet,
-                    Pet evolution,
+                    String evolutionId,
                     int delayBeforeEvolution,
                     double maxHealth,
                     double regeneration,
                     double resistanceModifier,
                     double damageModifier,
                     double power,
+                    int respawnCooldown,
+                    int revokeCooldown,
+                    int inventoryExtension,
                     String levelName,
                     double expThreshold,
                     String announcement,
@@ -99,7 +116,7 @@ public class PetLevel {
     {
         this.pet = pet;
 
-        this.evolution = evolution;
+        this.evolutionId = evolutionId;
         this.delayBeforeEvolution = delayBeforeEvolution;
 
         this.maxHealth = maxHealth;
@@ -107,6 +124,9 @@ public class PetLevel {
         this.resistanceModifier = resistanceModifier;
         this.damageModifier = damageModifier;
         this.power = power;
+        this.respawnCooldown = respawnCooldown;
+        this.revokeCooldown = revokeCooldown;
+        this.inventoryExtension = inventoryExtension;
 
         this.levelName = levelName;
         this.expThreshold = expThreshold;
@@ -161,6 +181,37 @@ public class PetLevel {
     }
 
     /**
+     * Makes the pet evolves if it has an evolution
+     * Gives the permission to the owner to access the new pet
+     */
+    public void evolve()
+    {
+        Pet evolution = Pet.getFromId(evolutionId);
+        if(evolution != null)
+        {
+            Utils.givePermission(pet.getOwner(), evolution.getPermission());
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Player owner = Bukkit.getPlayer(pet.getOwner());
+                    if(owner != null)
+                    {
+                        Location loc = pet.isStillHere() ?
+                                        pet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
+                                        owner.getLocation();
+                        evolution.spawn(owner, loc);
+                    }
+                }
+            }.runTaskLater(MCPets.getInstance(), delayBeforeEvolution);
+            return;
+        }
+        if(evolutionId != null)
+        {
+            Bukkit.getLogger().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
+        }
+    }
+
+    /**
      * Play all the skills, text, sound and everything for the level up animation
      */
     public void levelUp()
@@ -171,6 +222,12 @@ public class PetLevel {
         announce();
         playSkill();
         playSound();
+        evolve();
+    }
+
+    public int compareTo(PetLevel level)
+    {
+        return Double.compare(this.getExpThreshold(), level.getExpThreshold());
     }
 
     @Override

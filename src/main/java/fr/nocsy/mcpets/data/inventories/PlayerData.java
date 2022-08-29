@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data.inventories;
 
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,9 @@ public class PlayerData {
     @Getter
     @Setter
     private HashMap<String, String> mapOfRegisteredInventories = new HashMap<>();
+    @Getter
+    @Setter
+    private HashMap<String, String> mapOfRegisteredPetStats = new HashMap<>();
 
     @Setter
     @Getter

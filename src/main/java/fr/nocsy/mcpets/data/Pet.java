@@ -9,6 +9,7 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.livingpets.PetType;
 import fr.nocsy.mcpets.events.*;
@@ -72,6 +73,10 @@ public class Pet {
     @Setter
     private PetStats petStats;
 
+    @Getter
+    @Setter
+    private List<PetLevel> petLevels;
+
     @Setter
     @Getter
     private String mythicMobName;
@@ -126,7 +131,7 @@ public class Pet {
 
     @Getter
     @Setter
-    private int inventorySize;
+    private int defaultInventorySize;
 
     @Getter
     @Setter
@@ -787,6 +792,7 @@ public class Pet {
     public Pet copy() {
         Pet pet = new Pet(id);
         pet.setPetStats(petStats);
+        pet.setPetLevels(petLevels);
         pet.setMythicMobName(mythicMobName);
         pet.setPermission(permission);
         pet.setDistance(distance);
@@ -796,7 +802,7 @@ public class Pet {
         pet.setMountable(mountable);
         pet.setDespawnOnDismount(despawnOnDismount);
         pet.setMountType(mountType);
-        pet.setInventorySize(inventorySize);
+        pet.setDefaultInventorySize(defaultInventorySize);
         pet.setAutoRide(autoRide);
         pet.setIcon(icon);
         pet.setSignalStick(signalStick);
@@ -1044,6 +1050,18 @@ public class Pet {
      */
     public String toString() {
         return "AlmPet;" + id;
+    }
+
+    /**
+     * Value of the inventory size, taking into account the pet stats
+     * @return
+     */
+    public int getInventorySize()
+    {
+        if(petStats == null)
+            return defaultInventorySize;
+        else
+            return petStats.getExtendedInventorySize();
     }
 
     /**

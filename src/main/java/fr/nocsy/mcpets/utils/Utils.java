@@ -2,7 +2,10 @@ package fr.nocsy.mcpets.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.BlacklistConfig;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.Node;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -137,6 +140,31 @@ public class Utils {
             }
         }
         return null;
+    }
+
+    /**
+     * Give permission to a player (based on LuckPerms)
+     * Return false if we are unable to give the permission on a long term basis
+     * @param uuid
+     * @param permission
+     * @return
+     */
+    public static boolean givePermission(UUID uuid, String permission)
+    {
+        if(MCPets.getLuckPerms() != null)
+        {
+            MCPets.getLuckPerms().getUserManager().modifyUser(uuid, user -> user.data().add(Node.builder(permission).build()));
+            return true;
+        }
+
+        if(Bukkit.getPlayer(uuid) != null)
+        {
+            // This is not saved in any file, just in the MCPets instance so it's not a viable solution
+            // Hence we return false
+            Bukkit.getPlayer(uuid).addAttachment(MCPets.getInstance(), permission, true);
+            return false;
+        }
+        return false;
     }
 
     public static void callEvent(Event e) {

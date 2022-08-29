@@ -4,6 +4,7 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -72,6 +73,14 @@ public class Databases {
                 }
 
                 PlayerData.getRegisteredData().put(uuid, pd);
+
+                PetStats.getPetStatsList().removeIf(petStats -> petStats.getPet().getOwner().equals(uuid));
+                for(String seria : playerData.getString("data").split(";;;"))
+                {
+                    PetStats stats = PetStats.unzerialize(seria);
+                    PetStats.getPetStatsList().add(stats);
+                }
+
             }
         } catch (SQLException e1) {
             return false;
@@ -91,10 +100,19 @@ public class Databases {
 
             String names = buildStringSerialized(pd.getMapOfRegisteredNames());
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+
+            String data = "";
+            for(PetStats stats : PetStats.getPetStatsList())
+            {
+                data = stats.serialize() + ";;;";
+            }
+            if(!data.isEmpty())
+                data = data.substring(data.length()-3, data.length());
+
             getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
                                                                                                     + "', '" + names
                                                                                                     + "', '" + inventories
-                                                                                                    + "', '" + null + "')");
+                                                                                                    + "', '" + data + "')");
         }
     }
 

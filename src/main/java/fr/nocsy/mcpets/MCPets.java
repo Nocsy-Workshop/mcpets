@@ -12,8 +12,10 @@ import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.listeners.EventListener;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
+import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.IllegalPluginAccessException;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
@@ -24,6 +26,7 @@ public class MCPets extends JavaPlugin {
     private static MCPets instance;
 
     private static MythicBukkit mythicMobs;
+    private static LuckPerms luckPerms;
     @Getter
     private static final Logger log = Bukkit.getLogger();
 
@@ -55,6 +58,7 @@ public class MCPets extends JavaPlugin {
             return;
         }
         checkWorldGuard();
+        checkLuckPerms();
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport())
@@ -91,6 +95,17 @@ public class MCPets extends JavaPlugin {
 
     }
 
+    public static void checkLuckPerms() {
+        try {
+            RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+            if (provider != null) {
+                luckPerms = provider.getProvider();
+            }
+        } catch (NoClassDefFoundError error) {
+            GlobalConfig.getInstance().setWorldguardsupport(false);
+            Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
+        }
+    }
     public void checkWorldGuard() {
         try {
             WorldGuard wg = WorldGuard.getInstance();
@@ -121,5 +136,13 @@ public class MCPets extends JavaPlugin {
             checkMythicMobs();
         return mythicMobs;
     }
+
+    public static LuckPerms getLuckPerms()
+    {
+        if(luckPerms == null)
+            checkLuckPerms();
+        return luckPerms;
+    }
+
 
 }
