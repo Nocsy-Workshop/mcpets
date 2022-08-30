@@ -2,13 +2,17 @@ package fr.nocsy.mcpets.data.livingpets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.inventories.PlayerDataNoDatabase;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
 import fr.nocsy.mcpets.utils.PetTimer;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 
 import java.util.*;
 
@@ -65,8 +69,7 @@ public class PetStats {
         this.experience = experience;
         this.currentLevel = currentLevel;
 
-        this.respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 1);
-        this.revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 1);
+        updateChangingData();
 
         updateHealth();
         launchRegenerationTimer();
@@ -84,12 +87,36 @@ public class PetStats {
     }
 
     /**
+     * used to refresh data that is changed by the level
+     */
+    private void updateChangingData()
+    {
+        respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 1);
+        revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 1);
+    }
+
+
+    /**
+     * Launch the timers if they are not null
+     */
+    public void launchTimers()
+    {
+        launchRespawnTimer();
+        launchRevokeTimer();
+        launchRegenerationTimer();
+    }
+
+    /**
      * Launch how much the pet should be regenerating
      * Can not be launched multiple times
      */
     private void launchRegenerationTimer()
     {
+        // If the regeneration timer is already running and not null, then do not run it again
         if(regenerationTimer != null && regenerationTimer.isRunning())
+            return;
+        // If the regeneration is none then do not launch the scheduler coz it's useless
+        if(currentLevel.getRegeneration() <= 0)
             return;
         regenerationTimer = new PetTimer(Integer.MAX_VALUE, 1);
         regenerationTimer.launch(new Runnable() {
@@ -201,6 +228,9 @@ public class PetStats {
                 {
                     petLevel.levelUp();
                     currentLevel = petLevel;
+                    updateChangingData();
+
+                    save();
                 }
             }
         }
@@ -266,5 +296,35 @@ public class PetStats {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Save the stats in the database
+     * Runs async
+     */
+    public void save()
+    {
+        new Thread(new Runnable() {
+            public void run() {
+                PlayerData pd = PlayerData.get(pet.getOwner());
+                pd.save();
+            }
+        }).start();
+    }
+
+    /**
+     * Save all pet stats asynchronously on a regular time period
+     */
+    public static void saveStats()
+    {
+        // Get the auto save delay (in seconds) and transform it into ticks
+        long delay = (long)GlobalConfig.getInstance().getAutoSave()*20;
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                // save all the pet stats asynchronously
+                PetStats.getPetStatsList().forEach(PetStats::save);
+            }
+        }, delay, delay);
     }
 }

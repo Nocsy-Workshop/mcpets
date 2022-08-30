@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
@@ -51,6 +52,35 @@ public class LivingPetsListener implements Listener {
     }
 
     //--------- HANDLERS FOR ACTIONS ---------//
+
+    @EventHandler
+    public void damagedByPlayer(EntityDamageByEntityEvent e)
+    {
+        Entity ent = e.getEntity();
+        Entity damager = e.getDamager();
+        if(damager instanceof Player);
+        {
+            Player p = ((Player)damager);
+            Pet pet = Pet.getFromEntity(ent);
+            if(pet != null)
+            {
+                // If the player is the owner, then it can not damage the pet
+                if(pet.getOwner().equals(p.getUniqueId()))
+                {
+                    e.setDamage(0);
+                    e.setCancelled(true);
+                    return;
+                }
+
+                // If the PvP is disabled in the world, then one can not damage the pet
+                if(!ent.getWorld().getPVP())
+                {
+                    e.setDamage(0);
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
 
     @EventHandler
     // Update health for the pet stats

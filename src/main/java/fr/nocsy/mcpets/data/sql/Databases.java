@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Databases {
 
@@ -102,7 +103,9 @@ public class Databases {
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
 
             String data = "";
-            for(PetStats stats : PetStats.getPetStatsList())
+            for(PetStats stats : PetStats.getPetStatsList().stream()
+                                                            .filter(petStats -> petStats.getPet().getOwner().equals(uuid))
+                                                            .collect(Collectors.toList()))
             {
                 data = stats.serialize() + ";;;";
             }

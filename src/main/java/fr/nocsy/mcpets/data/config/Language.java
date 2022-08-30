@@ -98,7 +98,20 @@ public enum Language {
     SKIN_APPLIED("§aSkin changed successfully !"),
 
     RESPAWN_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%."),
-    REVOKE_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%.");
+    REVOKE_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%."),
+
+    PET_STATS("§6✦ Pet's Information ✦" +
+            "\n" +
+            "\n§6Level §7- §6%levelname%" +
+            "\n" +
+            "\n§f%health%§7/§f%maxhealth% §c❤️" +
+            "\n§7Regeneration : %regeneration% ❤️/s" +
+            "\n§7Damage Modifier : §f%damagemodifier%%" +
+            "\n§7Resistance Modifier : §f%resistancemodifier%%" +
+            "\n§7Power : §f%power%%" +
+            "\n" +
+            "\n§7Experience : §a%experience%xp" +
+            "\n%progressbar%");
 
     @Getter
     private String message;

@@ -35,6 +35,9 @@ public class PetTimer {
 
     public void launch(Runnable runnable)
     {
+        // If it's running then cancel the current scheduler
+        if(isRunning())
+            stop();
         remainingTime = cooldown;
         task = Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), new Runnable() {
             @Override

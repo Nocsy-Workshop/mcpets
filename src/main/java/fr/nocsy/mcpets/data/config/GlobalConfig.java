@@ -50,6 +50,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private double percentHealthOnRespawn = 0.2;
     @Getter
+    private int autoSave = 60*60;
+    @Getter
     private String MySQL_USER;
     @Getter
     private String MySQL_PASSWORD;
@@ -108,6 +110,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("PercentHealthOnRespawn", percentHealthOnRespawn);
         if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
+        if(getConfig().get("AutoSaveDelay") == null)
+            getConfig().set("AutoSaveDelay", autoSave);
         if (getConfig().get("DisableMySQL") == null)
             getConfig().set("DisableMySQL", disableMySQL);
         if (getConfig().get("MySQL.User") == null)
@@ -163,6 +167,7 @@ public class GlobalConfig extends AbstractConfig {
         while (adaptiveInventory > 0 && adaptiveInventory % 9 != 0 && adaptiveInventory < 54)
             adaptiveInventory++;
 
+        autoSave = getConfig().getInt("AutoSaveDelay");
         disableMySQL = getConfig().getBoolean("DisableMySQL");
         MySQL_USER = getConfig().getString("MySQL.User");
         MySQL_PASSWORD = getConfig().getString("MySQL.Password");
