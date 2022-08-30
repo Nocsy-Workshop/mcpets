@@ -1,12 +1,10 @@
 package fr.nocsy.mcpets.data.livingpets;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
-import fr.nocsy.mcpets.data.inventories.PlayerDataNoDatabase;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
 import fr.nocsy.mcpets.utils.PetTimer;
 import fr.nocsy.mcpets.utils.Utils;
@@ -14,7 +12,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 public class PetStats {
 
@@ -238,6 +238,16 @@ public class PetStats {
         return true;
     }
 
+    public PetLevel getNextLevel()
+    {
+        if(currentLevel == null)
+            return null;
+
+        return pet.getPetLevels().stream()
+                                    .filter(petLevel -> petLevel.getExpThreshold() > currentLevel.getExpThreshold())
+                                    .findFirst().orElse(currentLevel);
+    }
+
     /**
      * Apply the modified attack damages to the given amount of damages, depending of the damage modifer of the stats
      * @param value
@@ -271,7 +281,7 @@ public class PetStats {
             jsonStr = Base64.getEncoder().encodeToString(jsonStr.getBytes());
             return jsonStr;
         }
-        catch(JsonProcessingException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             return null;
@@ -289,9 +299,9 @@ public class PetStats {
         try
         {
            String decoded = new String(Base64.getDecoder().decode(base64Str.getBytes()));
-            return mapper.readValue(decoded, PetStats.class);
+           return mapper.readValue(decoded, PetStats.class);
         }
-        catch(JsonProcessingException ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
             return null;

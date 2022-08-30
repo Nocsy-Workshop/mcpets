@@ -26,6 +26,7 @@ public class PetInventory {
     @Getter
     private static HashMap<UUID, HashMap<String, PetInventory>> petInventories = new HashMap<>();
 
+    @Getter
     private Inventory inventory;
 
     private final Pet pet;

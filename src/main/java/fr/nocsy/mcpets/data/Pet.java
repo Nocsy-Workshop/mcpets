@@ -1112,16 +1112,40 @@ public class Pet {
             meta.setLocalizedName(localizedName);
             item.setItemMeta(meta);
         }
-        if(showStats)
+        // Handles the statistics being showed on the icon
+        if(showStats && petStats != null)
         {
             ItemMeta meta = item.getItemMeta();
+            // Recover the existing lores
             ArrayList<String> lores = (ArrayList<String>) meta.getLore();
+            // Add a space
             lores.add(" ");
 
-            String progressBar = "|||||||||||||||||";
-            int size = progressBar.length();
-            
+            // Implement the progress bar
+            StringBuilder progressBar = new StringBuilder();
+            PetLevel nextLevel = petStats.getNextLevel();
+            if(nextLevel != null)
+            {
+                // Size of the progress bar in the hovering
+                int progressBarSize = GlobalConfig.instance.getExperienceBarSize();
 
+                double experienceRatio = petStats.getExperience()/nextLevel.getExpThreshold();
+                int indexProgress = Math.min(progressBarSize, (int)(experienceRatio*progressBarSize + 0.5));
+
+                for(int i = 0; i < progressBarSize; i++)
+                {
+                    if(i < indexProgress)
+                        progressBar.append(GlobalConfig.getInstance().getExperienceColorDone() +
+                                            GlobalConfig.getInstance().getExperienceSymbol() +
+                                            GlobalConfig.getInstance().getExperienceColorLeft());
+                    else
+                        progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft() +
+                                            GlobalConfig.getInstance().getExperienceSymbol() +
+                                            GlobalConfig.getInstance().getExperienceColorLeft());
+                }
+            }
+
+            // add the formatted statistics
             lores.add(Language.PET_STATS.getMessageFormatted(
                     new FormatArg("levelname", petStats.getCurrentLevel().getLevelName()),
                     new FormatArg("health", Integer.toString((int)petStats.getCurrentHealth())),
@@ -1131,7 +1155,10 @@ public class Pet {
                     new FormatArg("resistancemodifier", Integer.toString((int)(100*petStats.getCurrentLevel().getResistanceModifier()))),
                     new FormatArg("power", Integer.toString((int)(100*petStats.getCurrentLevel().getPower()))),
                     new FormatArg("experience", Integer.toString((int)petStats.getExperience())),
-                    new FormatArg("progressbar", progressBar)));
+                    new FormatArg("progressbar", progressBar.toString())));
+
+            meta.setLore(lores);
+            item.setItemMeta(meta);
         }
         return item;
     }

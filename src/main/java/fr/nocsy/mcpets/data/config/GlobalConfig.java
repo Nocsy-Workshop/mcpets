@@ -52,6 +52,14 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private int autoSave = 60*60;
     @Getter
+    private int experienceBarSize = 20;
+    @Getter
+    private String experienceSymbol = "|";
+    @Getter
+    private String experienceColorDone = "§a";
+    @Getter
+    private String experienceColorLeft = "§f";
+    @Getter
     private String MySQL_USER;
     @Getter
     private String MySQL_PASSWORD;
@@ -112,8 +120,16 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
         if(getConfig().get("AutoSaveDelay") == null)
             getConfig().set("AutoSaveDelay", autoSave);
-        if (getConfig().get("DisableMySQL") == null)
-            getConfig().set("DisableMySQL", disableMySQL);
+        if(getConfig().get("AutoSaveDelay") == null)
+            getConfig().set("AutoSaveDelay", autoSave);
+        if (getConfig().get("Experience.BarSize") == null)
+            getConfig().set("Experience.BarSize", experienceBarSize);
+        if (getConfig().get("Experience.Symbol") == null)
+            getConfig().set("Experience.Symbol", experienceSymbol);
+        if (getConfig().get("Experience.ColorDone") == null)
+            getConfig().set("Experience.ColorDone", experienceColorDone);
+        if (getConfig().get("Experience.ColorLeft") == null)
+            getConfig().set("Experience.ColorLeft", experienceColorLeft);
         if (getConfig().get("MySQL.User") == null)
             getConfig().set("MySQL.User", "user");
         if (getConfig().get("MySQL.Password") == null)
@@ -168,6 +184,12 @@ public class GlobalConfig extends AbstractConfig {
             adaptiveInventory++;
 
         autoSave = getConfig().getInt("AutoSaveDelay");
+
+        experienceBarSize = getConfig().getInt("Experience.BarSize");
+        experienceSymbol = getConfig().getString("Experience.Symbol");
+        experienceColorDone = getConfig().getString("Experience.ColorDone");
+        experienceColorLeft = getConfig().getString("Experience.ColorLeft");
+
         disableMySQL = getConfig().getBoolean("DisableMySQL");
         MySQL_USER = getConfig().getString("MySQL.User");
         MySQL_PASSWORD = getConfig().getString("MySQL.Password");

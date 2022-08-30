@@ -4,9 +4,7 @@ import com.sk89q.worldguard.WorldGuard;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
-import fr.nocsy.mcpets.data.flags.AbstractFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
-import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.listeners.EventListener;
@@ -14,7 +12,6 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 

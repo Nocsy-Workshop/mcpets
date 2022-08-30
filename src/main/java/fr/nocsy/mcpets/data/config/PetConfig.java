@@ -171,8 +171,8 @@ public class PetConfig extends AbstractConfig {
             }.runTaskLater(MCPets.getInstance(), 5L);
         }
 
-        pet.setIcon(pet.buildItem(pet.getIcon(), pet.toString(), iconName, description, materialType, customModelData, textureBase64));
-        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
+        pet.setIcon(pet.buildItem(pet.getIcon(), true, pet.toString(), iconName, description, materialType, customModelData, textureBase64));
+        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
 
         PetSkin.clearList(pet);
         for(String key : getConfig().getKeys(true).stream()
@@ -184,7 +184,7 @@ public class PetConfig extends AbstractConfig {
             String mythicMobId = getConfig().getString(key + ".MythicMob");
             String skinPerm = getConfig().getString(key + ".Permission");
 
-            PetSkin.load(pet, mythicMobId, skinPerm, pet.buildItem(null, "",
+            PetSkin.load(pet, mythicMobId, skinPerm, pet.buildItem(null, false, "",
                                                                         getConfig().getString(key + ".Icon.DisplayName"),
                                                                         getConfig().getStringList(key + ".Icon.Lore"),
                                                                         getConfig().getString(key + ".Icon.Material"),
@@ -214,9 +214,6 @@ public class PetConfig extends AbstractConfig {
             double expThreshold = getConfig().getDouble(key + ".ExperienceThreshold");
             String announcement = null;
             PetAnnouncement announcementType = null;
-            Sound sound = null;
-            float volume = 0;
-            float pitch = 1;
             String mythicSkill = Optional.ofNullable(getConfig().getString(key + ".Announcement.Skill")).orElse(null);
 
             if(getConfig().get(key + ".Evolution") != null)
@@ -228,12 +225,6 @@ public class PetConfig extends AbstractConfig {
             {
                 announcement = getConfig().getString(key + ".Announcement.Text");
                 announcementType = Optional.of(PetAnnouncement.valueOf(getConfig().getString(key + ".Announcement.Type"))).orElse(PetAnnouncement.CHAT);
-            }
-            if(getConfig().get(key + "Announcement.Sound") != null)
-            {
-                sound = Sound.valueOf(getConfig().getString(key + ".Announcement.Sound.Name"));
-                volume = Optional.of((float)getConfig().getDouble(key + ".Announcement.Sound.Volume")).orElse(1f);
-                pitch = Optional.of((float)getConfig().getDouble(key + ".Announcement.Sound.Volume")).orElse(1f);
             }
 
             PetLevel petLevel = new PetLevel(pet,
@@ -251,9 +242,6 @@ public class PetConfig extends AbstractConfig {
                                             expThreshold,
                                             announcement,
                                             announcementType,
-                                            sound,
-                                            volume,
-                                            pitch,
                                             mythicSkill);
 
             levels.add(petLevel);

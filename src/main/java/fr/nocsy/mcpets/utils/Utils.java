@@ -167,6 +167,28 @@ public class Utils {
         return false;
     }
 
+    public static boolean hasPermission(UUID uuid, String permission)
+    {
+        if(MCPets.getLuckPerms() != null)
+        {
+            User user = MCPets.getLuckPerms().getUserManager().getUser(uuid);
+            if(user != null)
+            {
+                return user.getCachedData()
+                            .getPermissionData()
+                            .checkPermission(permission).asBoolean();
+            }
+        }
+
+        Player p = Bukkit.getPlayer(uuid);
+        if(p != null)
+        {
+            return p.hasPermission(permission);
+        }
+
+        return false;
+    }
+
     public static void callEvent(Event e) {
         Bukkit.getPluginManager().callEvent(e);
     }

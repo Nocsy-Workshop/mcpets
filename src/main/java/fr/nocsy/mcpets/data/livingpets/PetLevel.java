@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data.livingpets;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.events.PetLevelUpEvent;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.skills.Skill;
@@ -83,14 +84,6 @@ public class PetLevel {
     private PetAnnouncement announcementType;
 
     @Getter
-    // The sound for the announcement
-    private Sound sound;
-    @Getter
-    private float volume;
-    @Getter
-    private float pitch;
-
-    @Getter
     // Play a skill if the pet has one setup for that level
     private String mythicSkill;
 
@@ -109,9 +102,6 @@ public class PetLevel {
                     double expThreshold,
                     String announcement,
                     PetAnnouncement announcementType,
-                    Sound sound,
-                    float volume,
-                    float pitch,
                     String mythicSkill)
     {
         this.pet = pet;
@@ -132,9 +122,6 @@ public class PetLevel {
         this.expThreshold = expThreshold;
         this.announcement = announcement;
         this.announcementType = announcementType;
-        this.sound = sound;
-        this.volume = volume;
-        this.pitch = pitch;
         this.mythicSkill = mythicSkill;
 
         assert(pet != null);
@@ -152,19 +139,6 @@ public class PetLevel {
             Player p = Bukkit.getPlayer(pet.getOwner());
             if(p != null)
                 announcementType.announce(p, announcement);
-        }
-    }
-
-    /**
-     * Play the level up sound if setup
-     */
-    public void playSound()
-    {
-        if(sound != null && pet.getOwner() != null)
-        {
-            Player p = Bukkit.getPlayer(pet.getOwner());
-            if(p != null)
-                p.playSound(p.getLocation(), sound, volume, pitch);
         }
     }
 
@@ -189,7 +163,31 @@ public class PetLevel {
         Pet evolution = Pet.getFromId(evolutionId);
         if(evolution != null)
         {
+            // If the owner already has the evolution, then we say that the pet can not evolve
+            if(Utils.hasPermission(pet.getOwner(), pet.getPermission()))
+            {
+                return;
+            }
+
+            // Give the permission to the owner
             Utils.givePermission(pet.getOwner(), evolution.getPermission());
+
+            // Transfer the inventory to the evolution
+            PetInventory petInventory = PetInventory.get(pet);
+            if(petInventory != null)
+            {
+                evolution.setOwner(pet.getOwner());
+                PetInventory evolutionInventory = PetInventory.get(evolution);
+                // If we ca not define an inventory in the evolution, then we lose the content so it doesn't make sense
+                if(evolutionInventory == null)
+                {
+                    Bukkit.getLogger().severe("Could not load inventory of pet " + evolutionId + " for player " + getPet().getOwner() + "\nCritical issue : could not evolve the pet.");
+                    return;
+                }
+                evolutionInventory.setInventory(petInventory.getInventory());
+            }
+
+            // Spawn the evolution
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -221,7 +219,6 @@ public class PetLevel {
 
         announce();
         playSkill();
-        playSound();
         evolve();
     }
 
