@@ -1,7 +1,6 @@
 package fr.nocsy.mcpets.mythicmobs.mechanics;
 
 import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.events.PetGainExperienceEvent;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
@@ -22,7 +21,7 @@ public class PetExperienceMechanic implements ITargetedEntitySkill {
         Entity entity = BukkitAdapter.adapt(target);
 
         Pet pet = Pet.getFromEntity(entity);
-        if(pet != null)
+        if(pet != null && pet.getPetStats() != null)
         {
             pet.getPetStats().addExperience(experience);
             return SkillResult.SUCCESS;

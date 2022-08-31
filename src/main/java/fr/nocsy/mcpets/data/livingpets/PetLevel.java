@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data.livingpets;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.events.PetLevelUpEvent;
 import fr.nocsy.mcpets.utils.Utils;
@@ -17,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class PetLevel {
 
@@ -27,12 +29,18 @@ public class PetLevel {
     //---------- Level statistics and changes for the pet ----------//
 
     @Getter
+    private String levelId;
+
+    @Getter
     // If the pet has an evolution, specify it and it will turn into the evolution
     private String evolutionId;
     @Getter
     // Chose how long the evolution will be taking in ticks, 0 if instant
     // otherwise put the length of your evolution animation !
     private int delayBeforeEvolution;
+    @Getter
+    // Chose if the previous pet should be removed from the player's permission on evolving
+    private boolean removePrevious;
 
     @Getter
     // Handles the health of the pet
@@ -88,8 +96,10 @@ public class PetLevel {
     private String mythicSkill;
 
     public PetLevel(Pet pet,
+                    String levelId,
                     String evolutionId,
                     int delayBeforeEvolution,
+                    boolean removePrevious,
                     double maxHealth,
                     double regeneration,
                     double resistanceModifier,
@@ -106,8 +116,11 @@ public class PetLevel {
     {
         this.pet = pet;
 
+        this.levelId = levelId;
+
         this.evolutionId = evolutionId;
         this.delayBeforeEvolution = delayBeforeEvolution;
+        this.removePrevious = removePrevious;
 
         this.maxHealth = maxHealth;
         this.regeneration = regeneration;
@@ -131,12 +144,12 @@ public class PetLevel {
     /**
      * Throw the level up announcement if setup
      */
-    public void announce()
+    public void announce(UUID player)
     {
         if(announcement != null && !announcement.isEmpty() &&
-            pet.getOwner() != null)
+                player != null)
         {
-            Player p = Bukkit.getPlayer(pet.getOwner());
+            Player p = Bukkit.getPlayer(player);
             if(p != null)
                 announcementType.announce(p, announcement);
         }
@@ -157,47 +170,70 @@ public class PetLevel {
     /**
      * Makes the pet evolves if it has an evolution
      * Gives the permission to the owner to access the new pet
+     * @param player
      */
-    public void evolve()
+    public void evolve(UUID player)
     {
         Pet evolution = Pet.getFromId(evolutionId);
         if(evolution != null)
         {
             // If the owner already has the evolution, then we say that the pet can not evolve
-            if(Utils.hasPermission(pet.getOwner(), pet.getPermission()))
+            if(Utils.hasPermission(player, evolution.getPermission()))
             {
+                Bukkit.getLogger().info("You got the perm already apparently " + evolution.getPermission());
                 return;
             }
 
             // Give the permission to the owner
-            Utils.givePermission(pet.getOwner(), evolution.getPermission());
+            Utils.givePermission(player, evolution.getPermission());
+
+            // Remove the previous permission if it's an enabled feature
+            if(removePrevious)
+            {
+                Utils.removePermission(player, pet.getPermission());
+            }
+
+            // We disable the perm check on that one so it doesn't run into a weird synchronisation issue
+            evolution.setCheckPermission(false);
+            // Set the owner as the current player
+            evolution.setOwner(player);
 
             // Transfer the inventory to the evolution
             PetInventory petInventory = PetInventory.get(pet);
             if(petInventory != null)
             {
-                evolution.setOwner(pet.getOwner());
+                evolution.setOwner(player);
                 PetInventory evolutionInventory = PetInventory.get(evolution);
                 // If we ca not define an inventory in the evolution, then we lose the content so it doesn't make sense
                 if(evolutionInventory == null)
                 {
-                    Bukkit.getLogger().severe("Could not load inventory of pet " + evolutionId + " for player " + getPet().getOwner() + "\nCritical issue : could not evolve the pet.");
+                    Bukkit.getLogger().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
                     return;
                 }
                 evolutionInventory.setInventory(petInventory.getInventory());
             }
 
+            // Fetch the owner of the pet, it has to be there to spawn the next pet right
+            Player owner = Bukkit.getPlayer(player);
+            if(owner == null)
+                return;
+
             // Spawn the evolution
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Player owner = Bukkit.getPlayer(pet.getOwner());
+                    // Make sure the owner is still here
+                    Player owner = Bukkit.getPlayer(player);
                     if(owner != null)
                     {
-                        Location loc = pet.isStillHere() ?
-                                        pet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
+                        Pet activePet = Pet.fromOwner(player);
+                        Location loc = activePet != null && activePet.isStillHere() ?
+                                        activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
                                         owner.getLocation();
-                        evolution.spawn(owner, loc);
+                        // Despawn the previous pet
+                        activePet.despawn(PetDespawnReason.EVOLUTION);
+                        // Spawn the evolution
+                        evolution.spawn(loc, false);
                     }
                 }
             }.runTaskLater(MCPets.getInstance(), delayBeforeEvolution);
@@ -211,15 +247,16 @@ public class PetLevel {
 
     /**
      * Play all the skills, text, sound and everything for the level up animation
+     * to the given player
      */
-    public void levelUp()
+    public void levelUp(UUID owner)
     {
         PetLevelUpEvent event = new PetLevelUpEvent(pet, this);
         Utils.callEvent(event);
 
-        announce();
+        announce(owner);
         playSkill();
-        evolve();
+        evolve(owner);
     }
 
     public int compareTo(PetLevel level)

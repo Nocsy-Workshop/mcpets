@@ -16,6 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.permissions.Permissible;
+import org.bukkit.permissions.PermissionAttachment;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -167,7 +170,30 @@ public class Utils {
         return false;
     }
 
-    public static boolean hasPermission(UUID uuid, String permission)
+    /**
+     * Remove permission to the player
+     * @param uuid
+     * @param permission
+     * @return
+     */
+    public static boolean removePermission(UUID uuid, String permission)
+    {
+        if(MCPets.getLuckPerms() != null)
+        {
+            MCPets.getLuckPerms().getUserManager().modifyUser(uuid, user -> user.data().remove(Node.builder(permission).build()));
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the player has the permission
+     * @param uuid
+     * @param permission
+     * @return
+     */
+    public static boolean hasPermission(@NotNull UUID uuid, String permission)
     {
         if(MCPets.getLuckPerms() != null)
         {
@@ -187,6 +213,20 @@ public class Utils {
         }
 
         return false;
+    }
+
+    /**
+     * Get the sign symbol of the value
+     * Return an empty string if it's negative to prevent duplicating issue
+     * @param value
+     * @return
+     */
+    public static String getSignSymbol(double value)
+    {
+        if(value < 0)
+            return "";
+        else
+            return "+";
     }
 
     public static void callEvent(Event e) {

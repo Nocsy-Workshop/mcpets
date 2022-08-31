@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.listeners.EventListener;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -73,6 +74,8 @@ public class MCPets extends JavaPlugin {
         EventListener.init(this);
 
         loadConfigs();
+        PetStats.saveStats();
+
         getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
         getLog().info("      Plugin made by Nocsy");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
@@ -80,12 +83,14 @@ public class MCPets extends JavaPlugin {
         FlagsManager.launchFlags();
     }
 
+
     @Override
     public void onDisable() {
         getLog().info("-=-=-=-= MCPets disable =-=-=-=-");
         getLog().info("          See you soon");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
 
+        PetStats.getPetStatsList().forEach(PetStats::save);
         Pet.clearPets();
         PlayerData.saveDB();
         FlagsManager.stopFlags();

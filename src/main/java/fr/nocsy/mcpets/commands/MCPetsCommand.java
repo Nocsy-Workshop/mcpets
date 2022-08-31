@@ -8,8 +8,11 @@ import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
+import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.listeners.PetInteractionMenuListener;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MCPetsCommand implements CCommand {
     @Override
@@ -160,6 +165,33 @@ public class MCPetsCommand implements CCommand {
 
                     }
                 }
+                if(args[0].equalsIgnoreCase("clearStats")
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    String petId = args[2];
+                    Pet pet = Pet.getFromId(petId);
+                    if(pet != null)
+                    {
+                        String playerName = args[1];
+                        OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
+                        if(player != null || !player.hasPlayedBefore())
+                        {
+                            PetStats.getPetStatsList().removeAll(PetStats.getPetStatsList().stream()
+                                    .filter(stat -> stat.getPet().getOwner().equals(player.getUniqueId())
+                                                    && stat.getPet().getId().equals(petId))
+                                    .collect(Collectors.toList()));
+                            Language.STATS_CLEARED_FOR_PET_FOR_PLAYER.sendMessageFormated(sender, new FormatArg("%petId%", petId),
+                                                                                                new FormatArg("%player%", playerName));
+
+                            PlayerData pd = PlayerData.get(player.getUniqueId());
+                            pd.save();
+                            return;
+                        }
+                    }
+
+                    sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
+                    return;
+                }
             }
             else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("open")
@@ -238,6 +270,43 @@ public class MCPetsCommand implements CCommand {
 
                     ((Player)sender).getInventory().setItemInMainHand(Items.turnIntoSignalStick(it, pet));
                     return;
+                }
+
+                if(args[0].equalsIgnoreCase("clearStats")
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    // Either it's a player clear
+                    String playerName = args[1];
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
+                    if(player != null || !player.hasPlayedBefore())
+                    {
+                        PetStats.getPetStatsList().removeAll(PetStats.getPetStatsList().stream()
+                                                                                    .filter(stat -> stat.getPet().getOwner().equals(player.getUniqueId()))
+                                                                                    .collect(Collectors.toList()));
+                        Language.STATS_CLEARED.sendMessage(sender);
+                        PlayerData pd = PlayerData.get(player.getUniqueId());
+                        pd.save();
+                        return;
+                    }
+                    else
+                    {
+                        // Or it's a pet clear
+                        String petId = args[1];
+                        Pet pet = Pet.getFromId(petId);
+                        if(pet != null)
+                        {
+                            PetStats.getPetStatsList().removeAll(PetStats.getPetStatsList().stream()
+                                    .filter(stat -> stat.getPet().getId().equals(petId))
+                                    .collect(Collectors.toList()));
+                            Language.STATS_CLEARED_FOR_PET.sendMessageFormated(sender, new FormatArg("%petId%", petId));
+                            PlayerData.saveDB();
+                            return;
+                        }
+
+                        // In that case it's not a pet clear so he probably failed to give a player name
+                        sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
+                        return;
+                    }
                 }
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("reload")

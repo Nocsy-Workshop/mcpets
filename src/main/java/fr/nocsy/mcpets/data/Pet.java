@@ -233,7 +233,7 @@ public class Pet {
     public static Pet getFromId(String id) {
         for (Pet pet : objectPets) {
             if (pet.getId().equals(id)) {
-                return pet;
+                return pet.copy();
             }
         }
         return null;
@@ -331,7 +331,13 @@ public class Pet {
         for (Pet pet : objectPets) {
             if (pet.isCheckPermission()) {
                 if (p.hasPermission(pet.getPermission()))
-                    pets.add(pet);
+                {
+                    Pet updatedPet = pet.copy();
+                    updatedPet.setOwner(p.getUniqueId());
+                    updatedPet.setPetStats();
+
+                    pets.add(updatedPet);
+                }
             } else {
                 pets.add(pet);
             }
@@ -368,9 +374,9 @@ public class Pet {
         // If it doesn't have registered pet stats, the we create new ones
         petStats = existingStats.orElseGet(() ->
                 {
-                    PetStats start = new PetStats(this, 0, petLevels.get(0));
+                    PetStats start = new PetStats(this, 0, petLevels.get(0).getMaxHealth(), petLevels.get(0));
                     // We register the pet stats if we have new ones created
-                    PetStats.getPetStatsList().add(petStats);
+                    PetStats.getPetStatsList().add(start);
                     return start;
                 });
 
@@ -787,9 +793,14 @@ public class Pet {
                 !removed;
     }
 
+    /**
+     * Does the player have the access to the given pet ?
+     * @param p
+     * @return
+     */
     public boolean has(Player p)
     {
-        return p.hasPermission(this.getPermission());
+        return Utils.hasPermission(p.getUniqueId(), this.getPermission());
     }
 
     /**
@@ -1060,8 +1071,15 @@ public class Pet {
 
         if (this.isStillHere()) {
             ActiveMob mob = this.getActiveMob();
-            mob.signalMob(mob.getEntity(), signal);
-            return true;
+            try
+            {
+                mob.signalMob(mob.getEntity(), signal);
+                return true;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
         }
         return false;
     }
@@ -1106,7 +1124,7 @@ public class Pet {
             meta.setDisplayName(iconName);
             meta.setLore(description);
             item.setItemMeta(meta);
-        } else {
+        } else if(item == null){
             item = Utils.createHead(iconName, description, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQ5Y2M1OGFkMjVhMWFiMTZkMzZiYjVkNmQ0OTNjOGY1ODk4YzJiZjMwMmI2NGUzMjU5MjFjNDFjMzU4NjcifX19");
             ItemMeta meta = item.getItemMeta();
             meta.setLocalizedName(localizedName);
@@ -1115,7 +1133,9 @@ public class Pet {
         // Handles the statistics being showed on the icon
         if(showStats && petStats != null)
         {
-            ItemMeta meta = item.getItemMeta();
+            // If we show the stats then we should not modify the actual item, but just its instance in that function
+            ItemStack it = item.clone();
+            ItemMeta meta = it.getItemMeta();
             // Recover the existing lores
             ArrayList<String> lores = (ArrayList<String>) meta.getLore();
             // Add a space
@@ -1129,7 +1149,7 @@ public class Pet {
                 // Size of the progress bar in the hovering
                 int progressBarSize = GlobalConfig.instance.getExperienceBarSize();
 
-                double experienceRatio = petStats.getExperience()/nextLevel.getExpThreshold();
+                double experienceRatio = (petStats.getExperience() - petStats.getCurrentLevel().getExpThreshold())/(nextLevel.getExpThreshold() - petStats.getCurrentLevel().getExpThreshold());
                 int indexProgress = Math.min(progressBarSize, (int)(experienceRatio*progressBarSize + 0.5));
 
                 for(int i = 0; i < progressBarSize; i++)
@@ -1145,20 +1165,29 @@ public class Pet {
                 }
             }
 
+            // Get the positive or negative sign symbol of the bonus
+            String signSymbol_damageModifer = Utils.getSignSymbol(petStats.getCurrentLevel().getDamageModifier() - 1);
+            String signSymbol_resistanceModifer = Utils.getSignSymbol(petStats.getCurrentLevel().getResistanceModifier() - 1);
+            String signSymbol_power = Utils.getSignSymbol(petStats.getCurrentLevel().getPower() - 1);
+
+            String statsLore = Language.PET_STATS.getMessageFormatted(
+                            new FormatArg("%levelname%", petStats.getCurrentLevel().getLevelName()),
+                            new FormatArg("%health%", Integer.toString((int)petStats.getCurrentHealth())),
+                            new FormatArg("%maxhealth%", Integer.toString((int)petStats.getCurrentLevel().getMaxHealth())),
+                            new FormatArg("%regeneration%", Double.toString(petStats.getCurrentLevel().getRegeneration())),
+                            new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getCurrentLevel().getDamageModifier() - 1))),
+                            new FormatArg("%resistancemodifier%", signSymbol_resistanceModifer + (int) (100 * (petStats.getCurrentLevel().getResistanceModifier() - 1))),
+                            new FormatArg("%power%", signSymbol_power + (int) (100 * (petStats.getCurrentLevel().getPower() - 1))),
+                            new FormatArg("%experience%", Integer.toString((int)petStats.getExperience())),
+                            new FormatArg("%threshold%", Integer.toString((int)petStats.getNextLevel().getExpThreshold())),
+                            new FormatArg("%progressbar%", progressBar.toString()));
+
             // add the formatted statistics
-            lores.add(Language.PET_STATS.getMessageFormatted(
-                    new FormatArg("levelname", petStats.getCurrentLevel().getLevelName()),
-                    new FormatArg("health", Integer.toString((int)petStats.getCurrentHealth())),
-                    new FormatArg("maxhealth", Integer.toString((int)petStats.getCurrentLevel().getMaxHealth())),
-                    new FormatArg("regeneration", Double.toString(petStats.getCurrentLevel().getRegeneration())),
-                    new FormatArg("damagemodifier", Integer.toString((int)(100*petStats.getCurrentLevel().getDamageModifier()))),
-                    new FormatArg("resistancemodifier", Integer.toString((int)(100*petStats.getCurrentLevel().getResistanceModifier()))),
-                    new FormatArg("power", Integer.toString((int)(100*petStats.getCurrentLevel().getPower()))),
-                    new FormatArg("experience", Integer.toString((int)petStats.getExperience())),
-                    new FormatArg("progressbar", progressBar.toString())));
+            lores.addAll(Arrays.asList(statsLore.split("\n")));
 
             meta.setLore(lores);
-            item.setItemMeta(meta);
+            it.setItemMeta(meta);
+            return it;
         }
         return item;
     }

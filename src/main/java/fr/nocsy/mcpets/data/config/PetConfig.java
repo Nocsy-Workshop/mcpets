@@ -15,10 +15,7 @@ import org.bukkit.Sound;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PetConfig extends AbstractConfig {
@@ -199,10 +196,12 @@ public class PetConfig extends AbstractConfig {
                                                     key.replace(".", ";").split(";").length == 2)
                                     .collect(Collectors.toList()))
         {
+            String levelId = key.replace(".", ";").split(";")[1];
 
             String evolutionId = null;
             int delayBeforeEvolution = 0;
-            double maxHealth = getConfig().getDouble(key + ".MaxHealth");
+            boolean removePrevious = true;
+            double maxHealth = Optional.of(getConfig().getDouble(key + ".MaxHealth")).orElse(1D);
             double regeneration = Optional.of(getConfig().getDouble(key + ".Regeneration")).orElse(0.1);
             double resistanceModifier = Optional.of(getConfig().getDouble(key + ".ResistanceModifier")).orElse(1D);
             double damageModifier = Optional.of(getConfig().getDouble(key + ".DamageModifier")).orElse(1D);
@@ -216,20 +215,26 @@ public class PetConfig extends AbstractConfig {
             PetAnnouncement announcementType = null;
             String mythicSkill = Optional.ofNullable(getConfig().getString(key + ".Announcement.Skill")).orElse(null);
 
-            if(getConfig().get(key + ".Evolution") != null)
+            if(getConfig().get(key + ".Evolution.PetId") != null)
             {
                 evolutionId = getConfig().getString(key + ".Evolution.PetId");
                 delayBeforeEvolution = getConfig().getInt(key + ".Evolution.DelayBeforeEvolution");
+                removePrevious = getConfig().get(key + ".Evolution.RemoveAccess") == null ||
+                                getConfig().getBoolean(key + ".Evolution.RemoveAccess");
             }
-            if(getConfig().get(key + "Announcement") != null)
+            if(getConfig().get(key + ".Announcement.Text") != null)
             {
                 announcement = getConfig().getString(key + ".Announcement.Text");
-                announcementType = Optional.of(PetAnnouncement.valueOf(getConfig().getString(key + ".Announcement.Type"))).orElse(PetAnnouncement.CHAT);
+                announcementType = Arrays.stream(PetAnnouncement.values())
+                                .filter(type -> type.name().equalsIgnoreCase(getConfig().getString(key + ".Announcement.Type")))
+                                .findFirst().orElse(PetAnnouncement.CHAT);
             }
 
             PetLevel petLevel = new PetLevel(pet,
+                                            levelId,
                                             evolutionId,
                                             delayBeforeEvolution,
+                                            removePrevious,
                                             maxHealth,
                                             regeneration,
                                             resistanceModifier,

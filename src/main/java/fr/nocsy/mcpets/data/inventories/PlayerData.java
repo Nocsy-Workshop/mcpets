@@ -73,7 +73,12 @@ public class PlayerData {
     }
 
     public static void saveDB() {
-        Databases.saveData();
+        if(GlobalConfig.getInstance().isDatabaseSupport())
+            Databases.saveData();
+        else
+        {
+            PlayerDataNoDatabase.getCacheMap().values().forEach(PlayerDataNoDatabase::save);
+        }
     }
 
     public static void reloadAll() {

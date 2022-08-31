@@ -1,10 +1,11 @@
 package fr.nocsy.mcpets.data.livingpets;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
 import fr.nocsy.mcpets.utils.PetTimer;
 import fr.nocsy.mcpets.utils.Utils;
@@ -63,10 +64,12 @@ public class PetStats {
      */
     public PetStats(Pet pet,
                     double experience,
+                    double currentHealth,
                     PetLevel currentLevel)
     {
         this.pet = pet;
         this.experience = experience;
+        this.currentHealth = currentHealth;
         this.currentLevel = currentLevel;
 
         updateChangingData();
@@ -91,8 +94,8 @@ public class PetStats {
      */
     private void updateChangingData()
     {
-        respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 1);
-        revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 1);
+        respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 20);
+        revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 20);
     }
 
 
@@ -118,13 +121,13 @@ public class PetStats {
         // If the regeneration is none then do not launch the scheduler coz it's useless
         if(currentLevel.getRegeneration() <= 0)
             return;
-        regenerationTimer = new PetTimer(Integer.MAX_VALUE, 1);
+        regenerationTimer = new PetTimer(Integer.MAX_VALUE, 20);
         regenerationTimer.launch(new Runnable() {
             @Override
             public void run() {
                 if(pet.isStillHere())
                 {
-                    double value = Math.max(currentHealth + currentLevel.getRegeneration(), currentLevel.getMaxHealth());
+                    double value = Math.min(currentHealth + currentLevel.getRegeneration(), currentLevel.getMaxHealth());
                     pet.getActiveMob().getEntity().setHealth(value);
                     updateHealth();
                 }
@@ -177,8 +180,10 @@ public class PetStats {
         if(value >= currentLevel.getMaxHealth())
             value = currentLevel.getMaxHealth();
         if(pet.isStillHere())
+        {
             pet.getActiveMob().getEntity().setHealth(value);
             currentHealth = value;
+        }
     }
 
     /**
@@ -189,7 +194,8 @@ public class PetStats {
      */
     public double getRespawnHealth()
     {
-        return Math.min(1, Math.max(0.01, GlobalConfig.getInstance().getPercentHealthOnRespawn())) * currentLevel.getMaxHealth();
+        double coef = Math.min(1, Math.max(0.01, GlobalConfig.getInstance().getPercentHealthOnRespawn()));
+        return coef * currentLevel.getMaxHealth();
     }
 
     /**
@@ -218,21 +224,18 @@ public class PetStats {
         if(event.isCancelled())
             return false;
 
-        experience = event.getExperience();
+        experience = experience + event.getExperience();
 
-        for(PetLevel petLevel : pet.getPetLevels())
+        PetLevel nextLevel = getNextLevel();
+        if(!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience)
         {
-            if(experience < petLevel.getExpThreshold())
-            {
-                if(!petLevel.equals(currentLevel))
-                {
-                    petLevel.levelUp();
-                    currentLevel = petLevel;
-                    updateChangingData();
+            currentLevel = nextLevel;
+            currentLevel.levelUp(pet.getOwner());
+            updateChangingData();
 
-                    save();
-                }
-            }
+            if(getNextLevel().equals(currentLevel))
+                experience = currentLevel.getExpThreshold();
+            save();
         }
 
         return true;
@@ -274,18 +277,8 @@ public class PetStats {
      */
     public String serialize()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        try
-        {
-            String jsonStr = mapper.writeValueAsString(this);
-            jsonStr = Base64.getEncoder().encodeToString(jsonStr.getBytes());
-            return jsonStr;
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            return null;
-        }
+        PetStatsSerializer serializer = PetStatsSerializer.build(this);
+        return serializer.serialize();
     }
 
     /**
@@ -295,17 +288,8 @@ public class PetStats {
      */
     public static PetStats unzerialize(String base64Str)
     {
-        ObjectMapper mapper = new ObjectMapper();
-        try
-        {
-           String decoded = new String(Base64.getDecoder().decode(base64Str.getBytes()));
-           return mapper.readValue(decoded, PetStats.class);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            return null;
-        }
+        PetStatsSerializer serializer = PetStatsSerializer.unserialize(base64Str);
+        return serializer.buildStats();
     }
 
     /**

@@ -22,6 +22,8 @@ public class EventListener implements Listener {
         listeners.add(new PetSkinsMenuListener());
         listeners.add(new VanillaDismountListener());
 
+        listeners.add(new LivingPetsListener());
+
         listeners.add(new MythicListener());
 
         for (Listener l : listeners) {

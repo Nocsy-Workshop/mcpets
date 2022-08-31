@@ -162,6 +162,7 @@ public class LivingPetsListener implements Listener {
         if(pet.getPetStats() != null)
         {
             PetStats stats = pet.getPetStats();
+            stats.setPet(e.getPet());
 
             // Refresh the Max Health value depending on the level of the pet
             stats.refreshMaxHealth();
@@ -173,6 +174,7 @@ public class LivingPetsListener implements Listener {
                 stats.setHealth(pet.getPetStats().getRespawnHealth());
             else
                 stats.setHealth(stats.getCurrentHealth());
+
         }
     }
 

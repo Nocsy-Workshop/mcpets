@@ -34,7 +34,7 @@ public class PetInteractionMenu {
             inventory.setItem(6, pet.getSignalStick());
         if (pet.getInventorySize() > 0)
             inventory.setItem(7, Items.INVENTORY.getItem());
-        inventory.setItem(4, Items.petInfo(pet));
+        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null));
     }
 
     public void open(Player p) {

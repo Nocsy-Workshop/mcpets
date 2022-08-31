@@ -21,6 +21,7 @@ public enum PetDespawnReason {
     SKIN("changing skin"),
     RESPAWN_TIMER("respawn timer"),
     REVOKE_TIMER("revoke timer"),
+    EVOLUTION("evolution"),
     UNKNOWN("unkown");
 
 

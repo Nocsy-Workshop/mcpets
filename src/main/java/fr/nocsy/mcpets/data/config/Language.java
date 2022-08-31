@@ -37,9 +37,11 @@ public enum Language {
     REVOKED("§7Your pet was revoked."),
     REVOKED_FOR_NEW_ONE("§7Your previous pet was revoked to summon the new one."),
     REVOKED_UNKNOWN("§cThe pet could not be spawned due to one of the following reasons :" +
+            "\n§7- The provided §cMythicMob in the pet config doesn't exist§7 (try to spawn it through /mm m spawn)§7." +
             "\n§7- The world is on §cpeaceful or easy mode§7." +
             "\n§7- A region §cprevents the mob from spawning§7 (the anchor is an aggressive mob most likely)." +
-            "\n§7- You have a §cspawn protector plugin§7, try to spawn the mob in another world or far from spawn."),
+            "\n§7- You have a §cspawn protector plugin§7, try to spawn the mob in another world or far from spawn." +
+            "\n§7- There exist other pets with the §csame id§7. Make sure you have unique ids."),
     MYTHICMOB_NULL("§cThis pet could not be summoned. The associated mythicMob entity or file is null or was removed."),
     NO_MOB_MATCH("§cThis pet could not be summoned. The associated mythicmob isn't registered in MythicMobs."),
     NOT_ALLOWED("§cYou're not allowed to summon this pet."),
@@ -100,17 +102,22 @@ public enum Language {
     RESPAWN_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%."),
     REVOKE_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%."),
 
+    PLAYER_OR_PET_DOESNT_EXIST("§cThis pet doesn't exist, or this player has never played on your server."),
+    STATS_CLEARED("§aAll stats have been cleared successfully !"),
+    STATS_CLEARED_FOR_PET_FOR_PLAYER("§aAll stats have been cleared successfully for the pet %petId% for the player %player%."),
+    STATS_CLEARED_FOR_PET("§aAll stats have been cleared successfully for the pet %petId%"),
+
     PET_STATS("§6✦ Pet's Information ✦" +
-            "\n" +
+            "\n " +
             "\n§6Level §7- §6%levelname%" +
-            "\n" +
-            "\n§f%health%§7/§f%maxhealth% §c❤️" +
-            "\n§7Regeneration : %regeneration% ❤️/s" +
+            "\n " +
+            "\n§f%health%§7/§f%maxhealth% §c❤" +
+            "\n§7Regeneration : %regeneration% ❤/s" +
             "\n§7Damage Modifier : §f%damagemodifier%%" +
             "\n§7Resistance Modifier : §f%resistancemodifier%%" +
             "\n§7Power : §f%power%%" +
-            "\n" +
-            "\n§7Experience : §a%experience%xp" +
+            "\n " +
+            "\n§7Experience : §a%experience%/%threshold% xp" +
             "\n%progressbar%");
 
     @Getter

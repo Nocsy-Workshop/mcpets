@@ -70,7 +70,7 @@ public class Category {
         for(int i = 0; i < showedPets.size(); i++)
         {
             Pet pet = showedPets.get(i);
-            inventory.setItem(i, pet.getIcon());
+            inventory.setItem(i,  pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }
         p.openInventory(inventory);
         return true;
