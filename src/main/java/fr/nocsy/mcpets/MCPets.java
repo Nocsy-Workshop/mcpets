@@ -36,6 +36,7 @@ public class MCPets extends JavaPlugin {
 
     public static void loadConfigs() {
         ItemsListConfig.getInstance().init();
+        PetFoodConfig.getInstance().init();
         GlobalConfig.getInstance().init();
         LanguageConfig.getInstance().init();
         BlacklistConfig.getInstance().init();

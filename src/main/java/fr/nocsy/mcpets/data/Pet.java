@@ -12,7 +12,6 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.data.livingpets.PetType;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.PathFindingUtils;
 import fr.nocsy.mcpets.utils.Utils;
@@ -147,6 +146,9 @@ public class Pet {
     @Setter
     @Getter
     private UUID owner;
+
+    @Getter
+    private double tamingProgress;
 
     @Setter
     @Getter
@@ -353,6 +355,31 @@ public class Pet {
     public static void clearPets() {
         for (Pet pet : Pet.getActivePets().values()) {
             pet.despawn(PetDespawnReason.RELOAD);
+        }
+    }
+
+    /**
+     * Set the taming progress to the given value
+     */
+    public void setTamingProgress(double value)
+    {
+        value = Math.min(1, Math.max(value, 0));
+
+        PetTamingEvent event = new PetTamingEvent(this, value);
+        Utils.callEvent(event);
+
+        if(!event.isCancelled())
+        {
+            tamingProgress = event.getTamingProgress();
+
+            // If taming is complete, then give the access to the owner
+            // and enable the AI
+            if(event.isTamingComplete())
+            {
+                Utils.givePermission(owner, permission);
+                // Starts following the tamer
+                AI();
+            }
         }
     }
 

@@ -12,7 +12,7 @@ public class ItemsListConfig extends AbstractConfig {
 
     private HashMap<String, ItemStack> items;
 
-    public ItemsListConfig()
+    private ItemsListConfig()
     {
         items = new HashMap<>();
     }

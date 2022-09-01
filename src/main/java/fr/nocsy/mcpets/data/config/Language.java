@@ -107,6 +107,8 @@ public enum Language {
     STATS_CLEARED_FOR_PET_FOR_PLAYER("§aAll stats have been cleared successfully for the pet %petId% for the player %player%."),
     STATS_CLEARED_FOR_PET("§aAll stats have been cleared successfully for the pet %petId%"),
 
+    PET_ALREADY_TAMED("§cThis pet is already being tamed by another player."),
+
     PET_STATS("§6✦ Pet's Information ✦" +
             "\n " +
             "\n§6Level §7- §6%levelname%" +
@@ -138,10 +140,14 @@ public enum Language {
     }
 
     public void sendMessage(CommandSender sender) {
+        if(message.isEmpty())
+            return;
         sender.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
     }
 
     public void sendMessageFormated(CommandSender sender, FormatArg... args) {
+        if(message.isEmpty())
+            return;
         String toSend = message;
         for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);

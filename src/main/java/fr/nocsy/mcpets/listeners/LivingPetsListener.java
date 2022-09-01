@@ -4,6 +4,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.Utils;
@@ -15,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class LivingPetsListener implements Listener {
 
@@ -47,6 +50,41 @@ public class LivingPetsListener implements Listener {
         {
             PetDeathEvent event = new PetDeathEvent(pet);
             Utils.callEvent(event);
+        }
+
+    }
+
+    @EventHandler
+    // handles the pet tame by player event
+    public void petTamedByPlayerEvent(PlayerInteractAtEntityEvent e)
+    {
+        Player p = e.getPlayer();
+        // Check if the player holds pet food
+        ItemStack it = p.getInventory().getItemInMainHand();
+        PetFood petFood = PetFood.getFromItem(it);
+        if(petFood != null)
+        {
+            // Check if the interacted mob is a pet
+            Pet pet = Pet.getFromEntity(e.getRightClicked());
+            if(pet != null)
+            {
+                // The pet has never been tamed, so let's tame it
+                // Or it's being tamed by the same player
+                if(pet.getOwner() == null || pet.getOwner().equals(p.getUniqueId()))
+                {
+                    // Set the pet owner to the giver of food
+                    pet.setOwner(p.getUniqueId());
+
+                    // Call the pet tamed by player event
+                    PetTamedByPlayerEvent event = new PetTamedByPlayerEvent(pet, p, petFood);
+                    Utils.callEvent(event);
+                }
+                // The pet has already been tamed, so let's do nothing
+                else
+                {
+                    Language.PET_ALREADY_TAMED.sendMessage(p);
+                }
+            }
         }
 
     }
@@ -178,6 +216,12 @@ public class LivingPetsListener implements Listener {
         }
     }
 
-
+    @EventHandler
+    // Handles player giving taming food to its pet
+    public void taming(PetTamedByPlayerEvent e)
+    {
+        Pet pet = e.getPet();
+        pet.setTamingProgress(e.getPetFood().getOperator().get(pet.getTamingProgress(), e.getPetFood().getPower()));
+    }
 
 }
