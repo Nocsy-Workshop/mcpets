@@ -107,6 +107,8 @@ public enum Language {
     STATS_CLEARED_FOR_PET_FOR_PLAYER("§aAll stats have been cleared successfully for the pet %petId% for the player %player%."),
     STATS_CLEARED_FOR_PET("§aAll stats have been cleared successfully for the pet %petId%"),
 
+    PET_TAMING_PROGRESS("§7Taming progress §a%progress%% §7- %progressbar%"),
+
     PET_ALREADY_TAMED("§cThis pet is already being tamed by another player."),
 
     PET_STATS("§6✦ Pet's Information ✦" +

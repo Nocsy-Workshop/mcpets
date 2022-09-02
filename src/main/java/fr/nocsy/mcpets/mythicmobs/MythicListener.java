@@ -1,9 +1,12 @@
 package fr.nocsy.mcpets.mythicmobs;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.mythicmobs.conditions.PetExperienceCondition;
+import fr.nocsy.mcpets.mythicmobs.conditions.PetTamingCondition;
 import fr.nocsy.mcpets.mythicmobs.mechanics.*;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import fr.nocsy.mcpets.mythicmobs.targeters.TargeterPetOwner;
+import io.lumine.mythic.bukkit.events.MythicConditionLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicReloadedEvent;
 import io.lumine.mythic.bukkit.events.MythicTargeterLoadEvent;
@@ -24,6 +27,21 @@ public class MythicListener implements Listener {
                 PetPlaceholdersManager.registerPlaceholders();
             }
         }.runTaskLater(MCPets.getInstance(), 1L);
+    }
+
+    @EventHandler
+    public void onMythicEventLoad(MythicConditionLoadEvent e)
+    {
+        if(e.getConditionName().equalsIgnoreCase("petExperience"))
+        {
+            PetExperienceCondition cond = new PetExperienceCondition(e.getConfig().getLine(), e.getConfig());
+            e.register(cond);
+        }
+        else if(e.getConditionName().equalsIgnoreCase("petTaming"))
+        {
+            PetTamingCondition cond = new PetTamingCondition(e.getConfig().getLine(), e.getConfig());
+            e.register(cond);
+        }
     }
 
     @EventHandler

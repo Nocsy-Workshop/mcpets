@@ -3,12 +3,16 @@ package fr.nocsy.mcpets.listeners;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.data.livingpets.PetFoodType;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -68,10 +72,24 @@ public class LivingPetsListener implements Listener {
             Pet pet = Pet.getFromEntity(e.getRightClicked());
             if(pet != null)
             {
+                // If it's health food then trigger the healing event
+                if(petFood.getType().equals(PetFoodType.HEALTH))
+                {
+                    // Cancel the interaction event
+                    e.setCancelled(true);
+                    PetFedByPlayerEvent event = new PetFedByPlayerEvent(pet, p, petFood);
+                    Utils.callEvent(event);
+                    return;
+                }
+
                 // The pet has never been tamed, so let's tame it
                 // Or it's being tamed by the same player
-                if(pet.getOwner() == null || pet.getOwner().equals(p.getUniqueId()))
+                if(petFood.getType().equals(PetFoodType.TAME) &&
+                        (pet.getOwner() == null || pet.getOwner().equals(p.getUniqueId())))
                 {
+                    // Cancel the interaction event
+                    e.setCancelled(true);
+
                     // Set the pet owner to the giver of food
                     pet.setOwner(p.getUniqueId());
 
@@ -221,7 +239,54 @@ public class LivingPetsListener implements Listener {
     public void taming(PetTamedByPlayerEvent e)
     {
         Pet pet = e.getPet();
-        pet.setTamingProgress(e.getPetFood().getOperator().get(pet.getTamingProgress(), e.getPetFood().getPower()));
+        if(pet.getPetStats() != null)
+        {
+            PetFood petFood = e.getPetFood();
+            petFood.consume(e.getPlayer());
+            petFood.apply(e.getPet());
+
+            // Announce it to the player
+            StringBuilder progressBar = new StringBuilder();
+            if(GlobalConfig.getInstance().getTamingBarSize() > 0)
+            {
+                // Size of the progress bar in the hovering
+                int progressBarSize = GlobalConfig.getInstance().getTamingBarSize();
+
+                double ratio = pet.getTamingProgress();
+                int indexProgress = Math.min(progressBarSize, (int)(ratio*progressBarSize + 0.5));
+
+                for(int i = 0; i < progressBarSize; i++)
+                {
+                    if(i < indexProgress)
+                        progressBar.append(GlobalConfig.getInstance().getTamingColorDone() +
+                                GlobalConfig.getInstance().getTamingSymbol() +
+                                GlobalConfig.getInstance().getTamingColorLeft());
+                    else
+                        progressBar.append(GlobalConfig.getInstance().getTamingColorLeft() +
+                                GlobalConfig.getInstance().getTamingSymbol() +
+                                GlobalConfig.getInstance().getTamingColorLeft());
+                }
+            }
+
+            GlobalConfig.getInstance().getTamingAnnouncementType()
+                    .announce(e.getPlayer(),
+                    Language.PET_TAMING_PROGRESS.getMessageFormatted(
+                            new FormatArg("%progress%", Integer.toString((int)(pet.getTamingProgress()*100))),
+                            new FormatArg("%progressbar%", progressBar.toString())));
+        }
+    }
+
+    @EventHandler
+    public void feedPet(PetFedByPlayerEvent e)
+    {
+        Pet pet = e.getPet();
+        if(pet.getPetStats() != null)
+        {
+            // Remove one unit of the item or replace it by void
+            e.getPetFood().consume(e.getPlayer());
+            // Apply the modifier of the petfood to the pet
+            e.getPetFood().apply(e.getPet());
+        }
     }
 
 }

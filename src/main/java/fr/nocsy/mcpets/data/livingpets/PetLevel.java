@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.events.PetLevelUpEvent;
+import fr.nocsy.mcpets.utils.PetAnnouncement;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.skills.Skill;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;

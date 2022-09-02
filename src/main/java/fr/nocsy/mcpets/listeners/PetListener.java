@@ -8,6 +8,7 @@ import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
@@ -48,6 +49,12 @@ public class PetListener implements Listener {
             ItemStack it = p.getInventory().getItemInMainHand();
             if(Items.isSignalStick(it))
                 return;
+        }
+
+        //If it's pet food in the main hand then do not open the menu
+        if(PetFood.getFromItem(p.getInventory().getItemInMainHand()) != null)
+        {
+            return;
         }
 
         Entity ent = e.getRightClicked();

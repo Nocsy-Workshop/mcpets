@@ -4,6 +4,8 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
 import lombok.Getter;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -74,8 +76,27 @@ public class PetFood {
         }
         else if(type.equals(PetFoodType.TAME))
         {
-
+            if(pet.getPetStats() != null)
+            {
+                pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
+            }
         }
+    }
+
+    /**
+     * Consume the pet food in the main hand of the player
+     * @param p
+     */
+    public void consume(Player p)
+    {
+        if(p == null)
+            return;
+
+        ItemStack it = itemStack.clone();
+        it.setAmount(it.getAmount()-1);
+        if(it.getAmount() == 0)
+            it = new ItemStack(Material.AIR);
+        p.getInventory().setItemInMainHand(it);
     }
 
     /**

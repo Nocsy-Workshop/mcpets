@@ -1,9 +1,11 @@
-package fr.nocsy.mcpets.data.livingpets;
+package fr.nocsy.mcpets.utils;
 
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import java.util.Arrays;
 
 public enum PetAnnouncement {
 
@@ -39,6 +41,17 @@ public enum PetAnnouncement {
             default:
                 p.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
         }
+    }
+
+    /**
+     * Get the announcement corresponding to the string name
+     * Default is CHAT
+     * @param name
+     * @return
+     */
+    public static PetAnnouncement get(String name)
+    {
+        return Arrays.stream(PetAnnouncement.values()).filter(petAnnouncement -> petAnnouncement.name().equalsIgnoreCase(name)).findFirst().orElse(PetAnnouncement.CHAT);
     }
 
 }
