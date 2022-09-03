@@ -10,19 +10,23 @@ import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.core.mobs.ActiveMob;
+import lombok.Getter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public class SetPetMechanic implements ITargetedEntitySkill {
 
-    String petId;
-    boolean mustHavePermission;
+    private String petId;
+    private boolean followOwner = true;
+    private boolean mustHavePermission;
 
     public SetPetMechanic(MythicLineConfig config) {
         this.petId = config.getString(new String[]{"id"}, this.petId);
+        this.followOwner = config.getBoolean(new String[]{"followOwner", "fo"}, this.followOwner);
         this.mustHavePermission =  config.getBoolean(new String[]{"mustHavePermission","permCheck"}, this.mustHavePermission);
     }
 
@@ -37,15 +41,11 @@ public class SetPetMechanic implements ITargetedEntitySkill {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-
-                    Pet currentPet = Pet.fromOwner(player.getUniqueId());
-                    if(currentPet != null)
-                    {
-                        currentPet.despawn(PetDespawnReason.SETPET_REPLACED);
-                    }
-
                     Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId());
-                    opt.ifPresent(activeMob -> pet.changeActiveMobTo(activeMob, (Player) player));
+                    opt.ifPresent(activeMob -> pet.changeActiveMobTo(activeMob,
+                                                                    ((Player)player).getUniqueId(),
+                                                                    followOwner,
+                                                                    PetDespawnReason.SETPET_REPLACED));
 
                 }
             }.runTaskLater(MCPets.getInstance(), 1L);

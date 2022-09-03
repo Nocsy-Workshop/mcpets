@@ -145,42 +145,51 @@ public class Pet {
 
     @Setter
     @Getter
+    // Who is the owner ?
     private UUID owner;
 
     @Getter
-    private double tamingProgress;
+    // Indicates the taming progress (between 0 and 1)
+    private double tamingProgress = 0;
 
-    @Setter
     @Getter
+    // The active mob representing the pet instance
     private ActiveMob activeMob;
 
     @Getter
+    // Is the pet invulnerable ?
     private boolean invulnerable;
 
     @Getter
     @Setter
+    // Was the pet removed ?
     private boolean removed;
 
     @Getter
     @Setter
+    // Should we check the permission when spawning ?
     private boolean checkPermission;
 
     @Getter
     @Setter
+    // Is it the first spawn of the pet or is it being teleported for instance ?
     private boolean firstSpawn;
 
     @Getter
     @Setter
+    // Should it follow the owner ?
     private boolean followOwner;
 
     @Getter
     @Setter
+    // What's the active pet skin ?
     private PetSkin activeSkin;
 
     // Debug variables
-
     private boolean recurrent_spawn = false;
-    private int task;
+
+    // AI variable
+    private int task = 0;
 
     /**
      * Constructor only used to create a fundamental Pet. If you wish to use a pet instance, please refer to copy()
@@ -370,15 +379,18 @@ public class Pet {
 
         if(!event.isCancelled())
         {
+            // Starts following the tamer
+            AI();
+
             tamingProgress = event.getTamingProgress();
 
             // If taming is complete, then give the access to the owner
-            // and enable the AI
             if(event.isTamingComplete())
             {
+                // Give the access
                 Utils.givePermission(owner, permission);
-                // Starts following the tamer
-                AI();
+                // Activate the pet in MCPets, coz so far it was just following the owner
+                changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
             }
         }
     }
@@ -506,55 +518,14 @@ public class Pet {
             }
             // Fetch the activeMob
             Optional<ActiveMob> maybeHere = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
-            maybeHere.ifPresent(mob -> activeMob = mob);
+            maybeHere.ifPresent(this::setActiveMob);
             // If none is found, just despawn it
             if (activeMob == null) {
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
             }
 
-            // Put the Metadata on the pet that characterizes it so we can identify it later
-            ent.setMetadata("AlmPet", new FixedMetadataValue(MCPets.getInstance(), this));
-
-            // If the pet is supposed to be invulnerable according to MythicMobs, then we make it invulnerable
-            if (ent.isInvulnerable()) {
-                this.invulnerable = true;
-                ent.setInvulnerable(false);
-            }
-            // Set the MythicMobs owner as the owner
-            activeMob.setOwner(owner);
-            // Activate the AI of the pet
-            this.AI();
-
-            // If the pet is going to despawn a previous one or not, then we save that for the return value of the function
-            boolean returnDespawned = false;
-            if (activePets.containsKey(owner)) {
-                Pet previous = activePets.get(owner);
-                previous.despawn(PetDespawnReason.REPLACED);
-
-                activePets.remove(owner);
-                returnDespawned = true;
-            }
-
-            // Add the pet to the active list of pets for the given owner
-            activePets.put(owner, this);
-
-            // Load the player data for the pet
-            PlayerData pd = PlayerData.get(owner);
-            // Fetch the saved name
-            String name = pd.getMapOfRegisteredNames().get(this.id);
-            if(GlobalConfig.getInstance().isUseDefaultMythicMobNames())
-                name = activeMob.getDisplayName();
-
-            // Set the display name of the pet
-            if (name != null) {
-                setDisplayName(name, false);
-            } else {
-                setDisplayName(Language.TAG_TO_REMOVE_NAME.getMessage(), false);
-            }
-
-            // Inform that the pet is not removed
-            setRemoved(false);
+            boolean returnDespawned = changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
 
             // Handles the first spawn situation
             if (firstSpawn) {
@@ -575,9 +546,6 @@ public class Pet {
                     }
                 }.runTaskLater(MCPets.getInstance(), 5L);
             }
-
-            // Setup the default signal
-            PlayerSignal.setDefaultSignal(owner, this);
 
             // Call the spawned event
             PetSpawnedEvent petSpawnedEvent = new PetSpawnedEvent(this);
@@ -627,38 +595,93 @@ public class Pet {
             }
     }
 
-    public void changeActiveMobTo(ActiveMob mob, Player p)
+    /**
+     * Set the pet's instance active mob to the given new ActiveMob
+     * Returns the value if the mob has revoked a previous one
+     * @param mob
+     * @param owner
+     * @param followOwner
+     */
+    public boolean changeActiveMobTo(ActiveMob mob, UUID owner, boolean followOwner, PetDespawnReason reason)
     {
-        activeMob = mob;
-        Entity ent = mob.getEntity().getBukkitEntity();
-        ent.setMetadata("AlmPet", new FixedMetadataValue(MCPets.getInstance(), this));
-        if (ent.isInvulnerable() && GlobalConfig.getInstance().isLeftClickToOpen()) {
-            this.invulnerable = true;
-            ent.setInvulnerable(false);
+        boolean replaced = false;
+        // First we remove the previous pet if there was one
+        Pet currentPet = Pet.fromOwner(owner);
+        if(currentPet != null)
+        {
+            currentPet.despawn(reason);
+            activePets.remove(owner);
+            replaced = true;
         }
-        owner = p.getUniqueId();
+
+        // Then we set the active mob to the new active mob
+        // And we setup the default pet parameters
+        setActiveMob(mob);
+        // Set the owner
+        this.owner = owner;
         activeMob.setOwner(owner);
-        followOwner = true;
+
+        // Follow up the owner ?
+        this.followOwner = followOwner;
         this.AI();
 
+        // Add the pet to the active list of pets for the given owner
         activePets.put(owner, this);
 
+        // Load the player data for the pet
         PlayerData pd = PlayerData.get(owner);
+        // Fetch the saved name
         String name = pd.getMapOfRegisteredNames().get(this.id);
-        setRemoved(false);
+        if(GlobalConfig.getInstance().isUseDefaultMythicMobNames())
+            name = activeMob.getDisplayName();
+
+        // Set the display name of the pet
         if (name != null) {
             setDisplayName(name, false);
         } else {
             setDisplayName(Language.TAG_TO_REMOVE_NAME.getMessage(), false);
         }
 
+        // Inform that the pet is not removed
+        setRemoved(false);
+
+        // Setup the default signal
         PlayerSignal.setDefaultSignal(owner, this);
+
+        // If we change the mob, then we're going to consider it to be fully tamed as well
+        tamingProgress = 1;
+
+        return replaced;
+    }
+
+    /**
+     * Set the active mob of the pet instance
+     * This will not synchronize with the pet's owner, so be extra careful with using this method
+     * You'd rather use "changeActiveMobTo" instead
+     * @param mob
+     */
+    public void setActiveMob(ActiveMob mob)
+    {
+
+        // Then we set the active mob to the new active mob
+        // And we setup the default pet parameters
+        activeMob = mob;
+        Entity ent = mob.getEntity().getBukkitEntity();
+
+        // Put the Metadata on the pet that characterizes it so we can identify it later
+        ent.setMetadata("AlmPet", new FixedMetadataValue(MCPets.getInstance(), this));
+        if (ent.isInvulnerable()) {
+            this.invulnerable = true;
+            ent.setInvulnerable(false);
+        }
     }
 
     /**
      * Activate the following AI of the mob
      */
     public void AI() {
+        if(task != 0)
+            return;
 
         task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), new Runnable() {
 
@@ -692,10 +715,15 @@ public class Pet {
 
                     double distance = Utils.distance(ownerLoc, petLoc);
 
+                    // Following AI System
                     if (distance < getInstance().getComingBackRange()) {
+                        // If the pet is too close then it stops
                         PathFindingUtils.stop(activeMob.getEntity());
                     } else if (distance > getInstance().getDistance() &&
-                            distance < GlobalConfig.getInstance().getDistanceTeleport()) {
+                            (distance < GlobalConfig.getInstance().getDistanceTeleport() || tamingProgress < 1)) {
+                        // If the pet is too far but not far enough to be teleported, then it follows up the owner
+                        // Except if the following is disabled
+                        // * Note : if the taming is not completed then the pet can not be teleported to the owner
                         if(!followOwner)
                             return;
                         AbstractLocation aloc = new AbstractLocation(activeMob.getEntity().getWorld(), petLocation.getX(), petLocation.getY(), petLocation.getZ());
@@ -704,6 +732,11 @@ public class Pet {
                             && !p.isFlying()
                             && p.isOnGround()
                             && teleportTick == 0) {
+                        // If the pet is really too far, and that the owner is not flying
+                        // And that we didn't teleport the pet a few ticks before
+                        // Then we teleport the pet to the owner
+                        // * Note that if the taming of the pet is not fully complete, then the pet won't be teleported
+                        // * but instead the pet will try to come closer to the owner according to the previous "if"
                         getInstance().teleportToPlayer(p);
                         teleportTick = 4;
                     }
@@ -816,7 +849,6 @@ public class Pet {
                 activeMob.getEntity().getBukkitEntity() != null &&
                 !activeMob.getEntity().getBukkitEntity().isDead() &&
                 !activeMob.isDead() &&
-                getActivePets().containsValue(this) &&
                 !removed;
     }
 

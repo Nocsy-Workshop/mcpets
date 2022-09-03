@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.data.livingpets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
+import fr.nocsy.mcpets.utils.PetMath;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

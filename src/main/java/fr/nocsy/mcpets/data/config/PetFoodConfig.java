@@ -2,7 +2,7 @@ package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetFoodType;
-import fr.nocsy.mcpets.data.livingpets.PetMath;
+import fr.nocsy.mcpets.utils.PetMath;
 
 import java.util.*;
 

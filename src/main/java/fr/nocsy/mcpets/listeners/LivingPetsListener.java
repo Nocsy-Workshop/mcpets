@@ -7,12 +7,10 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetFoodType;
-import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -84,8 +82,10 @@ public class LivingPetsListener implements Listener {
 
                 // The pet has never been tamed, so let's tame it
                 // Or it's being tamed by the same player
+                // Make sure as well the pet is not already fully tamed
                 if(petFood.getType().equals(PetFoodType.TAME) &&
-                        (pet.getOwner() == null || pet.getOwner().equals(p.getUniqueId())))
+                        (pet.getOwner() == null || pet.getOwner().equals(p.getUniqueId())) &&
+                        pet.getTamingProgress() < 1)
                 {
                     // Cancel the interaction event
                     e.setCancelled(true);

@@ -1,4 +1,4 @@
-package fr.nocsy.mcpets.data.livingpets;
+package fr.nocsy.mcpets.utils;
 
 import lombok.Getter;
 

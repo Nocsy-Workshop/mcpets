@@ -109,7 +109,7 @@ public enum Language {
 
     PET_TAMING_PROGRESS("§7Taming progress §a%progress%% §7- %progressbar%"),
 
-    PET_ALREADY_TAMED("§cThis pet is already being tamed by another player."),
+    PET_ALREADY_TAMED("§cThis pet is already tamed."),
 
     PET_STATS("§6✦ Pet's Information ✦" +
             "\n " +
