@@ -301,7 +301,8 @@ public class PetStats {
         new Thread(new Runnable() {
             public void run() {
                 PlayerData pd = PlayerData.get(pet.getOwner());
-                pd.save();
+                if(pd != null)
+                    pd.save();
             }
         }).start();
     }

@@ -61,7 +61,7 @@ public class PetListener implements Listener {
 
         Pet pet = Pet.getFromEntity(ent);
 
-        if (pet != null &&
+        if (pet != null && pet.getOwner() != null &&
                 (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
             PetInteractionMenu menu = new PetInteractionMenu(pet);
             pet.setLastInteractedWith(p);
@@ -86,7 +86,7 @@ public class PetListener implements Listener {
 
         Pet pet = Pet.getFromEntity(ent);
 
-        if (pet != null &&
+        if (pet != null && pet.getOwner() != null &&
                 (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
             PetInteractionMenu menu = new PetInteractionMenu(pet);
             pet.setLastInteractedWith(p);
@@ -121,6 +121,8 @@ public class PetListener implements Listener {
         Player p = e.getPlayer();
         if (Pet.getActivePets().containsKey(p.getUniqueId())) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
+            if(pet.getTamingProgress() < 1)
+                return;
             pet.despawn(PetDespawnReason.TELEPORT);
             new BukkitRunnable() {
                 @Override

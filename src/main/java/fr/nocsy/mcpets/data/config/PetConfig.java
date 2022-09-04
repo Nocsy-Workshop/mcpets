@@ -94,6 +94,9 @@ public class PetConfig extends AbstractConfig {
         int spawnRange = getConfig().getInt("SpawnRange");
         int comingbackRange = getConfig().getInt("ComingBackRange");
         String despawnSkillName = getConfig().getString("DespawnSkill");
+        String tamingSkillName = getConfig().getString("Taming.TamingProgressSkill");
+        String tamingOverSkillName = getConfig().getString("Taming.TamingFinishedSkill");
+
         boolean autoRide = getConfig().getBoolean("AutoRide");
         String mountType = getConfig().getString("MountType");
         boolean despawnOnDismount = getConfig().getBoolean("DespawnOnDismount");
@@ -160,6 +163,24 @@ public class PetConfig extends AbstractConfig {
                     if (pet.getDespawnSkill() == null) {
                         MCPets.getLog().warning(MCPets.getLogName() + "Impossible to link the despawn skill \"" + despawnSkillName + "\" to the pet \"" + pet.getId() + "\", because this skill doesn't exist.");
                     }
+                }
+            }.runTaskLater(MCPets.getInstance(), 5L);
+        }
+        if (tamingSkillName != null) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(tamingSkillName);
+                    optionalSkill.ifPresent(pet::setTamingProgressSkill);
+                }
+            }.runTaskLater(MCPets.getInstance(), 5L);
+        }
+        if (tamingOverSkillName != null) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(tamingOverSkillName);
+                    optionalSkill.ifPresent(pet::setTamingOverSkill);
                 }
             }.runTaskLater(MCPets.getInstance(), 5L);
         }

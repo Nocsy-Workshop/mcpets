@@ -20,6 +20,12 @@ public class PetInteractionMenu {
     private final Inventory inventory;
 
     public PetInteractionMenu(Pet pet) {
+        // If the taming is incomplete then there is no pet menu available
+        if(pet.getTamingProgress() < 1)
+        {
+            inventory = null;
+            return;
+        }
         inventory = Bukkit.createInventory(null, 9, title);
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
@@ -38,7 +44,8 @@ public class PetInteractionMenu {
     }
 
     public void open(Player p) {
-        p.openInventory(inventory);
+        if(inventory != null)
+            p.openInventory(inventory);
     }
 
 }

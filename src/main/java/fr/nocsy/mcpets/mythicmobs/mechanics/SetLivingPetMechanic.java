@@ -15,9 +15,11 @@ import java.util.Optional;
 public class SetLivingPetMechanic implements ITargetedEntitySkill {
 
     private String petId;
+    private boolean followOnTame = true;
 
     public SetLivingPetMechanic(MythicLineConfig config) {
         this.petId = config.getString(new String[]{"id"}, this.petId);
+        this.followOnTame = config.getBoolean(new String[]{"followOnTame", "foT"}, this.followOnTame);
     }
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
@@ -33,8 +35,8 @@ public class SetLivingPetMechanic implements ITargetedEntitySkill {
                 // Set the active mob
                 Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
                 opt.ifPresent(pet::setActiveMob);
-                // Set the taming progress to 0, coz it has no owner at the moment
-                pet.setTamingProgress(0);
+                // The taming progress should be at 0, coz it has no owner at the moment and never was spawned through MCPets or anything
+                pet.setFollowOwner(followOnTame);
             }
         }.runTaskLater(MCPets.getInstance(), 1L);
         return SkillResult.SUCCESS;

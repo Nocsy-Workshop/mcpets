@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
 import fr.nocsy.mcpets.utils.PetMath;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -78,19 +79,18 @@ public class PetFood {
      */
     public void apply(Pet pet)
     {
-        if (type.equals(PetFoodType.HEALTH))
+        if(type == null)
+            return;
+        if (type.getType().equals(PetFoodType.HEALTH.getType()))
         {
             if(pet.getPetStats() != null)
             {
                 pet.getPetStats().setHealth(operator.get(pet.getPetStats().getCurrentHealth(), power));
             }
         }
-        else if(type.equals(PetFoodType.TAME))
+        else if(type.getType().equals(PetFoodType.TAME.getType()))
         {
-            if(pet.getPetStats() != null)
-            {
-                pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
-            }
+            pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
         }
     }
 

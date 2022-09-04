@@ -118,7 +118,7 @@ public class LivingPetsListener implements Listener {
         {
             Player p = ((Player)damager);
             Pet pet = Pet.getFromEntity(ent);
-            if(pet != null)
+            if(pet != null && pet.getOwner() != null)
             {
                 // If the player is the owner, then it can not damage the pet
                 if(pet.getOwner().equals(p.getUniqueId()))
@@ -239,41 +239,39 @@ public class LivingPetsListener implements Listener {
     public void taming(PetTamedByPlayerEvent e)
     {
         Pet pet = e.getPet();
-        if(pet.getPetStats() != null)
+        PetFood petFood = e.getPetFood();
+
+        petFood.consume(e.getPlayer());
+        petFood.apply(e.getPet());
+
+        // Announce it to the player
+        StringBuilder progressBar = new StringBuilder();
+        if(GlobalConfig.getInstance().getTamingBarSize() > 0)
         {
-            PetFood petFood = e.getPetFood();
-            petFood.consume(e.getPlayer());
-            petFood.apply(e.getPet());
+            // Size of the progress bar in the hovering
+            int progressBarSize = GlobalConfig.getInstance().getTamingBarSize();
 
-            // Announce it to the player
-            StringBuilder progressBar = new StringBuilder();
-            if(GlobalConfig.getInstance().getTamingBarSize() > 0)
+            double ratio = pet.getTamingProgress();
+            int indexProgress = Math.min(progressBarSize, (int)(ratio*progressBarSize + 0.5));
+
+            for(int i = 0; i < progressBarSize; i++)
             {
-                // Size of the progress bar in the hovering
-                int progressBarSize = GlobalConfig.getInstance().getTamingBarSize();
-
-                double ratio = pet.getTamingProgress();
-                int indexProgress = Math.min(progressBarSize, (int)(ratio*progressBarSize + 0.5));
-
-                for(int i = 0; i < progressBarSize; i++)
-                {
-                    if(i < indexProgress)
-                        progressBar.append(GlobalConfig.getInstance().getTamingColorDone() +
-                                GlobalConfig.getInstance().getTamingSymbol() +
-                                GlobalConfig.getInstance().getTamingColorLeft());
-                    else
-                        progressBar.append(GlobalConfig.getInstance().getTamingColorLeft() +
-                                GlobalConfig.getInstance().getTamingSymbol() +
-                                GlobalConfig.getInstance().getTamingColorLeft());
-                }
+                if(i < indexProgress)
+                    progressBar.append(GlobalConfig.getInstance().getTamingColorDone() +
+                            GlobalConfig.getInstance().getTamingSymbol() +
+                            GlobalConfig.getInstance().getTamingColorLeft());
+                else
+                    progressBar.append(GlobalConfig.getInstance().getTamingColorLeft() +
+                            GlobalConfig.getInstance().getTamingSymbol() +
+                            GlobalConfig.getInstance().getTamingColorLeft());
             }
-
-            GlobalConfig.getInstance().getTamingAnnouncementType()
-                    .announce(e.getPlayer(),
-                    Language.PET_TAMING_PROGRESS.getMessageFormatted(
-                            new FormatArg("%progress%", Integer.toString((int)(pet.getTamingProgress()*100))),
-                            new FormatArg("%progressbar%", progressBar.toString())));
         }
+
+        GlobalConfig.getInstance().getTamingAnnouncementType()
+                .announce(e.getPlayer(),
+                        Language.PET_TAMING_PROGRESS.getMessageFormatted(
+                                new FormatArg("%progress%", Integer.toString((int)(pet.getTamingProgress()*100))),
+                                new FormatArg("%progressbar%", progressBar.toString())));
     }
 
     @EventHandler

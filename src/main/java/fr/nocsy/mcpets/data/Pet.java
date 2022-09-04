@@ -123,6 +123,14 @@ public class Pet {
 
     @Getter
     @Setter
+    private Skill tamingProgressSkill;
+
+    @Getter
+    @Setter
+    private Skill tamingOverSkill;
+
+    @Getter
+    @Setter
     private boolean autoRide;
 
     @Setter
@@ -387,10 +395,25 @@ public class Pet {
             // If taming is complete, then give the access to the owner
             if(event.isTamingComplete())
             {
+                // Setup the pet stats
+                setPetStats();
                 // Give the access
                 Utils.givePermission(owner, permission);
                 // Activate the pet in MCPets, coz so far it was just following the owner
                 changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
+                if (tamingOverSkill != null) {
+                    try {
+                        tamingOverSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
+                    } catch (Exception ignored) {}
+                }
+            }
+            else
+            {
+                if (tamingProgressSkill != null) {
+                    try {
+                        tamingProgressSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
+                    } catch (Exception ignored) {}
+                }
             }
         }
     }
@@ -711,7 +734,9 @@ public class Pet {
                     Location ownerLoc = petLocation;
                     Location petLoc = getInstance().getActiveMob().getEntity().getBukkitEntity().getLocation();
 
-                    if (!ownerLoc.getWorld().getName().equals(petLoc.getWorld().getName())) {
+                    // If the owner is not in the same world as the pet and that the pet is fully tamed, we move it
+                    // to the owner
+                    if (!ownerLoc.getWorld().getName().equals(petLoc.getWorld().getName()) && tamingProgress == 1) {
                         getInstance().despawn(PetDespawnReason.TELEPORT);
                         getInstance().spawn(p, petLocation);
                         return;
