@@ -2,7 +2,9 @@ package fr.nocsy.mcpets.mythicmobs.placeholders;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
+import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.core.skills.placeholders.Placeholder;
+
 
 public class PetPlaceholdersManager {
 
@@ -12,7 +14,8 @@ public class PetPlaceholdersManager {
     public static void registerPlaceholders()
     {
         // Power placeholder
-        register("pet.power", Placeholder.entity((entity, arg) -> {
+        register("pet.power", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
             if(pet == null || pet.getPetStats() == null)
                 return "1";
@@ -21,7 +24,8 @@ public class PetPlaceholdersManager {
         }));
 
         // Damage modifier placeholder
-        register("pet.damagemodifier", Placeholder.entity((entity, arg) -> {
+        register("pet.damagemodifier", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
             if(pet == null || pet.getPetStats() == null)
                 return "1";
@@ -30,7 +34,8 @@ public class PetPlaceholdersManager {
         }));
 
         // Resistance modifier placeholder
-        register("pet.resistancemodifier", Placeholder.entity((entity, arg) -> {
+        register("pet.resistancemodifier", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
             if(pet == null || pet.getPetStats() == null)
                 return "1";
@@ -39,7 +44,8 @@ public class PetPlaceholdersManager {
         }));
 
         // Experience placeholder
-        register("pet.experience", Placeholder.entity((entity, arg) -> {
+        register("pet.experience", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
             if(pet == null || pet.getPetStats() == null)
                 return "0";
@@ -47,11 +53,22 @@ public class PetPlaceholdersManager {
                 return Double.toString(pet.getPetStats().getExperience());
         }));
 
-        // Pet Id placeholder
-        register("pet.id", Placeholder.entity((entity, arg) -> {
+        // Pet Taming progress placeholder
+        register("pet.tamingprogress", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
-                return null;
+            if(pet == null)
+                return "1";
+            else
+                return  Double.toString(pet.getTamingProgress());
+        }));
+
+        // Pet Id placeholder
+        register("pet.id", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
+            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
+            if(pet == null)
+                return "null";
             else
                 return pet.getId();
         }));

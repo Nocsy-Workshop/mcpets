@@ -109,6 +109,8 @@ public enum Language {
 
     PET_TAMING_PROGRESS("§7Taming progress §a%progress%% §7- %progressbar%"),
 
+    PETFOOD_DOESNT_EXIST("§cThis pet food doesn't exist."),
+
     PET_ALREADY_TAMED("§cThis pet is already tamed."),
 
     PET_STATS("§6✦ Pet's Information ✦" +

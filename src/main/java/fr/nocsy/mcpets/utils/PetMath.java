@@ -27,9 +27,9 @@ public enum PetMath {
     {
         switch (operator)
         {
-            case "x":
+            case "multiply":
                 return first * second;
-            case "+":
+            case "add":
                 return first + second;
         }
         return 0;

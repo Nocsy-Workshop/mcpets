@@ -9,6 +9,7 @@ import fr.nocsy.mcpets.data.inventories.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.listeners.EventListener;
+import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
@@ -125,8 +126,12 @@ public class MCPets extends JavaPlugin {
         try {
             MythicBukkit inst = MythicBukkit.inst();
             if (inst != null)
+            {
                 mythicMobs = inst;
+                // Register the placeholders
+                PetPlaceholdersManager.registerPlaceholders();
                 return true;
+            }
         } catch (NoClassDefFoundError error) {
             getLog().warning("[MCPets] : MythicMobs could not be found.");
         }

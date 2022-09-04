@@ -662,7 +662,11 @@ public class Pet {
      */
     public void setActiveMob(ActiveMob mob)
     {
-
+        if(mob == null)
+        {
+            activeMob = null;
+            return;
+        }
         // Then we set the active mob to the new active mob
         // And we setup the default pet parameters
         activeMob = mob;

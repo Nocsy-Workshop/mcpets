@@ -47,7 +47,7 @@ public class PetFoodConfig extends AbstractConfig {
             double power = getConfig().getDouble(key + ".Power");
             PetMath operator = PetMath.get(getConfig().getString(key + ".Operator"));
 
-            PetFood petFood = new PetFood(id, power, foodType, operator);
+            PetFood petFood = new PetFood(key, id, power, foodType, operator);
             petFoods.put(id, petFood);
         }
 

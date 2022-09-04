@@ -10,7 +10,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
+
 public class PetFood {
+
+    private static HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
+
+    @Getter
+    private String id;
 
     @Getter
     private String itemId;
@@ -32,8 +39,9 @@ public class PetFood {
      * @param power
      * @param operator
      */
-    public PetFood(String itemId, double power, PetFoodType type, PetMath operator)
+    public PetFood(String id, String itemId, double power, PetFoodType type, PetMath operator)
     {
+        this.id = id;
         this.itemId = itemId;
         this.power = power;
         this.type = type;
@@ -41,6 +49,8 @@ public class PetFood {
 
         // Setup the item stack
         this.getItemStack();
+
+        petFoodHashMap.put(id, this);
     }
 
     /**
@@ -94,7 +104,7 @@ public class PetFood {
             return;
 
         ItemStack it = itemStack.clone();
-        it.setAmount(it.getAmount()-1);
+        it.setAmount(p.getInventory().getItemInMainHand().getAmount()-1);
         if(it.getAmount() == 0)
             it = new ItemStack(Material.AIR);
         p.getInventory().setItemInMainHand(it);
@@ -116,6 +126,15 @@ public class PetFood {
                                 .orElse(null);
     }
 
+    /**
+     * Get the PetFood from the id
+     * @param id
+     * @return
+     */
+    public static PetFood getFromId(String id)
+    {
+        return petFoodHashMap.get(id);
+    }
 
 
 }

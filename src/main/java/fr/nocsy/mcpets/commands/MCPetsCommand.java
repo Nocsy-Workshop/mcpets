@@ -9,6 +9,7 @@ import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
 import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.listeners.PetInteractionMenuListener;
 import org.bukkit.Bukkit;
@@ -307,6 +308,22 @@ public class MCPetsCommand implements CCommand {
                         sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
                         return;
                     }
+                }
+                if(args[0].equalsIgnoreCase("petFood")
+                        && sender instanceof Player
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    String id = args[1];
+                    PetFood petFood = PetFood.getFromId(id);
+                    if(petFood == null)
+                    {
+                        Language.PETFOOD_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    Player p = ((Player)sender);
+                    p.getInventory().addItem(petFood.getItemStack());
+                    return;
                 }
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("reload")
