@@ -1,6 +1,5 @@
 package fr.nocsy.mcpets.data.livingpets;
 
-import com.google.gson.Gson;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
@@ -14,7 +13,6 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 public class PetStats {
@@ -73,8 +71,6 @@ public class PetStats {
         this.currentLevel = currentLevel;
 
         updateChangingData();
-
-        updateHealth();
         launchRegenerationTimer();
     }
 
@@ -94,6 +90,8 @@ public class PetStats {
      */
     private void updateChangingData()
     {
+        refreshMaxHealth();
+        updateHealth();
         respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 20);
         revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 20);
     }
@@ -268,7 +266,9 @@ public class PetStats {
      */
     public double getModifiedResistanceDamages(double value)
     {
-        return value * currentLevel.getResistanceModifier();
+        if(currentLevel.getResistanceModifier() == 0)
+            return Double.MAX_VALUE;
+        return value / currentLevel.getResistanceModifier();
     }
 
     /**

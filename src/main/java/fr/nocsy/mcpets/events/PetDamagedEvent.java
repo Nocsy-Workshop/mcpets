@@ -24,7 +24,7 @@ public class PetDamagedEvent extends Event implements Cancellable {
     public PetDamagedEvent(Pet pet, double originalDamageAmount, boolean applyPetStats) {
         this.pet = pet;
         this.originalDamageAmount = originalDamageAmount;
-        this.applyPetStats = true;
+        this.applyPetStats = applyPetStats;
         applyResistance();
     }
 

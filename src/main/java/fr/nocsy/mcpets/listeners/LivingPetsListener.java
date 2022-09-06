@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.listeners;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.FormatArg;
@@ -14,18 +15,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class LivingPetsListener implements Listener {
 
     //--------- HANDLERS TO TRIGGER CUSTOM EVENTS ---------//
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     // Trigger for the PetDamagedEvent
     public void petDamagedHandler(EntityDamageEvent e)
     {
@@ -114,7 +117,7 @@ public class LivingPetsListener implements Listener {
     {
         Entity ent = e.getEntity();
         Entity damager = e.getDamager();
-        if(damager instanceof Player);
+        if(damager instanceof Player)
         {
             Player p = ((Player)damager);
             Pet pet = Pet.getFromEntity(ent);
@@ -148,7 +151,13 @@ public class LivingPetsListener implements Listener {
             return;
 
         PetStats stats = pet.getPetStats();
-        stats.updateHealth();
+        // Must run ASync otherwise it's not updating
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                stats.updateHealth();
+            }
+        }.runTaskLater(MCPets.getInstance(), 1L);
     }
 
     @EventHandler

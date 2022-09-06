@@ -401,6 +401,15 @@ public class Pet {
                 Utils.givePermission(owner, permission);
                 // Activate the pet in MCPets, coz so far it was just following the owner
                 changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
+
+                // Set the health at the top after taming
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        petStats.refreshMaxHealth();
+                        petStats.setHealth(petStats.getCurrentLevel().getMaxHealth());
+                    }
+                }.runTaskLater(MCPets.getInstance(), 2L);
                 if (tamingOverSkill != null) {
                     try {
                         tamingOverSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
