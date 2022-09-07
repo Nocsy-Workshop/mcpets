@@ -88,12 +88,21 @@ public class PetStatsSerializer {
     }
 
     /**
+     * Get the JSON representation of the pet stats
+     * @return
+     */
+    public String JSONformatted()
+    {
+        return new Gson().toJson(this);
+    }
+
+    /**
      * Return a string representation of the object
      * @return
      */
     public String serialize()
     {
-        String jsonStr = new Gson().toJson(this);
+        String jsonStr = JSONformatted();
         jsonStr = Base64.getEncoder().encodeToString(jsonStr.getBytes());
         return jsonStr;
     }

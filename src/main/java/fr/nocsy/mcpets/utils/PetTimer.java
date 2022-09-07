@@ -58,6 +58,7 @@ public class PetTimer {
     {
         Bukkit.getScheduler().cancelTask(task);
         runningTimers.remove(this);
+        remainingTime = 0;
     }
 
     public boolean isRunning()

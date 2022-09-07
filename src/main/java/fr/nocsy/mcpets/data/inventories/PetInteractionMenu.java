@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
+import java.util.UUID;
+
 public class PetInteractionMenu {
 
     @Getter
@@ -19,13 +21,14 @@ public class PetInteractionMenu {
     @Getter
     private final Inventory inventory;
 
-    public PetInteractionMenu(Pet pet) {
+    public PetInteractionMenu(Pet pet, UUID owner) {
         // If the taming is incomplete then there is no pet menu available
         if(pet.getTamingProgress() < 1)
         {
             inventory = null;
             return;
         }
+        pet.setOwner(owner);
         inventory = Bukkit.createInventory(null, 9, title);
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())

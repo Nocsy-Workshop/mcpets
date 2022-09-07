@@ -5,7 +5,7 @@ import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
-import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.listeners.EventListener;
@@ -16,6 +16,7 @@ import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.logging.Logger;
 
@@ -57,6 +58,7 @@ public class MCPets extends JavaPlugin {
             getLog().severe("MCPets could not be loaded : MythicMobs could not be found or this version is not compatible with the plugin.");
             return;
         }
+
         checkWorldGuard();
         checkLuckPerms();
 
@@ -77,6 +79,8 @@ public class MCPets extends JavaPlugin {
 
         loadConfigs();
         PetStats.saveStats();
+        // Register the placeholders
+        PetPlaceholdersManager.registerPlaceholders();
 
         getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
         getLog().info("      Plugin made by Nocsy");
@@ -92,7 +96,7 @@ public class MCPets extends JavaPlugin {
         getLog().info("          See you soon");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
 
-        PetStats.getPetStatsList().forEach(PetStats::save);
+        PetStats.saveAll();
         Pet.clearPets();
         PlayerData.saveDB();
         FlagsManager.stopFlags();
@@ -106,18 +110,17 @@ public class MCPets extends JavaPlugin {
                 luckPerms = provider.getProvider();
             }
         } catch (NoClassDefFoundError error) {
-            GlobalConfig.getInstance().setWorldguardsupport(false);
             Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
         }
     }
-    public void checkWorldGuard() {
+    public static void checkWorldGuard() {
         try {
             WorldGuard wg = WorldGuard.getInstance();
             if (wg != null)
                 GlobalConfig.getInstance().setWorldguardsupport(true);
         } catch (NoClassDefFoundError error) {
             GlobalConfig.getInstance().setWorldguardsupport(false);
-            getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
+            Bukkit.getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
         }
     }
     public static boolean checkMythicMobs() {
@@ -128,8 +131,6 @@ public class MCPets extends JavaPlugin {
             if (inst != null)
             {
                 mythicMobs = inst;
-                // Register the placeholders
-                PetPlaceholdersManager.registerPlaceholders();
                 return true;
             }
         } catch (NoClassDefFoundError error) {

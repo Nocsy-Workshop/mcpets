@@ -1,16 +1,12 @@
-package fr.nocsy.mcpets.data.inventories;
+package fr.nocsy.mcpets.data.sql;
 
-import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class PlayerData {
 

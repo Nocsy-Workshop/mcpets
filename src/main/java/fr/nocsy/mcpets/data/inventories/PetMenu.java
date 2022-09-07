@@ -5,13 +5,12 @@ import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class PetMenu {

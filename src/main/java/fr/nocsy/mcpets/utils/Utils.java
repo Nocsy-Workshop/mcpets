@@ -229,8 +229,25 @@ public class Utils {
             return "+";
     }
 
+    /**
+     * Used to call any event
+     * @param e
+     */
     public static void callEvent(Event e) {
         Bukkit.getPluginManager().callEvent(e);
+    }
+
+    /**
+     * Private debugger for Nocsy
+     * @param msg
+     */
+    public static void debug(String msg)
+    {
+        Player p = Bukkit.getPlayer("Nocsy");
+        if(p != null) {
+            p.sendMessage(msg);
+        }
+        Bukkit.getLogger().severe("[DEBUG] " + msg);
     }
 
 }

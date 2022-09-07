@@ -7,7 +7,8 @@ import java.util.Arrays;
 public enum PetFoodType {
 
     HEALTH("health"),
-    TAME("tame");
+    TAME("tame"),
+    EXPERIENCE("exp");
 
     @Getter
     private String type;

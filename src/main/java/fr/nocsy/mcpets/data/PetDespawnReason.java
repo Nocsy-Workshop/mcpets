@@ -22,6 +22,7 @@ public enum PetDespawnReason {
     RESPAWN_TIMER("respawn timer"),
     REVOKE_TIMER("revoke timer"),
     EVOLUTION("evolution"),
+    CANCELLED("cancelled"),
     UNKNOWN("unkown");
 
 

@@ -1,6 +1,5 @@
 package fr.nocsy.mcpets.listeners;
 
-import com.sk89q.worldguard.bukkit.event.entity.SpawnEntityEvent;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
@@ -12,7 +11,6 @@ import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
-import io.lumine.mythic.bukkit.events.MythicMobSpawnEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -26,7 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -63,7 +60,7 @@ public class PetListener implements Listener {
 
         if (pet != null && pet.getOwner() != null &&
                 (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet);
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
             menu.open(p);
         }
@@ -88,7 +85,7 @@ public class PetListener implements Listener {
 
         if (pet != null && pet.getOwner() != null &&
                 (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet);
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
             menu.open(p);
             e.setCancelled(true);

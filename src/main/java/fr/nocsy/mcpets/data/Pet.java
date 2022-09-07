@@ -9,7 +9,8 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.events.*;
@@ -38,6 +39,7 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Pet {
 
@@ -439,18 +441,14 @@ public class Pet {
             return;
 
         // If it already has registered pet stats, then we just read them from the loaded ones
-        Optional<PetStats> existingStats = PetStats.getPetStatsList().stream()
-                                                                     .filter(stat -> stat.getPet().getId().equals(id) && stat.getPet().getOwner().equals(owner))
-                                                                     .findFirst();
-        // If it doesn't have registered pet stats, the we create new ones
-        petStats = existingStats.orElseGet(() ->
-                {
-                    PetStats start = new PetStats(this, 0, petLevels.get(0).getMaxHealth(), petLevels.get(0));
-                    // We register the pet stats if we have new ones created
-                    PetStats.getPetStatsList().add(start);
-                    return start;
-                });
-
+        // Else we create default pet stats that will server as the base
+        petStats = Optional.ofNullable(PetStats.get(id, owner)).orElseGet(() ->
+                                                                              {
+                                                                                  PetStats start = new PetStats(this, 0, petLevels.get(0).getMaxHealth(), petLevels.get(0));
+                                                                                  // We register the pet stats if we have new ones created
+                                                                                  PetStats.register(start);
+                                                                                  return start;
+                                                                              });
     }
 
     /**
@@ -460,6 +458,12 @@ public class Pet {
      * @return
      */
     public int spawn(Location loc, boolean bruise) {
+
+        // if the pet has no pet stats, then we try to set one
+        if(petStats == null)
+        {
+            setPetStats();
+        }
 
         // Trigger the PetSpawnEvent
         PetSpawnEvent event = new PetSpawnEvent(this, loc);
@@ -474,7 +478,7 @@ public class Pet {
 
         // If the event is cancelled trigger a despawn
         if (event.isCancelled()) {
-            despawn(PetDespawnReason.SPAWN_ISSUE);
+            despawn(PetDespawnReason.CANCELLED);
             return BLOCKED;
         }
 
@@ -563,8 +567,6 @@ public class Pet {
             if (firstSpawn) {
                 // It won't be a first spawn anymore
                 firstSpawn = false;
-                // If it's a first spawn then we set up the pet stats
-                setPetStats();
                 // Handles the mount on pet on first spawn
                 new BukkitRunnable() {
                     @Override
@@ -1267,9 +1269,26 @@ public class Pet {
             String signSymbol_resistanceModifer = Utils.getSignSymbol(petStats.getCurrentLevel().getResistanceModifier() - 1);
             String signSymbol_power = Utils.getSignSymbol(petStats.getCurrentLevel().getPower() - 1);
 
+            String currentHealthStr = Integer.toString((int)petStats.getCurrentHealth());
+            if(petStats.getCurrentHealth() == 0 &&
+                petStats.getRespawnTimer() != null && !petStats.getRespawnTimer().isRunning())
+                currentHealthStr = Integer.toString((int)petStats.getRespawnHealth());
+
+            // Handles the status of the pet
+            String status = Language.PET_STATUS_ALIVE.getMessage();
+            if(petStats.isRespawnTimerRunning())
+            {
+                status = Language.PET_STATUS_DEAD.getMessageFormatted(new FormatArg("%timeleft%",
+                        Integer.toString((int) petStats.getRespawnTimer().getRemainingTime())));
+            }
+            else if(petStats.isRevokeTimerRunning())
+                status = Language.PET_STATUS_REVOKED.getMessageFormatted(new FormatArg("%timeleft%",
+                                                Integer.toString((int)petStats.getRevokeTimer().getRemainingTime())));
+
             String statsLore = Language.PET_STATS.getMessageFormatted(
+                            new FormatArg("%status%", status),
                             new FormatArg("%levelname%", petStats.getCurrentLevel().getLevelName()),
-                            new FormatArg("%health%", Integer.toString((int)petStats.getCurrentHealth())),
+                            new FormatArg("%health%", currentHealthStr),
                             new FormatArg("%maxhealth%", Integer.toString((int)petStats.getCurrentLevel().getMaxHealth())),
                             new FormatArg("%regeneration%", Double.toString(petStats.getCurrentLevel().getRegeneration())),
                             new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getCurrentLevel().getDamageModifier() - 1))),
@@ -1304,10 +1323,19 @@ public class Pet {
      */
     public int getInventorySize()
     {
+        // setup the pet stats so we can tell if we should extend the inventory or not
+        setPetStats();
+
+        int inventorySize = 0;
         if(petStats == null)
-            return defaultInventorySize;
+            inventorySize = defaultInventorySize;
         else
-            return petStats.getExtendedInventorySize();
+            inventorySize = petStats.getExtendedInventorySize();
+
+        while(inventorySize%9 != 0)
+            inventorySize++;
+
+        return inventorySize;
     }
 
     /**

@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.livingpets;
 
+import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
@@ -64,6 +65,8 @@ public class PetFood {
         if(itemStack == null)
         {
             itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
+            if(itemStack == null)
+                itemStack = Items.UNKNOWN.getItem();
             ItemMeta meta = itemStack.getItemMeta();
             meta.setLocalizedName("MCPets;Food;" + itemId);
             itemStack.setItemMeta(meta);
@@ -91,6 +94,13 @@ public class PetFood {
         else if(type.getType().equals(PetFoodType.TAME.getType()))
         {
             pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
+        }
+        else if(type.getType().equals(PetFoodType.EXPERIENCE.getType()))
+        {
+            if(pet.getPetStats() != null)
+            {
+                pet.getPetStats().addExperience(power);
+            }
         }
     }
 

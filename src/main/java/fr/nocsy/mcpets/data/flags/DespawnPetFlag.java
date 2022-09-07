@@ -43,7 +43,7 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
                     Player p = Bukkit.getPlayer(owner);
 
                     if (p != null) {
-                        boolean hasToBeRemoved = testState(p);
+                        boolean hasToBeRemoved = testState(p.getLocation());
 
                         if (hasToBeRemoved) {
                             pet.despawn(PetDespawnReason.FLAG);

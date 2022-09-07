@@ -99,8 +99,8 @@ public enum Language {
     SKIN_COULD_NOT_APPLY("§cThe skin could not be applied to the pet."),
     SKIN_APPLIED("§aSkin changed successfully !"),
 
-    RESPAWN_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%."),
-    REVOKE_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%."),
+    RESPAWN_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%s."),
+    REVOKE_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%s."),
 
     PLAYER_OR_PET_DOESNT_EXIST("§cThis pet doesn't exist, or this player has never played on your server."),
     STATS_CLEARED("§aAll stats have been cleared successfully !"),
@@ -113,17 +113,21 @@ public enum Language {
 
     PET_ALREADY_TAMED("§cThis pet is already tamed."),
 
+    PET_STATUS_ALIVE("§aAvailable"),
+    PET_STATUS_REVOKED("§cUnavailable §7(%timeleft%s left)"),
+    PET_STATUS_DEAD("§cDead §7(%timeleft%s left)"),
+
     PET_STATS("§6✦ Pet's Information ✦" +
-            "\n " +
+            "\n§7Status: %status%" +
             "\n§6Level §7- §6%levelname%" +
             "\n " +
             "\n§f%health%§7/§f%maxhealth% §c❤" +
-            "\n§7Regeneration : %regeneration% ❤/s" +
-            "\n§7Damage Modifier : §f%damagemodifier%%" +
-            "\n§7Resistance Modifier : §f%resistancemodifier%%" +
-            "\n§7Power : §f%power%%" +
+            "\n§7Regeneration: %regeneration% ❤/s" +
+            "\n§7Damage Modifier: §f%damagemodifier%%" +
+            "\n§7Resistance Modifier: §f%resistancemodifier%%" +
+            "\n§7Power: §f%power%%" +
             "\n " +
-            "\n§7Experience : §a%experience%/%threshold% xp" +
+            "\n§7Experience: §a%experience%/%threshold% xp" +
             "\n%progressbar%");
 
     @Getter

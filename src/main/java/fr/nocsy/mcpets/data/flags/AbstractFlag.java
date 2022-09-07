@@ -1,9 +1,12 @@
 package fr.nocsy.mcpets.data.flags;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.association.DelayedRegionOverlapAssociation;
+import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
@@ -72,16 +75,15 @@ public abstract class AbstractFlag {
     /**
      * Test if the state flag is allowed at player's location
      *
-     * @param p
      * @return
      */
-    public boolean testState(Player p) {
-        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-        Location loc = localPlayer.getLocation();
+    public boolean testState(org.bukkit.Location location) {
+        Location loc = BukkitAdapter.adapt(location);
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
+        RegionAssociable associable =  new DelayedRegionOverlapAssociation(query, loc, true);
 
-        return query.testState(loc, localPlayer, getFlag());
+        return query.testState(loc, associable, getFlag());
     }
 
 }

@@ -168,21 +168,38 @@ public class PetLevel {
     }
 
     /**
+     * Says whether the player is allowed to have that evolution
+     * if the evolution is null, the result will always be true
+     * if the evolution is not null, then it tests whether the permission is satisfied or not
+     * if the permission is satisfied, then it can't evolve : result is false
+     * else it can evolve, so result is true
+     * @param player
+     * @return
+     */
+    public boolean canEvolve(UUID player)
+    {
+        Pet evolution = Pet.getFromId(evolutionId);
+        if(evolution != null)
+        {
+            // If the owner already has the evolution, then we say that the pet can not evolve
+            // Else it can evolve
+            return !Utils.hasPermission(player, evolution.getPermission());
+        }
+        return true;
+    }
+
+    /**
      * Makes the pet evolves if it has an evolution
      * Gives the permission to the owner to access the new pet
      * @param player
      */
     public void evolve(UUID player)
     {
-        Pet evolution = Pet.getFromId(evolutionId);
-        if(evolution != null)
+        if(canEvolve(player))
         {
-            // If the owner already has the evolution, then we say that the pet can not evolve
-            if(Utils.hasPermission(player, evolution.getPermission()))
-            {
-                Bukkit.getLogger().info("You got the perm already apparently " + evolution.getPermission());
+            Pet evolution = Pet.getFromId(evolutionId);
+            if(evolution == null)
                 return;
-            }
 
             // Give the permission to the owner
             Utils.givePermission(player, evolution.getPermission());
@@ -251,6 +268,9 @@ public class PetLevel {
      */
     public void levelUp(UUID owner)
     {
+        if(owner == null)
+            return;
+
         PetLevelUpEvent event = new PetLevelUpEvent(pet, this);
         Utils.callEvent(event);
 

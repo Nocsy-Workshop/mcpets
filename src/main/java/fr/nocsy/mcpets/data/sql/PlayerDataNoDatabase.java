@@ -1,7 +1,7 @@
-package fr.nocsy.mcpets.data.inventories;
+package fr.nocsy.mcpets.data.sql;
 
 import fr.nocsy.mcpets.data.config.AbstractConfig;
-import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import lombok.Getter;
 import lombok.Setter;
@@ -85,9 +85,7 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
         ArrayList<String> serializedStatsMap = new ArrayList<>();
 
-        for(PetStats stats : PetStats.getPetStatsList().stream()
-                                                        .filter(stat -> stat.getPet().getOwner().equals(uuid))
-                                                        .collect(Collectors.toList()))
+        for(PetStats stats : PetStats.getPetStats(uuid))
         {
             serializedStatsMap.add(stats.serialize());
         }
@@ -100,6 +98,16 @@ public class PlayerDataNoDatabase extends AbstractConfig {
     @Override
     public void reload() {
 
+        // Unserialize the pet stats first, coz it influences the inventories
+        PetStats.remove(uuid);
+        for(String seria : getConfig().getStringList("PetStats"))
+        {
+            PetStats stats = PetStats.unzerialize(seria);
+            stats.launchTimers();
+            PetStats.register(stats);
+        }
+
+        // Unserialize the names
         mapOfRegisteredNames.clear();
         for (String seria : getConfig().getStringList("Names")) {
             String[] table = seria.split(";");
@@ -109,6 +117,7 @@ public class PlayerDataNoDatabase extends AbstractConfig {
             mapOfRegisteredNames.put(id, name);
         }
 
+        // Unserialize the inventories
         mapOfRegisteredInventories.clear();
         for (String seria : getConfig().getStringList("Inventories")) {
             String[] table = seria.split(";");
@@ -117,14 +126,6 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
             mapOfRegisteredInventories.put(id, seriaInventory);
             PetInventory.unserialize(seria, uuid);
-        }
-
-        PetStats.getPetStatsList().removeIf(petStats -> petStats.getPet().getOwner().equals(uuid));
-        for(String seria : getConfig().getStringList("PetStats"))
-        {
-            PetStats stats = PetStats.unzerialize(seria);
-            stats.launchTimers();
-            PetStats.getPetStatsList().add(stats);
         }
 
     }

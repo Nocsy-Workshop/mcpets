@@ -8,7 +8,7 @@ import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
-import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.listeners.PetInteractionMenuListener;
@@ -18,10 +18,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MCPetsCommand implements CCommand {
@@ -177,10 +174,7 @@ public class MCPetsCommand implements CCommand {
                         OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
                         if(player != null || !player.hasPlayedBefore())
                         {
-                            PetStats.getPetStatsList().removeAll(PetStats.getPetStatsList().stream()
-                                    .filter(stat -> stat.getPet().getOwner().equals(player.getUniqueId())
-                                                    && stat.getPet().getId().equals(petId))
-                                    .collect(Collectors.toList()));
+                            PetStats.remove(petId, player.getUniqueId());
                             Language.STATS_CLEARED_FOR_PET_FOR_PLAYER.sendMessageFormated(sender, new FormatArg("%petId%", petId),
                                                                                                 new FormatArg("%player%", playerName));
 
@@ -281,9 +275,7 @@ public class MCPetsCommand implements CCommand {
                     OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
                     if(player != null || !player.hasPlayedBefore())
                     {
-                        PetStats.getPetStatsList().removeAll(PetStats.getPetStatsList().stream()
-                                                                                    .filter(stat -> stat.getPet().getOwner().equals(player.getUniqueId()))
-                                                                                    .collect(Collectors.toList()));
+                        PetStats.remove(player.getUniqueId());
                         Language.STATS_CLEARED.sendMessage(sender);
                         PlayerData pd = PlayerData.get(player.getUniqueId());
                         pd.save();
@@ -296,9 +288,7 @@ public class MCPetsCommand implements CCommand {
                         Pet pet = Pet.getFromId(petId);
                         if(pet != null)
                         {
-                            PetStats.getPetStatsList().removeAll(PetStats.getPetStatsList().stream()
-                                    .filter(stat -> stat.getPet().getId().equals(petId))
-                                    .collect(Collectors.toList()));
+                            PetStats.remove(petId);
                             Language.STATS_CLEARED_FOR_PET.sendMessageFormated(sender, new FormatArg("%petId%", petId));
                             PlayerData.saveDB();
                             return;
@@ -328,6 +318,7 @@ public class MCPetsCommand implements CCommand {
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("reload")
                         && sender.hasPermission(getAdminPermission())) {
+                    PlayerData.saveDB();
                     MCPets.loadConfigs();
                     Language.RELOAD_SUCCESS.sendMessage(sender);
                     Language.HOW_MANY_PETS_LOADED.sendMessageFormated(sender, new FormatArg("%numberofpets%", Integer.toString(Pet.getObjectPets().size())));

@@ -60,8 +60,8 @@ public class LivingPetsListener implements Listener {
     }
 
     @EventHandler
-    // handles the pet tame by player event
-    public void petTamedByPlayerEvent(PlayerInteractAtEntityEvent e)
+    // handles the pet food events
+    public void petFoodPlayerEvent(PlayerInteractAtEntityEvent e)
     {
         Player p = e.getPlayer();
         // Check if the player holds pet food
@@ -80,6 +80,16 @@ public class LivingPetsListener implements Listener {
                     e.setCancelled(true);
                     PetFedByPlayerEvent event = new PetFedByPlayerEvent(pet, p, petFood);
                     Utils.callEvent(event);
+                    return;
+                }
+
+                if(petFood.getType().equals(PetFoodType.EXPERIENCE))
+                {
+                    // Cancel the interaction event
+                    e.setCancelled(true);
+                    // This will indirectly create a PetGainExperienceEvent
+                    petFood.apply(pet);
+                    petFood.consume(p);
                     return;
                 }
 
@@ -179,8 +189,8 @@ public class LivingPetsListener implements Listener {
 
                 if(p != null)
                     Language.RESPAWN_TIMER_RUNNING.sendMessageFormated(p,
-                                                    new FormatArg("timeLeft", Integer.toString(stats.getRespawnTimer().getRemainingTime())),
-                                                    new FormatArg("cooldown", Integer.toString(stats.getRespawnTimer().getCooldown())));
+                                                    new FormatArg("%timeLeft%", Integer.toString(stats.getRespawnTimer().getRemainingTime())),
+                                                    new FormatArg("%cooldown%", Integer.toString(stats.getRespawnTimer().getCooldown())));
             }
             else if(stats.getRevokeTimer().isRunning())
             {
@@ -192,8 +202,8 @@ public class LivingPetsListener implements Listener {
 
                 if(p != null)
                     Language.REVOKE_TIMER_RUNNING.sendMessageFormated(p,
-                            new FormatArg("timeLeft", Integer.toString(stats.getRespawnTimer().getRemainingTime())),
-                            new FormatArg("cooldown", Integer.toString(stats.getRespawnTimer().getCooldown())));
+                            new FormatArg("%timeLeft%", Integer.toString(stats.getRevokeTimer().getRemainingTime())),
+                            new FormatArg("%cooldown%", Integer.toString(stats.getRevokeTimer().getCooldown())));
             }
 
         }
@@ -204,6 +214,9 @@ public class LivingPetsListener implements Listener {
     public void respawnCooldownHandler(PetDeathEvent e)
     {
         Pet pet = e.getPet();
+        // Set the pet as dead
+        pet.getPetStats().setDead();
+        // Start the respawn timer
         pet.getPetStats().launchRespawnTimer();
     }
 
@@ -212,9 +225,11 @@ public class LivingPetsListener implements Listener {
     public void revokeCooldownHandler(PetDespawnEvent e)
     {
         Pet pet = e.getPet();
+        // make sure it corresponds to a revoke
         if(e.getReason().equals(PetDespawnReason.REVOKE) &&
             pet.getPetStats() != null)
         {
+            // Launch the revoke timer
             pet.getPetStats().launchRevokeTimer();
         }
     }
@@ -228,6 +243,9 @@ public class LivingPetsListener implements Listener {
         {
             PetStats stats = pet.getPetStats();
             stats.setPet(e.getPet());
+
+            // Launch the regeneration timer
+            stats.launchRegenerationTimer();
 
             // Refresh the Max Health value depending on the level of the pet
             stats.refreshMaxHealth();
