@@ -23,7 +23,6 @@ public class FlagsManager {
 
         flags.add(new DismountPetFlag(instance));
         flags.add(new DespawnPetFlag(instance));
-        flags.add(new PetOnlyFlag(instance));
 
         for (AbstractFlag flag : flags) {
             flag.register();

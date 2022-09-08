@@ -76,16 +76,7 @@ public enum Language {
 
     REQUIRES_MODELENGINE("§cThis plugin requires ModelEngine r2.3.1. It seems that this requirement is not satisfied."),
 
-    USAGE("§7Usage : §6/mcpets §8..." +
-            "\n§8   ... §areload " +
-            "\n§8   ... §7(nothing here to open the GUI) " +
-            "\n§8   ... §aopen §8<§7player§8>" +
-            "\n§8   ... §aspawn §8<§7id§8> <§7player§8> §atrue§8/§cfalse §7(check if the player have the permission to spawn the pet or not) -s (set silent or not)" +
-            "\n§8   ... §arevoke" +
-            "\n§8   ... §aname" +
-            "\n§8   ... §amount" +
-            "\n§8   ... §aitem §7<§elist§8/§eadd§8/§eremove§7> <§ekey§7>" +
-            "\n§8   ... §asignalstick §7<§eplayer§8/§epet§7> §7<§epet§7>"),
+    USAGE("§cThis command doesn't exist. \n§7Check out the wiki: §nhttps://alexandre-chaussard.gitbook.io/mcpets/tutorials/plugin-features/commands"),
     NO_PERM("§cYou're not allowed to use this command."),
     BLACKLISTED_WORLD("§cMCPets is disabled in this world."),
 

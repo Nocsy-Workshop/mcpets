@@ -327,17 +327,24 @@ public class PetStats {
 
     /**
      * Save the stats in the database
-     * Runs async
+     * Runs async for SQL, runs sync otherwise coz YAML doesn't support async
      */
     public void save()
     {
-        new Thread(new Runnable() {
-            public void run() {
-                PlayerData pd = PlayerData.get(pet.getOwner());
-                if(pd != null)
-                    pd.save();
-            }
-        }).start();
+        if(GlobalConfig.getInstance().isDatabaseSupport())
+        {
+            new Thread(new Runnable() {
+                public void run() {
+                    PlayerData.saveDB();
+                }
+            }).start();
+        }
+        else
+        {
+            PlayerData pd = PlayerData.get(pet.getOwner());
+            if(pd != null)
+                pd.save();
+        }
     }
 
     //------------ Static code -------------//
@@ -405,21 +412,26 @@ public class PetStats {
     {
         // Get the auto save delay (in seconds) and transform it into ticks
         long delay = (long)GlobalConfig.getInstance().getAutoSave()*20;
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-
-                if(GlobalConfig.getInstance().isDatabaseSupport())
-                {
+        // Runs ASync if it's a SQL, sync if not coz YAML doesn't support ASync
+        if(GlobalConfig.getInstance().isDatabaseSupport())
+        {
+            Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), new Runnable() {
+                @Override
+                public void run() {
                     PlayerData.saveDB();
                 }
-                else
-                {
-                    // save all the pet stats asynchronously
+            }, delay, delay);
+        }
+        else
+        {
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), new Runnable() {
+                @Override
+                public void run() {
                     petStatsList.forEach(PetStats::save);
                 }
-            }
-        }, delay, delay);
+            }, delay, delay);
+        }
+
     }
 
     /**
