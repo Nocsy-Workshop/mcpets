@@ -27,9 +27,16 @@ public enum PetAnnouncement {
         {
             case "title":
                 String[] cut = message.split("\n");
-                String title = cut[0];
-                String subtitle = cut[1];
-                p.sendTitle(title, subtitle, 10, 40, 10);
+                if(cut.length == 2)
+                {
+                    String title = cut[0];
+                    String subtitle = cut[1];
+                    p.sendTitle(title, subtitle, 10, 40, 10);
+                }
+                else
+                {
+                    p.sendTitle(message, "", 10, 40, 10);
+                }
                 break;
 
             case "chat":

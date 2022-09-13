@@ -33,6 +33,9 @@ public class PetFood {
     @Getter
     private PetMath operator;
 
+    @Getter
+    private String signal;
+
     private ItemStack itemStack;
 
     /**
@@ -41,13 +44,14 @@ public class PetFood {
      * @param power
      * @param operator
      */
-    public PetFood(String id, String itemId, double power, PetFoodType type, PetMath operator)
+    public PetFood(String id, String itemId, double power, PetFoodType type, PetMath operator, String signal)
     {
         this.id = id;
         this.itemId = itemId;
         this.power = power;
         this.type = type;
         this.operator = operator;
+        this.signal = signal;
 
         // Setup the item stack
         this.getItemStack();
@@ -89,17 +93,20 @@ public class PetFood {
             if(pet.getPetStats() != null)
             {
                 pet.getPetStats().setHealth(operator.get(pet.getPetStats().getCurrentHealth(), power));
+                pet.sendSignal(signal);
             }
         }
         else if(type.getType().equals(PetFoodType.TAME.getType()))
         {
             pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
+            pet.sendSignal(signal);
         }
         else if(type.getType().equals(PetFoodType.EXPERIENCE.getType()))
         {
             if(pet.getPetStats() != null)
             {
                 pet.getPetStats().addExperience(power);
+                pet.sendSignal(signal);
             }
         }
     }

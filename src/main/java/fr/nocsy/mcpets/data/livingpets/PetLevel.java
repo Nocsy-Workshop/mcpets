@@ -158,8 +158,9 @@ public class PetLevel {
     /**
      * Play a skill on level up if setup
      */
-    public void playSkill()
+    public void playSkill(UUID owner)
     {
+        Pet pet = Pet.fromOwner(owner);
         if(mythicSkill != null && pet.isStillHere())
         {
             Optional<Skill> opt = MCPets.getMythicMobs().getSkillManager().getSkill(mythicSkill);
@@ -275,7 +276,7 @@ public class PetLevel {
         Utils.callEvent(event);
 
         announce(owner);
-        playSkill();
+        playSkill(owner);
         evolve(owner);
     }
 

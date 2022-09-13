@@ -1161,7 +1161,10 @@ public class Pet {
      * @param signal
      * @return
      */
-    public boolean castSkill(String signal) {
+    public boolean sendSignal(String signal) {
+        if(signal == null || signal.isEmpty())
+            return false;
+
         PetCastSkillEvent event = new PetCastSkillEvent(this, signal);
         Utils.callEvent(event);
 

@@ -46,8 +46,9 @@ public class PetFoodConfig extends AbstractConfig {
             PetFoodType foodType = PetFoodType.get(getConfig().getString(key + ".Type"));
             double power = getConfig().getDouble(key + ".Power");
             PetMath operator = PetMath.get(getConfig().getString(key + ".Operator"));
+            String signal = getConfig().getString(key + ".Signal");
 
-            PetFood petFood = new PetFood(key, id, power, foodType, operator);
+            PetFood petFood = new PetFood(key, id, power, foodType, operator, signal);
             petFoods.put(id, petFood);
         }
 

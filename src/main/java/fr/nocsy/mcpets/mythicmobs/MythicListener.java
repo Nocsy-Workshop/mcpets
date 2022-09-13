@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.mythicmobs.conditions.PetExperienceCondition;
 import fr.nocsy.mcpets.mythicmobs.conditions.PetTamingCondition;
 import fr.nocsy.mcpets.mythicmobs.mechanics.*;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
+import fr.nocsy.mcpets.mythicmobs.targeters.TargeterPetFromOwner;
 import fr.nocsy.mcpets.mythicmobs.targeters.TargeterPetOwner;
 import io.lumine.mythic.bukkit.events.MythicConditionLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
@@ -49,8 +50,11 @@ public class MythicListener implements Listener {
 
         String str = paramMythicTargeterLoadEvent.getTargeterName();
 
-        if ("PETOWNER".equalsIgnoreCase(str)) {
+        if (str.equalsIgnoreCase("PETOWNER")) {
             paramMythicTargeterLoadEvent.register(new TargeterPetOwner(paramMythicTargeterLoadEvent.getConfig()));
+        }
+        else if (str.equalsIgnoreCase("PETFROMOWNER")) {
+            paramMythicTargeterLoadEvent.register(new TargeterPetFromOwner(paramMythicTargeterLoadEvent.getConfig()));
         }
 
     }

@@ -76,7 +76,7 @@ public class SignalStickListener implements Listener {
         String signal = PlayerSignal.getSignalTag(p.getUniqueId());
 
         if (pet.isStillHere()) {
-            pet.castSkill(signal);
+            pet.sendSignal(signal);
             return true;
         }
         return false;
