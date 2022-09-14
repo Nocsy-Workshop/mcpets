@@ -16,6 +16,7 @@ public class CommandHandler implements CommandExecutor {
         commands.add(new MCPetsCommand());
         for (CCommand c : commands) {
             plugin.getCommand(c.getName()).setExecutor(new CommandHandler());
+            plugin.getCommand(c.getName()).setTabCompleter(c.getCompleter());
         }
 
     }

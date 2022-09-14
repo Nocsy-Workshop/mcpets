@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.commands;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.commands.tabcompleters.MCPetsCommandTabCompleter;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
@@ -16,12 +17,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.stream.Collectors;
-
 public class MCPetsCommand implements CCommand {
+
     @Override
     public String getName() {
         return "mcpets";
@@ -30,6 +31,11 @@ public class MCPetsCommand implements CCommand {
     @Override
     public String getPermission() {
         return PPermission.USE.getPermission();
+    }
+
+    @Override
+    public TabCompleter getCompleter() {
+        return new MCPetsCommandTabCompleter();
     }
 
     public String getAdminPermission() {

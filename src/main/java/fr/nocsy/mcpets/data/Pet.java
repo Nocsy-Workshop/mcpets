@@ -200,6 +200,7 @@ public class Pet {
 
     // AI variable
     private int task = 0;
+    private boolean taskRunning = false;
 
     /**
      * Constructor only used to create a fundamental Pet. If you wish to use a pet instance, please refer to copy()
@@ -220,7 +221,6 @@ public class Pet {
     public static void clearStickSignals(Player p, String petId) {
         if (p == null)
             return;
-
         for (int i = 0; i < p.getInventory().getSize(); i++) {
             ItemStack item = p.getInventory().getItem(i);
             if (Items.isSignalStick(item)
@@ -715,12 +715,25 @@ public class Pet {
     }
 
     /**
+     * Stop the AI scheduler if running
+     */
+    public void stopAI()
+    {
+        if(!taskRunning)
+            return;
+        Bukkit.getScheduler().cancelTask(task);
+        taskRunning = false;
+    }
+
+    /**
      * Activate the following AI of the mob
      */
     public void AI() {
-        if(task != 0)
+
+        if(taskRunning)
             return;
 
+        taskRunning = true;
         task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), new Runnable() {
 
             private int teleportTick = 0;
@@ -732,7 +745,7 @@ public class Pet {
 
                 if (!getInstance().isStillHere()) {
                     despawn(PetDespawnReason.UNKNOWN);
-                    Bukkit.getScheduler().cancelTask(task);
+                    stopAI();
                     return;
                 }
 
@@ -784,7 +797,7 @@ public class Pet {
                         teleportTick--;
                 } else {
                     getInstance().despawn(PetDespawnReason.OWNER_NOT_HERE);
-                    Bukkit.getScheduler().cancelTask(task);
+                    stopAI();
                 }
 
             }
@@ -814,7 +827,7 @@ public class Pet {
         PetDespawnEvent event = new PetDespawnEvent(this, reason);
         Utils.callEvent(event);
 
-        Bukkit.getScheduler().cancelTask(task);
+        stopAI();
         removed = true;
 
         Player ownerPlayer = Bukkit.getPlayer(owner);
@@ -823,6 +836,8 @@ public class Pet {
                     reason.equals(PetDespawnReason.SPAWN_ISSUE)) {
                 Language.REVOKED_UNKNOWN.sendMessage(ownerPlayer);
             }
+            if(enableSignalStickFromMenu)
+                clearStickSignals(ownerPlayer, this.id);
         }
 
         if (activeMob != null) {

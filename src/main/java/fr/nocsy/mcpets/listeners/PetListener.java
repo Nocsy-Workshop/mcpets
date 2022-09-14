@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.listeners;
 
+import com.ticxo.modelengine.api.events.ModelDismountEvent;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
@@ -243,11 +244,13 @@ public class PetListener implements Listener {
         }
     }
 
-    //@EventHandler
-    // Waiting for an implementation of a custom event in MEG, coz this one isn't triggered when dismounting the pet
-    public void despawnOnDismount(EntityDismountEvent e)
+    @EventHandler
+    public void despawnOnDismount(ModelDismountEvent e)
     {
-        Pet pet = Pet.getFromEntity(e.getDismounted());
+        if(e.getVehicle() == null || e.getVehicle().getBase() == null)
+            return;
+
+        Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getBase().getUniqueId()));
         if(pet != null && pet.isDespawnOnDismount())
         {
             pet.despawn(PetDespawnReason.DISMOUNT);

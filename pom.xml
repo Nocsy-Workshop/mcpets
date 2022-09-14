@@ -53,6 +53,11 @@
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
         <repository>
+            <id>nexus</id>
+            <name>Lumine Public</name>
+            <url>https://mvn.lumine.io/repository/maven-public/</url>
+        </repository>
+        <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
@@ -108,6 +113,12 @@
             <groupId>net.luckperms</groupId>
             <artifactId>api</artifactId>
             <version>5.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ticxo.modelengine</groupId>
+            <artifactId>api</artifactId>
+            <version>R3.0.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

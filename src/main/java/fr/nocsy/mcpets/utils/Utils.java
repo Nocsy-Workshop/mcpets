@@ -16,8 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.permissions.Permissible;
-import org.bukkit.permissions.PermissionAttachment;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -146,76 +144,6 @@ public class Utils {
     }
 
     /**
-     * Give permission to a player (based on LuckPerms)
-     * Return false if we are unable to give the permission on a long term basis
-     * @param uuid
-     * @param permission
-     * @return
-     */
-    public static boolean givePermission(UUID uuid, String permission)
-    {
-        if(MCPets.getLuckPerms() != null)
-        {
-            MCPets.getLuckPerms().getUserManager().modifyUser(uuid, user -> user.data().add(Node.builder(permission).build()));
-            return true;
-        }
-
-        if(Bukkit.getPlayer(uuid) != null)
-        {
-            // This is not saved in any file, just in the MCPets instance so it's not a viable solution
-            // Hence we return false
-            Bukkit.getPlayer(uuid).addAttachment(MCPets.getInstance(), permission, true);
-            return false;
-        }
-        return false;
-    }
-
-    /**
-     * Remove permission to the player
-     * @param uuid
-     * @param permission
-     * @return
-     */
-    public static boolean removePermission(UUID uuid, String permission)
-    {
-        if(MCPets.getLuckPerms() != null)
-        {
-            MCPets.getLuckPerms().getUserManager().modifyUser(uuid, user -> user.data().remove(Node.builder(permission).build()));
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if the player has the permission
-     * @param uuid
-     * @param permission
-     * @return
-     */
-    public static boolean hasPermission(@NotNull UUID uuid, String permission)
-    {
-        if(MCPets.getLuckPerms() != null)
-        {
-            User user = MCPets.getLuckPerms().getUserManager().getUser(uuid);
-            if(user != null)
-            {
-                return user.getCachedData()
-                            .getPermissionData()
-                            .checkPermission(permission).asBoolean();
-            }
-        }
-
-        Player p = Bukkit.getPlayer(uuid);
-        if(p != null)
-        {
-            return p.hasPermission(permission);
-        }
-
-        return false;
-    }
-
-    /**
      * Get the sign symbol of the value
      * Return an empty string if it's negative to prevent duplicating issue
      * @param value
@@ -248,6 +176,69 @@ public class Utils {
             p.sendMessage(msg);
         }
         Bukkit.getLogger().severe("[DEBUG] " + msg);
+    }
+
+    /**
+     * Give permission to a player (based on LuckPerms)
+     * Return false if we are unable to give the permission on a long term basis
+     * @param uuid
+     * @param permission
+     * @return
+     */
+    public static boolean givePermission(UUID uuid, String permission)
+    {
+        if(MCPets.getLuckPerms() != null)
+        {
+            return PermsUtils.givePermission(uuid, permission);
+        }
+
+        if(Bukkit.getPlayer(uuid) != null)
+        {
+            // This is not saved in any file, just in the MCPets instance so it's not a viable solution
+            // Hence we return false
+            Bukkit.getPlayer(uuid).addAttachment(MCPets.getInstance(), permission, true);
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Remove permission to the player
+     * @param uuid
+     * @param permission
+     * @return
+     */
+    public static boolean removePermission(UUID uuid, String permission)
+    {
+        if(MCPets.getLuckPerms() != null)
+        {
+            PermsUtils.removePermission(uuid, permission);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the player has the permission
+     * @param uuid
+     * @param permission
+     * @return
+     */
+    public static boolean hasPermission(@NotNull UUID uuid, String permission)
+    {
+        if(MCPets.getLuckPerms() != null)
+        {
+            return PermsUtils.hasPermission(uuid, permission);
+        }
+
+        Player p = Bukkit.getPlayer(uuid);
+        if(p != null)
+        {
+            return p.hasPermission(permission);
+        }
+
+        return false;
     }
 
 }
