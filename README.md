@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/KByHeNB.png" alt="MC Pets logo">
+  <img src="https://www.spigotmc.org/attachments/spigot_mcpets_banner-png.727919/?temp_hash=a05108aee518367247d7d3d117bb5f49" alt="MC Pets logo">
 </p>
 
 Welcome to MC Pets!
@@ -7,47 +7,45 @@ Welcome to MC Pets!
 Navigate through the [wiki pages](https://alexandre-chaussard.gitbook.io/mcpets/) to find whatever information you need about the plugin.
 
 
-
 <img src="https://i.imgur.com/saPEOAJ.png" alt="Requirements">
 
-This plugin requires the following dependencies to work :
-- ModelEngine r2.2.0 at least
-- MythicMobs compatible with ModelEngine r2.2.0 (see dev builds)
-- (optional if you wan the custom flags) WorldGuard & WorldEdit
-
-
-
-<img src="https://i.imgur.com/OyR7gLr.png" alt="Overview">
-
-MCPets is a plugin meant to setup advanced modeled pets for your server.
-The plugin relies on MythicMobs & ModelEngine to create your pet, maybe add it some skills and specific behaviors so that it get useful for the players or do some tricky stuff.
-MCPets offers an GUI interface to spawn the pet and manage them (change their name, mount them, revoke them).
-It also ensures the pet to behave like one : whatever is configured inside MythicMobs, you can configure each pet with MCPets to come back to the player when it gets too far, or get teleported instead if it's completely lost.
-Also, MCPets provides the opportunity to cast a skill before your pet gets to despawn, that can be used to cast despawning animations and more !
-
-The plugin is still in BETA, so make sure to report any bug you encounter while staying indulgent please.
-
-Want to try the plugin ? You can go on the DEMO server of Littleroom at : play.littleroom.dev
-
-
+✨ Check the [requirements on the Wiki](https://alexandre-chaussard.gitbook.io/mcpets/common-issues/common-issues/requirements).
 
 <img src="https://i.imgur.com/KadwjCO.png" alt="Features">
 
-- Create pets with MythicMobs with ANY behavior (AI, skills, etc...) and make them act as a pet thanks to MCPets
-- GUI Interface to manage your pets (selection, rename, mount)
-- Commands to summon pet from your custom GUI with the possibility to respect the permissions restrictions or not.
-- Permission system to summon a pet
-- Configurable range (to follow / teleport to) the player
-- MySQL support for players data.
-- Unique targeter added to MythicMobs to reach the pet owner using : @PetOwner
-- Flags to manage pets around your world with WorldGuard (dismountpet and despawnpet can be used to force dismounting a pet in an area, or despawn it)
-- Language configuration support
-- Integrated permissions : advancedpet.use (enables users to use gui), advancedpet.admin (admin node)
+⭕ **3D modeled pets** with ANY behavior, skills, effects and more based on MythicMobs and ModelEngine
 
-A demo pet is included in the ZIP download, but it can also be found on this repository : Sleepy - the Otter.
+⭕ Create **mounts** using ModelEngine and implement them easily with MCPets
+
+⭕ Unique **inventory** per pet
+
+⭕ **Pet statistics** with MCPets 3.0.0 : experience, health, damage modifiers for skills and more
+
+⭕ **Taming**, **evolutions** and **pet food** system with MCPets 3.0.0
+
+⭕ Customizable **in-game GUI interface** : summon pets, show their stats, custom names, mount, skins, inventory... Organizable in categories
+
+⭕ **Give orders** to your pets using the Signal Stick
+
+⭕ Permission-based system and **customizable permission for each pet**, showing the pet or not in the GUI depending on the player having the permission for it
+
+⭕ **Flags** to manage pet interactions with WorldGuard
+
+⭕ MySQL support
+
+✨ Need a demo pet to start with ? Check out [Sleepy the Otter](https://mcmodels.net/model/sleepy-the-otter/) !
+
+<img src="https://www.spigotmc.org/attachments/patreon-advantages-png.727937/?temp_hash=a05108aee518367247d7d3d117bb5f49" alt="Patreon advantages">
+
+⭕ Download some exclusive content and monthly releases on the [Patreon](https://www.patreon.com/tofnocsy_workshop)
+
+⭕ Get involved in the creation progress by picking your favorite model in a monthly selection
+
+⭕ Access a patron-only channel on my [Discord's workshop](https://discord.gg/p7QTm2gUyf)
 
 # ✨ Partner ✨
 
-Download more pets from mcmodels.net
+Download more pets on [MCModels.net](https://mcmodels.net/)
+
 ![image](https://cdn.discordapp.com/attachments/884364895108366336/909534639650136064/partnered.png)
 

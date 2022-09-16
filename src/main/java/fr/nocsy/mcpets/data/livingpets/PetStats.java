@@ -322,6 +322,8 @@ public class PetStats {
     public static PetStats unzerialize(String base64Str)
     {
         PetStatsSerializer serializer = PetStatsSerializer.unserialize(base64Str);
+        if(serializer == null)
+            return null;
         return serializer.buildStats();
     }
 

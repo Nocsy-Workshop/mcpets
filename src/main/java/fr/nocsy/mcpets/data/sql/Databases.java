@@ -73,6 +73,8 @@ public class Databases {
                 for(String seria : playerData.getString("data").split(";;;"))
                 {
                     PetStats stats = PetStats.unzerialize(seria);
+                    if(stats == null)
+                        continue;
                     stats.launchTimers();
                     PetStats.register(stats);
                 }

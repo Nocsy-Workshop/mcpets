@@ -103,6 +103,8 @@ public class PlayerDataNoDatabase extends AbstractConfig {
         for(String seria : getConfig().getStringList("PetStats"))
         {
             PetStats stats = PetStats.unzerialize(seria);
+            if(stats == null)
+                continue;
             stats.launchTimers();
             PetStats.register(stats);
         }
