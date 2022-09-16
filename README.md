@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://www.spigotmc.org/attachments/spigot_mcpets_banner-png.727919/?temp_hash=a05108aee518367247d7d3d117bb5f49" alt="MC Pets logo">
-</p>
+<img src="https://www.spigotmc.org/attachments/spigot_mcpets_banner-png.727919/?temp_hash=a05108aee518367247d7d3d117bb5f49" alt="MC Pets logo">
 
 Welcome to MC Pets!
 
