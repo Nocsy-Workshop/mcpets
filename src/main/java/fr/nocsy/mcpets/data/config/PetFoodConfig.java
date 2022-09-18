@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.data.config;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetFoodType;
 import fr.nocsy.mcpets.utils.PetMath;
+import fr.nocsy.mcpets.utils.Utils;
 
 import java.util.*;
 
@@ -47,9 +48,7 @@ public class PetFoodConfig extends AbstractConfig {
             double power = getConfig().getDouble(key + ".Power");
             PetMath operator = PetMath.get(getConfig().getString(key + ".Operator"));
             String signal = getConfig().getString(key + ".Signal");
-            List<String> petIds = getConfig().getStringList(key + "Pets");
-
-
+            List<String> petIds = getConfig().getStringList(key + ".Pets");
 
             PetFood petFood = new PetFood(key, id, power, foodType, operator, signal, petIds);
             petFoods.put(id, petFood);

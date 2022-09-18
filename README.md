@@ -3,7 +3,7 @@
 Welcome to MC Pets!
 
 Navigate through the [wiki pages](https://mcpets.gitbook.io/mcpets/) to find whatever information you need about the plugin.
-
+Looking for help ? Join the [Discord](https://discord.com/invite/p7QTm2gUyf) !
 
 <img src="https://i.imgur.com/saPEOAJ.png" alt="Requirements">
 
@@ -33,7 +33,7 @@ Navigate through the [wiki pages](https://mcpets.gitbook.io/mcpets/) to find wha
 
 ✨ Need a demo pet to start with ? Check out [Sleepy the Otter](https://mcmodels.net/model/sleepy-the-otter/) !
 
-<img src="https://www.spigotmc.org/attachments/patreon-advantages-png.727937/?temp_hash=a05108aee518367247d7d3d117bb5f49" alt="Patreon advantages">
+<img src="https://i.ibb.co/Sn460M4/patreon-advantages.png" alt="Patreon advantages">
 
 ⭕ Download some exclusive content and monthly releases on the [Patreon](https://www.patreon.com/tofnocsy_workshop)
 
