@@ -47,8 +47,11 @@ public class PetFoodConfig extends AbstractConfig {
             double power = getConfig().getDouble(key + ".Power");
             PetMath operator = PetMath.get(getConfig().getString(key + ".Operator"));
             String signal = getConfig().getString(key + ".Signal");
+            List<String> petIds = getConfig().getStringList(key + "Pets");
 
-            PetFood petFood = new PetFood(key, id, power, foodType, operator, signal);
+
+
+            PetFood petFood = new PetFood(key, id, power, foodType, operator, signal, petIds);
             petFoods.put(id, petFood);
         }
 
@@ -64,6 +67,10 @@ public class PetFoodConfig extends AbstractConfig {
         return petFoods.get(id);
     }
 
+    /**
+     * List the registered pet foods
+     * @return
+     */
     public Collection<PetFood> list()
     {
         return petFoods.values();

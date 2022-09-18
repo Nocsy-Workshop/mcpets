@@ -5,9 +5,7 @@ import fr.nocsy.mcpets.data.Pet;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.SkillMetadata;
-import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.core.skills.targeters.IEntitySelector;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -26,7 +24,7 @@ public class TargeterPetFromOwner extends IEntitySelector {
         {
             Pet pet = Pet.fromOwner(((Player)caster).getUniqueId());
             if(pet != null)
-                hashSet.add(BukkitAdapter.adapt(Bukkit.getPlayer(pet.getOwner())));
+                hashSet.add(pet.getActiveMob().getEntity());
         }
         return hashSet;
     }

@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class PetFood {
 
@@ -36,6 +37,9 @@ public class PetFood {
     @Getter
     private String signal;
 
+    @Getter
+    private List<String> petIds;
+
     private ItemStack itemStack;
 
     /**
@@ -44,7 +48,7 @@ public class PetFood {
      * @param power
      * @param operator
      */
-    public PetFood(String id, String itemId, double power, PetFoodType type, PetMath operator, String signal)
+    public PetFood(String id, String itemId, double power, PetFoodType type, PetMath operator, String signal, List<String> petIds)
     {
         this.id = id;
         this.itemId = itemId;
@@ -52,6 +56,7 @@ public class PetFood {
         this.type = type;
         this.operator = operator;
         this.signal = signal;
+        this.petIds = petIds;
 
         // Setup the item stack
         this.getItemStack();
@@ -81,25 +86,47 @@ public class PetFood {
     }
 
     /**
+     * Say whether this food is compatible with the given pet
+     * If the food doesn't state any pet ids, then the food is compatible with any pet
+     * @param pet
+     * @return
+     */
+    public boolean isCompatibleWithPet(Pet pet)
+    {
+        if(pet == null)
+            return false;
+        if(petIds == null || petIds.isEmpty())
+            return true;
+        return petIds.contains(pet.getId());
+    }
+
+    /**
      * Give the food to the pet
      * @param pet
+     * @return value stating whether or not the food could be applied
      */
-    public void apply(Pet pet)
+    public boolean apply(Pet pet)
     {
         if(type == null)
-            return;
+            return false;
+
+        if(!isCompatibleWithPet(pet))
+            return false;
+
         if (type.getType().equals(PetFoodType.HEALTH.getType()))
         {
             if(pet.getPetStats() != null)
             {
                 pet.getPetStats().setHealth(operator.get(pet.getPetStats().getCurrentHealth(), power));
                 pet.sendSignal(signal);
+                return true;
             }
         }
         else if(type.getType().equals(PetFoodType.TAME.getType()))
         {
             pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
             pet.sendSignal(signal);
+            return true;
         }
         else if(type.getType().equals(PetFoodType.EXPERIENCE.getType()))
         {
@@ -107,8 +134,10 @@ public class PetFood {
             {
                 pet.getPetStats().addExperience(power);
                 pet.sendSignal(signal);
+                return true;
             }
         }
+        return false;
     }
 
     /**

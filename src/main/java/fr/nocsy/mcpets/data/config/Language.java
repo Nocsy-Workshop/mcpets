@@ -90,6 +90,7 @@ public enum Language {
     SKIN_COULD_NOT_APPLY("§cThe skin could not be applied to the pet."),
     SKIN_APPLIED("§aSkin changed successfully !"),
 
+    GLOBAL_RESPAWN_TIMER_RUNNING("§cThis pet could not be spawned. You need to wait %timeLeft%s/%cooldown%s."),
     RESPAWN_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%s."),
     REVOKE_TIMER_RUNNING("§cThis pet could not be spawned. It's still recovering from its wounds. You need to wait %timeLeft%s/%cooldown%s."),
 

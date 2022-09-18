@@ -64,6 +64,11 @@ public class GlobalConfig extends AbstractConfig {
 
 
     @Getter
+    private boolean globalRespawnCooldown = false;
+    @Getter
+    private int defaultRespawnCooldown = 0;
+
+    @Getter
     private PetAnnouncement tamingAnnouncementType = PetAnnouncement.CHAT;
     @Getter
     private int tamingBarSize = 40;
@@ -140,6 +145,10 @@ public class GlobalConfig extends AbstractConfig {
         if(getConfig().get("AutoSaveDelay") == null)
             getConfig().set("AutoSaveDelay", autoSave);
 
+        if(getConfig().get("GlobalRespawnCooldown") == null)
+            getConfig().set("GlobalRespawnCooldown", globalRespawnCooldown);
+        if(getConfig().get("DefaultRespawnCooldown") == null)
+            getConfig().set("DefaultRespawnCooldown", defaultRespawnCooldown);
         if (getConfig().get("Experience.BarSize") == null)
             getConfig().set("Experience.BarSize", experienceBarSize);
         if (getConfig().get("Experience.Symbol") == null)
@@ -203,6 +212,8 @@ public class GlobalConfig extends AbstractConfig {
         activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
         adaptiveInventory = getConfig().getInt("InventorySize");
         percentHealthOnRespawn = getConfig().getDouble("PercentHealthOnRespawn");
+        defaultRespawnCooldown = Math.max(0, getConfig().getInt("DefaultRespawnCooldown"));
+        globalRespawnCooldown = getConfig().getBoolean("GlobalRespawnCooldown");
         // Says it'll be an adaptive inventory
         if (adaptiveInventory <= 0)
             adaptiveInventory = -1;

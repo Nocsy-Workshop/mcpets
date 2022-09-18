@@ -2,12 +2,12 @@
 
 Welcome to MC Pets!
 
-Navigate through the [wiki pages](https://alexandre-chaussard.gitbook.io/mcpets/) to find whatever information you need about the plugin.
+Navigate through the [wiki pages](https://mcpets.gitbook.io/mcpets/) to find whatever information you need about the plugin.
 
 
 <img src="https://i.imgur.com/saPEOAJ.png" alt="Requirements">
 
-✨ Check the [requirements on the Wiki](https://alexandre-chaussard.gitbook.io/mcpets/common-issues/common-issues/requirements).
+✨ Check the [requirements on the Wiki](https://mcpets.gitbook.io/mcpets/common-issues/common-issues/requirements).
 
 <img src="https://i.imgur.com/KadwjCO.png" alt="Features">
 

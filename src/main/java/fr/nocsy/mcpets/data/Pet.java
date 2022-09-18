@@ -651,6 +651,9 @@ public class Pet {
         // Then we set the active mob to the new active mob
         // And we setup the default pet parameters
         setActiveMob(mob);
+        // Inform that the pet is not removed
+        setRemoved(false);
+
         // Set the owner
         this.owner = owner;
         activeMob.setOwner(owner);
@@ -675,9 +678,6 @@ public class Pet {
         } else {
             setDisplayName(Language.TAG_TO_REMOVE_NAME.getMessage(), false);
         }
-
-        // Inform that the pet is not removed
-        setRemoved(false);
 
         // Setup the default signal
         PlayerSignal.setDefaultSignal(owner, this);
@@ -931,7 +931,6 @@ public class Pet {
 
             currentName = name;
             if (isStillHere()) {
-
                 if (name == null || name.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
                     activeMob.getEntity().getBukkitEntity().setCustomName(GlobalConfig.getInstance().getDefaultName().replace("%player%", Bukkit.getOfflinePlayer(owner).getName()));
 

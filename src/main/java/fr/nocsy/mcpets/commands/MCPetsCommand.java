@@ -180,11 +180,13 @@ public class MCPetsCommand implements CCommand {
                         OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
                         if(player != null || !player.hasPlayedBefore())
                         {
+                            // Start by loading the player data
+                            PlayerData pd = PlayerData.get(player.getUniqueId());
+
                             PetStats.remove(petId, player.getUniqueId());
                             Language.STATS_CLEARED_FOR_PET_FOR_PLAYER.sendMessageFormated(sender, new FormatArg("%petId%", petId),
                                                                                                 new FormatArg("%player%", playerName));
 
-                            PlayerData pd = PlayerData.get(player.getUniqueId());
                             pd.save();
                             return;
                         }
@@ -281,9 +283,10 @@ public class MCPetsCommand implements CCommand {
                     OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
                     if(player != null || !player.hasPlayedBefore())
                     {
+                        PlayerData pd = PlayerData.get(player.getUniqueId());
+
                         PetStats.remove(player.getUniqueId());
                         Language.STATS_CLEARED.sendMessage(sender);
-                        PlayerData pd = PlayerData.get(player.getUniqueId());
                         pd.save();
                         return;
                     }

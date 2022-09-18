@@ -224,7 +224,7 @@ public class PetConfig extends AbstractConfig {
             double resistanceModifier = Optional.of(getConfig().getDouble(key + ".ResistanceModifier")).orElse(1D);
             double damageModifier = Optional.of(getConfig().getDouble(key + ".DamageModifier")).orElse(1D);
             double power = Optional.of(getConfig().getDouble(key + ".Power")).orElse(1D);
-            int respawnCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Respawn")).orElse(0);
+            int respawnCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Respawn")).orElse(GlobalConfig.getInstance().getDefaultRespawnCooldown());
             int revokeCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Revoke")).orElse(0);;
             int inventoryExtension = Optional.of(getConfig().getInt(key + ".InventoryExtension")).orElse(0);;
             String levelName = getConfig().getString(key + ".Name");

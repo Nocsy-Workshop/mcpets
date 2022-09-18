@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -42,6 +43,7 @@ public class PetListener implements Listener {
         if (GlobalConfig.getInstance().isSneakMode() && !p.isSneaking())
             return;
 
+        // Do not open the menu if the player has a signal stick
         if(GlobalConfig.getInstance().isDisableInventoryWhileHoldingSignalStick())
         {
             ItemStack it = p.getInventory().getItemInMainHand();
@@ -254,6 +256,16 @@ public class PetListener implements Listener {
         if(pet != null && pet.isDespawnOnDismount())
         {
             pet.despawn(PetDespawnReason.DISMOUNT);
+        }
+    }
+
+    @EventHandler
+    public void cancelDefaultTaming(EntityTameEvent e)
+    {
+        if(Pet.getFromEntity(e.getEntity()) != null)
+        {
+            // Cancel the event, so it doesn't give other type of item by default to the anchor
+            e.setCancelled(true);
         }
     }
 

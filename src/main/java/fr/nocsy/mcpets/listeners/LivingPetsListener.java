@@ -73,6 +73,13 @@ public class LivingPetsListener implements Listener {
             Pet pet = Pet.getFromEntity(e.getRightClicked());
             if(pet != null)
             {
+                // Check if the pet food is compatibl with that pet
+                if(!petFood.isCompatibleWithPet(pet))
+                {
+                    e.setCancelled(true);
+                    return;
+                }
+
                 // If it's health food then trigger the healing event
                 if(petFood.getType().equals(PetFoodType.HEALTH))
                 {
@@ -175,7 +182,28 @@ public class LivingPetsListener implements Listener {
     public void attemptToSpawn(PetSpawnEvent e)
     {
         Pet pet = e.getPet();
-        if(pet.getPetStats() != null)
+
+        // If the global timer is enabled, make sure no other pet has a running timer
+        if(GlobalConfig.getInstance().isGlobalRespawnCooldown())
+        {
+            PetStats stats = PetStats.getPetStatsOnRespawnTimerRunning(pet.getOwner());
+            if(stats != null)
+            {
+                e.setCancelled(true);
+                PetDespawnEvent petDespawnEvent = new PetDespawnEvent(pet, PetDespawnReason.RESPAWN_TIMER);
+                Utils.callEvent(petDespawnEvent);
+
+                Player p = Bukkit.getPlayer(pet.getOwner());
+
+                if(p != null)
+                    Language.GLOBAL_RESPAWN_TIMER_RUNNING.sendMessageFormated(p,
+                            new FormatArg("%timeLeft%", Integer.toString(stats.getRespawnTimer().getRemainingTime())),
+                            new FormatArg("%cooldown%", Integer.toString(stats.getRespawnTimer().getCooldown())));
+                return;
+            }
+        }
+        // Check that the pet has no running timer
+        else if(pet.getPetStats() != null)
         {
             PetStats stats = pet.getPetStats();
 

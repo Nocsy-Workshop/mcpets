@@ -3,8 +3,8 @@ package fr.nocsy.mcpets.data.livingpets;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
 import fr.nocsy.mcpets.utils.PetTimer;
 import fr.nocsy.mcpets.utils.Utils;
@@ -12,7 +12,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PetStats {
@@ -470,6 +472,17 @@ public class PetStats {
         // and the same owner in the current registration
         petStatsList.add(petStats);
         return true;
+    }
+
+    /**
+     * Get the first pet stats for which the timer is currently running
+     * Useful only in one case but better put it here
+     * @param uuid
+     * @return
+     */
+    public static PetStats getPetStatsOnRespawnTimerRunning(UUID uuid)
+    {
+        return petStatsList.stream().filter(petStats -> petStats.getPet().getOwner().equals(uuid) && petStats.isRespawnTimerRunning()).findFirst().orElse(null);
     }
 
 }
