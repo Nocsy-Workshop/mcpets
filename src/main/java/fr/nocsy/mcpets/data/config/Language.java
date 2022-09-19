@@ -82,6 +82,7 @@ public enum Language {
 
     CATEGORY_PET_AMOUNT("§e%petAmount% §6registered"),
     CATEGORY_MENU_TITLE("§0☀ §4Pets §8- Pick a category §0☀"),
+    CATEGORY_DOESNT_EXIST("§cThis category does not exist."),
 
     PET_INVENTORY_TITLE("§0☀ §4%pet% §8- §0Inventory §0☀§"),
 
@@ -104,6 +105,7 @@ public enum Language {
     PETFOOD_DOESNT_EXIST("§cThis pet food doesn't exist."),
 
     PET_ALREADY_TAMED("§cThis pet is already tamed."),
+    PET_DOESNT_EAT("§cThis pet can not eat that food."),
 
     PET_STATUS_ALIVE("§aAvailable"),
     PET_STATUS_REVOKED("§cUnavailable §7(%timeleft%s left)"),

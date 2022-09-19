@@ -1,11 +1,11 @@
 package fr.nocsy.mcpets.commands.tabcompleters;
 
 import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
-import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -48,6 +48,7 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     completed.add("item");
                     completed.add("clearStats");
                     completed.add("petFood");
+                    completed.add("category");
                 }
 
                 else if(args.length == 2)
@@ -81,6 +82,10 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     {
                         completed.addAll(PetFoodConfig.getInstance().list().stream().map(PetFood::getId).collect(Collectors.toList()));
                     }
+                    else if(args[0].equalsIgnoreCase("category"))
+                    {
+                        completed.addAll(Category.getCategories().stream().map(Category::getId).collect(Collectors.toList()));
+                    }
                 }
 
                 else if(args.length == 3)
@@ -101,6 +106,10 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     else if(args[0].equalsIgnoreCase("clearStats"))
                     {
                         completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
+                    }
+                    else if(args[0].equalsIgnoreCase("category"))
+                    {
+                        completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
                     }
                 }
 

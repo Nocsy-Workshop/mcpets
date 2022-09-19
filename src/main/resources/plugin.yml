@@ -1,6 +1,6 @@
 name: MCPets
 main: fr.nocsy.mcpets.MCPets
-version: 3.0.0
+version: 3.0.1
 description: MCModels affiliate plugin. Join the workshop ! https://discord.gg/p7QTm2gUyf
 depend:
   - MythicMobs

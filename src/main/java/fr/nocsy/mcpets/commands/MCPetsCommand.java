@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.commands;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.commands.tabcompleters.MCPetsCommandTabCompleter;
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
@@ -164,7 +165,7 @@ public class MCPetsCommand implements CCommand {
                             }
 
                             p.getInventory().addItem(ItemsListConfig.getInstance().getItemStack(key));
-
+                            return;
                         }
 
                     }
@@ -195,6 +196,29 @@ public class MCPetsCommand implements CCommand {
                     sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
                     return;
                 }
+                if(args[0].equalsIgnoreCase("category")
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    String categoryId = args[1];
+
+                    Category category = Category.getFromId(categoryId);
+                    if(category == null)
+                    {
+                        Language.CATEGORY_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    String playerName = args[2];
+                    Player player = Bukkit.getPlayer(playerName);
+                    if(player == null)
+                    {
+                        Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
+                        return;
+                    }
+
+                    category.openInventory(player, 0);
+                    return;
+                }
             }
             else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("open")
@@ -209,6 +233,22 @@ public class MCPetsCommand implements CCommand {
 
                     PetMenu menu = new PetMenu(playerToOpen, 0, false);
                     menu.open((Player) sender);
+                    return;
+                }
+                if(args[0].equalsIgnoreCase("category")
+                        && sender.hasPermission(getAdminPermission())
+                        && sender instanceof Player)
+                {
+                    String categoryId = args[1];
+
+                    Category category = Category.getFromId(categoryId);
+                    if(category == null)
+                    {
+                        Language.CATEGORY_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    category.openInventory((Player)sender, 0);
                     return;
                 }
                 if(args[0].equalsIgnoreCase("item")

@@ -114,6 +114,8 @@ public class PetStatsSerializer {
     public static PetStatsSerializer unserialize(String serialized)
     {
         String decoded = new String(Base64.getDecoder().decode(serialized.getBytes()));
+        if(decoded == null || decoded.isEmpty())
+            return null;
         return new Gson().fromJson(decoded, PetStatsSerializer.class);
     }
 

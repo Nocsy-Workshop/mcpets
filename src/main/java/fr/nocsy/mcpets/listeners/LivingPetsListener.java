@@ -73,10 +73,11 @@ public class LivingPetsListener implements Listener {
             Pet pet = Pet.getFromEntity(e.getRightClicked());
             if(pet != null)
             {
-                // Check if the pet food is compatibl with that pet
+                // Check if the pet food is compatible with that pet
                 if(!petFood.isCompatibleWithPet(pet))
                 {
                     e.setCancelled(true);
+                    Language.PET_DOESNT_EAT.sendMessage(p);
                     return;
                 }
 

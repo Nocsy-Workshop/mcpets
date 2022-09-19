@@ -252,11 +252,18 @@ public class PetListener implements Listener {
         if(e.getVehicle() == null || e.getVehicle().getBase() == null)
             return;
 
-        Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getBase().getUniqueId()));
-        if(pet != null && pet.isDespawnOnDismount())
-        {
-            pet.despawn(PetDespawnReason.DISMOUNT);
-        }
+        // Running this as sync coz we fetch an entity
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getBase().getUniqueId()));
+                if(pet != null && pet.isDespawnOnDismount())
+                {
+                    pet.despawn(PetDespawnReason.DISMOUNT);
+                }
+            }
+        }.runTask(MCPets.getInstance());
+
     }
 
     @EventHandler
