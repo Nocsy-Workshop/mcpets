@@ -9,6 +9,7 @@ import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -39,6 +40,7 @@ public class PetConfig extends AbstractConfig {
      */
     public static void loadPets(String folderPath, boolean clearPets) {
         if (clearPets) {
+            Bukkit.getConsoleSender().sendMessage("§9Loading pets... ");
             Pet.getObjectPets().clear();
         }
 
@@ -46,8 +48,6 @@ public class PetConfig extends AbstractConfig {
         if (!folder.exists())
             folder.mkdirs();
 
-
-        MCPets.getLog().info("Loading pets... ");
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
                 loadPets(file.getPath().replace("\\", "/"), false);
@@ -58,10 +58,10 @@ public class PetConfig extends AbstractConfig {
 
             if (petConfig.getPet() != null) {
                 if(Pet.getObjectPets().stream().anyMatch(pet -> pet.getId().equalsIgnoreCase(petConfig.getPet().getId())))
-                    MCPets.getLog().warning("  * " + petConfig.getPet().getId() + " could not be loaded: another pet with the same ID already exists.");
+                    Bukkit.getConsoleSender().sendMessage("  §c* " + petConfig.getPet().getId() + " could not be loaded: another pet with the same ID already exists.");
                 else
                 {
-                    MCPets.getLog().info("  - " + petConfig.getPet().getId() + " loaded succesfully.");
+                    Bukkit.getConsoleSender().sendMessage("  §7- " + petConfig.getPet().getId() + " loaded succesfully.");
                     Pet.getObjectPets().add(petConfig.getPet());
                 }
             }

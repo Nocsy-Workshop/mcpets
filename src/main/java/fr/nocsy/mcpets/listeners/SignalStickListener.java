@@ -97,12 +97,16 @@ public class SignalStickListener implements Listener {
     @EventHandler
     public void antiCraft(InventoryClickEvent e)
     {
-        if(e.getInventory().getType().equals(InventoryType.ANVIL) ||
-                e.getInventory().getType().equals(InventoryType.CRAFTING) ||
-                e.getInventory().getType().equals(InventoryType.ENCHANTING) ||
-                e.getInventory().getType().equals(InventoryType.GRINDSTONE) ||
-                e.getInventory().getType().equals(InventoryType.MERCHANT) ||
-                e.getInventory().getType().equals(InventoryType.LOOM))
+        if(e.getView() == null || e.getView().getTopInventory() == null)
+            return;
+
+        if(e.getView().getTopInventory().getType().equals(InventoryType.ANVIL) ||
+                e.getView().getTopInventory().getType().equals(InventoryType.WORKBENCH) ||
+                e.getView().getTopInventory().getType().equals(InventoryType.CRAFTING) ||
+                e.getView().getTopInventory().getType().equals(InventoryType.ENCHANTING) ||
+                e.getView().getTopInventory().getType().equals(InventoryType.GRINDSTONE) ||
+                e.getView().getTopInventory().getType().equals(InventoryType.MERCHANT) ||
+                e.getView().getTopInventory().getType().equals(InventoryType.LOOM))
         {
             ItemStack it = e.getCurrentItem();
             if(Items.isSignalStick(it))
