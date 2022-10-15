@@ -5,9 +5,9 @@ import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
-import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.listeners.EventListener;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -16,7 +16,6 @@ import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.logging.Logger;
 
@@ -27,6 +26,7 @@ public class MCPets extends JavaPlugin {
 
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
+
     @Getter
     private static final Logger log = Bukkit.getLogger();
 
@@ -103,7 +103,10 @@ public class MCPets extends JavaPlugin {
 
     }
 
-    public static void checkLuckPerms() {
+    /**
+     * Check and initialize LuckPerms instance
+     */
+    private static void checkLuckPerms() {
         try {
             RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
             if (provider != null) {
@@ -113,7 +116,11 @@ public class MCPets extends JavaPlugin {
             Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
         }
     }
-    public static void checkWorldGuard() {
+
+    /**
+     * Check and initialize WorldGuard instance
+     */
+    private static void checkWorldGuard() {
         try {
             WorldGuard wg = WorldGuard.getInstance();
             if (wg != null)
@@ -123,7 +130,12 @@ public class MCPets extends JavaPlugin {
             Bukkit.getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
         }
     }
-    public static boolean checkMythicMobs() {
+
+    /**
+     * Check and initialize MythicMobs instance
+     * @return
+     */
+    private static boolean checkMythicMobs() {
         if(mythicMobs != null)
             return true;
         try {
@@ -139,6 +151,10 @@ public class MCPets extends JavaPlugin {
         return false;
     }
 
+    /**
+     * Return MythicMobs instance
+     * @return
+     */
     public static MythicBukkit getMythicMobs()
     {
         if(mythicMobs == null)
@@ -146,6 +162,11 @@ public class MCPets extends JavaPlugin {
         return mythicMobs;
     }
 
+
+    /**
+     * Return LuckPerms instance
+     * @return
+     */
     public static LuckPerms getLuckPerms()
     {
         if(luckPerms == null)

@@ -11,12 +11,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class PetFood {
 
-    private static HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
+    private static final HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
 
     @Getter
     private String id;
@@ -38,6 +39,9 @@ public class PetFood {
 
     @Getter
     private List<String> petIds;
+
+    @Getter
+    private boolean defaultMCItem;
 
     private ItemStack itemStack;
 
@@ -72,9 +76,24 @@ public class PetFood {
         // Setup the item stack
         if(itemStack == null)
         {
+            // Fetch the item stack within the registered ones
             itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
+
+            // If no item stack matches, then we'll see if it's a default MC material
             if(itemStack == null)
+            {
+                // Checking MC materials
+                Material material = Arrays.stream(Material.values()).filter(mat -> mat.name().equalsIgnoreCase(itemId)).findFirst().orElse(null);
+                if(material != null && !material.isAir())
+                {
+                    itemStack = new ItemStack(material);
+                    defaultMCItem = true;
+                    // return the itemstack without adding localized information to it, coz it's a default item
+                    return itemStack;
+                }
+                // We found no match, so we set the item to unknown
                 itemStack = Items.UNKNOWN.getItem();
+            }
             ItemMeta meta = itemStack.getItemMeta();
             meta.setLocalizedName("MCPets;Food;" + itemId);
             itemStack.setItemMeta(meta);
@@ -162,8 +181,19 @@ public class PetFood {
      */
     public static PetFood getFromItem(ItemStack it)
     {
-        if(it == null || !it.hasItemMeta() || !it.getItemMeta().hasLocalizedName())
+        if(it == null)
             return null;
+        // if the item is a default MC item, then look for possible matches
+        if(!it.hasItemMeta() || !it.getItemMeta().hasLocalizedName())
+        {
+            return PetFoodConfig.getInstance().list().stream()
+                                .filter(petFood -> petFood.isDefaultMCItem()
+                                                && petFood.getItemStack() != null
+                                                && petFood.getItemStack().getType().equals(it.getType()))
+                                .findFirst()
+                                .orElse(null);
+        }
+        // if the item isn't a default MCItem, go through the localized informations
         return PetFoodConfig.getInstance().list().stream()
                                 .filter(petFood -> petFood.getItemStack() != null
                                         && petFood.getItemStack().getItemMeta().getLocalizedName().equals(it.getItemMeta().getLocalizedName()))

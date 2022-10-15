@@ -50,6 +50,8 @@ public class CategoryConfig extends AbstractConfig {
             getConfig().set("Icon", setupUnkownIcon());
         if (getConfig().get("Pets") == null)
             getConfig().set("Pets", new ArrayList<>());
+        if (getConfig().get("DefaultCategory") == null)
+            getConfig().set("DefaultCategory", true);
 
         save();
         reload();
@@ -67,11 +69,24 @@ public class CategoryConfig extends AbstractConfig {
 
         category.getPets().clear();
 
+        // Handle the name of the category
         if (getConfig().get("DisplayName") != null)
         {
             category.setDisplayName(getConfig().getString("DisplayName"));
         }
-        if (getConfig().get("Pets") != null)
+
+        // Handle the pets within that category
+        // if it's a default category, all pets will be added
+        if(getConfig().getBoolean("DefaultCategory"))
+        {
+            for(Pet pet : Pet.getObjectPets())
+            {
+                category.addPet(pet);
+            }
+            category.countMaxPages();
+        }
+        // Else if it's not default category, look for the specified pets
+        else if (getConfig().get("Pets") != null)
         {
             for(String id : getConfig().getStringList("Pets"))
             {

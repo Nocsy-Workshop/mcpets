@@ -22,7 +22,7 @@ public class Databases {
     @Setter
     public static MySQLDB mySQL;
 
-    private static String table = "mcpets_player_data";
+    private static String table = GlobalConfig.getInstance().getMySQL_Prefix() + "mcpets_player_data";
 
     public static boolean init() {
         if(GlobalConfig.getInstance().isDisableMySQL())

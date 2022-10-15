@@ -16,10 +16,12 @@ public class SetLivingPetMechanic implements ITargetedEntitySkill {
 
     private String petId;
     private boolean followOnTame = true;
+    private double tamingProgress = 0;
 
     public SetLivingPetMechanic(MythicLineConfig config) {
         this.petId = config.getString(new String[]{"id"}, this.petId);
         this.followOnTame = config.getBoolean(new String[]{"followOnTame", "foT"}, this.followOnTame);
+        this.tamingProgress = config.getDouble(new String[]{"tamingProgress", "tP"}, this.tamingProgress);
     }
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
@@ -39,7 +41,8 @@ public class SetLivingPetMechanic implements ITargetedEntitySkill {
                 // Set the active mob
                 Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
                 opt.ifPresent(pet::setActiveMob);
-                // The taming progress should be at 0, coz it has no owner at the moment and never was spawned through MCPets or anything
+                // The taming progress should be set at the given value
+                pet.setDefaultTamingValue(tamingProgress);
                 pet.setFollowOwner(followOnTame);
             }
         }.runTaskLater(MCPets.getInstance(), 1L);

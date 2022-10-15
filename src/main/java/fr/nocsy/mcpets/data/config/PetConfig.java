@@ -46,6 +46,8 @@ public class PetConfig extends AbstractConfig {
         if (!folder.exists())
             folder.mkdirs();
 
+
+        MCPets.getLog().info("Loading pets... ");
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
                 loadPets(file.getPath().replace("\\", "/"), false);
@@ -54,8 +56,15 @@ public class PetConfig extends AbstractConfig {
 
             PetConfig petConfig = new PetConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
 
-            if (petConfig.getPet() != null)
-                Pet.getObjectPets().add(petConfig.getPet());
+            if (petConfig.getPet() != null) {
+                if(Pet.getObjectPets().stream().anyMatch(pet -> pet.getId().equalsIgnoreCase(petConfig.getPet().getId())))
+                    MCPets.getLog().warning("  * " + petConfig.getPet().getId() + " could not be loaded: another pet with the same ID already exists.");
+                else
+                {
+                    MCPets.getLog().info("  - " + petConfig.getPet().getId() + " loaded succesfully.");
+                    Pet.getObjectPets().add(petConfig.getPet());
+                }
+            }
 
         }
 
@@ -100,6 +109,7 @@ public class PetConfig extends AbstractConfig {
 
         boolean autoRide = getConfig().getBoolean("AutoRide");
         String mountType = getConfig().getString("MountType");
+        String mountPermission = getConfig().getString("MountPermission");
         boolean despawnOnDismount = getConfig().getBoolean("DespawnOnDismount");
         int inventorySize = Math.min(getConfig().getInt("InventorySize"), 54);
         while(inventorySize < 54 && inventorySize % 9 != 0)
@@ -138,6 +148,7 @@ public class PetConfig extends AbstractConfig {
         Pet pet = new Pet(id);
         pet.setMythicMobName(mobType);
         pet.setPermission(permission);
+        pet.setMountPermission(mountPermission);
         if (getConfig().get("Mountable") == null) {
             pet.setMountable(GlobalConfig.getInstance().isMountable());
         } else {

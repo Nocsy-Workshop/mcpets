@@ -10,6 +10,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -88,6 +91,22 @@ public class SignalStickListener implements Listener {
 
         if (Items.isSignalStick(it)) {
             e.getItemDrop().remove();
+        }
+    }
+
+    @EventHandler
+    public void antiCraft(InventoryClickEvent e)
+    {
+        if(e.getInventory().getType().equals(InventoryType.ANVIL) ||
+                e.getInventory().getType().equals(InventoryType.CRAFTING) ||
+                e.getInventory().getType().equals(InventoryType.ENCHANTING) ||
+                e.getInventory().getType().equals(InventoryType.GRINDSTONE) ||
+                e.getInventory().getType().equals(InventoryType.MERCHANT) ||
+                e.getInventory().getType().equals(InventoryType.LOOM))
+        {
+            ItemStack it = e.getCurrentItem();
+            if(Items.isSignalStick(it))
+                e.setCancelled(true);
         }
     }
 

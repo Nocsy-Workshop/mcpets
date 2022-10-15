@@ -82,6 +82,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean disableMySQL = false;
     @Getter
+    private String MySQL_Prefix;
+    @Getter
     private String MySQL_USER;
     @Getter
     private String MySQL_PASSWORD;
@@ -169,6 +171,9 @@ public class GlobalConfig extends AbstractConfig {
         if (getConfig().get("Taming.ColorLeft") == null)
             getConfig().set("Taming.ColorLeft", tamingColorLeft);
 
+
+        if (getConfig().get("MySQL.Prefix") == null)
+            getConfig().set("MySQL.Prefix", "");
         if (getConfig().get("MySQL.User") == null)
             getConfig().set("MySQL.User", "user");
         if (getConfig().get("MySQL.Password") == null)
@@ -238,6 +243,7 @@ public class GlobalConfig extends AbstractConfig {
         tamingColorLeft = getConfig().getString("Taming.ColorLeft");
 
         disableMySQL = getConfig().getBoolean("DisableMySQL");
+        MySQL_Prefix = getConfig().getString("MySQL.Prefix");
         MySQL_USER = getConfig().getString("MySQL.User");
         MySQL_PASSWORD = getConfig().getString("MySQL.Password");
         MySQL_HOST = getConfig().getString("MySQL.Host");

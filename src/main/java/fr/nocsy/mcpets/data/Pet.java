@@ -6,13 +6,13 @@ import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.mount.MountManager;
 import com.ticxo.modelengine.api.mount.controller.MountController;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
-import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.PathFindingUtils;
 import fr.nocsy.mcpets.utils.Utils;
@@ -39,7 +39,6 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Pet {
 
@@ -86,6 +85,9 @@ public class Pet {
     @Setter
     @Getter
     private String permission;
+    @Setter
+    @Getter
+    private String mountPermission;
 
     @Setter
     @Getter
@@ -318,12 +320,39 @@ public class Pet {
     }
 
     /**
+     * Get the pet from the last one that the player interacted with
+     *
+     * @param p
+     * @return
+     */
+    public static Pet getFromLastOpInteractedWith(Player p) {
+        if (p != null && p.hasPermission(PPermission.ADMIN.getPermission()) &&
+                p.hasMetadata("AlmPetOp") &&
+                p.getMetadata("AlmPetOp").size() > 0 &&
+                p.getMetadata("AlmPetOp").get(0) != null &&
+                p.getMetadata("AlmPetOp").get(0).value() != null) {
+            return (Pet) p.getMetadata("AlmPetOp").get(0).value();
+        }
+        return null;
+    }
+
+    /**
      * Associate the said player to the pet as last interacted with
      * @param p
      */
     public void setLastInteractedWith(Player p)
     {
         p.setMetadata("AlmPetInteracted", new FixedMetadataValue(MCPets.getInstance(), this));
+    }
+
+    /**
+     * Associate the said op player to the pet as last interacted with
+     * @param p
+     */
+    public void setLastOpInteracted(Player p)
+    {
+        if(p.hasPermission(PPermission.ADMIN.getPermission()))
+            p.setMetadata("AlmPetOp", new FixedMetadataValue(MCPets.getInstance(), this));
     }
 
     /**
@@ -375,6 +404,16 @@ public class Pet {
         for (Pet pet : Pet.getActivePets().values()) {
             pet.despawn(PetDespawnReason.RELOAD);
         }
+    }
+
+    /**
+     * Do not use this function except if you're just spawning a pet
+     * Set the value of the taming progress default value
+     * @param value
+     */
+    public void setDefaultTamingValue(double value)
+    {
+        tamingProgress = Math.min(1, Math.max(value, 0));
     }
 
     /**
@@ -928,17 +967,19 @@ public class Pet {
                 setDisplayName(name.substring(0, GlobalConfig.instance.getMaxNameLenght()), save);
                 return;
             }
+            if(name != null)
+                name = name.replace("'", " ");
 
             currentName = name;
             if (isStillHere()) {
-                if (name == null || name.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
+                if (currentName == null || currentName.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
                     activeMob.getEntity().getBukkitEntity().setCustomName(GlobalConfig.getInstance().getDefaultName().replace("%player%", Bukkit.getOfflinePlayer(owner).getName()));
 
                     new BukkitRunnable() {
 
                         @Override
                         public void run() {
-                            setNameTag(name, false);
+                            setNameTag(currentName, false);
                         }
                     }.runTaskLater(MCPets.getInstance(), 10L);
 
@@ -951,19 +992,19 @@ public class Pet {
                     return;
                 }
 
-                activeMob.getEntity().getBukkitEntity().setCustomName(name);
+                activeMob.getEntity().getBukkitEntity().setCustomName(currentName);
 
                 new BukkitRunnable() {
 
                     @Override
                     public void run() {
-                        setNameTag(name, true);
+                        setNameTag(currentName, true);
                     }
                 }.runTaskLater(MCPets.getInstance(), 10L);
 
                 if (save) {
                     PlayerData pd = PlayerData.get(owner);
-                    pd.getMapOfRegisteredNames().put(getId(), name);
+                    pd.getMapOfRegisteredNames().put(getId(), currentName);
                     pd.save();
                 }
             }
@@ -990,6 +1031,7 @@ public class Pet {
         pet.setComingBackRange(comingBackRange);
         pet.setDespawnSkill(despawnSkill);
         pet.setMountable(mountable);
+        pet.setMountPermission(mountPermission);
         pet.setDespawnOnDismount(despawnOnDismount);
         pet.setMountType(mountType);
         pet.setDefaultInventorySize(defaultInventorySize);
@@ -1102,7 +1144,7 @@ public class Pet {
      */
     public void setNameTag(String name, boolean visible) {
         if (isStillHere()) {
-
+            name = name.replace("'", " ");
             if (GlobalConfig.getInstance().isUseDefaultMythicMobNames())
                 name = activeMob.getDisplayName();
 

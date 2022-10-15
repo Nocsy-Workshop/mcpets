@@ -38,7 +38,9 @@ public class PetInteractionMenu {
         if (GlobalConfig.getInstance().isNameable())
             inventory.setItem(3, Items.RENAME.getItem());
         if (GlobalConfig.getInstance().isMountable() && pet.isMountable())
+        {
             inventory.setItem(5, Items.MOUNT.getItem());
+        }
         if (!pet.getSignals().isEmpty() && pet.isEnableSignalStickFromMenu())
             inventory.setItem(6, pet.getSignalStick());
         if (pet.getInventorySize() > 0)

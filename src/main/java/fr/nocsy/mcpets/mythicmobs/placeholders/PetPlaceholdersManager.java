@@ -72,6 +72,36 @@ public class PetPlaceholdersManager {
             else
                 return pet.getId();
         }));
+
+        // Pet owner placeholder
+        register("pet.owner", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
+            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
+            if(pet == null)
+                return "null";
+            else
+                return pet.getOwner().toString();
+        }));
+
+        // Level index placeholder
+        register("pet.level.index", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
+            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
+            if(pet == null || pet.getPetStats() == null)
+                return "0";
+            else
+                return Integer.toString(pet.getPetStats().getCurrentLevelIndex());
+        }));
+
+        // Level name placeholder
+        register("pet.level.name", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
+            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
+            if(pet == null || pet.getPetStats() == null)
+                return null;
+            else
+                return pet.getPetStats().getCurrentLevel().getLevelName();
+        }));
     }
 
     private static void register(String placeholder, Placeholder function)

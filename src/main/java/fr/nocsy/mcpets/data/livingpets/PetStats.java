@@ -257,16 +257,30 @@ public class PetStats {
         if(event.isCancelled())
             return false;
 
+        // add the experience to the pet
         experience = experience + event.getExperience();
 
+        // Look if there's a level up to perform
         PetLevel nextLevel = getNextLevel();
-        if(!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience)
+        boolean levelUp = false;
+        while(!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience)
         {
+            // note that's there's been a levelup
+            levelUp = true;
+            // Set the current level to the next one
             currentLevel = nextLevel;
+            // Play the level up skills, animations, etc...
             currentLevel.levelUp(pet.getOwner());
+        }
+
+        // If a level up happened, make sure to save it and update the actual pet
+        if(levelUp)
+        {
             updateChangingData();
             save();
         }
+
+        // If there is no next level, set the experience so that it's the plateau value
         if(getNextLevel().equals(currentLevel) && experience > currentLevel.getExpThreshold())
             experience = currentLevel.getExpThreshold();
 
@@ -349,6 +363,22 @@ public class PetStats {
             if(pd != null)
                 pd.save();
         }
+    }
+
+    /**
+     * Returns the current level index in the pile of possible levels of the pet
+     * @return
+     */
+    public int getCurrentLevelIndex()
+    {
+        int i = 1;
+        for(PetLevel level : pet.getPetLevels())
+        {
+            if(level.equals(currentLevel))
+                return i;
+            i++;
+        }
+        return -1;
     }
 
     //------------ Static code -------------//

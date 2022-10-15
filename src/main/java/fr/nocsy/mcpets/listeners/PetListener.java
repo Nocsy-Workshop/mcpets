@@ -1,7 +1,9 @@
 package fr.nocsy.mcpets.listeners;
 
 import com.ticxo.modelengine.api.events.ModelDismountEvent;
+import com.ticxo.modelengine.api.events.ModelMountEvent;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
@@ -9,9 +11,11 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
+import io.lumine.mythic.bukkit.utils.lib.http.util.LangUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -24,7 +28,6 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -62,9 +65,15 @@ public class PetListener implements Listener {
         Pet pet = Pet.getFromEntity(ent);
 
         if (pet != null && pet.getOwner() != null &&
-                (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
+                pet.getOwner().equals(p.getUniqueId())) {
             PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
+            menu.open(p);
+        }
+        if(pet != null && p.isOp())
+        {
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+            pet.setLastOpInteracted(p);
             menu.open(p);
         }
     }
@@ -87,9 +96,17 @@ public class PetListener implements Listener {
         Pet pet = Pet.getFromEntity(ent);
 
         if (pet != null && pet.getOwner() != null &&
-                (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
+                pet.getOwner().equals(p.getUniqueId())) {
             PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
+            menu.open(p);
+            e.setCancelled(true);
+            e.setDamage(0);
+        }
+        if(pet != null && p.isOp())
+        {
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+            pet.setLastOpInteracted(p);
             menu.open(p);
             e.setCancelled(true);
             e.setDamage(0);
@@ -129,7 +146,7 @@ public class PetListener implements Listener {
                 public void run() {
                     pet.spawn(p, p.getLocation());
                 }
-            }.runTaskLater(MCPets.getInstance(), 5L);
+            }.runTaskLater(MCPets.getInstance(), 20L);
         }
 
     }
@@ -272,6 +289,49 @@ public class PetListener implements Listener {
         if(Pet.getFromEntity(e.getEntity()) != null)
         {
             // Cancel the event, so it doesn't give other type of item by default to the anchor
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void mountingPet(EntityMountPetEvent e)
+    {
+        if(e.getEntity() == null)
+            return;
+
+        // if it's not the owner or an admin mounting the pet, then we cancel it
+        if(!e.getPet().getOwner().equals(e.getEntity().getUniqueId()) &&
+            !e.getEntity().hasPermission(PPermission.ADMIN.getPermission()))
+        {
+            e.setCancelled(true);
+        }
+        // If user doesn't have the perm to mount the pet, cancel the event
+        if(e.getPet().getMountPermission() != null && !e.getEntity().hasPermission(e.getPet().getMountPermission()))
+        {
+            e.setCancelled(true);
+            Language.CANT_MOUNT_PET_YET.sendMessage(e.getEntity());
+        }
+    }
+
+    @EventHandler
+    public void mountingPet(ModelMountEvent e)
+    {
+        if(e.getPassenger() == null)
+            return;
+
+        if(e.getVehicle() == null || e.getVehicle().getBase() == null)
+            return;
+
+        Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+        Pet pet = Pet.getFromEntity(entity);
+
+        if(pet == null)
+            return;
+
+        // if it's not the owner or an admin mounting the pet, then we cancel it
+        if(!pet.getOwner().equals(entity.getUniqueId()) &&
+                !entity.hasPermission(PPermission.ADMIN.getPermission()))
+        {
             e.setCancelled(true);
         }
     }

@@ -1,6 +1,6 @@
 name: MCPets
 main: fr.nocsy.mcpets.MCPets
-version: 3.0.1
+version: 3.0.2
 description: MCModels affiliate plugin. Join the workshop ! https://discord.gg/p7QTm2gUyf
 depend:
   - MythicMobs
@@ -8,6 +8,7 @@ depend:
 softdepend:
   - WorldGuard
   - LuckPerms
+  - PlaceholderAPI
 author: Nocsy
 api-version: 1.17
 commands:
