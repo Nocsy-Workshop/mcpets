@@ -51,7 +51,7 @@ public class CategoryConfig extends AbstractConfig {
         if (getConfig().get("Pets") == null)
             getConfig().set("Pets", new ArrayList<>());
         if (getConfig().get("DefaultCategory") == null)
-            getConfig().set("DefaultCategory", true);
+            getConfig().set("DefaultCategory", false);
 
         save();
         reload();

@@ -8,6 +8,7 @@ import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
 import fr.nocsy.mcpets.utils.PetTimer;
 import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -259,18 +260,22 @@ public class PetStats {
 
         // add the experience to the pet
         experience = experience + event.getExperience();
+        Debugger.send("§7adding " + experience + "xp to the pet " + pet.getId());
 
         // Look if there's a level up to perform
         PetLevel nextLevel = getNextLevel();
         boolean levelUp = false;
         while(!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience)
         {
+            Debugger.send("§aPet §7" + pet.getId() + "§a is leveling up to §6" + nextLevel.getLevelName());
             // note that's there's been a levelup
             levelUp = true;
             // Set the current level to the next one
             currentLevel = nextLevel;
             // Play the level up skills, animations, etc...
             currentLevel.levelUp(pet.getOwner());
+            // Move on the loop
+            nextLevel = getNextLevel();
         }
 
         // If a level up happened, make sure to save it and update the actual pet
@@ -282,7 +287,10 @@ public class PetStats {
 
         // If there is no next level, set the experience so that it's the plateau value
         if(getNextLevel().equals(currentLevel) && experience > currentLevel.getExpThreshold())
+        {
+            Debugger.send("§7Pet " + pet.getId() + "is §cnot leveling up§7 as it has reached §cmaximum level§7, or that you §calready own the evolution§7.");
             experience = currentLevel.getExpThreshold();
+        }
 
         return true;
     }

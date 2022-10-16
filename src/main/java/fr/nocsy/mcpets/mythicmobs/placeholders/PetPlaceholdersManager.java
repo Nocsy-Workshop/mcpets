@@ -4,6 +4,7 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.core.skills.placeholders.Placeholder;
+import org.bukkit.Bukkit;
 
 
 public class PetPlaceholdersManager {
@@ -73,14 +74,29 @@ public class PetPlaceholdersManager {
                 return pet.getId();
         }));
 
-        // Pet owner placeholder
-        register("pet.owner", Placeholder.meta((meta,arg) -> {
+        // Pet owner UUID placeholder
+        register("pet.owner.uuid", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
             if(pet == null)
                 return "null";
             else
                 return pet.getOwner().toString();
+        }));
+
+        // Pet owner name placeholder
+        register("pet.owner.name", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
+            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
+            if(pet == null)
+                return "null";
+            else
+            {
+                if(pet.getOwner() == null)
+                    return "null";
+                return Bukkit.getOfflinePlayer(pet.getOwner()).getName();
+            }
+
         }));
 
         // Level index placeholder

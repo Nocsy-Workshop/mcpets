@@ -123,7 +123,10 @@ public enum Language {
             "\n§7Power: §f%power%%" +
             "\n " +
             "\n§7Experience: §a%experience%/%threshold% xp" +
-            "\n%progressbar%");
+            "\n%progressbar%"),
+
+    DEBUGGER_JOINING("§aDebugger is enabled. You are now listening to it."),
+    DEBUGGER_LEAVE("§aDebugger is §7disabled§a. You will not be listening to it anymore.");
 
     @Getter
     private String message;

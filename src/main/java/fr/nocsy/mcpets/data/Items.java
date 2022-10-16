@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.Utils;
@@ -218,7 +219,7 @@ public enum Items {
         else
             lore = new ArrayList<>(meta.getLore());
 
-        if (pet.getCurrentName() != null) {
+        if (pet.getCurrentName() != null && GlobalConfig.getInstance().isNameable()) {
             lore.add(" ");
             lore.add(Language.NICKNAME.getMessageFormatted(new FormatArg("%nickname%", pet.getCurrentName())));
             lore.add(" ");

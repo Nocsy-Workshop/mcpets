@@ -16,6 +16,7 @@ import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.PathFindingUtils;
 import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.api.adapters.AbstractLocation;
 import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
 import io.lumine.mythic.api.skills.Skill;
@@ -866,6 +867,8 @@ public class Pet {
         PetDespawnEvent event = new PetDespawnEvent(this, reason);
         Utils.callEvent(event);
 
+        Debugger.send("§6Pet §7" + id + "§6 has §cdespawned§6. Reason: §a" + reason.toString());
+
         stopAI();
         removed = true;
 
@@ -927,7 +930,7 @@ public class Pet {
      */
     public void teleportToPlayer(Player p) {
         Location loc = Utils.bruised(p.getLocation(), getDistance());
-
+        Debugger.send("§7teleporting pet " + id + " to player " + p.getName());
         if (isStillHere())
             this.teleport(loc);
     }
@@ -1002,6 +1005,7 @@ public class Pet {
                     }
                 }.runTaskLater(MCPets.getInstance(), 10L);
 
+                Debugger.send("§7Applying name " + name + " to pet " + id);
                 if (save) {
                     PlayerData pd = PlayerData.get(owner);
                     pd.getMapOfRegisteredNames().put(getId(), currentName);
@@ -1144,9 +1148,11 @@ public class Pet {
      */
     public void setNameTag(String name, boolean visible) {
         if (isStillHere()) {
-            name = name.replace("'", " ");
             if (GlobalConfig.getInstance().isUseDefaultMythicMobNames())
                 name = activeMob.getDisplayName();
+
+            if(name != null)
+                name = name.replace("'", " ");
 
             com.ticxo.modelengine.api.model.bone.Nameable bone = getNameBone();
             if (bone == null)
@@ -1231,6 +1237,7 @@ public class Pet {
             ActiveMob mob = this.getActiveMob();
             try
             {
+                Debugger.send("§aSending signal §6" + signal + "§a to pet " + id);
                 mob.signalMob(mob.getEntity(), signal);
                 return true;
             }

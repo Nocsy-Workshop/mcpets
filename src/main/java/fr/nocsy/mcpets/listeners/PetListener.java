@@ -13,6 +13,7 @@ import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
 import io.lumine.mythic.bukkit.utils.lib.http.util.LangUtils;
@@ -304,6 +305,7 @@ public class PetListener implements Listener {
             !e.getEntity().hasPermission(PPermission.ADMIN.getPermission()))
         {
             e.setCancelled(true);
+            Debugger.send("§c" + e.getEntity().getName() + " can not mount " + e.getPet().getId() + " as he's not the owner, nor an admin.");
         }
         // If user doesn't have the perm to mount the pet, cancel the event
         if(e.getPet().getMountPermission() != null && !e.getEntity().hasPermission(e.getPet().getMountPermission()))
@@ -324,15 +326,17 @@ public class PetListener implements Listener {
 
         Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
         Pet pet = Pet.getFromEntity(entity);
+        Entity player = e.getPassenger();
 
         if(pet == null)
             return;
 
         // if it's not the owner or an admin mounting the pet, then we cancel it
-        if(!pet.getOwner().equals(entity.getUniqueId()) &&
-                !entity.hasPermission(PPermission.ADMIN.getPermission()))
+        if(!pet.getOwner().equals(player.getUniqueId()) &&
+                !player.hasPermission(PPermission.ADMIN.getPermission()))
         {
             e.setCancelled(true);
+            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
         }
     }
 

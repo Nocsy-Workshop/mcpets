@@ -14,6 +14,7 @@ import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.listeners.PetInteractionMenuListener;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -219,6 +220,28 @@ public class MCPetsCommand implements CCommand {
                     category.openInventory(player, 0);
                     return;
                 }
+                if(args[0].equalsIgnoreCase("petFood") &&
+                    sender.hasPermission(getAdminPermission()))
+                {
+                    String petFoodId = args[1];
+                    PetFood petFood = PetFood.getFromId(petFoodId);
+                    if(petFood == null)
+                    {
+                        Language.PETFOOD_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    String playerName = args[2];
+                    Player p = Bukkit.getPlayer(playerName);
+                    if(p == null)
+                    {
+                        Language.PLAYER_NOT_CONNECTED.sendMessage(sender);
+                        return;
+                    }
+
+                    p.getInventory().addItem(petFood.getItemStack());
+                    return;
+                }
             }
             else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("open")
@@ -365,6 +388,23 @@ public class MCPetsCommand implements CCommand {
                     return;
                 }
             } else if (args.length == 1) {
+                if(args[0].equalsIgnoreCase("debug") &&
+                    sender instanceof Player &&
+                    sender.hasPermission(getAdminPermission()))
+                {
+                    Player p = (Player) sender;
+                    if(Debugger.isListening((p.getUniqueId())))
+                    {
+                        Debugger.leave(p.getUniqueId());
+                        Language.DEBUGGER_LEAVE.sendMessage(p);
+                    }
+                    else
+                    {
+                        Debugger.join(p.getUniqueId());
+                        Language.DEBUGGER_JOINING.sendMessage(p);
+                    }
+                    return;
+                }
                 if (args[0].equalsIgnoreCase("reload")
                         && sender.hasPermission(getAdminPermission())) {
                     PlayerData.saveDB();
