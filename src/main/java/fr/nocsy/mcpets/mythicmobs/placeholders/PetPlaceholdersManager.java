@@ -114,7 +114,7 @@ public class PetPlaceholdersManager {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
             if(pet == null || pet.getPetStats() == null)
-                return null;
+                return "null";
             else
                 return pet.getPetStats().getCurrentLevel().getLevelName();
         }));

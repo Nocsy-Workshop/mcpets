@@ -16,7 +16,6 @@ import fr.nocsy.mcpets.events.PetSpawnEvent;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
-import io.lumine.mythic.bukkit.utils.lib.http.util.LangUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -324,6 +323,9 @@ public class PetListener implements Listener {
         if(e.getVehicle() == null || e.getVehicle().getBase() == null)
             return;
 
+        if(!e.getSeat().isDriverBone())
+            return;
+
         Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
         Pet pet = Pet.getFromEntity(entity);
         Entity player = e.getPassenger();
@@ -337,6 +339,13 @@ public class PetListener implements Listener {
         {
             e.setCancelled(true);
             Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
+        }
+
+        // If user doesn't have the perm to mount the pet, cancel the event
+        if(pet.getMountPermission() != null && !player.hasPermission(pet.getMountPermission()))
+        {
+            e.setCancelled(true);
+            Language.CANT_MOUNT_PET_YET.sendMessage(player);
         }
     }
 

@@ -1060,8 +1060,9 @@ public class Pet {
         Utils.callEvent(vanillaMountEvent);
         Utils.callEvent(event);
 
+        // We still return true as it's a normal situation, not linked to mounting point issue
         if (event.isCancelled() || vanillaMountEvent.isCancelled())
-            return false;
+            return true;
 
         if (isStillHere()) {
             try {

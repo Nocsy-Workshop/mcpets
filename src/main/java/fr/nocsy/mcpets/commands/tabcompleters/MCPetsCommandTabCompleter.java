@@ -49,6 +49,7 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     completed.add("clearStats");
                     completed.add("petFood");
                     completed.add("category");
+                    completed.add("debug");
                 }
 
                 else if(args.length == 2)
