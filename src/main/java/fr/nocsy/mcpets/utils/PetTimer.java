@@ -39,7 +39,7 @@ public class PetTimer {
         if(isRunning())
             stop();
         remainingTime = cooldown;
-        task = Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), new Runnable() {
+        task = Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), new Runnable() {
             @Override
             public void run() {
                 if(cooldown != Integer.MAX_VALUE)

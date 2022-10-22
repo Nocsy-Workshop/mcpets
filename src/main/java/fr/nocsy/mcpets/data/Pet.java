@@ -20,6 +20,7 @@ import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.api.adapters.AbstractLocation;
 import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
 import io.lumine.mythic.api.skills.Skill;
+import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.core.mobs.ActiveMob;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
@@ -518,6 +519,7 @@ public class Pet {
 
         // If the event is cancelled trigger a despawn
         if (event.isCancelled()) {
+            Debugger.send("§cThe spawn event was cancelled.");
             despawn(PetDespawnReason.CANCELLED);
             return BLOCKED;
         }
@@ -527,6 +529,7 @@ public class Pet {
             despawn(PetDespawnReason.LOOP_SPAWN);
             if (Bukkit.getPlayer(owner) != null)
                 Language.LOOP_SPAWN.sendMessage(Bukkit.getPlayer(owner));
+            Debugger.send("§cPet was despawned coz it was stuck in a spawn loop.");
             return BLOCKED;
         } else {
             recurrent_spawn = true;
@@ -543,7 +546,8 @@ public class Pet {
         if (checkPermission && owner != null &&
                 Bukkit.getPlayer(owner) != null &&
                 !Bukkit.getPlayer(owner).hasPermission(permission)) {
-            despawn(PetDespawnReason.SPAWN_ISSUE);
+            Debugger.send("§cUser is not allowed to spawn that pet.");
+            despawn(PetDespawnReason.DONT_HAVE_PERM);
             return NOT_ALLOWED;
         }
 
@@ -555,11 +559,17 @@ public class Pet {
         // Any issue with the mythicmobs definition ?
         // Any issue with the owner definition ?
         if (mythicMobName == null) {
-            despawn(PetDespawnReason.SPAWN_ISSUE);
+            Debugger.send("§cMythicMob name is null, check out your pet config.");
             return MYTHIC_MOB_NULL;
         } else if (owner == null) {
-            despawn(PetDespawnReason.SPAWN_ISSUE);
+            Debugger.send("§cOwner was not found.");
             return OWNER_NULL;
+        }
+
+        if(MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).isEmpty())
+        {
+            Debugger.send("§cThe MythicMob §6" + mythicMobName + "§c doesn't exist in MythicMobs. §7Check your pet config to make sure the MythicMob you chose actually exists.");
+            return MYTHIC_MOB_NULL;
         }
 
         try {
@@ -583,21 +593,42 @@ public class Pet {
             catch (NullPointerException | NoSuchElementException ex)
             {
                 // if there's been a problem, trigger a despawn
+                Debugger.send("§cMythicMob was not found.");
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
             }
 
             // If the pet is not here, trigger a despawn
             if (ent == null) {
+                Debugger.send("§cMythicMob was found but the entity was not able to spawn.");
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
             }
-            // Fetch the activeMob
+
+            // We try to fetch the mob within the MythicMobs registry
             Optional<ActiveMob> maybeHere = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
             maybeHere.ifPresent(this::setActiveMob);
-            // If none is found, just despawn it
+
+            // Sometimes it can happen that the mob isn't registered, so we try to register it manually
+            if(activeMob == null)
+            {
+                Debugger.send("§6Warn: §7MythicMobs didn't have the mob in the registry, let's try to register it manually.");
+                ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(BukkitAdapter.adapt(ent));
+                if(mob != null)
+                    setActiveMob(mob);
+            }
+
+            // If any weird thing happened and the activeMob couldn't be registered, then we cancel everything
             if (activeMob == null) {
-                despawn(PetDespawnReason.SPAWN_ISSUE);
+                Debugger.send("§cMythicMob was spawned but MCPets couldn't link it to an active mob. Trying again in 0.5s automatically...");
+                // We remove the entity coz that'll not be done by the despawn since the activeMob is null
+                ent.remove();
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        spawn(loc, bruise);
+                    }
+                }.runTaskLater(MCPets.getInstance(), 10L);
                 return MYTHIC_MOB_NULL;
             }
 
@@ -627,7 +658,10 @@ public class Pet {
 
             // Either we despawned a previous pet or not
             if (returnDespawned)
+            {
+                Debugger.send("§aSpawn successfuly happened. Previous pet is going to be despawned.");
                 return DESPAWNED_PREVIOUS;
+            }
             return MOB_SPAWN;
 
         } catch (InvalidMobTypeException e) {
@@ -684,7 +718,6 @@ public class Pet {
         if(currentPet != null)
         {
             currentPet.despawn(reason);
-            activePets.remove(owner);
             replaced = true;
         }
 
@@ -738,7 +771,8 @@ public class Pet {
     {
         if(mob == null)
         {
-            activeMob = null;
+            Debugger.send("§cCould not set the active pet to the new one: mob instance is null");
+            despawn(PetDespawnReason.CHANGING_TO_NULL_ACTIVEMOB);
             return;
         }
         // Then we set the active mob to the new active mob
@@ -867,7 +901,7 @@ public class Pet {
         PetDespawnEvent event = new PetDespawnEvent(this, reason);
         Utils.callEvent(event);
 
-        Debugger.send("§6Pet §7" + id + "§6 has §cdespawned§6. Reason: §a" + reason.toString());
+        Debugger.send("§6Pet §7" + id + "§6 has §cdespawned§6. Reason: §a" + reason.getReason());
 
         stopAI();
         removed = true;
@@ -908,6 +942,7 @@ public class Pet {
             activePets.remove(owner);
             return true;
         }
+        Debugger.send("§cActive mob was not found, so it could not be despawned.");
         activePets.remove(owner);
         return false;
     }
@@ -1043,7 +1078,8 @@ public class Pet {
         pet.setIcon(icon);
         pet.setSignalStick(signalStick);
         pet.setOwner(owner);
-        pet.setActiveMob(activeMob);
+        if(activeMob != null)
+            pet.setActiveMob(activeMob);
         pet.setSignals(signals);
         pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
         return pet;

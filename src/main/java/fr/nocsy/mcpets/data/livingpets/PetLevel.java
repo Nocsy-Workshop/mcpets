@@ -248,8 +248,11 @@ public class PetLevel {
                         Location loc = activePet != null && activePet.isStillHere() ?
                                         activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
                                         owner.getLocation();
+
                         // Despawn the previous pet
-                        activePet.despawn(PetDespawnReason.EVOLUTION);
+                        if(activePet != null && activePet.isStillHere())
+                            activePet.despawn(PetDespawnReason.EVOLUTION);
+
                         // Spawn the evolution
                         evolution.spawn(loc, false);
                     }

@@ -23,6 +23,10 @@ public enum PetDespawnReason {
     REVOKE_TIMER("revoke timer"),
     EVOLUTION("evolution"),
     CANCELLED("cancelled"),
+    CHANGING_TO_NULL_ACTIVEMOB("changing to null active mob"),
+    DONT_HAVE_PERM("don't have permission"),
+    NO_OWNER("No owner found"),
+    ACTIVE_MOB_LINKAGE_FAILED("link to the activeMob failed"),
     UNKNOWN("unkown");
 
 
