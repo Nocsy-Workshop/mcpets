@@ -43,14 +43,18 @@ public class Category {
 
     public boolean openInventory(Player p, int page)
     {
-        if(page > maxPages || page < 0)
+        if(page >= maxPages || page < 0)
             return false;
 
-        int invSize = pets.size() - page*52;
+        p.closeInventory();
+
+        int invSize = pets.size() - page*52 + 1; //Adding 1 for the page manager
+        invSize = Math.min(54, invSize);
         while(invSize <= 0 || invSize%9 != 0)
         {
             invSize++;
         }
+
         ArrayList<Pet> showedPets = new ArrayList<>();
         for(int i = page*52; i < pets.size(); i++)
         {
@@ -64,13 +68,13 @@ public class Category {
         if(showedPets.isEmpty() && page > 0)
             return false;
 
-        Inventory inventory = Bukkit.createInventory(null, invSize, displayName);
+        Inventory inventory = Bukkit.createInventory(null,  invSize, displayName);
 
         inventory.setItem(invSize-1, Items.page(this, page));
         for(int i = 0; i < showedPets.size(); i++)
         {
             Pet pet = showedPets.get(i);
-            inventory.setItem(i, pet.getIcon());
+            inventory.setItem(i,  pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }
         p.openInventory(inventory);
         return true;

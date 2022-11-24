@@ -1,15 +1,20 @@
 package fr.nocsy.mcpets.data.flags;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.utils.Utils;
+import lombok.Getter;
 
 import java.util.ArrayList;
 
 public class FlagsManager {
 
     private static ArrayList<AbstractFlag> flags = new ArrayList<>();
+    @Getter
+    private static boolean registered;
 
     public static void init(MCPets instance) {
         flags = new ArrayList<>();
+        registered = true;
 
         if (instance == null) {
             MCPets.getLog().warning("The main instance is null. The flags could not be registered...");
@@ -23,6 +28,15 @@ public class FlagsManager {
             flag.register();
         }
 
+    }
+
+    /**
+     * Get the abstract flag registered
+     * @return
+     */
+    public static AbstractFlag getFlag(String flagName)
+    {
+        return flags.stream().filter(f -> f.getFlagName().equals(flagName)).findFirst().orElse(null);
     }
 
     /**

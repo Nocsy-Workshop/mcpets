@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.config;
 
+import fr.nocsy.mcpets.utils.PetAnnouncement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,8 +46,43 @@ public class GlobalConfig extends AbstractConfig {
     private int maxNameLenght = 16;
     @Getter
     private boolean activateBackMenuIcon = true;
+
+    @Getter
+    private double percentHealthOnRespawn = 0.2;
+
+    @Getter
+    private int autoSave = 60*60;
+
+    @Getter
+    private int experienceBarSize = 40;
+    @Getter
+    private String experienceSymbol = "|";
+    @Getter
+    private String experienceColorDone = "§a";
+    @Getter
+    private String experienceColorLeft = "§f";
+
+
+    @Getter
+    private boolean globalRespawnCooldown = false;
+    @Getter
+    private int defaultRespawnCooldown = 0;
+
+    @Getter
+    private PetAnnouncement tamingAnnouncementType = PetAnnouncement.CHAT;
+    @Getter
+    private int tamingBarSize = 40;
+    @Getter
+    private String tamingSymbol = "|";
+    @Getter
+    private String tamingColorDone = "§a";
+    @Getter
+    private String tamingColorLeft = "§f";
+
     @Getter
     private boolean disableMySQL = false;
+    @Getter
+    private String MySQL_Prefix;
     @Getter
     private String MySQL_USER;
     @Getter
@@ -102,10 +138,42 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("MaxNameLenght", maxNameLenght);
         if (getConfig().get("InventorySize") == null)
             getConfig().set("InventorySize", -1);
+        if (getConfig().get("PercentHealthOnRespawn") == null)
+            getConfig().set("PercentHealthOnRespawn", percentHealthOnRespawn);
         if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
-        if (getConfig().get("DisableMySQL") == null)
-            getConfig().set("DisableMySQL", disableMySQL);
+        if(getConfig().get("AutoSaveDelay") == null)
+            getConfig().set("AutoSaveDelay", autoSave);
+        if(getConfig().get("AutoSaveDelay") == null)
+            getConfig().set("AutoSaveDelay", autoSave);
+
+        if(getConfig().get("GlobalRespawnCooldown") == null)
+            getConfig().set("GlobalRespawnCooldown", globalRespawnCooldown);
+        if(getConfig().get("DefaultRespawnCooldown") == null)
+            getConfig().set("DefaultRespawnCooldown", defaultRespawnCooldown);
+        if (getConfig().get("Experience.BarSize") == null)
+            getConfig().set("Experience.BarSize", experienceBarSize);
+        if (getConfig().get("Experience.Symbol") == null)
+            getConfig().set("Experience.Symbol", experienceSymbol);
+        if (getConfig().get("Experience.ColorDone") == null)
+            getConfig().set("Experience.ColorDone", experienceColorDone);
+        if (getConfig().get("Experience.ColorLeft") == null)
+            getConfig().set("Experience.ColorLeft", experienceColorLeft);
+
+        if (getConfig().get("Taming.AnnouncementType") == null)
+            getConfig().set("Taming.AnnouncementType", tamingAnnouncementType.name());
+        if (getConfig().get("Taming.BarSize") == null)
+            getConfig().set("Taming.BarSize", tamingBarSize);
+        if (getConfig().get("Taming.Symbol") == null)
+            getConfig().set("Taming.Symbol", tamingSymbol);
+        if (getConfig().get("Taming.ColorDone") == null)
+            getConfig().set("Taming.ColorDone", tamingColorDone);
+        if (getConfig().get("Taming.ColorLeft") == null)
+            getConfig().set("Taming.ColorLeft", tamingColorLeft);
+
+
+        if (getConfig().get("MySQL.Prefix") == null)
+            getConfig().set("MySQL.Prefix", "");
         if (getConfig().get("MySQL.User") == null)
             getConfig().set("MySQL.User", "user");
         if (getConfig().get("MySQL.Password") == null)
@@ -148,6 +216,9 @@ public class GlobalConfig extends AbstractConfig {
         maxNameLenght = getConfig().getInt("MaxNameLenght");
         activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
         adaptiveInventory = getConfig().getInt("InventorySize");
+        percentHealthOnRespawn = getConfig().getDouble("PercentHealthOnRespawn");
+        defaultRespawnCooldown = Math.max(0, getConfig().getInt("DefaultRespawnCooldown"));
+        globalRespawnCooldown = getConfig().getBoolean("GlobalRespawnCooldown");
         // Says it'll be an adaptive inventory
         if (adaptiveInventory <= 0)
             adaptiveInventory = -1;
@@ -158,7 +229,21 @@ public class GlobalConfig extends AbstractConfig {
         while (adaptiveInventory > 0 && adaptiveInventory % 9 != 0 && adaptiveInventory < 54)
             adaptiveInventory++;
 
+        autoSave = getConfig().getInt("AutoSaveDelay");
+
+        experienceBarSize = getConfig().getInt("Experience.BarSize");
+        experienceSymbol = getConfig().getString("Experience.Symbol");
+        experienceColorDone = getConfig().getString("Experience.ColorDone");
+        experienceColorLeft = getConfig().getString("Experience.ColorLeft");
+
+        tamingAnnouncementType = PetAnnouncement.get(getConfig().getString("Taming.AnnouncementType"));
+        tamingBarSize = getConfig().getInt("Taming.BarSize");
+        tamingSymbol = getConfig().getString("Taming.Symbol");
+        tamingColorDone = getConfig().getString("Taming.ColorDone");
+        tamingColorLeft = getConfig().getString("Taming.ColorLeft");
+
         disableMySQL = getConfig().getBoolean("DisableMySQL");
+        MySQL_Prefix = getConfig().getString("MySQL.Prefix");
         MySQL_USER = getConfig().getString("MySQL.User");
         MySQL_PASSWORD = getConfig().getString("MySQL.Password");
         MySQL_HOST = getConfig().getString("MySQL.Host");

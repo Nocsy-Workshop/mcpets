@@ -1,15 +1,12 @@
-package fr.nocsy.mcpets.data.inventories;
+package fr.nocsy.mcpets.data.sql;
 
-import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class PlayerData {
 
@@ -22,6 +19,9 @@ public class PlayerData {
     @Getter
     @Setter
     private HashMap<String, String> mapOfRegisteredInventories = new HashMap<>();
+    @Getter
+    @Setter
+    private HashMap<String, String> mapOfRegisteredPetStats = new HashMap<>();
 
     @Setter
     @Getter
@@ -69,7 +69,12 @@ public class PlayerData {
     }
 
     public static void saveDB() {
-        Databases.saveData();
+        if(GlobalConfig.getInstance().isDatabaseSupport())
+            Databases.saveData();
+        else
+        {
+            PlayerDataNoDatabase.getCacheMap().values().forEach(PlayerDataNoDatabase::save);
+        }
     }
 
     public static void reloadAll() {

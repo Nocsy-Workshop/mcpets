@@ -1,17 +1,21 @@
 package fr.nocsy.mcpets.listeners;
 
-import com.sk89q.worldguard.bukkit.event.entity.SpawnEntityEvent;
+import com.ticxo.modelengine.api.events.ModelDismountEvent;
+import com.ticxo.modelengine.api.events.ModelMountEvent;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
-import io.lumine.mythic.bukkit.events.MythicMobSpawnEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -20,6 +24,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -41,6 +46,7 @@ public class PetListener implements Listener {
         if (GlobalConfig.getInstance().isSneakMode() && !p.isSneaking())
             return;
 
+        // Do not open the menu if the player has a signal stick
         if(GlobalConfig.getInstance().isDisableInventoryWhileHoldingSignalStick())
         {
             ItemStack it = p.getInventory().getItemInMainHand();
@@ -48,14 +54,26 @@ public class PetListener implements Listener {
                 return;
         }
 
+        //If it's pet food in the main hand then do not open the menu
+        if(PetFood.getFromItem(p.getInventory().getItemInMainHand()) != null)
+        {
+            return;
+        }
+
         Entity ent = e.getRightClicked();
 
         Pet pet = Pet.getFromEntity(ent);
 
-        if (pet != null &&
-                (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet);
+        if (pet != null && pet.getOwner() != null &&
+                pet.getOwner().equals(p.getUniqueId())) {
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
+            menu.open(p);
+        }
+        if(pet != null && p.isOp())
+        {
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+            pet.setLastOpInteracted(p);
             menu.open(p);
         }
     }
@@ -77,10 +95,18 @@ public class PetListener implements Listener {
 
         Pet pet = Pet.getFromEntity(ent);
 
-        if (pet != null &&
-                (pet.getOwner().equals(p.getUniqueId()) || p.isOp())) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet);
+        if (pet != null && pet.getOwner() != null &&
+                pet.getOwner().equals(p.getUniqueId())) {
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
+            menu.open(p);
+            e.setCancelled(true);
+            e.setDamage(0);
+        }
+        if(pet != null && p.isOp())
+        {
+            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+            pet.setLastOpInteracted(p);
             menu.open(p);
             e.setCancelled(true);
             e.setDamage(0);
@@ -102,7 +128,7 @@ public class PetListener implements Listener {
         Player p = e.getPlayer();
         if (reconnectionPets.containsKey(p.getUniqueId())) {
             Pet pet = reconnectionPets.get(p.getUniqueId());
-            pet.spawn(p.getLocation());
+            pet.spawn(p.getLocation(), true);
             reconnectionPets.remove(p.getUniqueId());
         }
     }
@@ -112,13 +138,15 @@ public class PetListener implements Listener {
         Player p = e.getPlayer();
         if (Pet.getActivePets().containsKey(p.getUniqueId())) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
+            if(pet.getTamingProgress() < 1)
+                return;
             pet.despawn(PetDespawnReason.TELEPORT);
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     pet.spawn(p, p.getLocation());
                 }
-            }.runTaskLater(MCPets.getInstance(), 5L);
+            }.runTaskLater(MCPets.getInstance(), 20L);
         }
 
     }
@@ -232,6 +260,92 @@ public class PetListener implements Listener {
             {
                 Language.BLACKLISTED_WORLD.sendMessage(p);
             }
+        }
+    }
+
+    @EventHandler
+    public void despawnOnDismount(ModelDismountEvent e)
+    {
+        if(e.getVehicle() == null || e.getVehicle().getBase() == null)
+            return;
+
+        // Running this as sync coz we fetch an entity
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getBase().getUniqueId()));
+                if(pet != null && pet.isDespawnOnDismount())
+                {
+                    pet.despawn(PetDespawnReason.DISMOUNT);
+                }
+            }
+        }.runTask(MCPets.getInstance());
+
+    }
+
+    @EventHandler
+    public void cancelDefaultTaming(EntityTameEvent e)
+    {
+        if(Pet.getFromEntity(e.getEntity()) != null)
+        {
+            // Cancel the event, so it doesn't give other type of item by default to the anchor
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void mountingPet(EntityMountPetEvent e)
+    {
+        if(e.getEntity() == null)
+            return;
+
+        // if it's not the owner or an admin mounting the pet, then we cancel it
+        if(!e.getPet().getOwner().equals(e.getEntity().getUniqueId()) &&
+            !e.getEntity().hasPermission(PPermission.ADMIN.getPermission()))
+        {
+            e.setCancelled(true);
+            Debugger.send("§c" + e.getEntity().getName() + " can not mount " + e.getPet().getId() + " as he's not the owner, nor an admin.");
+        }
+        // If user doesn't have the perm to mount the pet, cancel the event
+        if(e.getPet().getMountPermission() != null && !e.getEntity().hasPermission(e.getPet().getMountPermission()))
+        {
+            e.setCancelled(true);
+            Language.CANT_MOUNT_PET_YET.sendMessage(e.getEntity());
+        }
+    }
+
+    @EventHandler
+    public void mountingPet(ModelMountEvent e)
+    {
+        if(e.getPassenger() == null)
+            return;
+
+        if(e.getVehicle() == null || e.getVehicle().getBase() == null)
+            return;
+
+        if(!e.getSeat().isDriverBone())
+            return;
+
+        Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+        Pet pet = Pet.getFromEntity(entity);
+        Entity player = e.getPassenger();
+
+        if(pet == null)
+            return;
+
+        // if it's not the owner or an admin mounting the pet, then we cancel it
+        if(!pet.getOwner().equals(player.getUniqueId()) &&
+                !player.hasPermission(PPermission.ADMIN.getPermission()))
+        {
+            e.setCancelled(true);
+            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
+        }
+
+        // If user doesn't have the perm to mount the pet, cancel the event
+        if(pet.getMountPermission() != null && !player.hasPermission(pet.getMountPermission()))
+        {
+            e.setCancelled(true);
+            Language.CANT_MOUNT_PET_YET.sendMessage(player);
         }
     }
 

@@ -2,23 +2,29 @@ package fr.nocsy.mcpets.commands;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.commands.tabcompleters.MCPetsCommandTabCompleter;
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.listeners.PetInteractionMenuListener;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.ArrayList;
 
 public class MCPetsCommand implements CCommand {
+
     @Override
     public String getName() {
         return "mcpets";
@@ -27,6 +33,11 @@ public class MCPetsCommand implements CCommand {
     @Override
     public String getPermission() {
         return PPermission.USE.getPermission();
+    }
+
+    @Override
+    public TabCompleter getCompleter() {
+        return new MCPetsCommandTabCompleter();
     }
 
     public String getAdminPermission() {
@@ -155,10 +166,81 @@ public class MCPetsCommand implements CCommand {
                             }
 
                             p.getInventory().addItem(ItemsListConfig.getInstance().getItemStack(key));
-
+                            return;
                         }
 
                     }
+                }
+                if(args[0].equalsIgnoreCase("clearStats")
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    String petId = args[2];
+                    Pet pet = Pet.getFromId(petId);
+                    if(pet != null)
+                    {
+                        String playerName = args[1];
+                        OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
+                        if(player != null || !player.hasPlayedBefore())
+                        {
+                            // Start by loading the player data
+                            PlayerData pd = PlayerData.get(player.getUniqueId());
+
+                            PetStats.remove(petId, player.getUniqueId());
+                            Language.STATS_CLEARED_FOR_PET_FOR_PLAYER.sendMessageFormated(sender, new FormatArg("%petId%", petId),
+                                                                                                new FormatArg("%player%", playerName));
+
+                            pd.save();
+                            return;
+                        }
+                    }
+
+                    sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
+                    return;
+                }
+                if(args[0].equalsIgnoreCase("category")
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    String categoryId = args[1];
+
+                    Category category = Category.getFromId(categoryId);
+                    if(category == null)
+                    {
+                        Language.CATEGORY_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    String playerName = args[2];
+                    Player player = Bukkit.getPlayer(playerName);
+                    if(player == null)
+                    {
+                        Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
+                        return;
+                    }
+
+                    category.openInventory(player, 0);
+                    return;
+                }
+                if(args[0].equalsIgnoreCase("petFood") &&
+                    sender.hasPermission(getAdminPermission()))
+                {
+                    String petFoodId = args[1];
+                    PetFood petFood = PetFood.getFromId(petFoodId);
+                    if(petFood == null)
+                    {
+                        Language.PETFOOD_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    String playerName = args[2];
+                    Player p = Bukkit.getPlayer(playerName);
+                    if(p == null)
+                    {
+                        Language.PLAYER_NOT_CONNECTED.sendMessage(sender);
+                        return;
+                    }
+
+                    p.getInventory().addItem(petFood.getItemStack());
+                    return;
                 }
             }
             else if (args.length == 2) {
@@ -174,6 +256,22 @@ public class MCPetsCommand implements CCommand {
 
                     PetMenu menu = new PetMenu(playerToOpen, 0, false);
                     menu.open((Player) sender);
+                    return;
+                }
+                if(args[0].equalsIgnoreCase("category")
+                        && sender.hasPermission(getAdminPermission())
+                        && sender instanceof Player)
+                {
+                    String categoryId = args[1];
+
+                    Category category = Category.getFromId(categoryId);
+                    if(category == null)
+                    {
+                        Language.CATEGORY_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    category.openInventory((Player)sender, 0);
                     return;
                 }
                 if(args[0].equalsIgnoreCase("item")
@@ -239,9 +337,77 @@ public class MCPetsCommand implements CCommand {
                     ((Player)sender).getInventory().setItemInMainHand(Items.turnIntoSignalStick(it, pet));
                     return;
                 }
+
+                if(args[0].equalsIgnoreCase("clearStats")
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    // Either it's a player clear
+                    String playerName = args[1];
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
+                    if(player != null || !player.hasPlayedBefore())
+                    {
+                        PlayerData pd = PlayerData.get(player.getUniqueId());
+
+                        PetStats.remove(player.getUniqueId());
+                        Language.STATS_CLEARED.sendMessage(sender);
+                        pd.save();
+                        return;
+                    }
+                    else
+                    {
+                        // Or it's a pet clear
+                        String petId = args[1];
+                        Pet pet = Pet.getFromId(petId);
+                        if(pet != null)
+                        {
+                            PetStats.remove(petId);
+                            Language.STATS_CLEARED_FOR_PET.sendMessageFormated(sender, new FormatArg("%petId%", petId));
+                            PlayerData.saveDB();
+                            return;
+                        }
+
+                        // In that case it's not a pet clear so he probably failed to give a player name
+                        sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
+                        return;
+                    }
+                }
+                if(args[0].equalsIgnoreCase("petFood")
+                        && sender instanceof Player
+                        && sender.hasPermission(getAdminPermission()))
+                {
+                    String id = args[1];
+                    PetFood petFood = PetFood.getFromId(id);
+                    if(petFood == null)
+                    {
+                        Language.PETFOOD_DOESNT_EXIST.sendMessage(sender);
+                        return;
+                    }
+
+                    Player p = ((Player)sender);
+                    p.getInventory().addItem(petFood.getItemStack());
+                    return;
+                }
             } else if (args.length == 1) {
+                if(args[0].equalsIgnoreCase("debug") &&
+                    sender instanceof Player &&
+                    sender.hasPermission(getAdminPermission()))
+                {
+                    Player p = (Player) sender;
+                    if(Debugger.isListening((p.getUniqueId())))
+                    {
+                        Debugger.leave(p.getUniqueId());
+                        Language.DEBUGGER_LEAVE.sendMessage(p);
+                    }
+                    else
+                    {
+                        Debugger.join(p.getUniqueId());
+                        Language.DEBUGGER_JOINING.sendMessage(p);
+                    }
+                    return;
+                }
                 if (args[0].equalsIgnoreCase("reload")
                         && sender.hasPermission(getAdminPermission())) {
+                    PlayerData.saveDB();
                     MCPets.loadConfigs();
                     Language.RELOAD_SUCCESS.sendMessage(sender);
                     Language.HOW_MANY_PETS_LOADED.sendMessageFormated(sender, new FormatArg("%numberofpets%", Integer.toString(Pet.getObjectPets().size())));

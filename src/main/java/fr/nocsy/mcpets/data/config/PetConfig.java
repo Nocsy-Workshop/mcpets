@@ -4,15 +4,16 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
+import fr.nocsy.mcpets.utils.PetAnnouncement;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PetConfig extends AbstractConfig {
@@ -39,6 +40,7 @@ public class PetConfig extends AbstractConfig {
      */
     public static void loadPets(String folderPath, boolean clearPets) {
         if (clearPets) {
+            Bukkit.getConsoleSender().sendMessage("§9Loading pets... ");
             Pet.getObjectPets().clear();
         }
 
@@ -54,8 +56,15 @@ public class PetConfig extends AbstractConfig {
 
             PetConfig petConfig = new PetConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
 
-            if (petConfig.getPet() != null)
-                Pet.getObjectPets().add(petConfig.getPet());
+            if (petConfig.getPet() != null) {
+                if(Pet.getObjectPets().stream().anyMatch(pet -> pet.getId().equalsIgnoreCase(petConfig.getPet().getId())))
+                    Bukkit.getConsoleSender().sendMessage("  §c* " + petConfig.getPet().getId() + " could not be loaded: another pet with the same ID already exists.");
+                else
+                {
+                    Bukkit.getConsoleSender().sendMessage("  §7- " + petConfig.getPet().getId() + " loaded succesfully.");
+                    Pet.getObjectPets().add(petConfig.getPet());
+                }
+            }
 
         }
 
@@ -95,8 +104,13 @@ public class PetConfig extends AbstractConfig {
         int spawnRange = getConfig().getInt("SpawnRange");
         int comingbackRange = getConfig().getInt("ComingBackRange");
         String despawnSkillName = getConfig().getString("DespawnSkill");
+        String tamingSkillName = getConfig().getString("Taming.TamingProgressSkill");
+        String tamingOverSkillName = getConfig().getString("Taming.TamingFinishedSkill");
+
         boolean autoRide = getConfig().getBoolean("AutoRide");
         String mountType = getConfig().getString("MountType");
+        String mountPermission = getConfig().getString("MountPermission");
+        boolean despawnOnDismount = getConfig().getBoolean("DespawnOnDismount");
         int inventorySize = Math.min(getConfig().getInt("InventorySize"), 54);
         while(inventorySize < 54 && inventorySize % 9 != 0)
             inventorySize++;
@@ -134,6 +148,7 @@ public class PetConfig extends AbstractConfig {
         Pet pet = new Pet(id);
         pet.setMythicMobName(mobType);
         pet.setPermission(permission);
+        pet.setMountPermission(mountPermission);
         if (getConfig().get("Mountable") == null) {
             pet.setMountable(GlobalConfig.getInstance().isMountable());
         } else {
@@ -141,12 +156,13 @@ public class PetConfig extends AbstractConfig {
         }
         if (mountType == null)
             mountType = "walking";
+        pet.setDespawnOnDismount(despawnOnDismount);
         pet.setAutoRide(autoRide);
         pet.setDistance(distance);
         pet.setSpawnRange(spawnRange);
         pet.setComingBackRange(comingbackRange);
         pet.setMountType(mountType);
-        pet.setInventorySize(inventorySize);
+        pet.setDefaultInventorySize(inventorySize);
         pet.setSignals(signals);
         pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
 
@@ -162,21 +178,39 @@ public class PetConfig extends AbstractConfig {
                 }
             }.runTaskLater(MCPets.getInstance(), 5L);
         }
+        if (tamingSkillName != null) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(tamingSkillName);
+                    optionalSkill.ifPresent(pet::setTamingProgressSkill);
+                }
+            }.runTaskLater(MCPets.getInstance(), 5L);
+        }
+        if (tamingOverSkillName != null) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(tamingOverSkillName);
+                    optionalSkill.ifPresent(pet::setTamingOverSkill);
+                }
+            }.runTaskLater(MCPets.getInstance(), 5L);
+        }
 
-        pet.setIcon(pet.buildItem(pet.getIcon(), pet.toString(), iconName, description, materialType, customModelData, textureBase64));
-        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
+        pet.setIcon(pet.buildItem(pet.getIcon(), true, pet.toString(), iconName, description, materialType, customModelData, textureBase64));
+        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
 
-        PetSkin.clearList();
+        PetSkin.clearList(pet);
         for(String key : getConfig().getKeys(true).stream()
                                                         .filter(key ->
                                                                    key.contains("Skins") &&
                                                                    key.replace(".", ";").split(";").length == 2)
                                                         .collect(Collectors.toList()))
         {
-            String modelSkinId = getConfig().getString(key + ".Model");
+            String mythicMobId = getConfig().getString(key + ".MythicMob");
             String skinPerm = getConfig().getString(key + ".Permission");
 
-            PetSkin.load(pet, modelSkinId, skinPerm, pet.buildItem(null, "",
+            PetSkin.load(pet, mythicMobId, skinPerm, pet.buildItem(null, false, "",
                                                                         getConfig().getString(key + ".Icon.DisplayName"),
                                                                         getConfig().getStringList(key + ".Icon.Lore"),
                                                                         getConfig().getString(key + ".Icon.Material"),
@@ -184,6 +218,78 @@ public class PetConfig extends AbstractConfig {
                                                                         getConfig().getString(key + ".Icon.TextureBase64")));
         }
 
+        ArrayList<PetLevel> levels = new ArrayList<>();
+
+        for(String key : getConfig().getKeys(true).stream()
+                                    .filter(key ->  key.contains("Levels") &&
+                                                    key.replace(".", ";").split(";").length == 2)
+                                    .collect(Collectors.toList()))
+        {
+            String levelId = key.replace(".", ";").split(";")[1];
+
+            String evolutionId = null;
+            int delayBeforeEvolution = 0;
+            boolean removePrevious = true;
+            double maxHealth = Optional.of(getConfig().getDouble(key + ".MaxHealth")).orElse(1D);
+            double regeneration = Optional.of(getConfig().getDouble(key + ".Regeneration")).orElse(0.1);
+            double resistanceModifier = Optional.of(getConfig().getDouble(key + ".ResistanceModifier")).orElse(1D);
+            double damageModifier = Optional.of(getConfig().getDouble(key + ".DamageModifier")).orElse(1D);
+            double power = Optional.of(getConfig().getDouble(key + ".Power")).orElse(1D);
+            int respawnCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Respawn")).orElse(GlobalConfig.getInstance().getDefaultRespawnCooldown());
+            int revokeCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Revoke")).orElse(0);;
+            int inventoryExtension = Optional.of(getConfig().getInt(key + ".InventoryExtension")).orElse(0);;
+            String levelName = getConfig().getString(key + ".Name");
+            double expThreshold = getConfig().getDouble(key + ".ExperienceThreshold");
+            String announcement = null;
+            PetAnnouncement announcementType = null;
+            String mythicSkill = Optional.ofNullable(getConfig().getString(key + ".Announcement.Skill")).orElse(null);
+
+            if(getConfig().get(key + ".Evolution.PetId") != null)
+            {
+                evolutionId = getConfig().getString(key + ".Evolution.PetId");
+                delayBeforeEvolution = getConfig().getInt(key + ".Evolution.DelayBeforeEvolution");
+                removePrevious = getConfig().get(key + ".Evolution.RemoveAccess") == null ||
+                                getConfig().getBoolean(key + ".Evolution.RemoveAccess");
+            }
+            if(getConfig().get(key + ".Announcement.Text") != null)
+            {
+                announcement = getConfig().getString(key + ".Announcement.Text");
+                announcementType = Arrays.stream(PetAnnouncement.values())
+                                .filter(type -> type.name().equalsIgnoreCase(getConfig().getString(key + ".Announcement.Type")))
+                                .findFirst().orElse(PetAnnouncement.CHAT);
+            }
+
+            PetLevel petLevel = new PetLevel(pet,
+                                            levelId,
+                                            evolutionId,
+                                            delayBeforeEvolution,
+                                            removePrevious,
+                                            maxHealth,
+                                            regeneration,
+                                            resistanceModifier,
+                                            damageModifier,
+                                            power,
+                                            respawnCooldown,
+                                            revokeCooldown,
+                                            inventoryExtension,
+                                            levelName,
+                                            expThreshold,
+                                            announcement,
+                                            announcementType,
+                                            mythicSkill);
+
+            levels.add(petLevel);
+        }
+
+        levels.sort(new Comparator<PetLevel>() {
+            @Override
+            public int compare(PetLevel level1, PetLevel level2) {
+                return level1.compareTo(level2);
+            }
+        });
+        pet.setPetLevels(levels);
+
         this.pet = pet;
     }
+
 }

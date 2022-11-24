@@ -1,12 +1,15 @@
-package fr.nocsy.mcpets.data.inventories;
+package fr.nocsy.mcpets.data.sql;
 
 import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PlayerDataNoDatabase extends AbstractConfig {
 
@@ -44,6 +47,8 @@ public class PlayerDataNoDatabase extends AbstractConfig {
             getConfig().set("Names", new ArrayList<String>());
         if (getConfig().get("Inventories") == null)
             getConfig().set("Inventories", new ArrayList<String>());
+        if (getConfig().get("PetStats") == null)
+            getConfig().set("PetStats", new ArrayList<String>());
 
         reload();
     }
@@ -77,12 +82,34 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
         getConfig().set("Inventories", serializedInventoriesMap);
 
+
+        ArrayList<String> serializedStatsMap = new ArrayList<>();
+
+        for(PetStats stats : PetStats.getPetStats(uuid))
+        {
+            serializedStatsMap.add(stats.serialize());
+        }
+
+        getConfig().set("PetStats", serializedStatsMap);
+
         super.save();
     }
 
     @Override
     public void reload() {
 
+        // Unserialize the pet stats first, coz it influences the inventories
+        PetStats.remove(uuid);
+        for(String seria : getConfig().getStringList("PetStats"))
+        {
+            PetStats stats = PetStats.unzerialize(seria);
+            if(stats == null)
+                continue;
+            stats.launchTimers();
+            PetStats.register(stats);
+        }
+
+        // Unserialize the names
         mapOfRegisteredNames.clear();
         for (String seria : getConfig().getStringList("Names")) {
             String[] table = seria.split(";");
@@ -92,6 +119,7 @@ public class PlayerDataNoDatabase extends AbstractConfig {
             mapOfRegisteredNames.put(id, name);
         }
 
+        // Unserialize the inventories
         mapOfRegisteredInventories.clear();
         for (String seria : getConfig().getStringList("Inventories")) {
             String[] table = seria.split(";");

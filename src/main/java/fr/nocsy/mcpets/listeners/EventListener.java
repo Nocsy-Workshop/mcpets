@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.listeners;
 
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.mythicmobs.MythicListener;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,8 +21,12 @@ public class EventListener implements Listener {
         listeners.add(new PetInventoryListener());
         listeners.add(new SignalStickListener());
         listeners.add(new PetSkinsMenuListener());
+        listeners.add(new VanillaDismountListener());
+
+        listeners.add(new LivingPetsListener());
 
         listeners.add(new MythicListener());
+
 
         for (Listener l : listeners) {
             plugin.getServer().getPluginManager().registerEvents(l, plugin);

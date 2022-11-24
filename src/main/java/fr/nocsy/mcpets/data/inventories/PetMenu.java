@@ -5,12 +5,12 @@ import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class PetMenu {
@@ -22,6 +22,10 @@ public class PetMenu {
     private final Inventory inventory;
 
     public PetMenu(Player p, int page, boolean addPager) {
+        // Load the data from the player
+        // Mainly for the pet stats
+        PlayerData.get(p.getUniqueId());
+
         List<Pet> availablePets = Pet.getAvailablePets(p);
 
         int invSize = GlobalConfig.getInstance().getAdaptiveInventory();
@@ -52,7 +56,8 @@ public class PetMenu {
                 inventory.setItem(invSize - 1, Items.page(page, p));
                 break;
             }
-            inventory.addItem(pet.getIcon());
+
+            inventory.addItem(pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
 
         }
 

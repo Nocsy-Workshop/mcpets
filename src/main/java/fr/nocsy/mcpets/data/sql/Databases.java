@@ -3,7 +3,9 @@ package fr.nocsy.mcpets.data.sql;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
-import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
+import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +14,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Databases {
 
@@ -19,7 +22,7 @@ public class Databases {
     @Setter
     public static MySQLDB mySQL;
 
-    private static String table = "mcpets_player_data";
+    private static String table = GlobalConfig.getInstance().getMySQL_Prefix() + "mcpets_player_data";
 
     public static boolean init() {
         if(GlobalConfig.getInstance().isDisableMySQL())
@@ -54,6 +57,7 @@ public class Databases {
             return false;
 
         ResultSet playerData = getMySQL().query("SELECT * FROM " + table + ";");
+
         if (playerData == null)
             return true;
         try {
@@ -63,7 +67,21 @@ public class Databases {
                 UUID uuid = UUID.fromString(uuidStr);
                 PlayerData pd = PlayerData.getEmpty(uuid);
 
+                // Unserialize the pet stats first, coz it influences the inventories
+                PetStats.remove(uuid);
+
+                for(String seria : playerData.getString("data").split(";;;"))
+                {
+                    PetStats stats = PetStats.unzerialize(seria);
+                    if(stats == null)
+                        continue;
+                    stats.launchTimers();
+                    PetStats.register(stats);
+                }
+
+                // Unserialize the pet names
                 pd.setMapOfRegisteredNames(unserializeData(playerData, "names"));
+                // Unserialize the pet inventories
                 pd.setMapOfRegisteredInventories(unserializeData(playerData, "inventories"));
                 for(String petId : pd.getMapOfRegisteredInventories().keySet())
                 {
@@ -72,8 +90,10 @@ public class Databases {
                 }
 
                 PlayerData.getRegisteredData().put(uuid, pd);
+
             }
         } catch (SQLException e1) {
+            e1.printStackTrace();
             return false;
         }
 
@@ -86,15 +106,24 @@ public class Databases {
 
         getMySQL().query("TRUNCATE " + table);
 
-        for (PlayerData pd : PlayerData.getRegisteredData().values()) {
-            UUID uuid = pd.getUuid();
+        for (UUID uuid : PlayerData.getRegisteredData().keySet()) {
+            PlayerData pd = PlayerData.getRegisteredData().get(uuid);
 
             String names = buildStringSerialized(pd.getMapOfRegisteredNames());
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+
+            StringBuilder data = new StringBuilder();
+            for(PetStats stats : PetStats.getPetStats(uuid))
+            {
+                data.append(stats.serialize()).append(";;;");
+            }
+            if(data.length() > 0)
+                data = new StringBuilder(data.substring(0, data.length() - 3));
+
             getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
                                                                                                     + "', '" + names
                                                                                                     + "', '" + inventories
-                                                                                                    + "', '" + null + "')");
+                                                                                                    + "', '" + data + "')");
         }
     }
 

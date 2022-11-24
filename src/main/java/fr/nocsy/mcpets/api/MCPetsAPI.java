@@ -80,6 +80,6 @@ public class MCPetsAPI {
     public static int setActivePet(Pet pet, Player p, boolean checkPermission)
     {
         pet.setCheckPermission(checkPermission);
-        return pet.spawn(p.getLocation());
+        return pet.spawn(p.getLocation(), true);
     }
 }

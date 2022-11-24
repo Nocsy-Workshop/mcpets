@@ -109,8 +109,12 @@ public class PetInteractionMenuListener implements Listener {
 
                 Pet pet = Pet.getFromLastInteractedWith(p);
                 if (pet == null) {
-                    p.closeInventory();
-                    return;
+                    pet = Pet.getFromLastOpInteractedWith(p);
+                    if(pet == null)
+                    {
+                        p.closeInventory();
+                        return;
+                    }
                 }
 
                 if (!pet.isStillHere()) {
@@ -156,6 +160,8 @@ public class PetInteractionMenuListener implements Listener {
             }
 
             Pet pet = Pet.getFromLastInteractedWith(p);
+            if(pet == null)
+                pet = Pet.getFromLastOpInteractedWith(p);
 
             if (pet != null && pet.isStillHere()) {
                 if (!p.hasPermission(PPermission.COLOR.getPermission()))
@@ -172,8 +178,6 @@ public class PetInteractionMenuListener implements Listener {
     }
 
     private void openBackPetMenu(Player p) {
-        UUID uuid = p.getUniqueId();
-
         PetMenu menu = new PetMenu(p, 0, false);
         menu.open(p);
     }

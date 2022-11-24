@@ -5,9 +5,10 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.data.sql.PlayerDataNoDatabase;
 import fr.nocsy.mcpets.utils.BukkitSerialization;
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -26,6 +27,7 @@ public class PetInventory {
     @Getter
     private static HashMap<UUID, HashMap<String, PetInventory>> petInventories = new HashMap<>();
 
+    @Getter
     private Inventory inventory;
 
     private final Pet pet;
@@ -36,11 +38,13 @@ public class PetInventory {
      * @param pet
      * @param premadeInventory
      */
-    private PetInventory(Pet pet, @Nullable Inventory premadeInventory)
+    private PetInventory(Pet pet, @Nullable Inventory premadeInventory, UUID owner)
     {
         if(pet == null)
             throw new NullPointerException("Pet can not be null.");
         this.pet = pet;
+        this.pet.setOwner(owner);
+
         String title = Language.PET_INVENTORY_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName()));
 
         this.inventory = Bukkit.createInventory(null, pet.getInventorySize(), title);
@@ -87,7 +91,7 @@ public class PetInventory {
         {
             return registeredMap.get(pet.getId());
         }
-        return new PetInventory(pet, null);
+        return new PetInventory(pet, null, pet.getOwner());
     }
 
     public void setInventory(Inventory inventory)
@@ -119,7 +123,7 @@ public class PetInventory {
         try
         {
             Inventory inventory = unserializeInventory(serializedInventory);
-            return new PetInventory(pet, inventory);
+            return new PetInventory(pet, inventory, owner);
         }
         catch(IOException ex)
         {

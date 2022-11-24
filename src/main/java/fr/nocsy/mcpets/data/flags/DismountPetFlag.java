@@ -49,7 +49,7 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
                         if (!pet.hasMount(p))
                             continue;
 
-                        boolean hasToBeEjected = testState(p);
+                        boolean hasToBeEjected = testState(p.getLocation());
 
                         if (hasToBeEjected) {
                             pet.dismount(p);

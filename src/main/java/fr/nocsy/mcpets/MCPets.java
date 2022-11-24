@@ -4,16 +4,17 @@ import com.sk89q.worldguard.WorldGuard;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
-import fr.nocsy.mcpets.data.flags.AbstractFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
-import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
-import fr.nocsy.mcpets.data.inventories.PlayerData;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.listeners.EventListener;
+import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
+import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.IllegalPluginAccessException;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
@@ -24,6 +25,8 @@ public class MCPets extends JavaPlugin {
     private static MCPets instance;
 
     private static MythicBukkit mythicMobs;
+    private static LuckPerms luckPerms;
+
     @Getter
     private static final Logger log = Bukkit.getLogger();
 
@@ -35,6 +38,7 @@ public class MCPets extends JavaPlugin {
 
     public static void loadConfigs() {
         ItemsListConfig.getInstance().init();
+        PetFoodConfig.getInstance().init();
         GlobalConfig.getInstance().init();
         LanguageConfig.getInstance().init();
         BlacklistConfig.getInstance().init();
@@ -54,7 +58,9 @@ public class MCPets extends JavaPlugin {
             getLog().severe("MCPets could not be loaded : MythicMobs could not be found or this version is not compatible with the plugin.");
             return;
         }
+
         checkWorldGuard();
+        checkLuckPerms();
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport())
@@ -72,6 +78,10 @@ public class MCPets extends JavaPlugin {
         EventListener.init(this);
 
         loadConfigs();
+        PetStats.saveStats();
+        // Register the placeholders
+        PetPlaceholdersManager.registerPlaceholders();
+
         getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
         getLog().info("      Plugin made by Nocsy");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
@@ -79,47 +89,90 @@ public class MCPets extends JavaPlugin {
         FlagsManager.launchFlags();
     }
 
+
     @Override
     public void onDisable() {
         getLog().info("-=-=-=-= MCPets disable =-=-=-=-");
         getLog().info("          See you soon");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
 
+        PetStats.saveAll();
         Pet.clearPets();
         PlayerData.saveDB();
         FlagsManager.stopFlags();
 
     }
 
-    public void checkWorldGuard() {
+    /**
+     * Check and initialize LuckPerms instance
+     */
+    private static void checkLuckPerms() {
+        try {
+            RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+            if (provider != null) {
+                luckPerms = provider.getProvider();
+            }
+        } catch (NoClassDefFoundError error) {
+            Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
+        }
+    }
+
+    /**
+     * Check and initialize WorldGuard instance
+     */
+    private static void checkWorldGuard() {
         try {
             WorldGuard wg = WorldGuard.getInstance();
             if (wg != null)
                 GlobalConfig.getInstance().setWorldguardsupport(true);
         } catch (NoClassDefFoundError error) {
             GlobalConfig.getInstance().setWorldguardsupport(false);
-            getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
+            Bukkit.getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
         }
     }
-    public static boolean checkMythicMobs() {
+
+    /**
+     * Check and initialize MythicMobs instance
+     * @return
+     */
+    private static boolean checkMythicMobs() {
         if(mythicMobs != null)
             return true;
         try {
             MythicBukkit inst = MythicBukkit.inst();
             if (inst != null)
+            {
                 mythicMobs = inst;
                 return true;
+            }
         } catch (NoClassDefFoundError error) {
             getLog().warning("[MCPets] : MythicMobs could not be found.");
         }
         return false;
     }
 
+    /**
+     * Return MythicMobs instance
+     * @return
+     */
     public static MythicBukkit getMythicMobs()
     {
         if(mythicMobs == null)
             checkMythicMobs();
         return mythicMobs;
     }
+
+
+    /**
+     * Return LuckPerms instance
+     * @return
+     */
+    public static LuckPerms getLuckPerms()
+    {
+        if(luckPerms == null)
+            checkLuckPerms();
+        return luckPerms;
+    }
+
 
 }

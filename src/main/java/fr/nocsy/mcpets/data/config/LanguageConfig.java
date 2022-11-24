@@ -51,6 +51,11 @@ public class LanguageConfig extends AbstractConfig {
             lang.reload();
         }
 
+        if(Language.PET_INVENTORY_TITLE.getMessage().equals(Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage()))
+        {
+            MCPets.getLog().severe(MCPets.getLogName() + "Interaction menu and prime menu have the same name, which might lead to unexpected behaviors. Please consider having different names for both menus.");
+        }
+
         MCPets.getLog().info(MCPets.getLogName() + "Language file reloaded.");
     }
 }

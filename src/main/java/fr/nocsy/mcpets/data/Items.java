@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.utils.Utils;
@@ -83,10 +84,10 @@ public enum Items {
     {
         ArrayList<String> lore = new ArrayList<>();
 
-        ItemStack it = Utils.createHead("Unknown",
-                lore,
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzhmM2Q3NjkxZDZkNWQ1NDZjM2NmMjIyNDNiM2U4MzA5YTEwNzAxMWYyZWU5Mzg0OGIxZThjNjU3NjgxYTU2ZCJ9fX0=");
+        ItemStack it = new ItemStack(Material.BARRIER);
         ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("Unknown");
+        meta.setLore(lore);
         meta.setLocalizedName("AlmPet;Unknown");
 
         it.setItemMeta(meta);
@@ -122,8 +123,10 @@ public enum Items {
     private static ItemStack petmenu() {
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage().split("\n")));
 
-        ItemStack it = Utils.createHead(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage(), lore, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI5M2E2MDcwNTAzMTcyMDcxZjM1ZjU4YzgyMjA0ZTgxOGNkMDY1MTg2OTAxY2ExOWY3ZGFkYmRhYzE2NWU0NCJ9fX0=");
+        ItemStack it = new ItemStack(Material.FILLED_MAP);
         ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage());
+        meta.setLore(lore);
         meta.setLocalizedName("AlmPet;BackToPetMenu");
 
         it.setItemMeta(meta);
@@ -173,7 +176,7 @@ public enum Items {
     public static ItemStack page(int index, Player p) {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
-        meta.setCustomModelData(960);
+        meta.setCustomModelData(9660);
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
                                                                             new FormatArg("%maxPage%", Integer.toString((int)(Pet.getAvailablePets(p).size()/54 + 0.5)))));
 
@@ -189,7 +192,7 @@ public enum Items {
     public static ItemStack page(Category category, int index) {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
-        meta.setCustomModelData(960);
+        meta.setCustomModelData(9660);
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
                                                                             new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
         meta.setLocalizedName("MCPetsPage;" + category.getId() + ";" + index);
@@ -216,7 +219,7 @@ public enum Items {
         else
             lore = new ArrayList<>(meta.getLore());
 
-        if (pet.getCurrentName() != null) {
+        if (pet.getCurrentName() != null && GlobalConfig.getInstance().isNameable()) {
             lore.add(" ");
             lore.add(Language.NICKNAME.getMessageFormatted(new FormatArg("%nickname%", pet.getCurrentName())));
             lore.add(" ");

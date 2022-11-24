@@ -1,19 +1,22 @@
 package fr.nocsy.mcpets.data;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
+import com.ticxo.modelengine.api.generator.model.ModelBlueprint;
 import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.model.MEActiveModel;
+import com.ticxo.modelengine.api.model.bone.Nameable;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,18 +31,18 @@ public class PetSkin {
     @Getter
     private Pet objectPet;
     @Getter
-    private String modelSkinId;
+    private String mythicMobId;
     @Getter
     private ItemStack icon;
     @Getter
     private String permission;
 
-    private PetSkin(Pet objectPet, String modelSkinId, String permission)
+    private PetSkin(Pet objectPet, String mythicMobId, String permission)
     {
         this.uuid = UUID.randomUUID().toString();
 
         this.objectPet = objectPet;
-        this.modelSkinId = modelSkinId;
+        this.mythicMobId = mythicMobId;
         this.permission = permission;
         initIcon();
     }
@@ -153,9 +156,12 @@ public class PetSkin {
     /**
      * Clear previous entries
      */
-    public static void clearList()
+    public static void clearList(Pet pet)
     {
-        petSkins.clear();
+        if(pet.hasSkins())
+        {
+            petSkins.put(pet.getId(), new ArrayList<>());
+        }
     }
 
     /**
@@ -189,7 +195,7 @@ public class PetSkin {
     {
         icon = Items.UNKNOWN.getItem();
         ItemMeta meta = icon.getItemMeta();
-        meta.setDisplayName("§6Skin §7: " + modelSkinId);
+        meta.setDisplayName("§6Skin §7: " + mythicMobId);
         ArrayList<String> lore = new ArrayList<>();
         lore.add("§7Click to apply that skin");
         meta.setLore(lore);
@@ -219,13 +225,18 @@ public class PetSkin {
         if(!instancePet.getId().equals(objectPet.getId()))
             return false;
 
-        ModeledEntity ent = ModelEngineAPI.getModeledEntity(instancePet.getActiveMob().getEntity().getUniqueId());
-        if (ent != null) {
-            ent.getAllActiveModel().keySet().forEach(ent::removeModel);
-            ent.addActiveModel((ActiveModel) new MEActiveModel(modelSkinId));
-            return true;
-        }
-        return false;
+        Location loc = instancePet.getActiveMob().getEntity().getBukkitEntity().getLocation();
+
+        instancePet.setActiveSkin(this);
+        instancePet.despawn(PetDespawnReason.SKIN);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                instancePet.spawn(loc, false);
+            }
+        }.runTaskLater(MCPets.getInstance(), 2L);
+        return true;
     }
 
 }

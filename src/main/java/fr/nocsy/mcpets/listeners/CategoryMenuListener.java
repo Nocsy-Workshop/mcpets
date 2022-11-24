@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,14 +28,11 @@ public class CategoryMenuListener implements Listener {
                 if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("MCPetsPage;")) {
 
                     int currentPage = category.getCurrentPage(e.getClickedInventory());
-                    boolean opened = true;
                     if (e.getClick() == ClickType.LEFT) {
-                        opened = category.openInventory(p, currentPage - 1);
+                        category.openInventory(p, currentPage - 1);
                     } else {
-                        opened = category.openInventory(p, currentPage + 1);
+                        category.openInventory(p, currentPage + 1);
                     }
-                    if(opened)
-                        p.closeInventory();
                     return;
                 }
 
