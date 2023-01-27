@@ -8,6 +8,7 @@ depend:
 softdepend:
   - WorldGuard
   - LuckPerms
+  - PlaceholderAPI
 author: Nocsy
 api-version: 1.17
 commands:

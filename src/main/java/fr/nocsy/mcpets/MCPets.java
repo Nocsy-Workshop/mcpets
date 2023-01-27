@@ -2,6 +2,7 @@ package fr.nocsy.mcpets;
 
 import com.sk89q.worldguard.WorldGuard;
 import fr.nocsy.mcpets.commands.CommandHandler;
+import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
@@ -12,6 +13,7 @@ import fr.nocsy.mcpets.listeners.EventListener;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -26,6 +28,7 @@ public class MCPets extends JavaPlugin {
 
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
+    private static PlaceholderAPICompat placeholderAPI;
 
     @Getter
     private static final Logger log = Bukkit.getLogger();
@@ -61,6 +64,7 @@ public class MCPets extends JavaPlugin {
 
         checkWorldGuard();
         checkLuckPerms();
+        checkPlaceholderApi();
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport())
@@ -148,6 +152,19 @@ public class MCPets extends JavaPlugin {
         } catch (NoClassDefFoundError error) {
             getLog().warning("[MCPets] : MythicMobs could not be found.");
         }
+        return false;
+    }
+
+    private static boolean checkPlaceholderApi(){
+        if(placeholderAPI != null){
+            return true;
+        }
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+            placeholderAPI = new PlaceholderAPICompat();
+            return true;
+        }
+
         return false;
     }
 
