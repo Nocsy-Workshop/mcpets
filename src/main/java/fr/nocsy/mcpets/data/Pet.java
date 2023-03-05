@@ -500,6 +500,7 @@ public class Pet {
      */
     public int spawn(Location loc, boolean bruise) {
 
+        Debugger.send("§aSpawning pet " + id + "...");
         // if the pet has no pet stats, then we try to set one
         if(petStats == null)
         {
@@ -666,6 +667,7 @@ public class Pet {
 
         } catch (InvalidMobTypeException e) {
             // If there's a mob bug, despawn the current pet
+            Debugger.send("§cImpossible to spawn the pet: MythicMob was not found.");
             despawn(PetDespawnReason.SPAWN_ISSUE);
             return NO_MOB_MATCH;
         }

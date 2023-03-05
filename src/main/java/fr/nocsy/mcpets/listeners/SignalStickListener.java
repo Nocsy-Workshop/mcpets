@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -102,11 +103,19 @@ public class SignalStickListener implements Listener {
 
         if(e.getView().getTopInventory().getType().equals(InventoryType.ANVIL) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.WORKBENCH) ||
-                e.getView().getTopInventory().getType().equals(InventoryType.CRAFTING) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.ENCHANTING) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.GRINDSTONE) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.MERCHANT) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.LOOM))
+        {
+            ItemStack it = e.getCurrentItem();
+            if(Items.isSignalStick(it))
+                e.setCancelled(true);
+        }
+
+
+        if(e.getView().getTopInventory().getType().equals(InventoryType.CRAFTING) &&
+                e.getSlot() <= 83 && e.getSlot() >= 80)
         {
             ItemStack it = e.getCurrentItem();
             if(Items.isSignalStick(it))
