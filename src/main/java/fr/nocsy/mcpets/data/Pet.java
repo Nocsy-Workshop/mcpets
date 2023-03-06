@@ -614,7 +614,11 @@ public class Pet {
             if(activeMob == null)
             {
                 Debugger.send("§6Warn: §7MythicMobs didn't have the mob in the registry, let's try to register it manually.");
-                ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(BukkitAdapter.adapt(ent));
+                ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(
+                        BukkitAdapter.adapt(ent),
+                        MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).get(),
+                        0
+                        );
                 if(mob != null)
                     setActiveMob(mob);
             }
