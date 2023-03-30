@@ -323,9 +323,6 @@ public class PetListener implements Listener {
         if(e.getVehicle() == null || e.getVehicle().getBase() == null)
             return;
 
-        if(!e.getSeat().isDriverBone())
-            return;
-
         Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
         Pet pet = Pet.getFromEntity(entity);
         Entity player = e.getPassenger();
@@ -334,7 +331,8 @@ public class PetListener implements Listener {
             return;
 
         // if it's not the owner or an admin mounting the pet, then we cancel it
-        if(!pet.getOwner().equals(player.getUniqueId()) &&
+        if(e.getSeat().isDriverBone() &&
+                !pet.getOwner().equals(player.getUniqueId()) &&
                 !player.hasPermission(PPermission.ADMIN.getPermission()))
         {
             e.setCancelled(true);
@@ -342,7 +340,9 @@ public class PetListener implements Listener {
         }
 
         // If user doesn't have the perm to mount the pet, cancel the event
-        if(pet.getMountPermission() != null && !player.hasPermission(pet.getMountPermission()))
+        if(pet.getMountPermission() != null
+                && !player.hasPermission(pet.getMountPermission())
+                && e.getSeat().isDriverBone())
         {
             e.setCancelled(true);
             Language.CANT_MOUNT_PET_YET.sendMessage(player);
