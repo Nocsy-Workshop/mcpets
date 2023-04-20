@@ -27,7 +27,7 @@ public enum PetDespawnReason {
     DONT_HAVE_PERM("don't have permission"),
     NO_OWNER("No owner found"),
     ACTIVE_MOB_LINKAGE_FAILED("link to the activeMob failed"),
-    UNKNOWN("unkown");
+    UNKNOWN("unknown");
 
 
     @Getter

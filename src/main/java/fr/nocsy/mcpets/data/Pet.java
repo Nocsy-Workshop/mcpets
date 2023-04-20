@@ -500,6 +500,7 @@ public class Pet {
      */
     public int spawn(Location loc, boolean bruise) {
 
+        Debugger.send("§aSpawning pet " + id + "...");
         // if the pet has no pet stats, then we try to set one
         if(petStats == null)
         {
@@ -613,7 +614,11 @@ public class Pet {
             if(activeMob == null)
             {
                 Debugger.send("§6Warn: §7MythicMobs didn't have the mob in the registry, let's try to register it manually.");
-                ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(BukkitAdapter.adapt(ent));
+                ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(
+                        BukkitAdapter.adapt(ent),
+                        MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).get(),
+                        0
+                        );
                 if(mob != null)
                     setActiveMob(mob);
             }
@@ -666,6 +671,7 @@ public class Pet {
 
         } catch (InvalidMobTypeException e) {
             // If there's a mob bug, despawn the current pet
+            Debugger.send("§cImpossible to spawn the pet: MythicMob was not found.");
             despawn(PetDespawnReason.SPAWN_ISSUE);
             return NO_MOB_MATCH;
         }
