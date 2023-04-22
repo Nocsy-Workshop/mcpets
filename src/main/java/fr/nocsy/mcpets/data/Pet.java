@@ -1317,7 +1317,7 @@ public class Pet {
     public ItemStack buildItem(ItemStack item, boolean showStats, String localizedName, String iconName, List<String> description, String materialType, int customModelData, String textureBase64) {
 
         Material mat = materialType != null ? Material.getMaterial(materialType) : null;
-
+        iconName = Utils.translateHexColorCodes("#", "", iconName);
         if (mat == null
                 && textureBase64 != null) {
             item = Utils.createHead(iconName, description, textureBase64);
