@@ -1444,7 +1444,7 @@ public class Pet {
         while(inventorySize%9 != 0)
             inventorySize++;
 
-        return inventorySize;
+        return Math.min(54, inventorySize);
     }
 
     /**

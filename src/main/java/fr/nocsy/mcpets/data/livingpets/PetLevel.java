@@ -3,7 +3,9 @@ package fr.nocsy.mcpets.data.livingpets;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
+import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.PetLevelUpEvent;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import fr.nocsy.mcpets.utils.Utils;
@@ -184,7 +186,15 @@ public class PetLevel {
         {
             // If the owner already has the evolution, then we say that the pet can not evolve
             // Else it can evolve
-            return !Utils.hasPermission(player, evolution.getPermission());
+            if(Utils.hasPermission(player, evolution.getPermission()))
+            {
+                Utils.debug("§a" + pet.getId() + "§6 can not evolve into §a" + evolution.getId()
+                        + "§6 because the §cplayer already owns the evolution§6.");
+                Player p = Bukkit.getPlayer(player);
+                if(p != null)
+                    Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
+                return false;
+            }
         }
         return true;
     }
@@ -215,6 +225,13 @@ public class PetLevel {
             evolution.setCheckPermission(false);
             // Set the owner as the current player
             evolution.setOwner(player);
+
+            // Load the player data for the pet
+            PlayerData pd = PlayerData.get(player);
+            // Fetch the saved name
+            String name = pd.getMapOfRegisteredNames().get(pet.getId());
+            if(name != null)
+                evolution.setDisplayName(name, true);
 
             // Transfer the inventory to the evolution
             PetInventory petInventory = PetInventory.get(pet);

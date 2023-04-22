@@ -70,7 +70,8 @@ public class Category {
 
         Inventory inventory = Bukkit.createInventory(null,  invSize, displayName);
 
-        inventory.setItem(invSize-1, Items.page(this, page));
+        if(maxPages > 1)
+            inventory.setItem(invSize-1, Items.page(this, page));
         for(int i = 0; i < showedPets.size(); i++)
         {
             Pet pet = showedPets.get(i);

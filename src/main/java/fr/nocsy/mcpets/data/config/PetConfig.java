@@ -111,7 +111,7 @@ public class PetConfig extends AbstractConfig {
         String mountType = getConfig().getString("MountType");
         String mountPermission = getConfig().getString("MountPermission");
         boolean despawnOnDismount = getConfig().getBoolean("DespawnOnDismount");
-        int inventorySize = Math.min(getConfig().getInt("InventorySize"), 54);
+        int inventorySize = Math.max(Math.min(getConfig().getInt("InventorySize"), 54), 0);
         while(inventorySize < 54 && inventorySize % 9 != 0)
             inventorySize++;
 

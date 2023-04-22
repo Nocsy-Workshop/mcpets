@@ -54,6 +54,7 @@ public enum Language {
     TYPE_NAME_IN_CHAT("§aWrite down in the chat the name of your pet."),
     IF_WISH_TO_REMOVE_NAME("§aIf you wish to remove it, write §c%tag%§a in the chat."),
     NICKNAME_CHANGED_SUCCESSFULY("§aNickname successfully changed !"),
+    NICKNAME_NOT_CHANGED("§cNickname could not be changed due to it being an empty string. Please try again."),
     TAG_TO_REMOVE_NAME("None"),
     ALREADY_INSIDE_VEHICULE("§7You're already mounting something. Please dismount your current mount to use this feature."),
     PET_DOESNT_EXIST("§cThis pet doesn't exist. Please check the id."),
@@ -102,7 +103,7 @@ public enum Language {
     STATS_CLEARED_FOR_PET("§aAll stats have been cleared successfully for the pet %petId%"),
 
     PET_TAMING_PROGRESS("§7Taming progress §a%progress%% §7- %progressbar%"),
-
+    PET_COULD_NOT_EVOLVE("§7Your pet could not evolve because §cyou already own the evolution§7."),
     PETFOOD_DOESNT_EXIST("§cThis pet food doesn't exist."),
 
     PET_ALREADY_TAMED("§cThis pet is already tamed."),

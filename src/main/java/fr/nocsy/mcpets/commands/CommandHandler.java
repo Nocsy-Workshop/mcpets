@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.commands;
 
+import fr.nocsy.mcpets.commands.mcpets.MCPetsCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

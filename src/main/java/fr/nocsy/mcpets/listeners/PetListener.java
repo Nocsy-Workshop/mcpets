@@ -116,7 +116,7 @@ public class PetListener implements Listener {
     @EventHandler
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        if (Pet.getActivePets().containsKey(p.getUniqueId())) {
+        if (Pet.getActivePets().containsKey(p.getUniqueId()) && GlobalConfig.getInstance().isSpawnPetOnReconnect()) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
             pet.despawn(PetDespawnReason.DISCONNECTION);
             reconnectionPets.put(p.getUniqueId(), pet);
@@ -172,7 +172,7 @@ public class PetListener implements Listener {
                 Pet pet = Pet.fromOwner(p.getUniqueId());
                 pet.dismount(p);
             }
-            return;
+
         }
 
     }
@@ -324,6 +324,8 @@ public class PetListener implements Listener {
             return;
 
         Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+        if(entity == null)
+            return;
         Pet pet = Pet.getFromEntity(entity);
         Entity player = e.getPassenger();
 

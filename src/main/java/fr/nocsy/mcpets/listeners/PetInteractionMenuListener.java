@@ -167,6 +167,11 @@ public class PetInteractionMenuListener implements Listener {
                 if (!p.hasPermission(PPermission.COLOR.getPermission()))
                     name = ChatColor.stripColor(name);
 
+                if(name == null || name.isEmpty())
+                {
+                    Language.NICKNAME_NOT_CHANGED.sendMessage(p);
+                    return;
+                }
                 pet.setDisplayName(name, true);
 
                 Language.NICKNAME_CHANGED_SUCCESSFULY.sendMessage(p);

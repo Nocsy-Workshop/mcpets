@@ -236,7 +236,7 @@ public class PetStats {
      */
     public int getExtendedInventorySize()
     {
-        return pet.getDefaultInventorySize() + currentLevel.getInventoryExtension();
+        return Math.min(pet.getDefaultInventorySize() + currentLevel.getInventoryExtension(), 54);
     }
 
     /**

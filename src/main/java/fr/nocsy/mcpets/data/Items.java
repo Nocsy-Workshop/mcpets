@@ -22,6 +22,7 @@ public enum Items {
     INVENTORY("inventory"),
     SKINS("skins"),
     EQUIPMENT("equipment"),
+    PAGE_SELECTOR("page_selector"),
     UNKNOWN("unkown");
 
     @Getter
@@ -56,6 +57,9 @@ public enum Items {
                 break;
             case "equipment":
                 item = equipment();
+                break;
+            case "page_selector":
+                item = page_item();
                 break;
             default:
                 item = unknown();
@@ -173,10 +177,17 @@ public enum Items {
         return it;
     }
 
-    public static ItemStack page(int index, Player p) {
+    private static ItemStack page_item(){
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
         meta.setCustomModelData(9660);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    public static ItemStack page(int index, Player p) {
+        ItemStack it = ItemsListConfig.getInstance().getItemStack("page_selector");
+        ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
                                                                             new FormatArg("%maxPage%", Integer.toString((int)(Pet.getAvailablePets(p).size()/54 + 0.5)))));
 
@@ -190,9 +201,8 @@ public enum Items {
     }
 
     public static ItemStack page(Category category, int index) {
-        ItemStack it = new ItemStack(Material.PAPER);
+        ItemStack it = ItemsListConfig.getInstance().getItemStack("page_selector");
         ItemMeta meta = it.getItemMeta();
-        meta.setCustomModelData(9660);
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
                                                                             new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
         meta.setLocalizedName("MCPetsPage;" + category.getId() + ";" + index);
