@@ -931,7 +931,8 @@ public class Pet {
                 mountManager.dismountAll();
             }
 
-            if (despawnSkill != null) {
+            if (despawnSkill != null
+                    && reason != PetDespawnReason.SKIN) {
                 try {
                     despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
                 } catch (Exception ex) {
