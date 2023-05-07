@@ -2,6 +2,8 @@ package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
+import fr.nocsy.mcpets.data.inventories.PetMenu;
 import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,6 +48,7 @@ public class CategoryMenuListener implements Listener {
                     Category.unregisterPlayerView(p);
                 }
             }
+            CategoriesMenu.open(p);
         }
     }
 }

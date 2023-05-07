@@ -54,7 +54,7 @@ public class Category {
 
         p.closeInventory();
 
-        int invSize = pets.size() - page*52 + 1; //Adding 1 for the page manager
+        int invSize = pets.size() - page*53 + 1; //Adding 1 for the page manager
         invSize = Math.min(54, invSize);
         while(invSize <= 0 || invSize%9 != 0)
         {
@@ -62,7 +62,7 @@ public class Category {
         }
 
         ArrayList<Pet> showedPets = new ArrayList<>();
-        for(int i = page*52; i < pets.size(); i++)
+        for(int i = page*53; i < pets.size(); i++)
         {
             if(showedPets.size() >= invSize-1)
                 break;
@@ -73,6 +73,12 @@ public class Category {
 
         if(showedPets.isEmpty() && page > 0)
             return false;
+
+        invSize = showedPets.size();
+        if(maxPages > 1)
+            invSize++;
+        while(invSize <= 0 || invSize % 9 != 0)
+            invSize++;
 
         Inventory inventory = Bukkit.createInventory(null,  invSize, displayName);
 
