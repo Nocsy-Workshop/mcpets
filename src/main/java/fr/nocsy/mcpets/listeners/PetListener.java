@@ -11,8 +11,11 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
@@ -24,6 +27,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -120,6 +124,12 @@ public class PetListener implements Listener {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
             pet.despawn(PetDespawnReason.DISCONNECTION);
             reconnectionPets.put(p.getUniqueId(), pet);
+
+            // Saving the database for bungee support
+            if(GlobalConfig.getInstance().isDatabaseSupport())
+            {
+                PlayerData.saveDB();
+            }
         }
     }
 
@@ -168,8 +178,9 @@ public class PetListener implements Listener {
 
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
-            if (p.isInsideVehicle() && Pet.fromOwner(p.getUniqueId()) != null) {
-                Pet pet = Pet.fromOwner(p.getUniqueId());
+            Pet pet = Pet.fromOwner(p.getUniqueId());
+            if(pet != null && pet.hasRider(p))
+            {
                 pet.dismount(p);
             }
 

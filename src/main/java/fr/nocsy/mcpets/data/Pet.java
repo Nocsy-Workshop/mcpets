@@ -1154,6 +1154,28 @@ public class Pet {
         return false;
     }
 
+    public boolean hasRider(Entity ent)
+    {
+        if (ent == null)
+            return false;
+
+        // Try - catch to prevent onDisable no class def found print
+        try {
+            if (isStillHere()) {
+                UUID localUUID = activeMob.getEntity().getUniqueId();
+                ModeledEntity model = ModelEngineAPI.getModeledEntity(localUUID);
+                if (model == null) {
+                    return false;
+                }
+                MountManager mountManager = model.getMountManager();
+                return mountManager.hasRider(ent);
+            }
+
+        } catch (NoClassDefFoundError ignored) {}
+
+        return false;
+    }
+
     /**
      * Unset the specified entity riding on the pet
      */
@@ -1171,11 +1193,6 @@ public class Pet {
                 }
                 MountManager mountManager = model.getMountManager();
                 mountManager.removeRiders(ent);
-
-                if(ent.getVehicle() != null)
-                    ent.getVehicle().eject();
-                EntityDismountEvent vanillaDismountEvent = new EntityDismountEvent(ent, activeMob.getEntity().getBukkitEntity());
-                Utils.callEvent(vanillaDismountEvent);
             }
 
         } catch (NoClassDefFoundError ignored) {
@@ -1317,6 +1334,8 @@ public class Pet {
     public ItemStack buildItem(ItemStack item, boolean showStats, String localizedName, String iconName, List<String> description, String materialType, int customModelData, String textureBase64) {
 
         Material mat = materialType != null ? Material.getMaterial(materialType) : null;
+        if(iconName == null)
+            iconName = "§cNo icon name defined";
         iconName = Utils.translateHexColorCodes("#", "", iconName);
         if (mat == null
                 && textureBase64 != null) {

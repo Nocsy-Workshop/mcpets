@@ -7,6 +7,7 @@ import fr.nocsy.mcpets.data.config.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.ConcurrentModificationException;
 import java.util.UUID;
 
 public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
@@ -38,21 +39,27 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
                 if(MCPets.getMythicMobs() == null)
                     return;
 
-                for (UUID owner : Pet.getActivePets().keySet()) {
-                    Pet pet = Pet.getActivePets().get(owner);
-                    Player p = Bukkit.getPlayer(owner);
+                try
+                {
+                    for (UUID owner : Pet.getActivePets().keySet()) {
+                        Pet pet = Pet.getActivePets().get(owner);
+                        Player p = Bukkit.getPlayer(owner);
 
-                    if (p != null) {
-                        boolean hasToBeRemoved = testState(p.getLocation());
+                        if (p != null) {
+                            boolean hasToBeRemoved = testState(p.getLocation());
 
-                        if (hasToBeRemoved) {
-                            pet.despawn(PetDespawnReason.FLAG);
-                            Language.CANT_FOLLOW_HERE.sendMessage(p);
+                            if (hasToBeRemoved) {
+                                pet.despawn(PetDespawnReason.FLAG);
+                                Language.CANT_FOLLOW_HERE.sendMessage(p);
+                            }
+
                         }
 
                     }
-
                 }
+                catch (ConcurrentModificationException ignored)
+                {}
+
 
             }
         }, 0L, 20L);

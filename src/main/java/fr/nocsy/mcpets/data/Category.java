@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
@@ -10,14 +11,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 
 public class Category {
 
     @Getter
     private static ArrayList<Category> categories = new ArrayList<Category>();
+    @Getter
+    private static HashMap<UUID, Category> categoryView = new HashMap<>();
 
     @Getter
     private final String id;
@@ -167,6 +173,36 @@ public class Category {
     {
         Optional<Category> optional = categories.stream().filter(cat -> cat.getId().equals(categoryId)).findFirst();
         return optional.orElse(null);
+    }
+
+    /**
+     * Dynamically register the category viewed by the player
+     * Recall to unregister the view when the inventory closes
+     * @param p
+     * @param category
+     */
+    public static void registerPlayerView(Player p, Category category)
+    {
+        categoryView.put(p.getUniqueId(), category);
+    }
+
+    /**
+     * Unregister a dynamically saved player view of a category
+     * @param p
+     */
+    public static void unregisterPlayerView(Player p)
+    {
+        categoryView.remove(p.getUniqueId());
+    }
+
+    /**
+     * Get the category currently viewed by the given player if dynamically registered
+     * @param p
+     * @return
+     */
+    public static Category getCategoryView(Player p)
+    {
+        return categoryView.get(p.getUniqueId());
     }
 
     /**

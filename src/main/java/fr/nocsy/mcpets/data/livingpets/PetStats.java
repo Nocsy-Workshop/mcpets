@@ -454,6 +454,9 @@ public class PetStats {
     {
         // Get the auto save delay (in seconds) and transform it into ticks
         long delay = (long)GlobalConfig.getInstance().getAutoSave()*20;
+        // If the delay is negative, disable the autosave
+        if(delay <= 0)
+            return;
         // Runs ASync if it's a SQL, sync if not coz YAML doesn't support ASync
         if(GlobalConfig.getInstance().isDatabaseSupport())
         {

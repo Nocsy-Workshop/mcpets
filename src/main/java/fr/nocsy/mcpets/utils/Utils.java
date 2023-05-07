@@ -175,7 +175,7 @@ public class Utils {
         if(p != null) {
             p.sendMessage(msg);
         }
-        Bukkit.getLogger().severe("[DEBUG] " + msg);
+        Bukkit.getLogger().severe("[MCPets - DEBUG]: " + msg);
     }
 
     /**

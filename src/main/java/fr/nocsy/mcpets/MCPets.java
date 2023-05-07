@@ -162,6 +162,7 @@ public class MCPets extends JavaPlugin {
 
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
             placeholderAPI = new PlaceholderAPICompat();
+            placeholderAPI.register();
             return true;
         }
 

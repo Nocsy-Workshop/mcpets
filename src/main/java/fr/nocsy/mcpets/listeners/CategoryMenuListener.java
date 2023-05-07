@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class CategoryMenuListener implements Listener {
@@ -18,11 +19,12 @@ public class CategoryMenuListener implements Listener {
         if(Category.getCategories().size() == 0)
             return;
 
-        Category category = Category.getFromInventory(e.getClickedInventory());
+        Player p = (Player) e.getWhoClicked();
+        Category category = Category.getCategoryView(p);
 
-        if (category != null) {
+        if (category != null
+                && e.getView().getTitle().equalsIgnoreCase(category.getDisplayName())) {
             e.setCancelled(true);
-            Player p = (Player) e.getWhoClicked();
             ItemStack it = e.getCurrentItem();
             if (it != null) {
                 if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("MCPetsPage;")) {
@@ -41,9 +43,9 @@ public class CategoryMenuListener implements Listener {
                     p.closeInventory();
                     Pet pet = petObject.copy();
                     pet.spawnWithMessage(p, p.getLocation());
+                    Category.unregisterPlayerView(p);
                 }
             }
-
         }
     }
 }

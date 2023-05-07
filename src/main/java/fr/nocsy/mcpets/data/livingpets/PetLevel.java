@@ -9,6 +9,7 @@ import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.PetLevelUpEvent;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.api.skills.Skill;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
@@ -186,15 +187,7 @@ public class PetLevel {
         {
             // If the owner already has the evolution, then we say that the pet can not evolve
             // Else it can evolve
-            if(Utils.hasPermission(player, evolution.getPermission()))
-            {
-                Utils.debug("§a" + pet.getId() + "§6 can not evolve into §a" + evolution.getId()
-                        + "§6 because the §cplayer already owns the evolution§6.");
-                Player p = Bukkit.getPlayer(player);
-                if(p != null)
-                    Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
-                return false;
-            }
+            return !Utils.hasPermission(player, evolution.getPermission());
         }
         return true;
     }
@@ -277,6 +270,15 @@ public class PetLevel {
             }.runTaskLater(MCPets.getInstance(), delayBeforeEvolution);
             return;
         }
+
+        Player p = Bukkit.getPlayer(player);
+        if(p != null)
+        {
+            Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
+            Debugger.send("§a" + pet.getId() + "§6 can not evolve into §a" + evolutionId
+                    + "§6 because the §cplayer" + p.getName() + " already owns the evolution§6.");
+        }
+
         if(evolutionId != null)
         {
             Bukkit.getLogger().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
