@@ -27,6 +27,13 @@ public class CategoryMenuListener implements Listener {
         if (category != null
                 && e.getView().getTitle().equalsIgnoreCase(category.getDisplayName())) {
             e.setCancelled(true);
+
+            if(e.getClickedInventory() == null)
+            {
+                CategoriesMenu.open(p);
+                return;
+            }
+
             ItemStack it = e.getCurrentItem();
             if (it != null) {
                 if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("MCPetsPage;")) {
@@ -48,7 +55,6 @@ public class CategoryMenuListener implements Listener {
                     Category.unregisterPlayerView(p);
                 }
             }
-            CategoriesMenu.open(p);
         }
     }
 }
