@@ -90,6 +90,7 @@ public class Category {
             inventory.setItem(i,  pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }
         p.openInventory(inventory);
+        Category.registerPlayerView(p, this);
         return true;
     }
 

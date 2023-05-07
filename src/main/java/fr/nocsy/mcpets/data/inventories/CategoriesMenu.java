@@ -60,7 +60,6 @@ public class CategoriesMenu {
         if(category != null)
         {
             category.openInventory(p, 0);
-            Category.registerPlayerView(p, category);
         }
     }
 
