@@ -17,9 +17,6 @@ public class PetDespawnMechanic implements ITargetedEntitySkill {
         AbstractEntity ent = data.getCaster().getEntity();
 
         Pet pet = Pet.getFromEntity(ent.getBukkitEntity());
-        if(Pet.getFromEntity(ent.getBukkitEntity()) != null)
-            return SkillResult.CONDITION_FAILED;
-
         if (pet == null)
             return SkillResult.CONDITION_FAILED;
 

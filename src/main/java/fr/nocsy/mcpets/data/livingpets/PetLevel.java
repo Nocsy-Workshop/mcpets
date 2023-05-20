@@ -197,13 +197,22 @@ public class PetLevel {
      * Gives the permission to the owner to access the new pet
      * @param player
      */
-    public void evolve(UUID player)
+    public boolean evolve(UUID player, boolean forceEvolution)
     {
-        if(canEvolve(player))
+        return this.evolveTo(player, forceEvolution, Pet.getFromId(evolutionId));
+    }
+
+    /**
+     * Makes the pet evolves if it has an evolution
+     * Gives the permission to the owner to access the new pet
+     * @param player
+     */
+    public boolean evolveTo(UUID player, boolean forceEvolution, Pet evolution)
+    {
+        if(canEvolve(player) || forceEvolution)
         {
-            Pet evolution = Pet.getFromId(evolutionId);
             if(evolution == null)
-                return;
+                return false;
 
             // Give the permission to the owner
             Utils.givePermission(player, evolution.getPermission());
@@ -232,11 +241,11 @@ public class PetLevel {
             {
                 evolution.setOwner(player);
                 PetInventory evolutionInventory = PetInventory.get(evolution);
-                // If we ca not define an inventory in the evolution, then we lose the content so it doesn't make sense
+                // If we can not define an inventory in the evolution, then we lose the content so it doesn't make sense
                 if(evolutionInventory == null)
                 {
                     Bukkit.getLogger().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
-                    return;
+                    return false;
                 }
                 evolutionInventory.setInventory(petInventory.getInventory());
             }
@@ -244,7 +253,7 @@ public class PetLevel {
             // Fetch the owner of the pet, it has to be there to spawn the next pet right
             Player owner = Bukkit.getPlayer(player);
             if(owner == null)
-                return;
+                return false;
 
             // Spawn the evolution
             new BukkitRunnable() {
@@ -268,7 +277,7 @@ public class PetLevel {
                     }
                 }
             }.runTaskLater(MCPets.getInstance(), delayBeforeEvolution);
-            return;
+            return true;
         }
 
         Player p = Bukkit.getPlayer(player);
@@ -277,12 +286,15 @@ public class PetLevel {
             Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
             Debugger.send("§a" + pet.getId() + "§6 can not evolve into §a" + evolutionId
                     + "§6 because the §cplayer" + p.getName() + " already owns the evolution§6.");
+            return false;
         }
 
         if(evolutionId != null)
         {
             Bukkit.getLogger().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
+            return false;
         }
+        return false;
     }
 
     /**
@@ -299,7 +311,7 @@ public class PetLevel {
 
         announce(owner);
         playSkill(owner);
-        evolve(owner);
+        evolve(owner, false);
     }
 
     public int compareTo(PetLevel level)

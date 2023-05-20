@@ -9,13 +9,14 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.flags.DespawnPetFlag;
+import fr.nocsy.mcpets.data.flags.DismountPetFlag;
+import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
-import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
-import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
@@ -27,7 +28,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -334,7 +334,16 @@ public class PetListener implements Listener {
         if(e.getVehicle() == null || e.getVehicle().getBase() == null)
             return;
 
-        Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+        Entity entity;
+        try
+        {
+            entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+        }
+        catch (Exception ex)
+        {
+            entity = null;
+        }
+
         if(entity == null)
             return;
         Pet pet = Pet.getFromEntity(entity);
@@ -352,6 +361,17 @@ public class PetListener implements Listener {
             Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
         }
 
+        if(GlobalConfig.getInstance().isWorldguardsupport() &&
+                FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
+                !FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
+        {
+            e.setCancelled(true);
+            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
+            pet.despawn(PetDespawnReason.FLAG);
+            Language.CANT_FOLLOW_HERE.sendMessage(player);
+            return;
+        }
+
         // If user doesn't have the perm to mount the pet, cancel the event
         if(pet.getMountPermission() != null
                 && !player.hasPermission(pet.getMountPermission())
@@ -359,6 +379,23 @@ public class PetListener implements Listener {
         {
             e.setCancelled(true);
             Language.CANT_MOUNT_PET_YET.sendMessage(player);
+        }
+    }
+
+    @EventHandler
+    public void checkFlagMount(EntityMountPetEvent e)
+    {
+        Pet pet = e.getPet();
+        Entity player = e.getEntity();
+        if(player instanceof Player &&
+                GlobalConfig.getInstance().isWorldguardsupport() &&
+                FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
+                !FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
+        {
+            e.setCancelled(true);
+            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
+            pet.despawn(PetDespawnReason.FLAG);
+            Language.CANT_FOLLOW_HERE.sendMessage(player);
         }
     }
 

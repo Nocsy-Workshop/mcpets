@@ -8,7 +8,9 @@ public enum PetFoodType {
 
     HEALTH("health"),
     TAME("tame"),
-    EXPERIENCE("exp");
+    EXPERIENCE("exp"),
+    EVOLUTION("evolution"),
+    UNLOCK("unlock");
 
     @Getter
     private String type;

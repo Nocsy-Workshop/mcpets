@@ -17,12 +17,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class LivingPetsListener implements Listener {
 
@@ -96,14 +101,25 @@ public class LivingPetsListener implements Listener {
                     // Cancel the interaction event
                     e.setCancelled(true);
                     // This will indirectly create a PetGainExperienceEvent
-                    petFood.apply(pet);
-                    petFood.consume(p);
+                    if(petFood.apply(pet, p))
+                        petFood.consume(p);
+                    return;
+                }
+
+                if(petFood.getType().equals(PetFoodType.EVOLUTION))
+                {
+                    // Cancel the interaction event
+                    e.setCancelled(true);
+                    // This may or may not work actually depending on the permissions of the player
+                    // We only withdraw the item if the evolution was allowed
+                    if(petFood.apply(pet, p))
+                        petFood.consume(p);
                     return;
                 }
 
                 // The pet has never been tamed, so let's tame it
                 // Or it's being tamed by the same player
-                // Make sure as well the pet is not already fully tamed
+                // Make sure as well the pet is not already fully tamed and receptive to the food
                 if(petFood.getType().equals(PetFoodType.TAME) &&
                         (pet.getOwner() == null || pet.getOwner().equals(p.getUniqueId())) &&
                         pet.getTamingProgress() < 1)
@@ -297,8 +313,11 @@ public class LivingPetsListener implements Listener {
         Pet pet = e.getPet();
         PetFood petFood = e.getPetFood();
 
-        petFood.consume(e.getPlayer());
-        petFood.apply(e.getPet());
+        // We try to apply the pet food but if it failed we stop there
+        if(petFood.apply(pet, e.getPlayer()))
+            petFood.consume(e.getPlayer());
+        else
+            return;
 
         // Announce it to the player
         StringBuilder progressBar = new StringBuilder();
@@ -336,11 +355,47 @@ public class LivingPetsListener implements Listener {
         Pet pet = e.getPet();
         if(pet.getPetStats() != null)
         {
-            // Remove one unit of the item or replace it by void
-            e.getPetFood().consume(e.getPlayer());
-            // Apply the modifier of the petfood to the pet
-            e.getPetFood().apply(e.getPet());
+            // Remove one unit of the item or replace it by void if it was applied
+            if(e.getPetFood().apply(pet, e.getPlayer()))
+                e.getPetFood().consume(e.getPlayer());
         }
+    }
+
+    /**
+     * General method to unlock a pet out of the item in the main hand of the player
+     * @param p
+     */
+    public void unlockPet(Player p)
+    {
+        ItemStack it = p.getInventory().getItemInMainHand();
+        PetFood petFood = PetFood.getFromItem(it);
+
+        // Check the petFood and make sure it's an unlock item
+        if(petFood != null &&
+                petFood.getType() == PetFoodType.UNLOCK)
+        {
+            // Check that the pet associated to the pet food exists
+            Pet pet = Pet.getFromId(petFood.getUnlockedPet());
+            if(pet == null)
+                return;
+
+            // Apply and if it works consume the item
+            if(petFood.apply(pet, p))
+                petFood.consume(p);
+        }
+    }
+
+    @EventHandler
+    public void unlockPet(PlayerInteractEvent e)
+    {
+        if(e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)
+            return;
+        unlockPet(e.getPlayer());
+    }
+    @EventHandler
+    public void unlockPet(PlayerInteractAtEntityEvent e)
+    {
+        unlockPet(e.getPlayer());
     }
 
 }

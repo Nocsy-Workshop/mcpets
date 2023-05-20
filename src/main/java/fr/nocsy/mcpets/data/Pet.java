@@ -851,7 +851,7 @@ public class Pet {
                     // Following AI System
                     if (distance < getInstance().getComingBackRange()) {
                         // If the pet is too close then it stops
-                        PathFindingUtils.stop(activeMob.getEntity());
+                        PathFindingUtils.stop(activeMob.getEntity(), owner);
                     } else if (distance > getInstance().getDistance() &&
                             (distance < GlobalConfig.getInstance().getDistanceTeleport() || tamingProgress < 1)) {
                         // If the pet is too far but not far enough to be teleported, then it follows up the owner
