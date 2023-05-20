@@ -16,6 +16,7 @@ import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
+import fr.nocsy.mcpets.events.PetOwnerInteractEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
@@ -70,6 +71,10 @@ public class PetListener implements Listener {
 
         if (pet != null && pet.getOwner() != null &&
                 pet.getOwner().equals(p.getUniqueId())) {
+            PetOwnerInteractEvent event = new PetOwnerInteractEvent(pet);
+            Utils.callEvent(event);
+            if(event.isCancelled()) return;
+
             PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
             menu.open(p);
