@@ -4,17 +4,16 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
-import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Databases {
 
@@ -23,6 +22,7 @@ public class Databases {
     public static MySQLDB mySQL;
 
     private static String table = GlobalConfig.getInstance().getMySQL_Prefix() + "mcpets_player_data";
+    private static ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
 
     public static boolean init() {
         if(GlobalConfig.getInstance().isDisableMySQL())
@@ -60,43 +60,96 @@ public class Databases {
 
         if (playerData == null)
             return true;
+
         try {
             while (playerData.next()) {
-
                 String uuidStr = playerData.getString("uuid");
                 UUID uuid = UUID.fromString(uuidStr);
-                PlayerData pd = PlayerData.getEmpty(uuid);
 
-                // Unserialize the pet stats first, coz it influences the inventories
-                PetStats.remove(uuid);
+                synchronized (getLockForPlayer(uuid)) {
+                    PlayerData pd = PlayerData.getEmpty(uuid);
 
-                for(String seria : playerData.getString("data").split(";;;"))
-                {
-                    PetStats stats = PetStats.unzerialize(seria);
-                    if(stats == null)
-                        continue;
-                    stats.launchTimers();
-                    PetStats.register(stats);
+                    // Unserialize the pet stats first, coz it influences the inventories
+                    PetStats.remove(uuid);
+
+                    for (String seria : playerData.getString("data").split(";;;")) {
+                        PetStats stats = PetStats.unzerialize(seria);
+                        if (stats == null)
+                            continue;
+                        stats.launchTimers();
+                        PetStats.register(stats);
+                    }
+
+                    // Unserialize the pet names
+                    pd.setMapOfRegisteredNames(unserializeData(playerData, "names"));
+
+                    // Unserialize the pet inventories
+                    pd.setMapOfRegisteredInventories(unserializeData(playerData, "inventories"));
+                    for (String petId : pd.getMapOfRegisteredInventories().keySet()) {
+                        String seriaInv = pd.getMapOfRegisteredInventories().get(petId);
+                        PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
+                    }
+
+                    PlayerData.getRegisteredData().put(uuid, pd);
                 }
-
-                // Unserialize the pet names
-                pd.setMapOfRegisteredNames(unserializeData(playerData, "names"));
-                // Unserialize the pet inventories
-                pd.setMapOfRegisteredInventories(unserializeData(playerData, "inventories"));
-                for(String petId : pd.getMapOfRegisteredInventories().keySet())
-                {
-                    String seriaInv = pd.getMapOfRegisteredInventories().get(petId);
-                    PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
-                }
-
-                PlayerData.getRegisteredData().put(uuid, pd);
-
             }
         } catch (SQLException e1) {
             e1.printStackTrace();
             return false;
         }
 
+        return true;
+    }
+
+    private static Object getLockForPlayer(UUID playerUUID) {
+        return playerLocks.computeIfAbsent(playerUUID, k -> new Object());
+    }
+
+    public static boolean loadData(UUID playerUUID) {
+        if (!GlobalConfig.getInstance().isDatabaseSupport())
+            return false;
+
+        // Update the SQL query to fetch data for the specific player with the provided UUID
+        ResultSet playerData = getMySQL().query("SELECT * FROM " + table + " WHERE uuid='" + playerUUID.toString() + "';");
+
+        if (playerData == null)
+            return true;
+
+        try {
+            while (playerData.next()) {
+                String uuidStr = playerData.getString("uuid");
+                UUID uuid = UUID.fromString(uuidStr);
+
+                synchronized (getLockForPlayer(uuid)) {
+                    PlayerData pd = PlayerData.getEmpty(uuid);
+
+                    // Unserialize the pet stats first, coz it influences the inventories
+                    PetStats.remove(uuid);
+
+                    for (String seria : playerData.getString("data").split(";;;")) {
+                        PetStats stats = PetStats.unzerialize(seria);
+                        if (stats == null)
+                            continue;
+                        stats.launchTimers();
+                        PetStats.register(stats);
+                    }
+                    // Unserialize the pet names
+                    pd.setMapOfRegisteredNames(unserializeData(playerData, "names"));
+
+                    // Unserialize the pet inventories
+                    pd.setMapOfRegisteredInventories(unserializeData(playerData, "inventories"));
+                    for (String petId : pd.getMapOfRegisteredInventories().keySet()) {
+                        String seriaInv = pd.getMapOfRegisteredInventories().get(petId);
+                        PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
+                    }
+
+                    PlayerData.getRegisteredData().put(uuid, pd);
+                }
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+            return false;
+        }
         return true;
     }
 
@@ -107,23 +160,54 @@ public class Databases {
         getMySQL().query("TRUNCATE " + table);
 
         for (UUID uuid : PlayerData.getRegisteredData().keySet()) {
-            PlayerData pd = PlayerData.getRegisteredData().get(uuid);
+            synchronized (getLockForPlayer(uuid)) {
+                PlayerData pd = PlayerData.getRegisteredData().get(uuid);
+
+                String names = buildStringSerialized(pd.getMapOfRegisteredNames());
+                String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+
+                StringBuilder data = new StringBuilder();
+
+                for (PetStats stats : PetStats.getPetStats(uuid)) {
+                    data.append(stats.serialize()).append(";;;");
+                }
+                if (data.length() > 0)
+                    data = new StringBuilder(data.substring(0, data.length() - 3));
+
+                getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
+                        + "', '" + names
+                        + "', '" + inventories
+                        + "', '" + data + "')");
+            }
+        }
+    }
+
+    public static void savePlayerData(UUID playerUUID) {
+        if (!GlobalConfig.getInstance().isDatabaseSupport())
+            return;
+
+        synchronized (getLockForPlayer(playerUUID)) {
+            PlayerData pd = PlayerData.getRegisteredData().get(playerUUID);
 
             String names = buildStringSerialized(pd.getMapOfRegisteredNames());
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
 
             StringBuilder data = new StringBuilder();
-            for(PetStats stats : PetStats.getPetStats(uuid))
-            {
+
+            for (PetStats stats : PetStats.getPetStats(playerUUID)) {
                 data.append(stats.serialize()).append(";;;");
             }
-            if(data.length() > 0)
+            if (data.length() > 0)
                 data = new StringBuilder(data.substring(0, data.length() - 3));
 
-            getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
-                                                                                                    + "', '" + names
-                                                                                                    + "', '" + inventories
-                                                                                                    + "', '" + data + "')");
+            // First, delete the existing data for the player
+            getMySQL().query("DELETE FROM " + table + " WHERE uuid='" + playerUUID.toString() + "'");
+
+            // Then, insert the new data for the player
+            getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + playerUUID.toString()
+                    + "', '" + names
+                    + "', '" + inventories
+                    + "', '" + data + "')");
         }
     }
 
@@ -142,10 +226,9 @@ public class Databases {
         return builder;
     }
 
-    public static HashMap<String, String> unserializeData(ResultSet resultSet, String targetedColumn) throws SQLException
-    {
+    public static ConcurrentHashMap<String, String> unserializeData(ResultSet resultSet, String targetedColumn) throws SQLException {
         String targetedResults = resultSet.getString(targetedColumn);
-        HashMap<String, String> outputMap = new HashMap<>();
+        ConcurrentHashMap<String, String> outputMap = new ConcurrentHashMap<>();
 
         String[] seriaTable = targetedResults.split(";;;");
 

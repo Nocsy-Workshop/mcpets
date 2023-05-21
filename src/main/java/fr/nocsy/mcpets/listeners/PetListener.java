@@ -12,6 +12,7 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
@@ -24,6 +25,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -117,31 +119,51 @@ public class PetListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         if (Pet.getActivePets().containsKey(p.getUniqueId()) && GlobalConfig.getInstance().isSpawnPetOnReconnect()) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
-            pet.despawn(PetDespawnReason.DISCONNECTION);
-            reconnectionPets.put(p.getUniqueId(), pet);
 
             // Saving the database for bungee support
-            if(GlobalConfig.getInstance().isDatabaseSupport())
-            {
-                PlayerData.saveDB();
+            if(GlobalConfig.getInstance().isDatabaseSupport()) {
+                Databases.savePlayerData(p.getUniqueId());
             }
+
+            // delay before despawning the pet and adding it to reconnectionPets
+            Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                pet.despawn(PetDespawnReason.DISCONNECTION);
+                reconnectionPets.put(p.getUniqueId(), pet);
+            }, 20L);
         }
     }
 
-    @EventHandler
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void reconnectionPlayer(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        if (reconnectionPets.containsKey(p.getUniqueId())) {
-            Pet pet = reconnectionPets.get(p.getUniqueId());
-            pet.spawn(p.getLocation(), true);
-            reconnectionPets.remove(p.getUniqueId());
-        }
+
+        // delay before loading the player data from the database
+        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+            // Load the player data from the database for bungee support
+            if (GlobalConfig.getInstance().isDatabaseSupport()) {
+                PlayerData.reloadAll(p.getUniqueId());
+            }
+
+            if (reconnectionPets.containsKey(p.getUniqueId())) {
+                Pet pet = reconnectionPets.get(p.getUniqueId());
+                pet.spawn(p.getLocation(), true);
+                reconnectionPets.remove(p.getUniqueId());
+
+                // Save the player data after reconnecting
+                if (GlobalConfig.getInstance().isDatabaseSupport()) {
+                    PlayerData.saveDB();
+                }
+            }
+        }, 20L);
     }
+
+
 
     @EventHandler
     public void teleport(PlayerChangedWorldEvent e) {

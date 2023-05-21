@@ -282,8 +282,8 @@ public class PetStats {
         if(levelUp)
         {
             updateChangingData();
-            save();
         }
+        save();
 
         // If there is no next level, set the experience so that it's the plateau value
         if(getNextLevel().equals(currentLevel) && experience > currentLevel.getExpThreshold())
@@ -355,21 +355,14 @@ public class PetStats {
      * Save the stats in the database
      * Runs async for SQL, runs sync otherwise coz YAML doesn't support async
      */
-    public void save()
-    {
-        if(GlobalConfig.getInstance().isDatabaseSupport())
-        {
-            new Thread(new Runnable() {
-                public void run() {
-                    PlayerData.saveDB();
-                }
-            }).start();
-        }
-        else
-        {
+    public void save() {
+        if (GlobalConfig.getInstance().isDatabaseSupport()) {
+            PlayerData.saveDB();
+        } else {
             PlayerData pd = PlayerData.get(pet.getOwner());
-            if(pd != null)
+            if (pd != null) {
                 pd.save();
+            }
         }
     }
 
@@ -450,16 +443,14 @@ public class PetStats {
     /**
      * Save all pet stats asynchronously on a regular time period
      */
-    public static void saveStats()
-    {
+    public static void saveStats() {
         // Get the auto save delay (in seconds) and transform it into ticks
         long delay = (long)GlobalConfig.getInstance().getAutoSave()*20;
         // If the delay is negative, disable the autosave
         if(delay <= 0)
             return;
         // Runs ASync if it's a SQL, sync if not coz YAML doesn't support ASync
-        if(GlobalConfig.getInstance().isDatabaseSupport())
-        {
+        if(GlobalConfig.getInstance().isDatabaseSupport()) {
             Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), new Runnable() {
                 @Override
                 public void run() {
@@ -467,8 +458,7 @@ public class PetStats {
                 }
             }, delay, delay);
         }
-        else
-        {
+        else {
             Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), new Runnable() {
                 @Override
                 public void run() {
@@ -476,8 +466,8 @@ public class PetStats {
                 }
             }, delay, delay);
         }
-
     }
+
 
     /**
      * Find the pet stats corresponding to the pet and the defined owner if registered
@@ -524,6 +514,21 @@ public class PetStats {
     public static PetStats getPetStatsOnRespawnTimerRunning(UUID uuid)
     {
         return petStatsList.stream().filter(petStats -> petStats.getPet().getOwner().equals(uuid) && petStats.isRespawnTimerRunning()).findFirst().orElse(null);
+    }
+
+    /**
+     * Set the pet's stats values.
+     * @param experience
+     * @param currentHealth
+     * @param currentLevel
+     */
+    public void setStats(double experience, double currentHealth, PetLevel currentLevel) {
+        this.experience = experience;
+        this.currentHealth = currentHealth;
+        this.currentLevel = currentLevel;
+
+        updateChangingData();
+        launchRegenerationTimer();
     }
 
 }

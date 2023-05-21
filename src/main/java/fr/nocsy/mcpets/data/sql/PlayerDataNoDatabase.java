@@ -9,20 +9,20 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerDataNoDatabase extends AbstractConfig {
 
     @Getter
-    private static final HashMap<UUID, PlayerDataNoDatabase> cacheMap = new HashMap<>();
+    private static final ConcurrentHashMap<UUID, PlayerDataNoDatabase> cacheMap = new ConcurrentHashMap<>();
     @Getter
     private final UUID uuid;
     @Getter
     @Setter
-    public HashMap<String, String> mapOfRegisteredNames = new HashMap<>();
+    public ConcurrentHashMap<String, String> mapOfRegisteredNames = new ConcurrentHashMap<>();
     @Getter
     @Setter
-    public HashMap<String, String> mapOfRegisteredInventories = new HashMap<>();
+    public ConcurrentHashMap<String, String> mapOfRegisteredInventories = new ConcurrentHashMap<>();
 
     private PlayerDataNoDatabase(UUID uuid) {
         this.uuid = uuid;
