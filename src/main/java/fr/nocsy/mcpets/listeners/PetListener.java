@@ -18,6 +18,7 @@ import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetOwnerInteractEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;

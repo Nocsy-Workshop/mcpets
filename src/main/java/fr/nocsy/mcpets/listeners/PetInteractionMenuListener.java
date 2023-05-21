@@ -149,7 +149,7 @@ public class PetInteractionMenuListener implements Listener {
             waitingForAnswer.remove(p.getUniqueId());
             e.setCancelled(true);
 
-            String name = e.getMessage();
+            String name = e.getMessage().replace("'", "");
             name = name.replace(";;", ";").replace(";;;", ";");
             name = Utils.hex(name);
 

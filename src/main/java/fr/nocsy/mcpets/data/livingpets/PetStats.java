@@ -302,7 +302,7 @@ public class PetStats {
 
         return pet.getPetLevels().stream()
                                     .filter(petLevel -> petLevel.getExpThreshold() > currentLevel.getExpThreshold() &&
-                                                        petLevel.canEvolve(pet.getOwner()))
+                                                        petLevel.canEvolve(pet.getOwner(), Pet.getFromId(petLevel.getEvolutionId())))
                                     .findFirst().orElse(currentLevel);
     }
 

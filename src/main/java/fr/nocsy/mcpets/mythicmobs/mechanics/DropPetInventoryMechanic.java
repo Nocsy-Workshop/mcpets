@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.mythicmobs.mechanics;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import io.lumine.mythic.api.adapters.AbstractEntity;
@@ -8,6 +9,7 @@ import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.bukkit.BukkitAdapter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,11 +33,19 @@ public class DropPetInventoryMechanic implements ITargetedEntitySkill {
             {
                 Inventory inv = petInventory.getInventory();
                 Location loc = BukkitAdapter.adapt(pet.getActiveMob().getLocation());
-                for(ItemStack it : inv.getContents())
-                {
-                    if(it != null)
-                        loc.getWorld().dropItem(loc, it);
-                }
+                // Call the drop on sync so it can trigger events
+                Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {
+                    @Override
+                    public void run() {
+                        for(ItemStack it : inv.getContents())
+                        {
+                            if(it != null)
+                                loc.getWorld().dropItemNaturally(loc, it);
+                        }
+                    }
+                });
+
+                petInventory.setInventory(Bukkit.createInventory(null, inv.getSize()));
             }
         }
         catch (Exception ex)

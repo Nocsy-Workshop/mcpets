@@ -96,7 +96,9 @@ public class LivingPetsListener implements Listener {
                     return;
                 }
 
-                if(petFood.getType().equals(PetFoodType.EXPERIENCE))
+                if(petFood.getType().equals(PetFoodType.EXPERIENCE) &&
+                        pet.getOwner() != null &&
+                        pet.getOwner().equals(p.getUniqueId()))
                 {
                     // Cancel the interaction event
                     e.setCancelled(true);
@@ -106,7 +108,9 @@ public class LivingPetsListener implements Listener {
                     return;
                 }
 
-                if(petFood.getType().equals(PetFoodType.EVOLUTION))
+                if(petFood.getType().equals(PetFoodType.EVOLUTION) &&
+                        pet.getOwner() != null &&
+                        pet.getOwner().equals(p.getUniqueId()))
                 {
                     // Cancel the interaction event
                     e.setCancelled(true);

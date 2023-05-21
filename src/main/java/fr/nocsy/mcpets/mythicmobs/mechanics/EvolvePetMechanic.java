@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.mythicmobs.mechanics;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
@@ -22,11 +23,17 @@ public class EvolvePetMechanic implements ITargetedEntitySkill {
     }
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
-        Entity entity = BukkitAdapter.adapt(target);
+        Entity entity = BukkitAdapter.adapt(data.getCaster().getEntity());
 
         Pet pet = Pet.getFromEntity(entity);
         Pet evolution = Pet.getFromId(evolutionId);
-        if(evolution != null && pet != null && pet.getPetStats() != null)
+        Debugger.send("§6[Evolution Mechanic]:");
+        if(pet != null)
+            Debugger.send("§7- pet: §a" + pet.getId() + "§7 has pet stats ? §a" + (pet.getPetStats() != null));
+        Debugger.send("§7- evolution: §a" + evolutionId + " exists ? §a" + (evolution != null));
+        if(evolution != null
+                && pet != null
+                && pet.getPetStats() != null)
         {
             // Call the experience gain on sync so it can trigger events
             Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {

@@ -14,6 +14,7 @@ import io.lumine.mythic.api.skills.Skill;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -38,6 +39,7 @@ public class PetLevel {
     // If the pet has an evolution, specify it and it will turn into the evolution
     private String evolutionId;
     @Getter
+    @Setter
     // Chose how long the evolution will be taking in ticks, 0 if instant
     // otherwise put the length of your evolution animation !
     private int delayBeforeEvolution;
@@ -180,9 +182,8 @@ public class PetLevel {
      * @param player
      * @return
      */
-    public boolean canEvolve(UUID player)
+    public boolean canEvolve(UUID player, Pet evolution)
     {
-        Pet evolution = Pet.getFromId(evolutionId);
         if(evolution != null)
         {
             // If the owner already has the evolution, then we say that the pet can not evolve
@@ -209,7 +210,9 @@ public class PetLevel {
      */
     public boolean evolveTo(UUID player, boolean forceEvolution, Pet evolution)
     {
-        if(canEvolve(player) || forceEvolution)
+        Debugger.send("Pet §6" + this.getPet().getId() + "§7 is trying to evolve as §a" + evolution.getId());
+        Debugger.send("Checking conditions: §6can evolve ? §a" + canEvolve(player, evolution) + " §7| §6forced ? §a" + forceEvolution);
+        if(canEvolve(player, evolution) || forceEvolution)
         {
             if(evolution == null)
                 return false;

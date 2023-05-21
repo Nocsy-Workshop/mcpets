@@ -11,6 +11,7 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +24,8 @@ public class PetFood {
 
     private static final HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
 
+
+    //----------------- Generic item section ------------------//
     @Getter
     private String id;
 
@@ -45,18 +48,29 @@ public class PetFood {
     private List<String> petIds;
 
     @Getter
+    private boolean defaultMCItem;
+
+    private ItemStack itemStack;
+
+
+    //----------------- Evolution item section ------------------//
+    @Getter
     private String evolution;
 
+    @Getter
+    private int experienceThreshold;
+
+    @Getter
+    private int delay;
+
+
+    //----------------- Unlock item section ------------------//
     @Getter
     private String permission;
 
     @Getter
     private String unlockedPet;
 
-    @Getter
-    private boolean defaultMCItem;
-
-    private ItemStack itemStack;
 
     /**
      * Constructor
@@ -72,6 +86,8 @@ public class PetFood {
             PetMath operator,
             String signal,
             String evolution,
+            int experienceThreshold,
+            int delay,
             String permission,
             String unlockedPet,
             List<String> petIds
@@ -84,6 +100,8 @@ public class PetFood {
         this.operator = operator;
         this.signal = signal;
         this.evolution = evolution;
+        this.experienceThreshold = experienceThreshold;
+        this.delay = delay;
         this.permission = permission;
         this.unlockedPet = unlockedPet;
         this.petIds = petIds;
@@ -186,6 +204,7 @@ public class PetFood {
         // says whether the petfood was triggered or not
         boolean triggered = false;
 
+        Debugger.send("§7Applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 with type §a" + this.type.getType());
         if (type.getType().equals(PetFoodType.HEALTH.getType()))
         {
             if(pet.getPetStats() != null)
@@ -210,9 +229,17 @@ public class PetFood {
         else if(type.getType().equals(PetFoodType.EVOLUTION.getType()))
         {
             Pet evolutionPet = Pet.getFromId(evolution);
-            if(pet.getPetStats() != null && evolutionPet != null)
+            if(pet.getPetStats() != null
+                    && evolutionPet != null
+                    && pet.getPetStats().getExperience() >= experienceThreshold)
             {
-                triggered = pet.getPetStats().getCurrentLevel().evolveTo(pet.getOwner(), false, evolutionPet);
+                PetLevel level = pet.getPetStats().getCurrentLevel();
+                level.setDelayBeforeEvolution(delay);
+                triggered = level.evolveTo(pet.getOwner(), false, evolutionPet);
+            }
+            else
+            {
+                Debugger.send("§cCould not evolve pet has conditions are not met or the evolution doesn't exist.");
             }
         }
         else if(type.getType().equals(PetFoodType.UNLOCK.getType()))
@@ -244,8 +271,9 @@ public class PetFood {
         if(triggered)
         {
             pet.sendSignal(signal);
-            registerWaitingList(pet.getOwner(), 2L);
         }
+
+        registerWaitingList(pet.getOwner(), 2L);
 
         return triggered;
     }

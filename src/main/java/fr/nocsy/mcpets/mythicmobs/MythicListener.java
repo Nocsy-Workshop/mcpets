@@ -111,6 +111,11 @@ public class MythicListener implements Listener {
             DropPetInventoryMechanic mechanic = new DropPetInventoryMechanic(event.getConfig());
             event.register(mechanic);
         }
+        else if (event.getMechanicName().equalsIgnoreCase("DropPetItem"))
+        {
+            DropPetItemMechanic mechanic = new DropPetItemMechanic(event.getConfig());
+            event.register(mechanic);
+        }
 
     }
 
