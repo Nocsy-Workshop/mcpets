@@ -9,12 +9,14 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.flags.DespawnPetFlag;
+import fr.nocsy.mcpets.data.flags.DismountPetFlag;
+import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
-import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
+import fr.nocsy.mcpets.events.PetOwnerInteractEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
@@ -25,11 +27,9 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
@@ -72,6 +72,10 @@ public class PetListener implements Listener {
 
         if (pet != null && pet.getOwner() != null &&
                 pet.getOwner().equals(p.getUniqueId())) {
+            PetOwnerInteractEvent event = new PetOwnerInteractEvent(pet);
+            Utils.callEvent(event);
+            if(event.isCancelled()) return;
+
             PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
             pet.setLastInteractedWith(p);
             menu.open(p);
@@ -119,51 +123,31 @@ public class PetListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         if (Pet.getActivePets().containsKey(p.getUniqueId()) && GlobalConfig.getInstance().isSpawnPetOnReconnect()) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
+            pet.despawn(PetDespawnReason.DISCONNECTION);
+            reconnectionPets.put(p.getUniqueId(), pet);
 
             // Saving the database for bungee support
-            if(GlobalConfig.getInstance().isDatabaseSupport()) {
-                Databases.savePlayerData(p.getUniqueId());
+            if(GlobalConfig.getInstance().isDatabaseSupport())
+            {
+                PlayerData.saveDB();
             }
-
-            // delay before despawning the pet and adding it to reconnectionPets
-            Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-                pet.despawn(PetDespawnReason.DISCONNECTION);
-                reconnectionPets.put(p.getUniqueId(), pet);
-            }, 20L);
         }
     }
 
-
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler
     public void reconnectionPlayer(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-
-        // delay before loading the player data from the database
-        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-            // Load the player data from the database for bungee support
-            if (GlobalConfig.getInstance().isDatabaseSupport()) {
-                PlayerData.reloadAll(p.getUniqueId());
-            }
-
-            if (reconnectionPets.containsKey(p.getUniqueId())) {
-                Pet pet = reconnectionPets.get(p.getUniqueId());
-                pet.spawn(p.getLocation(), true);
-                reconnectionPets.remove(p.getUniqueId());
-
-                // Save the player data after reconnecting
-                if (GlobalConfig.getInstance().isDatabaseSupport()) {
-                    PlayerData.saveDB();
-                }
-            }
-        }, 20L);
+        if (reconnectionPets.containsKey(p.getUniqueId())) {
+            Pet pet = reconnectionPets.get(p.getUniqueId());
+            pet.spawn(p.getLocation(), true);
+            reconnectionPets.remove(p.getUniqueId());
+        }
     }
-
-
 
     @EventHandler
     public void teleport(PlayerChangedWorldEvent e) {
@@ -356,7 +340,16 @@ public class PetListener implements Listener {
         if(e.getVehicle() == null || e.getVehicle().getBase() == null)
             return;
 
-        Entity entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+        Entity entity;
+        try
+        {
+            entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+        }
+        catch (Exception ex)
+        {
+            entity = null;
+        }
+
         if(entity == null)
             return;
         Pet pet = Pet.getFromEntity(entity);
@@ -374,6 +367,17 @@ public class PetListener implements Listener {
             Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
         }
 
+        if(GlobalConfig.getInstance().isWorldguardsupport() &&
+                FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
+                !FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
+        {
+            e.setCancelled(true);
+            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
+            pet.despawn(PetDespawnReason.FLAG);
+            Language.CANT_FOLLOW_HERE.sendMessage(player);
+            return;
+        }
+
         // If user doesn't have the perm to mount the pet, cancel the event
         if(pet.getMountPermission() != null
                 && !player.hasPermission(pet.getMountPermission())
@@ -381,6 +385,23 @@ public class PetListener implements Listener {
         {
             e.setCancelled(true);
             Language.CANT_MOUNT_PET_YET.sendMessage(player);
+        }
+    }
+
+    @EventHandler
+    public void checkFlagMount(EntityMountPetEvent e)
+    {
+        Pet pet = e.getPet();
+        Entity player = e.getEntity();
+        if(player instanceof Player &&
+                GlobalConfig.getInstance().isWorldguardsupport() &&
+                FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
+                !FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
+        {
+            e.setCancelled(true);
+            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
+            pet.despawn(PetDespawnReason.FLAG);
+            Language.CANT_FOLLOW_HERE.sendMessage(player);
         }
     }
 

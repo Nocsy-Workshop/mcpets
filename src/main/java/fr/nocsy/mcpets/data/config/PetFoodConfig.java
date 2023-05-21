@@ -48,9 +48,15 @@ public class PetFoodConfig extends AbstractConfig {
             double power = getConfig().getDouble(key + ".Power");
             PetMath operator = PetMath.get(getConfig().getString(key + ".Operator"));
             String signal = getConfig().getString(key + ".Signal");
+            String evolution = getConfig().getString(key + ".Evolution");
+            int experienceThreshold = getConfig().getInt(key + ".ExperienceThreshold");
+            int delay = getConfig().getInt(key + ".DelayBeforeEvolution");
+            String permission = getConfig().getString(key + ".Permission");
+            String unlockedPet = getConfig().getString(key + ".UnlockPet");
+
             List<String> petIds = getConfig().getStringList(key + ".Pets");
 
-            PetFood petFood = new PetFood(key, id, power, foodType, operator, signal, petIds);
+            PetFood petFood = new PetFood(key, id, power, foodType, operator, signal, evolution, experienceThreshold, delay, permission, unlockedPet, petIds);
             petFoods.put(id, petFood);
         }
 

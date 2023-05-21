@@ -14,8 +14,10 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
 
     int task;
 
+    public static String NAME = "mcpets-despawn";
+
     public DespawnPetFlag(MCPets instance) {
-        super("mcpets-despawn", false, instance);
+        super(NAME, false, instance);
     }
 
     @Override

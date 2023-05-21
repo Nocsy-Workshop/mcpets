@@ -1,24 +1,31 @@
 package fr.nocsy.mcpets.data.livingpets;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
+import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
 import fr.nocsy.mcpets.utils.PetMath;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class PetFood {
 
     private static final HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
 
+
+    //----------------- Generic item section ------------------//
     @Getter
     private String id;
 
@@ -45,13 +52,46 @@ public class PetFood {
 
     private ItemStack itemStack;
 
+
+    //----------------- Evolution item section ------------------//
+    @Getter
+    private String evolution;
+
+    @Getter
+    private int experienceThreshold;
+
+    @Getter
+    private int delay;
+
+
+    //----------------- Unlock item section ------------------//
+    @Getter
+    private String permission;
+
+    @Getter
+    private String unlockedPet;
+
+
     /**
      * Constructor
      * @param itemId
      * @param power
      * @param operator
      */
-    public PetFood(String id, String itemId, double power, PetFoodType type, PetMath operator, String signal, List<String> petIds)
+    public PetFood(
+            String id,
+            String itemId,
+            double power,
+            PetFoodType type,
+            PetMath operator,
+            String signal,
+            String evolution,
+            int experienceThreshold,
+            int delay,
+            String permission,
+            String unlockedPet,
+            List<String> petIds
+    )
     {
         this.id = id;
         this.itemId = itemId;
@@ -59,6 +99,11 @@ public class PetFood {
         this.type = type;
         this.operator = operator;
         this.signal = signal;
+        this.evolution = evolution;
+        this.experienceThreshold = experienceThreshold;
+        this.delay = delay;
+        this.permission = permission;
+        this.unlockedPet = unlockedPet;
         this.petIds = petIds;
 
         // Setup the item stack
@@ -118,44 +163,119 @@ public class PetFood {
         return petIds.contains(pet.getId());
     }
 
+
+    /**
+     * Register an owner in the waiting list so that they don't spam an item
+     * and loose it unintentionally
+     */
+    private ArrayList<UUID> waitingListApply = new ArrayList<>();
+    public void registerWaitingList(UUID owner, long delay)
+    {
+        if(waitingListApply.contains(owner))
+            return;
+        waitingListApply.add(owner);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                waitingListApply.remove(owner);
+            }
+        }.runTaskLater(MCPets.getInstance(), delay);
+    }
+
     /**
      * Give the food to the pet
      * @param pet
      * @return value stating whether or not the food could be applied
      */
-    public boolean apply(Pet pet)
+    public boolean apply(Pet pet, Player p)
     {
+        if(pet == null)
+            return false;
+
+        if(waitingListApply.contains(pet.getOwner()))
+            return false;
+
         if(type == null)
             return false;
 
         if(!isCompatibleWithPet(pet))
             return false;
 
+        // says whether the petfood was triggered or not
+        boolean triggered = false;
+
+        Debugger.send("§7Applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 with type §a" + this.type.getType());
         if (type.getType().equals(PetFoodType.HEALTH.getType()))
         {
             if(pet.getPetStats() != null)
             {
                 pet.getPetStats().setHealth(operator.get(pet.getPetStats().getCurrentHealth(), power));
-                pet.sendSignal(signal);
-                return true;
+                triggered = true;
             }
         }
         else if(type.getType().equals(PetFoodType.TAME.getType()))
         {
             pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
-            pet.sendSignal(signal);
-            return true;
+            triggered = true;
         }
         else if(type.getType().equals(PetFoodType.EXPERIENCE.getType()))
         {
             if(pet.getPetStats() != null)
             {
                 pet.getPetStats().addExperience(power);
-                pet.sendSignal(signal);
-                return true;
+                triggered = true;
             }
         }
-        return false;
+        else if(type.getType().equals(PetFoodType.EVOLUTION.getType()))
+        {
+            Pet evolutionPet = Pet.getFromId(evolution);
+            if(pet.getPetStats() != null
+                    && evolutionPet != null
+                    && pet.getPetStats().getExperience() >= experienceThreshold)
+            {
+                PetLevel level = pet.getPetStats().getCurrentLevel();
+                level.setDelayBeforeEvolution(delay);
+                triggered = level.evolveTo(pet.getOwner(), false, evolutionPet);
+            }
+            else
+            {
+                Debugger.send("§cCould not evolve pet has conditions are not met or the evolution doesn't exist.");
+            }
+        }
+        else if(type.getType().equals(PetFoodType.UNLOCK.getType()))
+        {
+            if(p != null)
+            {
+                if(p.hasPermission(permission))
+                {
+                    if(permission != null && !p.hasPermission(permission))
+                    {
+                        Language.PETUNLOCK_NOPERM.sendMessage(p);
+                        return false;
+                    }
+
+                    Pet unlockedPetObject = Pet.getFromId(unlockedPet);
+                    if(unlockedPetObject == null)
+                    {
+                        Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but the pet §7"+ unlockedPet +"§7 does not exist.");
+                        return false;
+                    }
+
+                    Utils.givePermission(p.getUniqueId(), unlockedPetObject.getPermission());
+                    Language.PETUNLOCKED.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
+                    triggered = true;
+                }
+            }
+        }
+
+        if(triggered)
+        {
+            pet.sendSignal(signal);
+        }
+
+        registerWaitingList(pet.getOwner(), 2L);
+
+        return triggered;
     }
 
     /**

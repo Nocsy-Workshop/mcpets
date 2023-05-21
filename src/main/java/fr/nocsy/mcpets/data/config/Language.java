@@ -105,6 +105,8 @@ public enum Language {
     PET_TAMING_PROGRESS("§7Taming progress §a%progress%% §7- %progressbar%"),
     PET_COULD_NOT_EVOLVE("§7Your pet could not evolve because §cyou already own the evolution§7."),
     PETFOOD_DOESNT_EXIST("§cThis pet food doesn't exist."),
+    PETUNLOCK_NOPERM("§cYou are not allowed to use this item to unlock the pet."),
+    PETUNLOCKED("§aYou've unlocked the pet %petName%, congratulations !"),
 
     PET_ALREADY_TAMED("§cThis pet is already tamed."),
     PET_DOESNT_EAT("§cThis pet can not eat that food."),

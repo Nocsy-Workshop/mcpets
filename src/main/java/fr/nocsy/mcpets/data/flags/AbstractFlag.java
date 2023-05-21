@@ -15,6 +15,7 @@ import com.sk89q.worldguard.protection.flags.registry.UnknownFlag;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
@@ -78,6 +79,8 @@ public abstract class AbstractFlag {
      * @return
      */
     public boolean testState(org.bukkit.Location location) {
+        if(!GlobalConfig.getInstance().isWorldguardsupport())
+            return true;
         Location loc = BukkitAdapter.adapt(location);
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
