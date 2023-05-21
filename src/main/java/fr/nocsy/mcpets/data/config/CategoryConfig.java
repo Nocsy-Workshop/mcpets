@@ -4,6 +4,7 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -11,6 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CategoryConfig extends AbstractConfig {
 
@@ -52,6 +55,8 @@ public class CategoryConfig extends AbstractConfig {
             getConfig().set("Pets", new ArrayList<>());
         if (getConfig().get("DefaultCategory") == null)
             getConfig().set("DefaultCategory", false);
+        if (getConfig().get("ExcludedCategories") == null)
+            getConfig().set("ExcludedCategories", new ArrayList<String>());
 
         save();
         reload();
@@ -75,13 +80,21 @@ public class CategoryConfig extends AbstractConfig {
             category.setDisplayName(getConfig().getString("DisplayName"));
         }
 
+        // Load the excluded categories so we can prevent those pets to be added
+        List<String> excludedIds = getConfig().getStringList("ExcludedCategories");
+        List<Category> excludedCategories = Category.getCategories().stream()
+                                                                    .filter(cat -> excludedIds.contains(cat.getId()))
+                                                                    .collect(Collectors.toList());
+
         // Handle the pets within that category
         // if it's a default category, all pets will be added
         if(getConfig().getBoolean("DefaultCategory"))
         {
             for(Pet pet : Pet.getObjectPets())
             {
-                category.addPet(pet);
+                // Exclude the pets that are present in the excluded categories
+                if(excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
+                    category.addPet(pet);
             }
             category.countMaxPages();
         }
@@ -91,7 +104,8 @@ public class CategoryConfig extends AbstractConfig {
             for(String id : getConfig().getStringList("Pets"))
             {
                 Pet pet = Pet.getFromId(id);
-                if(pet != null)
+                if(pet != null &&
+                        excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
                     category.addPet(pet);
             }
             category.countMaxPages();
@@ -128,6 +142,8 @@ public class CategoryConfig extends AbstractConfig {
         if (!folder.exists())
             folder.mkdirs();
 
+        // First hand load to load up the categories content
+        // Then we perform a secondary load to filter out the excluded categories
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
                 load(file.getPath().replace("\\", "/"), false);
@@ -138,7 +154,22 @@ public class CategoryConfig extends AbstractConfig {
 
             if (config.getCategory() != null)
                 Category.add(config.getCategory());
+        }
 
+        // Secondary load to filter out the excluded categories content
+        for (File file : folder.listFiles()) {
+            if (file.isDirectory()) {
+                load(file.getPath().replace("\\", "/"), false);
+                continue;
+            }
+
+            CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
+
+            if (config.getCategory() != null)
+            {
+                Category.getCategories().removeAll(Category.getCategories().stream().filter(cat -> config.getCategory().getId().equals(cat.getId())).collect(Collectors.toList()));
+                Category.add(config.getCategory());
+            }
         }
 
 
