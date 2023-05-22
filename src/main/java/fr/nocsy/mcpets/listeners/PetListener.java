@@ -364,17 +364,16 @@ public class PetListener implements Listener {
                 !player.hasPermission(PPermission.ADMIN.getPermission()))
         {
             e.setCancelled(true);
-            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
+            Debugger.send("[ModelMountEvent] §c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
         }
 
         if(GlobalConfig.getInstance().isWorldguardsupport() &&
                 FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
-                !FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
+                FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
         {
             e.setCancelled(true);
             Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
-            pet.despawn(PetDespawnReason.FLAG);
-            Language.CANT_FOLLOW_HERE.sendMessage(player);
+            Language.NOT_MOUNTABLE_HERE.sendMessage(player);
             return;
         }
 
@@ -396,12 +395,11 @@ public class PetListener implements Listener {
         if(player instanceof Player &&
                 GlobalConfig.getInstance().isWorldguardsupport() &&
                 FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
-                !FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
+                FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
         {
             e.setCancelled(true);
-            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
-            pet.despawn(PetDespawnReason.FLAG);
-            Language.CANT_FOLLOW_HERE.sendMessage(player);
+            Debugger.send("[EntityMountPetEvent] §c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
+            Language.NOT_MOUNTABLE_HERE.sendMessage(player);
         }
     }
 
