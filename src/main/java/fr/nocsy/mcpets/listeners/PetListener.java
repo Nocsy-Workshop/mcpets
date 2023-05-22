@@ -374,6 +374,8 @@ public class PetListener implements Listener {
             e.setCancelled(true);
             Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
             Language.NOT_MOUNTABLE_HERE.sendMessage(player);
+            if(pet.isDespawnOnDismount())
+                pet.despawn(PetDespawnReason.FLAG);
             return;
         }
 
@@ -400,6 +402,8 @@ public class PetListener implements Listener {
             e.setCancelled(true);
             Debugger.send("[EntityMountPetEvent] §c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
             Language.NOT_MOUNTABLE_HERE.sendMessage(player);
+            if(pet.isDespawnOnDismount())
+                pet.despawn(PetDespawnReason.FLAG);
         }
     }
 
