@@ -948,7 +948,7 @@ public class Pet {
             }
 
             if(GlobalConfig.getInstance().isDatabaseSupport()) {
-                Databases.savePlayerData(ownerPlayer.getUniqueId());
+                Databases.savePlayerData(owner);
             }
             activePets.remove(owner);
             return true;
