@@ -12,6 +12,7 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.PathFindingUtils;
@@ -946,6 +947,9 @@ public class Pet {
                     activeMob.getEntity().getBukkitEntity().remove();
             }
 
+            if(GlobalConfig.getInstance().isDatabaseSupport()) {
+                Databases.savePlayerData(ownerPlayer.getUniqueId());
+            }
             activePets.remove(owner);
             return true;
         }
