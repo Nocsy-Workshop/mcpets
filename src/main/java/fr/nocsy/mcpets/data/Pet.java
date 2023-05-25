@@ -1124,8 +1124,15 @@ public class Pet {
                 if(ent.getVehicle() != null)
                     ent.getVehicle().eject();
                 mountManager.removeRiders(mountManager.getDriver());
-                mountManager.setDriver(ent, controller);
-                mountManager.setCanDamageMount(ent.getUniqueId(), false);
+                try
+                {
+                    mountManager.setDriver(ent, controller);
+                    mountManager.setCanDamageMount(ent.getUniqueId(), false);
+                }
+                catch(IllegalStateException ex)
+                {
+                    Language.ALREADY_MOUNTING.sendMessageFormated(ent);
+                }
             } catch (NoClassDefFoundError error) {
                 MCPets.getLog().warning(Language.REQUIRES_MODELENGINE.getMessage());
                 if (ent instanceof Player)

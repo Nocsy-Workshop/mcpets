@@ -48,6 +48,7 @@ public enum Language {
     OWNER_NOT_FOUND("§cThis pet could not be summoned. The summoner couldn't be found."),
     REVOKED_BEFORE_CHANGES("§cYour pet was revoked before the modifications could take place."),
     NOT_MOUNTABLE("§cThis pet has no mounting point."),
+    ALREADY_MOUNTING("§cYou are already riding something. Please dismount before you attempt again."),
     NOT_MOUNTABLE_HERE("§cYou can't ride a pet in this area."),
     CANT_MOUNT_PET_YET("§cYou do not have the permission to ride that pet."),
     CANT_FOLLOW_HERE("§cYour pet can't follow you in this area."),
