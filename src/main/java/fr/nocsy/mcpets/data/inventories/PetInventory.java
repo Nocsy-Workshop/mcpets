@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.sql.PlayerDataNoDatabase;
 import fr.nocsy.mcpets.utils.BukkitSerialization;
@@ -175,7 +176,7 @@ public class PetInventory {
                 if(!GlobalConfig.getInstance().isDatabaseSupport())
                     PlayerDataNoDatabase.get(p.getUniqueId()).save();
                 else
-                    PlayerData.saveDB();
+                    Databases.saveAll();
             }
         }).start();
     }

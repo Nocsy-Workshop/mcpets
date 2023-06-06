@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -49,7 +50,7 @@ public class ArgumentClearStats extends AArgument {
                 {
                     PetStats.remove(petId);
                     Language.STATS_CLEARED_FOR_PET.sendMessageFormated(sender, new FormatArg("%petId%", petId));
-                    PlayerData.saveDB();
+                    Databases.saveAll();
                     return;
                 }
 

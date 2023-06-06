@@ -102,7 +102,8 @@ public class MCPets extends JavaPlugin {
 
         PetStats.saveAll();
         Pet.clearPets();
-        PlayerData.saveDB();
+        Databases.saveAll();
+
         FlagsManager.stopFlags();
 
     }

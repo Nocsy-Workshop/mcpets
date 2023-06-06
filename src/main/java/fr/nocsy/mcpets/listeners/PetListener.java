@@ -134,7 +134,7 @@ public class PetListener implements Listener {
             // Saving the database for bungee support
             if(GlobalConfig.getInstance().isDatabaseSupport())
             {
-                PlayerData.saveDB();
+                PlayerData.saveDB(e.getPlayer().getUniqueId());
             }
         }
     }
@@ -142,6 +142,8 @@ public class PetListener implements Listener {
     @EventHandler
     public void reconnectionPlayer(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        //load cache async.
+        Bukkit.getScheduler().runTaskAsynchronously(MCPets.getInstance(), () -> PlayerData.get(e.getPlayer().getUniqueId()));
         if (reconnectionPets.containsKey(p.getUniqueId())) {
             Pet pet = reconnectionPets.get(p.getUniqueId());
             pet.spawn(p.getLocation(), true);

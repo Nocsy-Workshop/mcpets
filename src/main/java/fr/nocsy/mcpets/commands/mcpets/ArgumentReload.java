@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.commands.AArgument;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.command.CommandSender;
@@ -26,7 +27,7 @@ public class ArgumentReload extends AArgument {
 
     @Override
     public void commandEffect() {
-        PlayerData.saveDB();
+        Databases.saveAll();
         MCPets.loadConfigs();
         Language.RELOAD_SUCCESS.sendMessage(sender);
         Language.HOW_MANY_PETS_LOADED.sendMessageFormated(sender, new FormatArg("%numberofpets%", Integer.toString(Pet.getObjectPets().size())));

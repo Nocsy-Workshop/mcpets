@@ -4,6 +4,7 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
 import fr.nocsy.mcpets.utils.PetTimer;
@@ -359,11 +360,7 @@ public class PetStats {
     {
         if(GlobalConfig.getInstance().isDatabaseSupport())
         {
-            new Thread(new Runnable() {
-                public void run() {
-                    PlayerData.saveDB();
-                }
-            }).start();
+            Databases.saveAll();
         }
         else
         {
@@ -439,7 +436,7 @@ public class PetStats {
     {
         if(GlobalConfig.getInstance().isDatabaseSupport())
         {
-            PlayerData.saveDB();
+            Databases.saveAll();
         }
         else
         {
@@ -463,7 +460,7 @@ public class PetStats {
             Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), new Runnable() {
                 @Override
                 public void run() {
-                    PlayerData.saveDB();
+                    Databases.saveAll();
                 }
             }, delay, delay);
         }
