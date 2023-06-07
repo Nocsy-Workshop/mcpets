@@ -7,21 +7,22 @@ import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerData {
 
     @Getter
-    private static final HashMap<UUID, PlayerData> registeredData = new HashMap<>();
+    private static final ConcurrentHashMap<UUID, PlayerData> registeredData = new ConcurrentHashMap<>();
 
     @Getter
     @Setter
-    private HashMap<String, String> mapOfRegisteredNames = new HashMap<>();
+    private ConcurrentHashMap<String, String> mapOfRegisteredNames = new ConcurrentHashMap<>();
     @Getter
     @Setter
-    private HashMap<String, String> mapOfRegisteredInventories = new HashMap<>();
+    private ConcurrentHashMap<String, String> mapOfRegisteredInventories = new ConcurrentHashMap<>();
     @Getter
     @Setter
-    private HashMap<String, String> mapOfRegisteredPetStats = new HashMap<>();
+    private ConcurrentHashMap<String, String> mapOfRegisteredPetStats = new ConcurrentHashMap<>();
 
     @Setter
     @Getter
@@ -29,8 +30,6 @@ public class PlayerData {
 
     private PlayerData(UUID uuid) {
         this.uuid = uuid;
-        init();
-        save();
     }
 
     private PlayerData() {
@@ -64,8 +63,8 @@ public class PlayerData {
         return data;
     }
 
-    public static void initAll() {
-        reloadAll();
+    public static void initializeAllPlayerData() {
+        reloadAllPlayerData();
     }
 
     public static void saveDB() {
@@ -77,12 +76,8 @@ public class PlayerData {
         }
     }
 
-    public static void reloadAll() {
+    public static void reloadAllPlayerData() {
         Databases.loadData();
-    }
-
-    public void init() {
-        reload();
     }
 
     /**
@@ -113,6 +108,22 @@ public class PlayerData {
 
             pdn.setMapOfRegisteredInventories(mapOfRegisteredInventories);
             pdn.save();
+        }
+    }
+
+    public static void initAll() {
+        if (GlobalConfig.getInstance().isDatabaseSupport()) {
+            Databases.loadData();
+        } else {
+            PlayerDataNoDatabase.getCacheMap().values().forEach(PlayerDataNoDatabase::reload);
+        }
+    }
+
+    public static void reloadAll(UUID uuid) {
+        if (GlobalConfig.getInstance().isDatabaseSupport()) {
+            Databases.loadData(uuid);
+        } else {
+            PlayerDataNoDatabase.get(uuid).reload();
         }
     }
 
