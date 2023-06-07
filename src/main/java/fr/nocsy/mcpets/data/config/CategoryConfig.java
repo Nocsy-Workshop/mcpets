@@ -48,7 +48,9 @@ public class CategoryConfig extends AbstractConfig {
         this.category = new Category(id);
 
         if (getConfig().get("DisplayName") == null)
-            getConfig().set("DisplayName", "Category");
+            getConfig().set("DisplayName", "Category title");
+        if (getConfig().get("IconName") == null)
+            getConfig().set("IconName", "Category name");
         if (getConfig().get("Icon") == null)
             getConfig().set("Icon", setupUnkownIcon());
         if (getConfig().get("Pets") == null)
@@ -74,10 +76,15 @@ public class CategoryConfig extends AbstractConfig {
 
         category.getPets().clear();
 
-        // Handle the name of the category
+        // Handle the title of the category
         if (getConfig().get("DisplayName") != null)
         {
             category.setDisplayName(getConfig().getString("DisplayName"));
+        }
+        // Handle the name of the category
+        if (getConfig().get("IconName") != null)
+        {
+            category.setIconName(getConfig().getString("IconName"));
         }
 
         // Load the excluded categories so we can prevent those pets to be added

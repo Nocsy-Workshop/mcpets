@@ -31,6 +31,11 @@ public class Category {
     @Getter
     @Setter
     private String displayName;
+
+    @Getter
+    @Setter
+    private String iconName;
+
     @Getter
     private ItemStack icon;
     @Getter
@@ -45,6 +50,7 @@ public class Category {
         this.icon = null;
         this.pets = new ArrayList<>();
         this.displayName = "Unknown";
+        this.iconName = "Unknown";
     }
 
     public boolean openInventory(Player p, int page)
@@ -123,7 +129,7 @@ public class Category {
     {
         ItemMeta meta = icon.getItemMeta();
         meta.setLocalizedName("MCPetsCategory;" + this.getId());
-        meta.setDisplayName(displayName);
+        meta.setDisplayName(iconName);
         ArrayList<String> lore = (ArrayList<String>) meta.getLore() != null
                 ? (ArrayList<String>) meta.getLore()
                 : new ArrayList<>();

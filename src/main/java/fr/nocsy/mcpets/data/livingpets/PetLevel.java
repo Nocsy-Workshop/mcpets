@@ -210,7 +210,10 @@ public class PetLevel {
      */
     public boolean evolveTo(UUID player, boolean forceEvolution, Pet evolution)
     {
-        Debugger.send("Pet §6" + this.getPet().getId() + "§7 is trying to evolve as §a" + evolution.getId());
+        String evId = "null";
+        if (evolution != null)
+            evId = evolution.getId();
+        Debugger.send("Pet §6" + this.getPet().getId() + "§7 is trying to evolve as §a" + evId);
         Debugger.send("Checking conditions: §6can evolve ? §a" + canEvolve(player, evolution) + " §7| §6forced ? §a" + forceEvolution);
         if(canEvolve(player, evolution) || forceEvolution)
         {
