@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.commands.AArgument;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.Language;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -86,7 +87,10 @@ public class ArgumentItem extends AArgument {
 
                     ItemStack item = p.getInventory().getItemInMainHand();
                     if (item == null ||
-                            item.getType().isAir()) {
+                            item.getType().isAir() ||
+                            item.getType().isEmpty() ||
+                            item.getType() == Material.AIR ||
+                            item.getType() == Material.VOID_AIR) {
                         Language.REQUIRES_ITEM_IN_HAND.sendMessage(p);
                         return;
                     }

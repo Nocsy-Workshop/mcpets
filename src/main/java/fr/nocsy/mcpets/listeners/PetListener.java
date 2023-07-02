@@ -131,11 +131,6 @@ public class PetListener implements Listener {
         if (Pet.getActivePets().containsKey(p.getUniqueId()) && GlobalConfig.getInstance().isSpawnPetOnReconnect()) {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
 
-            // Saving the database for bungee support
-            if(GlobalConfig.getInstance().isDatabaseSupport()) {
-                Databases.savePlayerData(p.getUniqueId());
-            }
-
             // delay before despawning the pet and adding it to reconnectionPets
             Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
                 pet.despawn(PetDespawnReason.DISCONNECTION);
@@ -160,11 +155,6 @@ public class PetListener implements Listener {
                 Pet pet = reconnectionPets.get(p.getUniqueId());
                 pet.spawn(p.getLocation(), true);
                 reconnectionPets.remove(p.getUniqueId());
-
-                // Save the player data after reconnecting
-                if (GlobalConfig.getInstance().isDatabaseSupport()) {
-                    PlayerData.saveDB();
-                }
             }
         }, 20L);
     }

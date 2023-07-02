@@ -64,6 +64,8 @@ public class Pet {
     private static final HashMap<UUID, Pet> activePets = new HashMap<UUID, Pet>();
     @Getter
     private static final ArrayList<Pet> objectPets = new ArrayList<Pet>();
+    @Getter
+    private static HashMap<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
 
     //********** Global Pet **********
 
@@ -195,11 +197,6 @@ public class Pet {
     // Should it follow the owner ?
     private boolean followOwner;
 
-    @Getter
-    @Setter
-    // What's the active pet skin ?
-    private PetSkin activeSkin;
-
     // Debug variables
     private boolean recurrent_spawn = false;
 
@@ -216,6 +213,42 @@ public class Pet {
         this.instance = this;
         this.checkPermission = true;
         this.firstSpawn = true;
+    }
+
+    /**
+     * Set the active skin of the pet and register it
+     * @param skin
+     */
+    public void setActiveSkin(PetSkin skin)
+    {
+        if(owner != null)
+        {
+            HashMap<String, PetSkin> ownerPetSkins = activeSkinsMap.get(owner);
+            if(ownerPetSkins == null)
+                ownerPetSkins = new HashMap<String, PetSkin>();
+
+            ownerPetSkins.put(id, skin);
+            activeSkinsMap.put(owner, ownerPetSkins);
+        }
+
+    }
+
+    /**
+     * Fetch the active skin of the pet relatively to its owner
+     * @return
+     */
+    public PetSkin getActiveSkin()
+    {
+        if(owner != null)
+        {
+            HashMap<String, PetSkin> ownerPetSkins = activeSkinsMap.get(owner);
+            if(ownerPetSkins != null)
+            {
+                return ownerPetSkins.get(id);
+            }
+
+        }
+        return null;
     }
 
     /**
@@ -555,8 +588,8 @@ public class Pet {
 
         // Get the active skin (which is also a MythicMobs)
         // Adapt the mythicMob to despawn depending on the skin
-        if(activeSkin != null)
-            mythicMobName = activeSkin.getMythicMobId();
+        if(getActiveSkin() != null)
+            mythicMobName = getActiveSkin().getMythicMobId();
 
         // Any issue with the mythicmobs definition ?
         // Any issue with the owner definition ?
@@ -947,9 +980,6 @@ public class Pet {
                     activeMob.getEntity().getBukkitEntity().remove();
             }
 
-            if(GlobalConfig.getInstance().isDatabaseSupport()) {
-                Databases.savePlayerData(owner);
-            }
             activePets.remove(owner);
             return true;
         }
@@ -1102,6 +1132,9 @@ public class Pet {
      * @param ent
      */
     public boolean setMount(Entity ent) {
+        if(ent == null)
+            return false;
+
         EntityMountPetEvent event = new EntityMountPetEvent(ent, this);
         EntityMountEvent vanillaMountEvent = new EntityMountEvent(ent, activeMob.getEntity().getBukkitEntity());
         Utils.callEvent(vanillaMountEvent);
@@ -1377,6 +1410,8 @@ public class Pet {
             ItemMeta meta = it.getItemMeta();
             // Recover the existing lores
             ArrayList<String> lores = (ArrayList<String>) meta.getLore();
+            if(lores == null)
+                lores = new ArrayList<>();
             // Add a space
             lores.add(" ");
 

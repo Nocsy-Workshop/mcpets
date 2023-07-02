@@ -207,23 +207,37 @@ public class PetFood {
         Debugger.send("§7Applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 with type §a" + this.type.getType());
         if (type.getType().equals(PetFoodType.HEALTH.getType()))
         {
-            if(pet.getPetStats() != null)
+            if(pet.getPetStats() != null && pet.getPetStats().getCurrentHealth() < pet.getPetStats().getCurrentLevel().getMaxHealth())
             {
                 pet.getPetStats().setHealth(operator.get(pet.getPetStats().getCurrentHealth(), power));
                 triggered = true;
             }
+            else
+            {
+                Debugger.send("§cCould not give HEALTH to the pet because it is already at maximum value.");
+            }
         }
         else if(type.getType().equals(PetFoodType.TAME.getType()))
         {
-            pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
-            triggered = true;
+            if(pet.getTamingProgress() != 1)
+            {
+                pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
+                triggered = true;
+            }
+            else
+            {
+                Debugger.send("§cCould not give TAMING PROGRESS to the pet because it has reached maximum value.");
+            }
         }
         else if(type.getType().equals(PetFoodType.EXPERIENCE.getType()))
         {
             if(pet.getPetStats() != null)
             {
-                pet.getPetStats().addExperience(power);
-                triggered = true;
+                triggered = pet.getPetStats().addExperience(power);
+                if(!triggered)
+                {
+                    Debugger.send("§cCould not give EXP to the pet because it has reached maximum value.");
+                }
             }
         }
         else if(type.getType().equals(PetFoodType.EVOLUTION.getType()))
@@ -246,25 +260,22 @@ public class PetFood {
         {
             if(p != null)
             {
-                if(p.hasPermission(permission))
+                if(permission != null && !p.hasPermission(permission))
                 {
-                    if(permission != null && !p.hasPermission(permission))
-                    {
-                        Language.PETUNLOCK_NOPERM.sendMessage(p);
-                        return false;
-                    }
-
-                    Pet unlockedPetObject = Pet.getFromId(unlockedPet);
-                    if(unlockedPetObject == null)
-                    {
-                        Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but the pet §7"+ unlockedPet +"§7 does not exist.");
-                        return false;
-                    }
-
-                    Utils.givePermission(p.getUniqueId(), unlockedPetObject.getPermission());
-                    Language.PETUNLOCKED.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
-                    triggered = true;
+                    Language.PETUNLOCK_NOPERM.sendMessage(p);
+                    return false;
                 }
+
+                Pet unlockedPetObject = Pet.getFromId(unlockedPet);
+                if(unlockedPetObject == null)
+                {
+                    Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but the pet §7"+ unlockedPet +"§7 does not exist.");
+                    return false;
+                }
+
+                Utils.givePermission(p.getUniqueId(), unlockedPetObject.getPermission());
+                Language.PETUNLOCKED.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
+                triggered = true;
             }
         }
 
@@ -273,7 +284,7 @@ public class PetFood {
             pet.sendSignal(signal);
         }
 
-        registerWaitingList(pet.getOwner(), 2L);
+        registerWaitingList(pet.getOwner(), 5L);
 
         return triggered;
     }

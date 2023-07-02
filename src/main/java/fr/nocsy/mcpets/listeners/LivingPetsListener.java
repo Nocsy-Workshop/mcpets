@@ -9,6 +9,8 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetFoodType;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
@@ -96,18 +98,6 @@ public class LivingPetsListener implements Listener {
                     return;
                 }
 
-                if(petFood.getType().equals(PetFoodType.EXPERIENCE) &&
-                        pet.getOwner() != null &&
-                        pet.getOwner().equals(p.getUniqueId()))
-                {
-                    // Cancel the interaction event
-                    e.setCancelled(true);
-                    // This will indirectly create a PetGainExperienceEvent
-                    if(petFood.apply(pet, p))
-                        petFood.consume(p);
-                    return;
-                }
-
                 if(petFood.getType().equals(PetFoodType.EVOLUTION) &&
                         pet.getOwner() != null &&
                         pet.getOwner().equals(p.getUniqueId()))
@@ -116,6 +106,18 @@ public class LivingPetsListener implements Listener {
                     e.setCancelled(true);
                     // This may or may not work actually depending on the permissions of the player
                     // We only withdraw the item if the evolution was allowed
+                    if(petFood.apply(pet, p))
+                        petFood.consume(p);
+                    return;
+                }
+
+                if(petFood.getType().equals(PetFoodType.EXPERIENCE) &&
+                        pet.getOwner() != null &&
+                        pet.getOwner().equals(p.getUniqueId()))
+                {
+                    // Cancel the interaction event
+                    e.setCancelled(true);
+                    // This will indirectly create a PetGainExperienceEvent
                     if(petFood.apply(pet, p))
                         petFood.consume(p);
                     return;
@@ -400,6 +402,21 @@ public class LivingPetsListener implements Listener {
     public void unlockPet(PlayerInteractAtEntityEvent e)
     {
         unlockPet(e.getPlayer());
+    }
+
+    @EventHandler
+    public void saveExperienceDB(PetGainExperienceEvent e)
+    {
+        // Adding a layer of saving for MySQL users, that saves the DB for each experience gain
+        // since there seems to be recurrent saving issues
+        if(GlobalConfig.getInstance().isDatabaseSupport()) {
+            UUID owner = e.getPet().getOwner();
+            if(owner != null)
+            {
+                Databases.savePlayerData(owner);
+            }
+        }
+
     }
 
 }
