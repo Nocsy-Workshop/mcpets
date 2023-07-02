@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
 import fr.nocsy.mcpets.utils.Utils;
@@ -28,7 +29,7 @@ public class CategoryMenuListener implements Listener {
                 && e.getView().getTitle().equalsIgnoreCase(category.getDisplayName())) {
             e.setCancelled(true);
 
-            if(e.getClickedInventory() == null)
+            if(e.getClickedInventory() == null && GlobalConfig.getInstance().isEnableClickBackToMenu())
             {
                 CategoriesMenu.open(p);
                 return;

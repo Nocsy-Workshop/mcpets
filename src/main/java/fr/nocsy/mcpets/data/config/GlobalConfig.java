@@ -21,6 +21,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private String defaultName = "§9Pet of %player%";
     @Getter
+    private boolean overrideDefaultName;
+    @Getter
     private int adaptiveInventory = -1;
     @Getter
     private boolean useDefaultMythicMobNames;
@@ -40,6 +42,8 @@ public class GlobalConfig extends AbstractConfig {
     private boolean dismountOnDamaged;
     @Getter
     private boolean spawnPetOnReconnect;
+    @Getter
+    private boolean enableClickBackToMenu;
     @Getter
     private int distanceTeleport = 30;
     @Getter
@@ -114,6 +118,10 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("Prefix", prefix);
         if (getConfig().get("DefaultName") == null)
             getConfig().set("DefaultName", defaultName);
+        if (getConfig().get("OverrideDefaultName") == null)
+            getConfig().set("OverrideDefaultName", true);
+        if (getConfig().get("EnableClickBackToMenu") == null)
+            getConfig().set("EnableClickBackToMenu", true);
         if (getConfig().get("UseDefaultMythicMobsNames") == null)
             getConfig().set("UseDefaultMythicMobsNames", false);
         if (getConfig().get("RightClickToOpenMenu") == null)
@@ -203,6 +211,7 @@ public class GlobalConfig extends AbstractConfig {
 
         prefix = getConfig().getString("Prefix");
         defaultName = getConfig().getString("DefaultName");
+        overrideDefaultName = getConfig().getBoolean("OverrideDefaultName");
         useDefaultMythicMobNames = getConfig().getBoolean("UseDefaultMythicMobsNames");
         rightClickToOpen = getConfig().getBoolean("RightClickToOpenMenu");
         leftClickToOpen = getConfig().getBoolean("LeftClickToOpenMenu");
@@ -214,6 +223,7 @@ public class GlobalConfig extends AbstractConfig {
         spawnPetOnReconnect = getConfig().getBoolean("SpawnPetOnReconnect");
         distanceTeleport = getConfig().getInt("DistanceTeleport");
         maxNameLenght = getConfig().getInt("MaxNameLenght");
+        enableClickBackToMenu = getConfig().getBoolean("EnableClickBackToMenu");
         activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
         adaptiveInventory = getConfig().getInt("InventorySize");
         percentHealthOnRespawn = getConfig().getDouble("PercentHealthOnRespawn");

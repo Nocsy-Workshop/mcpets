@@ -782,8 +782,6 @@ public class Pet {
         PlayerData pd = PlayerData.get(owner);
         // Fetch the saved name
         String name = pd.getMapOfRegisteredNames().get(this.id);
-        if(GlobalConfig.getInstance().isUseDefaultMythicMobNames())
-            name = activeMob.getDisplayName();
 
         // Set the display name of the pet
         if (name != null) {
@@ -974,6 +972,7 @@ public class Pet {
                         activeMob.getEntity().getBukkitEntity().remove();
                 }
             } else {
+                ModelEngineAPI.removeModeledEntity(activeMob.getEntity().getUniqueId());
                 if (activeMob.getEntity() != null)
                     activeMob.getEntity().remove();
                 if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
@@ -1040,6 +1039,20 @@ public class Pet {
      */
     public void setDisplayName(String name, boolean save) {
 
+        boolean isDefaultName = false;
+        if(name == null)
+            name = Language.TAG_TO_REMOVE_NAME.getMessage();
+
+        if(name.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage()) && !GlobalConfig.getInstance().isOverrideDefaultName())
+        {
+            isDefaultName = true;
+            if(GlobalConfig.getInstance().isUseDefaultMythicMobNames())
+                name = activeMob.getDisplayName();
+            else
+                name = GlobalConfig.getInstance().getDefaultName().replace("%player%", Bukkit.getOfflinePlayer(owner).getName());
+        }
+
+
         try {
 
             if (name != null && ChatColor.stripColor(name).length() > GlobalConfig.instance.getMaxNameLenght()) {
@@ -1083,8 +1096,11 @@ public class Pet {
 
                 Debugger.send("§7Applying name " + name + " to pet " + id);
                 if (save) {
+                    String savedName = currentName + "";
+                    if(isDefaultName)
+                        savedName = Language.TAG_TO_REMOVE_NAME.getMessage();
                     PlayerData pd = PlayerData.get(owner);
-                    pd.getMapOfRegisteredNames().put(getId(), currentName);
+                    pd.getMapOfRegisteredNames().put(getId(), savedName);
                     pd.save();
                 }
             }
@@ -1253,8 +1269,6 @@ public class Pet {
      */
     public void setNameTag(String name, boolean visible) {
         if (isStillHere()) {
-            if (GlobalConfig.getInstance().isUseDefaultMythicMobNames())
-                name = activeMob.getDisplayName();
 
             if(name != null)
                 name = name.replace("'", " ");

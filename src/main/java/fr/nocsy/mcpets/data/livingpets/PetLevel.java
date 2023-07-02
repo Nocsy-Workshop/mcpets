@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.data.livingpets;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
+import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.sql.PlayerData;
@@ -255,6 +256,9 @@ public class PetLevel {
                 }
                 evolutionInventory.setInventory(petInventory.getInventory());
             }
+
+            // Clear the stats of the previous level since we are evolving to the next one
+            PetStats.remove(pet.getId(), player);
 
             // Fetch the owner of the pet, it has to be there to spawn the next pet right
             Player owner = Bukkit.getPlayer(player);
