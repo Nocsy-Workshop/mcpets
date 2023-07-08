@@ -87,6 +87,10 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     {
                         completed.addAll(Category.getCategories().stream().map(Category::getId).collect(Collectors.toList()));
                     }
+                    else if(args[0].equalsIgnoreCase("revoke"))
+                    {
+                        completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
+                    }
                 }
 
                 else if(args.length == 3)

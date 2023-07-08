@@ -432,7 +432,10 @@ public class PetStats {
     {
         if(GlobalConfig.getInstance().isDatabaseSupport())
         {
-            PlayerData.saveDB();
+            //TODO: Remove this if it worked!
+            // Disable the save DB on save all, which is only used when disabling a server
+            // This is an attempt on limiting the concurrent modifications from the databases
+            //PlayerData.saveDB();
         }
         else
         {
