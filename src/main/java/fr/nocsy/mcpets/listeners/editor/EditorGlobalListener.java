@@ -1,10 +1,15 @@
 package fr.nocsy.mcpets.listeners.editor;
 
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.editor.*;
 import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -57,6 +62,44 @@ public class EditorGlobalListener implements Listener {
                 editor.openEditor();
 
                 p.sendMessage("§aChanges saved! Make sure you §nreload MCPets§a to apply the changes.");
+            }
+            // If it's the page selector of the pet we rearrange the visual to the next page
+            else if(editorItem.getType().equals(EditorExpectationType.PAGE_SELECTOR))
+            {
+                int value = 1;
+                if(e.getClick() == ClickType.LEFT)
+                    value = -1;
+
+                EditorPageSelection.set(p, Math.max(0, EditorPageSelection.get(p) + value));
+                editor.openEditor();
+            }
+            // If it's a pet icon, then we dive in the pet editing
+            else if(editorItem.getType().equals(EditorExpectationType.PET))
+            {
+                int slot = e.getSlot();
+                Pet pet = Pet.getObjectPets().get(slot + 45 * EditorPageSelection.get(p));
+                if(pet == null)
+                {
+                    Debugger.send("§cPet could not be found.");
+                    return;
+                }
+                EditorPetEditing.register(p, pet);
+                editor.setState(EditorState.PET_EDITOR_EDIT);
+                editor.openEditor();
+            }
+            // If it's an item, we need to serialize it
+            else if(editorItem.getType().equals(EditorExpectationType.ITEM))
+            {
+                ItemStack replaceItem = e.getCursor();
+                if(replaceItem == null || replaceItem.getType().isAir())
+                    return;
+                if(!replaceItem.getItemMeta().hasDisplayName())
+                    return;
+                editorItem.setValue(replaceItem);
+                editorItem.save();
+                MCPets.loadConfigs();
+
+                editor.openEditor();
             }
             // If it's more advanced, it needs typing, so starts a conversation!
             else

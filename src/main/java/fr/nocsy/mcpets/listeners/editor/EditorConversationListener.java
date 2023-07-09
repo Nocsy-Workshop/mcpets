@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.listeners.editor;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.editor.Editor;
 import fr.nocsy.mcpets.data.editor.EditorConversation;
+import fr.nocsy.mcpets.data.editor.EditorExpectationType;
 import fr.nocsy.mcpets.data.editor.EditorItems;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -55,8 +56,23 @@ public class EditorConversationListener implements Listener {
         // If the output type isn't respected, ask for another one.
         if(!conversation.entryMatch(entry))
         {
-            p.sendMessage("§cThe expected type for this parameter is §6" + conversation.getEditorItem().getType().getName());
-            p.sendMessage("§7Please try again with the right type.");
+            if(conversation.getEditorItem().getType().equals(EditorExpectationType.MYTHICMOB))
+            {
+                p.sendMessage("§cThe mythicmob §e" + entry + "§c does not exist. Check your MythicMob mob file to obtain the right ID.");
+            }
+            else if(conversation.getEditorItem().getType().equals(EditorExpectationType.SKILL))
+            {
+                p.sendMessage("§cThe skill §e" + entry + "§c does not exist. Check your MythicMob skills to obtain the right ID.");
+            }
+            else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_ID))
+            {
+                p.sendMessage("§cThe pet §e" + entry + "§c already exists. Please use another ID.");
+            }
+            else
+            {
+                p.sendMessage("§cThe expected type for this parameter is §6" + conversation.getEditorItem().getType().getName());
+                p.sendMessage("§7Please try again with the right type.");
+            }
             return;
         }
 

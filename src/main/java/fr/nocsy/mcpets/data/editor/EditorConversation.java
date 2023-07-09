@@ -32,6 +32,11 @@ public class EditorConversation {
     {
         conversations.put(player.getUniqueId(), this);
         player.sendMessage("§aPlease type in the chat the value you want to set for the \"§e" + editorItem.getId().replace("_", " ").toLowerCase() + "§a\".");
+
+        if(editorItem.getType().equals(EditorExpectationType.STRING_LIST))
+        {
+            player.sendMessage("§eSeperate the different elements with a comma §c, §e like this example: §6SPELL,SHIELD");
+        }
         player.sendMessage("§aType §cQuit§a if you don't want to change the value anymore.");
     }
 

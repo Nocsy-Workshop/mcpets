@@ -18,6 +18,12 @@ import java.util.stream.Collectors;
 
 public class PetConfig extends AbstractConfig {
 
+    private static HashMap<String, String> petConfigMapping = new HashMap<>();
+    public static String getFilePath(String petId)
+    {
+        return petConfigMapping.get(petId);
+    }
+
     @Getter
     private Pet pet = null;
 
@@ -146,6 +152,7 @@ public class PetConfig extends AbstractConfig {
         }
 
         Pet pet = new Pet(id);
+        petConfigMapping.put(id, "./plugins/MCPets/" + getFolderName() + "/" + getFileName());
         pet.setMythicMobName(mobType);
         pet.setPermission(permission);
         pet.setMountPermission(mountPermission);

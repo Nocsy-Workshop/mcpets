@@ -1394,7 +1394,7 @@ public class Pet {
 
         Material mat = materialType != null ? Material.getMaterial(materialType) : null;
         if(iconName == null)
-            iconName = "§cNo icon name defined";
+            iconName = "§cUndefined";
         iconName = Utils.translateHexColorCodes("#", "", iconName);
         if (mat == null
                 && textureBase64 != null) {
