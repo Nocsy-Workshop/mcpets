@@ -16,6 +16,8 @@ import java.util.Arrays;
 
 public enum Items {
 
+    UNKNOWN("unkown"),
+
     MOUNT("mount"),
     RENAME("rename"),
     PETMENU("petmenu"),
@@ -23,7 +25,8 @@ public enum Items {
     SKINS("skins"),
     EQUIPMENT("equipment"),
     PAGE_SELECTOR("page_selector"),
-    UNKNOWN("unkown");
+
+    ;
 
     @Getter
     private ItemStack item;

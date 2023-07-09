@@ -42,6 +42,7 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                 if(args.length == 1)
                 {
                     completed.add("reload");
+                    completed.add("editor");
                     completed.add("spawn");
                     completed.add("open");
                     completed.add("signalstick");

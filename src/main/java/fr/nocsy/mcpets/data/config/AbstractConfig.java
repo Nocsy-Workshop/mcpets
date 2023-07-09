@@ -22,23 +22,17 @@ public abstract class AbstractConfig {
     private String fileName;
 
     @Getter
-    private File folder;
-
-    @Getter
-    private File file;
-
-    @Getter
     private FileConfiguration config;
 
     public void init(String folderName, String fileName) {
         this.fileName = fileName;
         this.folderName = folderName;
 
-        folder = new File(path + folderName);
+        File folder = new File(path + folderName);
         if (!folder.exists())
             folder.mkdirs();
 
-        file = new File(path + folderName + "/" + fileName);
+        File file = new File(path + folderName + "/" + fileName);
 
         if (!file.exists()) {
             try {
@@ -52,6 +46,7 @@ public abstract class AbstractConfig {
     }
 
     public void save() {
+        File file = new File(path + folderName + "/" + fileName);
         try {
             config.save(file);
         } catch (IOException e) {
@@ -60,6 +55,7 @@ public abstract class AbstractConfig {
     }
 
     public void loadConfig() {
+        File file = new File(path + folderName + "/" + fileName);
         config = YamlConfiguration.loadConfiguration(file);
     }
 

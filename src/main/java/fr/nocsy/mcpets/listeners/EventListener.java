@@ -1,6 +1,8 @@
 package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.listeners.editor.EditorConversationListener;
+import fr.nocsy.mcpets.listeners.editor.EditorGlobalListener;
 import fr.nocsy.mcpets.mythicmobs.MythicListener;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,6 +29,8 @@ public class EventListener implements Listener {
 
         listeners.add(new MythicListener());
 
+        listeners.add(new EditorGlobalListener());
+        listeners.add(new EditorConversationListener());
 
         for (Listener l : listeners) {
             plugin.getServer().getPluginManager().registerEvents(l, plugin);

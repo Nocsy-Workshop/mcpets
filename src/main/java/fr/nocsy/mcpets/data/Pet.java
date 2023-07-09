@@ -628,7 +628,7 @@ public class Pet {
             catch (NullPointerException | NoSuchElementException ex)
             {
                 // if there's been a problem, trigger a despawn
-                Debugger.send("§cMythicMob was not found.");
+                Debugger.send("§cMythicMob " + mythicMobName + " was not found.");
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
             }

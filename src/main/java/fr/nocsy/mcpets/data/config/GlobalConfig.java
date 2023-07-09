@@ -267,4 +267,14 @@ public class GlobalConfig extends AbstractConfig {
         return blackListedWorlds.contains(worldName);
     }
 
+    public boolean getBooleanField(String path)
+    {
+        return getConfig().getBoolean(path);
+    }
+
+    public String getStringField(String path)
+    {
+        return getConfig().getString(path);
+    }
+
 }

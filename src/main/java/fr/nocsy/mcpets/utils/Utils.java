@@ -266,4 +266,21 @@ public class Utils {
         return matcher.appendTail(buffer).toString();
     }
 
+    /**
+     * Check if a string is a numerical expression
+     * @param strNum
+     * @return
+     */
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
 }
