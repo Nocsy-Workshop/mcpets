@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.config;
 
+import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,6 +38,7 @@ public abstract class AbstractConfig {
         if (!file.exists()) {
             try {
                 file.createNewFile();
+                Utils.debug("Creating file " + fileName + " in " + folderName);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -52,6 +54,12 @@ public abstract class AbstractConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean delete()
+    {
+        File file = new File(path + folderName + "/" + fileName);
+        return file.delete();
     }
 
     public void loadConfig() {

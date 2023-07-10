@@ -1,18 +1,18 @@
 package fr.nocsy.mcpets.data.editor;
 
-import com.mojang.authlib.GameProfile;
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
-import org.bukkit.block.Skull;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,11 +62,11 @@ public enum EditorItems {
     PET_EDITOR_CREATE_NEW(PET_EDITOR_CREATE_NEW(), null, null, EditorExpectationType.PET_CREATE, null),
     PET_EDITOR_PAGE_SELECTOR(PET_EDITOR_PAGE_SELECTOR(), null, null, EditorExpectationType.PAGE_SELECTOR, null),
 
-    PET_EDITOR_DELETE(PET_EDITOR_DELETE(), null, null, null, EditorState.PET_EDITOR_EDIT),
+    PET_EDITOR_DELETE(PET_EDITOR_DELETE(), null, null, EditorExpectationType.PET_DELETE, null),
     PET_EDITOR_LEVELS(PET_EDITOR_LEVELS(), null, null, null, EditorState.PET_EDITOR_LEVELS),
     PET_EDITOR_SKINS(PET_EDITOR_SKINS(), null, null, null, EditorState.PET_EDITOR_SKINS),
 
-    PET_EDITOR_ICON(PET_EDITOR_ICON(), "Icon", null, EditorExpectationType.ITEM, null),
+    PET_EDITOR_ICON(PET_EDITOR_ICON(), "Icon.Raw", null, EditorExpectationType.ITEM, null),
     PET_EDITOR_MYTHICMOB(PET_EDITOR_MYTHICMOB(), "MythicMob", null, EditorExpectationType.MYTHICMOB, null),
     PET_EDITOR_PERMISSION(PET_EDITOR_PERMISSION(), "Permission", null, EditorExpectationType.STRING, null),
     PET_EDITOR_MOUNTABLE(PET_EDITOR_MOUNTABLE(), "Mountable", null, EditorExpectationType.BOOLEAN, null),
@@ -80,10 +80,12 @@ public enum EditorItems {
     PET_EDITOR_COMING_BACK_RANGE(PET_EDITOR_COMING_BACK_RANGE(), "ComingBackRange", null, EditorExpectationType.FLOAT, null),
     PET_EDITOR_INVENTORY_SIZE(PET_EDITOR_INVENTORY_SIZE(), "InventorySize", null, EditorExpectationType.INT, null),
     PET_EDITOR_SIGNALS(PET_EDITOR_SIGNALS(), "Signals.Values", null, EditorExpectationType.STRING_LIST, null),
-    PET_EDITOR_SIGNAL_STICK(PET_EDITOR_SIGNAL_STICK(), "Signals.Item", null, EditorExpectationType.ITEM, null),
+    PET_EDITOR_SIGNAL_STICK(PET_EDITOR_SIGNAL_STICK(), "Signals.Item.Raw", null, EditorExpectationType.ITEM, null),
     PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(), "Signals.Item.GetFromMenu", null, EditorExpectationType.ITEM, null);
 
     private final static String editorTag = "MCPets:Editor:";
+    @Getter
+    private static ArrayList<String> cachedDeleted = new ArrayList<>();
 
     @Getter
     private String id;
@@ -137,38 +139,22 @@ public enum EditorItems {
 
     public boolean save()
     {
+        if(this.getType().equals(EditorExpectationType.PET_CREATE))
+        {
+            String illegalCharacters = "#%<>&*{}?/\\$§+!`|'\"=:@.";
+            for(char character : illegalCharacters.toCharArray())
+            {
+                this.value = this.value.toString().replace(""+character, "");
+            }
+            this.value = this.value.toString().replace(" ", "_");
+            new PetConfig("Pets/", this.value.toString() + ".yml");
+
+            return true;
+        }
         File file = new File(filePath);
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        // Handle the legacy save of itemstack apart
-        if(this.value instanceof ItemStack)
-        {
-            // Some items have a legacy formatting to save itemstack, which should be uniformed to be fair
-            // They are listed below and saved in their legacy fashion
-            if(filePath.contains("MCPets/Pets/") &&
-                    (
-                    variablePath.contains("Icon") ||
-                    variablePath.contains("Item")
-                    ))
-            {
-                List<String> lores = ((ItemStack)value).getItemMeta().hasLore() ? ((ItemStack)value).getItemMeta().getLore() : new ArrayList<>();
-                int customModelData = ((ItemStack)value).getItemMeta().hasCustomModelData() ? ((ItemStack)value).getItemMeta().getCustomModelData() : 0;
-                config.set(variablePath + ".Material", ((ItemStack)value).getType().name());
-                config.set(variablePath + ".CustomModelData", customModelData);
-                config.set(variablePath + ".DisplayName", ((ItemStack)value).getItemMeta().getDisplayName());
-                config.set(variablePath + ".Lore", lores);
-            }
-            // Regular saving
-            else
-            {
-                config.set(variablePath, this.value);
-            }
-        }
-        // Else it's not an itemstack, so regular saving
-        else
-        {
-            config.set(variablePath, this.value);
-        }
+        config.set(variablePath, this.value);
 
         try
         {
@@ -741,6 +727,10 @@ public enum EditorItems {
     public EditorItems setupPetIcon(Pet pet)
     {
         ItemStack it = pet.getIcon().clone();
+        if(value != null && value instanceof ItemStack)
+        {
+            it = (ItemStack) ((ItemStack) value).clone();
+        }
         ItemMeta meta = it.getItemMeta();
 
         List<String> og_lores = it.getItemMeta().getLore();
@@ -762,6 +752,10 @@ public enum EditorItems {
     public EditorItems setupPetIconEdit(Pet pet)
     {
         ItemStack it = pet.getIcon().clone();
+        if(value != null && value instanceof ItemStack)
+        {
+            it = (ItemStack) ((ItemStack) value).clone();
+        }
         ItemMeta meta = it.getItemMeta();
 
         List<String> og_lores = it.getItemMeta().getLore();
@@ -787,6 +781,10 @@ public enum EditorItems {
     public EditorItems setupSignalStickItem(Pet pet)
     {
         ItemStack it = pet.getSignalStick().clone();
+        if(value != null && value instanceof ItemStack)
+        {
+            it = (ItemStack) ((ItemStack) value).clone();
+        }
         ItemMeta meta = it.getItemMeta();
         if(meta.getDisplayName().equals("§cUndefined"))
             meta.setDisplayName("§6Signal stick");

@@ -1,15 +1,19 @@
 package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
+import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -18,8 +22,15 @@ import java.util.stream.Collectors;
 
 public class PetConfig extends AbstractConfig {
 
-    private static HashMap<String, String> petConfigMapping = new HashMap<>();
+    private static HashMap<String, PetConfig> petConfigMapping = new HashMap<>();
     public static String getFilePath(String petId)
+    {
+        PetConfig config = getConfig(petId);
+        if(config ==  null)
+            return null;
+        return getPath() + config.getFolderName() + "/" + config.getFileName();
+    }
+    public static PetConfig getConfig(String petId)
     {
         return petConfigMapping.get(petId);
     }
@@ -34,9 +45,33 @@ public class PetConfig extends AbstractConfig {
      * @param fileName
      */
     public PetConfig(String folderName, String fileName) {
-        super.init(folderName, fileName);
+        init(folderName, fileName);
         reload();
     }
+
+    public void init(String folderName, String fileName) {
+        super.init(folderName, fileName);
+
+        if (getConfig().get("Id") == null)
+            getConfig().set("Id", fileName.replace(".yml", ""));
+        if (getConfig().get("MythicMob") == null)
+            getConfig().set("MythicMob", "No MythicMob defined");
+        if (getConfig().get("Permission") == null)
+            getConfig().set("Permission", PPermission.USE.getPermission());
+        if (getConfig().get("Distance") == null)
+            getConfig().set("Distance", 6);
+        if (getConfig().get("SpawnRange") == null)
+            getConfig().set("SpawnRange", 3);
+        if (getConfig().get("ComingBackRange") == null)
+            getConfig().set("ComingBackRange", 3);
+        if (getConfig().get("MythicMob") == null)
+            getConfig().set("MythicMob", "No MythicMob defined");
+        if (getConfig().get("MythicMob") == null)
+            getConfig().set("MythicMob", "No MythicMob defined");
+
+        save();
+    }
+
 
     /**
      * Load all the existing pets
@@ -121,27 +156,12 @@ public class PetConfig extends AbstractConfig {
         while(inventorySize < 54 && inventorySize % 9 != 0)
             inventorySize++;
 
-        String iconName = getConfig().getString("Icon.Name");
-        String materialType = getConfig().getString("Icon.Material");
-        int customModelData = getConfig().getInt("Icon.CustomModelData");
-        String textureBase64 = getConfig().getString("Icon.TextureBase64");
-        List<String> description = getConfig().getStringList("Icon.Description");
-
         List<String> signals = getConfig().getStringList("Signals.Values");
         boolean enableSignalStickFromMenu = true;
         if(getConfig().get("Signals.Item.GetFromMenu") != null)
             enableSignalStickFromMenu = getConfig().getBoolean("Signals.Item.GetFromMenu");
 
-        String signalStick_Name = getConfig().getString("Signals.Item.Name");
-        String signalStick_Mat = getConfig().getString("Signals.Item.Material");
-        int signalStick_Data = getConfig().getInt("Signals.Item.CustomModelData");
-        String signalStick_64 = getConfig().getString("Signals.Item.TextureBase64");
-        List<String> signalStick_Description = getConfig().getStringList("Signals.Item.Description");
-
-        if (id == null ||
-                mobType == null ||
-                permission == null ||
-                iconName == null) {
+        if (id == null) {
             // Warning case on which something essential would be missing
             MCPets.getLog().warning(MCPets.getLogName() + "This pet could not be registered. Please check the configuration file to make sure you didn't miss anything.");
             MCPets.getLog().warning(MCPets.getLogName() + "Information about the registered pet : ");
@@ -151,8 +171,9 @@ public class PetConfig extends AbstractConfig {
             return;
         }
 
-        Pet pet = new Pet(id);
-        petConfigMapping.put(id, "./plugins/MCPets/" + getFolderName() + "/" + getFileName());
+        this.pet = new Pet(id);
+
+        petConfigMapping.put(id, this);
         pet.setMythicMobName(mobType);
         pet.setPermission(permission);
         pet.setMountPermission(mountPermission);
@@ -204,8 +225,11 @@ public class PetConfig extends AbstractConfig {
             }.runTaskLater(MCPets.getInstance(), 5L);
         }
 
-        pet.setIcon(pet.buildItem(pet.getIcon(), true, pet.toString(), iconName, description, materialType, customModelData, textureBase64));
-        pet.setSignalStick(pet.buildItem(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), signalStick_Name, signalStick_Description, signalStick_Mat, signalStick_Data, signalStick_64));
+        ItemStack icon = legacyItemRead(pet.getIcon(), true, pet.toString(), "Icon");
+        pet.setIcon(icon);
+
+        ItemStack signalStickItem = legacyItemRead(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), "Signals.Item");
+        pet.setSignalStick(signalStickItem);
 
         PetSkin.clearList(pet);
         for(String key : getConfig().getKeys(true).stream()
@@ -217,12 +241,9 @@ public class PetConfig extends AbstractConfig {
             String mythicMobId = getConfig().getString(key + ".MythicMob");
             String skinPerm = getConfig().getString(key + ".Permission");
 
-            PetSkin.load(pet, mythicMobId, skinPerm, pet.buildItem(null, false, "",
-                                                                        getConfig().getString(key + ".Icon.DisplayName"),
-                                                                        getConfig().getStringList(key + ".Icon.Lore"),
-                                                                        getConfig().getString(key + ".Icon.Material"),
-                                                                        getConfig().getInt(key + ".Icon.CustomModelData"),
-                                                                        getConfig().getString(key + ".Icon.TextureBase64")));
+            ItemStack skinIcon = legacyItemRead(null, false, "",key + ".Icon");
+
+            PetSkin.load(pet, mythicMobId, skinPerm, skinIcon);
         }
 
         ArrayList<PetLevel> levels = new ArrayList<>();
@@ -295,8 +316,46 @@ public class PetConfig extends AbstractConfig {
             }
         });
         pet.setPetLevels(levels);
+    }
 
-        this.pet = pet;
+    private ItemStack legacyItemRead(ItemStack item, boolean showStats, String localName, String path)
+    {
+        ItemStack itemStack = null;
+        try
+        {
+            itemStack = getConfig().getItemStack(path + ".Raw");
+            ItemMeta meta = itemStack.getItemMeta();
+            meta.setLocalizedName(localName);
+            itemStack.setItemMeta(meta);
+            if(showStats)
+                itemStack = pet.applyStats(itemStack);
+            return itemStack;
+        }
+        catch (Exception ignored) {}
+
+        if(itemStack == null)
+        {
+            String name = getConfig().getString(path + ".Name");
+            if(name == null || name.isEmpty())
+            {
+                name = getConfig().getString(path + ".DisplayName");
+            }
+            if(name == null)
+            {
+                name = "§e" + pet.getId();
+            }
+            String mat = getConfig().getString(path + ".Material");
+            int data = getConfig().getInt(path + ".CustomModelData");
+            String textureBase = getConfig().getString(path + ".TextureBase64");
+            List<String> description = getConfig().getStringList(path + ".Description");
+            itemStack = pet.buildItem(
+                    item,
+                    showStats,
+                    localName,
+                    name, description, mat, data, textureBase
+            );
+        }
+        return itemStack;
     }
 
 }

@@ -15,6 +15,11 @@ public class EditorPetEditing {
         petediting.put(p.getUniqueId(), pet);
     }
 
+    public static void unregister(Player p)
+    {
+        petediting.remove(p.getUniqueId());
+    }
+
     public static Pet get(Player p)
     {
         return petediting.get(p.getUniqueId());

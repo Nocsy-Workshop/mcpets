@@ -22,7 +22,7 @@ public enum EditorExpectationType {
     STRING_LIST("string_list"),
 
     // Restricted expectations
-    PET_ID("pet_id"),
+    PET_CREATE("pet_create"),
     MYTHICMOB("mythicmob"),
     SKILL("skill"),
     MOUNT_TYPE("mount_type"),
@@ -30,8 +30,8 @@ public enum EditorExpectationType {
     // Action expectations
     ITEM("item"),
     PAGE_SELECTOR("page_selector"),
-    PET_CREATE("pet_create"),
-    PET("pet");
+    PET("pet"),
+    PET_DELETE("pet_delete");
 
     public static int ERROR_PARSE = -808757986;
 
@@ -48,7 +48,7 @@ public enum EditorExpectationType {
         if(this.equals(EditorExpectationType.STRING) ||
                 this.equals(EditorExpectationType.MYTHICMOB) ||
                 this.equals(EditorExpectationType.SKILL) ||
-                this.equals(EditorExpectationType.PET_ID))
+                this.equals(EditorExpectationType.PET_CREATE))
             return any + "";
         else if((this.equals(EditorExpectationType.FLOAT)))
         {
@@ -102,7 +102,7 @@ public enum EditorExpectationType {
         {
             return true;
         }
-        else if(this.equals(EditorExpectationType.PET_ID))
+        else if(this.equals(EditorExpectationType.PET_CREATE))
         {
             Pet pet = Pet.getFromId(any + "");
             // We dont want any pet to exist with that id

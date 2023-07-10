@@ -126,6 +126,8 @@ public enum EditorState {
             int currentViewAmount = 0;
             for(Pet pet : pets)
             {
+                if(EditorItems.getCachedDeleted().contains(pet.getId()))
+                    continue;
                 if(currentIndex < 45*page)
                 {
                     currentIndex++;

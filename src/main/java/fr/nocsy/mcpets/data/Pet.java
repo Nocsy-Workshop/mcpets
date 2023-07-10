@@ -38,7 +38,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.util.*;
@@ -1416,15 +1415,22 @@ public class Pet {
             meta.setLocalizedName(localizedName);
             item.setItemMeta(meta);
         }
+
+        if(showStats)
+            return applyStats(item);
+
+        return item;
+    }
+
+    public ItemStack applyStats(ItemStack item) {
+        // If we show the stats then we should not modify the actual item, but just its instance in that function
+        ItemStack it = item.clone();
         // Handles the statistics being showed on the icon
-        if(showStats && petStats != null)
-        {
-            // If we show the stats then we should not modify the actual item, but just its instance in that function
-            ItemStack it = item.clone();
+        if (petStats != null) {
             ItemMeta meta = it.getItemMeta();
             // Recover the existing lores
             ArrayList<String> lores = (ArrayList<String>) meta.getLore();
-            if(lores == null)
+            if (lores == null)
                 lores = new ArrayList<>();
             // Add a space
             lores.add(" ");
@@ -1432,24 +1438,22 @@ public class Pet {
             // Implement the progress bar
             StringBuilder progressBar = new StringBuilder();
             PetLevel nextLevel = petStats.getNextLevel();
-            if(nextLevel != null)
-            {
+            if (nextLevel != null) {
                 // Size of the progress bar in the hovering
                 int progressBarSize = GlobalConfig.instance.getExperienceBarSize();
 
-                double experienceRatio = (petStats.getExperience() - petStats.getCurrentLevel().getExpThreshold())/(nextLevel.getExpThreshold() - petStats.getCurrentLevel().getExpThreshold());
-                int indexProgress = Math.min(progressBarSize, (int)(experienceRatio*progressBarSize + 0.5));
+                double experienceRatio = (petStats.getExperience() - petStats.getCurrentLevel().getExpThreshold()) / (nextLevel.getExpThreshold() - petStats.getCurrentLevel().getExpThreshold());
+                int indexProgress = Math.min(progressBarSize, (int) (experienceRatio * progressBarSize + 0.5));
 
-                for(int i = 0; i < progressBarSize; i++)
-                {
-                    if(i < indexProgress)
+                for (int i = 0; i < progressBarSize; i++) {
+                    if (i < indexProgress)
                         progressBar.append(GlobalConfig.getInstance().getExperienceColorDone() +
-                                            GlobalConfig.getInstance().getExperienceSymbol() +
-                                            GlobalConfig.getInstance().getExperienceColorLeft());
+                                GlobalConfig.getInstance().getExperienceSymbol() +
+                                GlobalConfig.getInstance().getExperienceColorLeft());
                     else
                         progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft() +
-                                            GlobalConfig.getInstance().getExperienceSymbol() +
-                                            GlobalConfig.getInstance().getExperienceColorLeft());
+                                GlobalConfig.getInstance().getExperienceSymbol() +
+                                GlobalConfig.getInstance().getExperienceColorLeft());
                 }
             }
 
@@ -1458,43 +1462,40 @@ public class Pet {
             String signSymbol_resistanceModifer = Utils.getSignSymbol(petStats.getCurrentLevel().getResistanceModifier() - 1);
             String signSymbol_power = Utils.getSignSymbol(petStats.getCurrentLevel().getPower() - 1);
 
-            String currentHealthStr = Integer.toString((int)petStats.getCurrentHealth());
-            if(petStats.getCurrentHealth() == 0 &&
-                petStats.getRespawnTimer() != null && !petStats.getRespawnTimer().isRunning())
-                currentHealthStr = Integer.toString((int)petStats.getRespawnHealth());
+            String currentHealthStr = Integer.toString((int) petStats.getCurrentHealth());
+            if (petStats.getCurrentHealth() == 0 &&
+                    petStats.getRespawnTimer() != null && !petStats.getRespawnTimer().isRunning())
+                currentHealthStr = Integer.toString((int) petStats.getRespawnHealth());
 
             // Handles the status of the pet
             String status = Language.PET_STATUS_ALIVE.getMessage();
-            if(petStats.isRespawnTimerRunning())
-            {
+            if (petStats.isRespawnTimerRunning()) {
                 status = Language.PET_STATUS_DEAD.getMessageFormatted(new FormatArg("%timeleft%",
                         Integer.toString((int) petStats.getRespawnTimer().getRemainingTime())));
-            }
-            else if(petStats.isRevokeTimerRunning())
+            } else if (petStats.isRevokeTimerRunning())
                 status = Language.PET_STATUS_REVOKED.getMessageFormatted(new FormatArg("%timeleft%",
-                                                Integer.toString((int)petStats.getRevokeTimer().getRemainingTime())));
+                        Integer.toString((int) petStats.getRevokeTimer().getRemainingTime())));
 
             String statsLore = Language.PET_STATS.getMessageFormatted(
-                            new FormatArg("%status%", status),
-                            new FormatArg("%levelname%", petStats.getCurrentLevel().getLevelName()),
-                            new FormatArg("%health%", currentHealthStr),
-                            new FormatArg("%maxhealth%", Integer.toString((int)petStats.getCurrentLevel().getMaxHealth())),
-                            new FormatArg("%regeneration%", Double.toString(petStats.getCurrentLevel().getRegeneration())),
-                            new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getCurrentLevel().getDamageModifier() - 1))),
-                            new FormatArg("%resistancemodifier%", signSymbol_resistanceModifer + (int) (100 * (petStats.getCurrentLevel().getResistanceModifier() - 1))),
-                            new FormatArg("%power%", signSymbol_power + (int) (100 * (petStats.getCurrentLevel().getPower() - 1))),
-                            new FormatArg("%experience%", Integer.toString((int)petStats.getExperience())),
-                            new FormatArg("%threshold%", Integer.toString((int)petStats.getNextLevel().getExpThreshold())),
-                            new FormatArg("%progressbar%", progressBar.toString()));
+                    new FormatArg("%status%", status),
+                    new FormatArg("%levelname%", petStats.getCurrentLevel().getLevelName()),
+                    new FormatArg("%health%", currentHealthStr),
+                    new FormatArg("%maxhealth%", Integer.toString((int) petStats.getCurrentLevel().getMaxHealth())),
+                    new FormatArg("%regeneration%", Double.toString(petStats.getCurrentLevel().getRegeneration())),
+                    new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getCurrentLevel().getDamageModifier() - 1))),
+                    new FormatArg("%resistancemodifier%", signSymbol_resistanceModifer + (int) (100 * (petStats.getCurrentLevel().getResistanceModifier() - 1))),
+                    new FormatArg("%power%", signSymbol_power + (int) (100 * (petStats.getCurrentLevel().getPower() - 1))),
+                    new FormatArg("%experience%", Integer.toString((int) petStats.getExperience())),
+                    new FormatArg("%threshold%", Integer.toString((int) petStats.getNextLevel().getExpThreshold())),
+                    new FormatArg("%progressbar%", progressBar.toString()));
 
             // add the formatted statistics
             lores.addAll(Arrays.asList(statsLore.split("\n")));
 
             meta.setLore(lores);
             it.setItemMeta(meta);
-            return it;
         }
-        return item;
+        return it;
     }
 
     /**

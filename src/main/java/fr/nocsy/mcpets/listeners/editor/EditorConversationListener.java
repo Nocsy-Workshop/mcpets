@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.editor.Editor;
 import fr.nocsy.mcpets.data.editor.EditorConversation;
 import fr.nocsy.mcpets.data.editor.EditorExpectationType;
 import fr.nocsy.mcpets.data.editor.EditorItems;
+import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -64,7 +65,7 @@ public class EditorConversationListener implements Listener {
             {
                 p.sendMessage("§cThe skill §e" + entry + "§c does not exist. Check your MythicMob skills to obtain the right ID.");
             }
-            else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_ID))
+            else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
             {
                 p.sendMessage("§cThe pet §e" + entry + "§c already exists. Please use another ID.");
             }
@@ -86,9 +87,12 @@ public class EditorConversationListener implements Listener {
 
         conversation.end();
 
+        // If we just created a pet, we reload MCPets
+        if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
+            MCPets.getInstance().reloadConfig();
+
         // Open back the editor
         syncOpenEditor(p);
-
     }
 
 }
