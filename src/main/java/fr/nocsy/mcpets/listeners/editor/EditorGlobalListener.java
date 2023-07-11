@@ -1,8 +1,11 @@
 package fr.nocsy.mcpets.listeners.editor;
 
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.editor.*;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -93,7 +96,7 @@ public class EditorGlobalListener implements Listener {
             // If we should delete the pet
             else if(editorItem.getType().equals(EditorExpectationType.PET_DELETE))
             {
-                Pet pet = EditorPetEditing.get(p);
+                Pet pet = EditorPetEditing.get(p).getPet();
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
@@ -108,6 +111,41 @@ public class EditorGlobalListener implements Listener {
                 }
 
                 editor.setState(EditorState.PET_EDITOR);
+                editor.openEditor();
+            }
+
+            // If we should edit a pet level
+            else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_EDIT))
+            {
+                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                Pet pet = editorPet.getPet();
+                if(pet == null)
+                {
+                    Debugger.send("§cPet could not be found.");
+                    return;
+                }
+                PetLevel level = editorPet.getEditorPetLevelMapping().get(e.getSlot());
+
+                editorPet.setLevel(level);
+                editor.setState(EditorState.PET_EDITOR_LEVEL_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should edit a pet skin
+            else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_EDIT))
+            {
+                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                Pet pet = editorPet.getPet();
+                if(pet == null)
+                {
+                    Debugger.send("§cPet could not be found.");
+                    return;
+                }
+                int slotMapping = e.getSlot();
+                PetSkin skin = editorPet.getEditorPetSkinMapping().get(slotMapping);
+
+                editorPet.setSkin(skin);
+                editor.setState(EditorState.PET_EDITOR_SKIN_EDIT);
                 editor.openEditor();
             }
 

@@ -225,10 +225,10 @@ public class PetConfig extends AbstractConfig {
             }.runTaskLater(MCPets.getInstance(), 5L);
         }
 
-        ItemStack icon = legacyItemRead(pet.getIcon(), true, pet.toString(), "Icon");
+        ItemStack icon = legacyItemRead(pet.getIcon(), true, pet.toString(), "§cIcon (not set)", "Icon");
         pet.setIcon(icon);
 
-        ItemStack signalStickItem = legacyItemRead(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), "Signals.Item");
+        ItemStack signalStickItem = legacyItemRead(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), "§cSignal stick (not set)", "Signals.Item");
         pet.setSignalStick(signalStickItem);
 
         PetSkin.clearList(pet);
@@ -241,9 +241,9 @@ public class PetConfig extends AbstractConfig {
             String mythicMobId = getConfig().getString(key + ".MythicMob");
             String skinPerm = getConfig().getString(key + ".Permission");
 
-            ItemStack skinIcon = legacyItemRead(null, false, "",key + ".Icon");
+            ItemStack skinIcon = legacyItemRead(null, false, "", "§cSkin icon (not set)", key + ".Icon");
 
-            PetSkin.load(pet, mythicMobId, skinPerm, skinIcon);
+            PetSkin.load(key, pet, mythicMobId, skinPerm, skinIcon);
         }
 
         ArrayList<PetLevel> levels = new ArrayList<>();
@@ -318,7 +318,7 @@ public class PetConfig extends AbstractConfig {
         pet.setPetLevels(levels);
     }
 
-    private ItemStack legacyItemRead(ItemStack item, boolean showStats, String localName, String path)
+    private ItemStack legacyItemRead(ItemStack item, boolean showStats, String localName, String defaultName, String path)
     {
         ItemStack itemStack = null;
         try
@@ -342,7 +342,7 @@ public class PetConfig extends AbstractConfig {
             }
             if(name == null)
             {
-                name = "§e" + pet.getId();
+                name = defaultName;
             }
             String mat = getConfig().getString(path + ".Material");
             int data = getConfig().getInt(path + ".CustomModelData");

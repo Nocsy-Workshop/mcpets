@@ -36,11 +36,14 @@ public class PetSkin {
     private ItemStack icon;
     @Getter
     private String permission;
+    @Getter
+    private String pathId;
 
-    private PetSkin(Pet objectPet, String mythicMobId, String permission)
+    private PetSkin(String pathId, Pet objectPet, String mythicMobId, String permission)
     {
         this.uuid = UUID.randomUUID().toString();
 
+        this.pathId = pathId;
         this.objectPet = objectPet;
         this.mythicMobId = mythicMobId;
         this.permission = permission;
@@ -53,9 +56,9 @@ public class PetSkin {
      * @param modelSkinId
      * @param icon
      */
-    public static void load(Pet objectPet, String modelSkinId, String permission, ItemStack icon)
+    public static void load(String pathId, Pet objectPet, String modelSkinId, String permission, ItemStack icon)
     {
-        PetSkin petSkin = new PetSkin(objectPet, modelSkinId, permission);
+        PetSkin petSkin = new PetSkin(pathId, objectPet, modelSkinId, permission);
         petSkin.setIcon(icon);
 
         ArrayList<PetSkin> listSkins = petSkins.get(objectPet.getId());
@@ -99,6 +102,8 @@ public class PetSkin {
      */
     public static ArrayList<PetSkin> getSkins(Pet pet)
     {
+        if(!petSkins.containsKey(pet.getId()))
+            return new ArrayList<>();
         return petSkins.get(pet.getId());
     }
 

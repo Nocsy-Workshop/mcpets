@@ -2,8 +2,10 @@ package fr.nocsy.mcpets.data.editor;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.AbstractConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,8 +27,11 @@ public enum EditorItems {
     UNKNOWN(UNKNOWN(), null, null, null, null),
     FILLER(FILLER(), null, null, null, null),
 
-    BACK_TO_GLOBAL_SELECTION(BACK_TO_GLOBAL_SELECTION(), null, null, null, EditorState.GLOBAL_EDITOR),
-    BACK_TO_PET_SELECTION(BACK_TO_PET_SELECTION(), null, null, null, EditorState.PET_EDITOR),
+    BACK_TO_GLOBAL_SELECTION(BACK_TO_ITEM("global menu"), null, null, null, EditorState.GLOBAL_EDITOR),
+    BACK_TO_PET_SELECTION(BACK_TO_ITEM("pet selection menu"), null, null, null, EditorState.PET_EDITOR),
+    BACK_TO_PET_EDIT(BACK_TO_ITEM("pet editor"), null, null, null, EditorState.PET_EDITOR_EDIT),
+    BACK_TO_PET_LEVELS_EDIT(BACK_TO_ITEM("pet levels"), null, null, null, EditorState.PET_EDITOR_LEVELS),
+    BACK_TO_PET_SKINS_EDIT(BACK_TO_ITEM("pet skins"), null, null, null, EditorState.PET_EDITOR_SKINS),
 
     // Default selection menu
     CONFIG_EDITOR(CONFIG_EDITOR(), null, null, null, EditorState.CONFIG_EDITOR),
@@ -59,10 +64,10 @@ public enum EditorItems {
 
     // Pet editor
     PET_EDITOR_EDIT_PET(UNKNOWN(), null, null, EditorExpectationType.PET, null),
-    PET_EDITOR_CREATE_NEW(PET_EDITOR_CREATE_NEW(), null, null, EditorExpectationType.PET_CREATE, null),
+    PET_EDITOR_CREATE_NEW(CREATE_NEW_ITEM("pet", Material.MAGMA_CUBE_SPAWN_EGG), null, null, EditorExpectationType.PET_CREATE, null),
     PET_EDITOR_PAGE_SELECTOR(PET_EDITOR_PAGE_SELECTOR(), null, null, EditorExpectationType.PAGE_SELECTOR, null),
 
-    PET_EDITOR_DELETE(PET_EDITOR_DELETE(), null, null, EditorExpectationType.PET_DELETE, null),
+    PET_EDITOR_DELETE(DELETE("pet"), null, null, EditorExpectationType.PET_DELETE, null),
     PET_EDITOR_LEVELS(PET_EDITOR_LEVELS(), null, null, null, EditorState.PET_EDITOR_LEVELS),
     PET_EDITOR_SKINS(PET_EDITOR_SKINS(), null, null, null, EditorState.PET_EDITOR_SKINS),
 
@@ -79,9 +84,39 @@ public enum EditorItems {
     PET_EDITOR_SPAWN_RANGE(PET_EDITOR_SPAWN_RANGE(), "SpawnRange", null, EditorExpectationType.FLOAT, null),
     PET_EDITOR_COMING_BACK_RANGE(PET_EDITOR_COMING_BACK_RANGE(), "ComingBackRange", null, EditorExpectationType.FLOAT, null),
     PET_EDITOR_INVENTORY_SIZE(PET_EDITOR_INVENTORY_SIZE(), "InventorySize", null, EditorExpectationType.INT, null),
+    PET_EDITOR_TAMING_PROGRESS_SKILL(PET_EDITOR_TAMING_PROGRESS_SKILL(), "Taming.TamingProgressSkill", null, EditorExpectationType.INT, null),
+    PET_EDITOR_TAMING_FINISHED_SKILL(PET_EDITOR_TAMING_FINISHED_SKILL(), "Taming.TamingFinishedSkill", null, EditorExpectationType.INT, null),
     PET_EDITOR_SIGNALS(PET_EDITOR_SIGNALS(), "Signals.Values", null, EditorExpectationType.STRING_LIST, null),
     PET_EDITOR_SIGNAL_STICK(PET_EDITOR_SIGNAL_STICK(), "Signals.Item.Raw", null, EditorExpectationType.ITEM, null),
-    PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(), "Signals.Item.GetFromMenu", null, EditorExpectationType.ITEM, null);
+    PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(), "Signals.Item.GetFromMenu", null, EditorExpectationType.ITEM, null),
+    // Pet editor - Levels
+    PET_EDITOR_EDIT_LEVEL(UNKNOWN(), null, null, EditorExpectationType.PET_LEVEL_EDIT, null),
+    PET_EDITOR_EDIT_LEVEL_DELETE(DELETE("level"), null, null, EditorExpectationType.PET_LEVEL_DELETE, null),
+    PET_EDITOR_LEVEL_CREATE_NEW(CREATE_NEW_ITEM("level", Material.EXPERIENCE_BOTTLE), null, null, EditorExpectationType.PET_LEVEL_CREATE, null),
+    PET_EDITOR_EDIT_LEVEL_NAME(PET_EDITOR_LEVEL_NAME(), "Levels.%path%.Name", null, EditorExpectationType.STRING, null),
+    PET_EDITOR_EDIT_LEVEL_EXP_THRESHOLD(PET_EDITOR_LEVEL_EXP_THRESHOLD(), "Levels.%path%.ExperienceThreshold", null, EditorExpectationType.POSITIVE_INT, null),
+    PET_EDITOR_EDIT_LEVEL_MAX_HEALTH(PET_EDITOR_LEVEL_MAX_HEALTH(), "Levels.%path%.MaxHealth", null, EditorExpectationType.POSITIVE_INT, null),
+    PET_EDITOR_EDIT_LEVEL_REGENERATION(PET_EDITOR_LEVEL_REGENERATION(), "Levels.%path%.Regeneration", null, EditorExpectationType.POSITIVE_FLOAT, null),
+    PET_EDITOR_EDIT_LEVEL_RESISTANCE_MODIFIER(PET_EDITOR_LEVEL_RESISTANCE_MODIFIER(), "Levels.%path%.ResistanceModifier", null, EditorExpectationType.FLOAT, null),
+    PET_EDITOR_EDIT_LEVEL_DAMAGE_MODIFIER(PET_EDITOR_LEVEL_DAMAGE_MODIFIER(), "Levels.%path%.DamageModifier", null, EditorExpectationType.FLOAT, null),
+    PET_EDITOR_EDIT_LEVEL_POWER(PET_EDITOR_LEVEL_POWER(), "Levels.%path%.Power", null, EditorExpectationType.FLOAT, null),
+    PET_EDITOR_EDIT_LEVEL_COOLDOWN_RESPAWN(PET_EDITOR_LEVEL_COOLDOWN_RESPAWN(), "Levels.%path%.Cooldowns.Respawn", null, EditorExpectationType.POSITIVE_INT, null),
+    PET_EDITOR_EDIT_LEVEL_COOLDOWN_REVOKE(PET_EDITOR_LEVEL_COOLDOWN_REVOKE(), "Levels.%path%.Cooldowns.Revoke", null, EditorExpectationType.POSITIVE_INT, null),
+    PET_EDITOR_EDIT_LEVEL_INVENTORY_EXTENSION(PET_EDITOR_LEVEL_INVENTORY_EXTENSION(), "Levels.%path%.InventoryExtension", null, EditorExpectationType.INVENTORY_SIZE, null),
+    PET_EDITOR_EDIT_LEVEL_ANNOUNCEMENT_TEXT(PET_EDITOR_LEVEL_ANNOUNCEMENT_TEXT(), "Levels.%path%.Announcement.Text", null, EditorExpectationType.STRING, null),
+    PET_EDITOR_EDIT_LEVEL_ANNOUNCEMENT_TYPE(PET_EDITOR_LEVEL_ANNOUNCEMENT_TYPE(), "Levels.%path%.Announcement.Type", null, EditorExpectationType.ANNOUNCEMENT_TYPE, null),
+    PET_EDITOR_EDIT_LEVEL_ANNOUNCEMENT_SKILL(PET_EDITOR_LEVEL_ANNOUNCEMENT_SKILL(), "Levels.%path%.Announcement.Skill", null, EditorExpectationType.STRING, null),
+    PET_EDITOR_EDIT_LEVEL_EVOLUTION_PET_ID(PET_EDITOR_LEVEL_EVOLUTION_PET_ID(), "Levels.%path%.Evolution.PetId", null, EditorExpectationType.PET, null),
+    PET_EDITOR_EDIT_LEVEL_EVOLUTION_DELAY(PET_EDITOR_LEVEL_EVOLUTION_DELAY(), "Levels.%path%.Evolution.DelayBeforeEvolution", null, EditorExpectationType.POSITIVE_INT, null),
+    PET_EDITOR_EDIT_LEVEL_EVOLUTION_REMOVE_ACCESS(PET_EDITOR_LEVEL_EVOLUTION_REMOVE_ACCESS(), "Levels.%path%.Evolution.RemoveAccess", null, EditorExpectationType.BOOLEAN, null),
+    // Pet editor - Skins
+    PET_EDITOR_EDIT_SKIN(UNKNOWN(), null, null, EditorExpectationType.PET_SKIN_EDIT, null),
+    PET_EDITOR_EDIT_SKIN_DELETE(DELETE("skin"), null, null, EditorExpectationType.PET_SKIN_DELETE, null),
+    PET_EDITOR_SKIN_CREATE_NEW(CREATE_NEW_ITEM("skin", Material.LEATHER), null, null, EditorExpectationType.PET_SKIN_CREATE, null),
+    PET_EDITOR_EDIT_SKIN_ICON(UNKNOWN(), "Skins.%path%.Icon.Raw", null, EditorExpectationType.ITEM, null),
+    PET_EDITOR_EDIT_SKIN_MYTHICMOB(PET_EDITOR_SKIN_MYTHICMOB(), "Skins.%path%.MythicMob", null, null, null),
+    PET_EDITOR_EDIT_SKIN_PERMISSION(PET_EDITOR_SKIN_PERMISSION(), "Skins.%path%.Permission", null, null, null),
+    ;
 
     private final static String editorTag = "MCPets:Editor:";
     @Getter
@@ -95,6 +130,7 @@ public enum EditorItems {
     private String filePath;
     @Getter
     private String variablePath;
+    private String variablePathPlaceholder;
     @Getter
     @Setter
     private Object value;
@@ -109,6 +145,7 @@ public enum EditorItems {
         this.item = item;
         this.filePath = "./plugins/MCPets/" + filePath + ".yml";
         this.variablePath = variablePath;
+        this.variablePathPlaceholder = "";
         this.type = type;
         this.nextState = nextState;
 
@@ -121,7 +158,7 @@ public enum EditorItems {
         {
             File file = new File(this.filePath);
             FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-            this.value = config.get(variablePath);
+            this.value = config.get(variablePath.replace("%path%", variablePathPlaceholder));
         }
     }
 
@@ -137,8 +174,18 @@ public enum EditorItems {
         return this;
     }
 
+    public EditorItems replaceVariablePath(String pathPlaceholder)
+    {
+        this.variablePathPlaceholder = pathPlaceholder;
+        refreshData();
+        return this;
+    }
+
     public boolean save()
     {
+        if(this.value == null)
+            return false;
+
         if(this.getType().equals(EditorExpectationType.PET_CREATE))
         {
             String illegalCharacters = "#%<>&*{}?/\\$§+!`|'\"=:@.";
@@ -147,14 +194,15 @@ public enum EditorItems {
                 this.value = this.value.toString().replace(""+character, "");
             }
             this.value = this.value.toString().replace(" ", "_");
-            new PetConfig("Pets/", this.value.toString() + ".yml");
-
+            // Create the pet config and add it to the pet objects for editing
+            PetConfig petConfig = new PetConfig("Pets/", this.value.toString() + ".yml");
+            Pet.getObjectPets().add(petConfig.getPet());
             return true;
         }
         File file = new File(filePath);
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        config.set(variablePath, this.value);
+        config.set(variablePath.replace("%path%", variablePathPlaceholder), this.value);
 
         try
         {
@@ -251,30 +299,15 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack BACK_TO_GLOBAL_SELECTION()
+    private static ItemStack BACK_TO_ITEM(String where)
     {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cBack to global editor menu");
+        meta.setDisplayName("§cBack to " + where);
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to go back to the editor menu selection.");
-
-        meta.setLore(lores);
-        it.setItemMeta(meta);
-        return it;
-    }
-
-    private static ItemStack BACK_TO_PET_SELECTION()
-    {
-        ItemStack it = new ItemStack(Material.PAPER);
-        ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cBack to pet selection menu");
-
-        ArrayList<String> lores = new ArrayList<>();
-        lores.add(" ");
-        lores.add("§7Click to go back to the pet selection.");
+        lores.add("§7Click to go back to the " + where + ".");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -822,30 +855,30 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_CREATE_NEW()
+    private static ItemStack CREATE_NEW_ITEM(String what, Material type)
     {
-        ItemStack it = new ItemStack(Material.MAGMA_CUBE_SPAWN_EGG);
+        ItemStack it = new ItemStack(type);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§aCreate a new pet");
+        meta.setDisplayName("§aCreate a new " + what);
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to create a new pet.");
+        lores.add("§7Click to create a new " + what + ".");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
         return it;
     }
 
-    private static ItemStack PET_EDITOR_DELETE()
+    private static ItemStack DELETE(String what)
     {
         ItemStack it = new ItemStack(Material.BARRIER);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cDelete the pet");
+        meta.setDisplayName("§cDelete the " + what);
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to delete the pet.");
+        lores.add("§7Click to delete the " + what + ".");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1066,6 +1099,42 @@ public enum EditorItems {
         return it;
     }
 
+    private static ItemStack PET_EDITOR_TAMING_PROGRESS_SKILL()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Taming - Progress skill");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set a skill for when a player");
+        lores.add("§7tames the pet.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_TAMING_FINISHED_SKILL()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Taming - Finished skill");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set a skill for when a player");
+        lores.add("§7has finished taming the pet.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
     private static ItemStack PET_EDITOR_ICON()
     {
         ItemStack it = new ItemStack(Material.END_CRYSTAL);
@@ -1168,6 +1237,406 @@ public enum EditorItems {
         return it;
     }
 
+    /*
+     * PET EDITOR LEVEL icon
+     */
 
+    public EditorItems setupPetLevelIcon(PetLevel level)
+    {
+        ItemStack it = new ItemStack(Material.EXPERIENCE_BOTTLE);
+        ItemMeta meta = it.getItemMeta();
+
+        meta.setDisplayName("§a" + level.getLevelName());
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Experience threshold: §a" + level.getExpThreshold());
+        lores.add(" ");
+        lores.add("§eClick to edit that level.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = level;
+
+        return this;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_NAME()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Level name");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the display name of the level.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_EXP_THRESHOLD()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Experience threshold");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the minimum experience value");
+        lores.add("§7for the pet to access that level.");
+        lores.add("§cNote that the first level starts at 0 XP");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_MAX_HEALTH()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Maximum health");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the pet's health.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_REGENERATION()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Regeneration");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the regeneration of health");
+        lores.add("§7over time. §c(health/second)");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_RESISTANCE_MODIFIER()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Resistance modifier");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the by how much the damage received");
+        lores.add("§7are divided by.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_DAMAGE_MODIFIER()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Damage modifier");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set by how much the damage done by");
+        lores.add("§7the pet can be multiplicated by.");
+        lores.add("§cThis is not automatic and should be used");
+        lores.add("§cas a placeholder in MythicMobs (see wiki)");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_POWER()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Power modifier");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set by how much the spell power done of");
+        lores.add("§7the pet can be multiplicated by.");
+        lores.add("§cThis is not automatic and should be used");
+        lores.add("§cas a placeholder in MythicMobs (see wiki)");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_COOLDOWN_RESPAWN()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Cooldown - Respawn");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set how long before the pet can");
+        lores.add("§7be respawned after dying.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_COOLDOWN_REVOKE()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Cooldown - Revoke");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set how long before the pet can");
+        lores.add("§7be respawned after being revoked.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_INVENTORY_EXTENSION()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Inventory extension");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set how many more slots are unlocked");
+        lores.add("§7in the pet inventory at that level.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_TEXT()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Announcement - Text");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set a text to be announced when");
+        lores.add("§7the pet evolves.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_TYPE()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Announcement - Type");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the announcement type.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_SKILL()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Announcement - Skill");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the skill casted when");
+        lores.add("§7the pet evolves.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_PET_ID()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Evolution - Pet ID");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the pet ID of the evolution.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_DELAY()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Evolution - Delay");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set a delay before the evolution");
+        lores.add("§7is triggered (like the skill duration, in ticks).");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_REMOVE_ACCESS()
+    {
+        ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Evolution - Remove old access");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Whether the previous pet permission should");
+        lores.add("§7be removed when evolving (recommended to true)");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    /*
+     * PET EDITOR SKIN icon
+     */
+
+    public EditorItems setupSkinIcon(PetSkin skin)
+    {
+        ItemStack it = new ItemStack(Material.LEATHER);
+        if(skin.getIcon() != null)
+            it = skin.getIcon().clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        meta.setDisplayName("§6Skin: §e" + skin.getMythicMobId());
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§eClick to edit that skin.");
+
+        meta.setLore(lores);
+
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = skin;
+
+        return this;
+    }
+
+    public EditorItems setupEditSkinIcon(PetSkin skin)
+    {
+        ItemStack it = new ItemStack(Material.LEATHER);
+        if(skin.getIcon() != null)
+            it = skin.getIcon().clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        meta.setDisplayName("§6Skin: §e" + skin.getMythicMobId());
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§eClick with an item to edit");
+        lores.add("§ethe icon of the skin.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = skin;
+
+        return this;
+    }
+
+    private static ItemStack PET_EDITOR_SKIN_MYTHICMOB()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Skin - MythicMob");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the mythicmob to swap to as a skin");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PET_EDITOR_SKIN_PERMISSION()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Skin - Permission");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the permission to");
+        lores.add("§7unlock the skin.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
 
 }

@@ -1,10 +1,8 @@
 package fr.nocsy.mcpets.listeners.editor;
 
 import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.data.editor.Editor;
-import fr.nocsy.mcpets.data.editor.EditorConversation;
-import fr.nocsy.mcpets.data.editor.EditorExpectationType;
-import fr.nocsy.mcpets.data.editor.EditorItems;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.editor.*;
 import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,7 +15,7 @@ import java.util.UUID;
 
 public class EditorConversationListener implements Listener {
 
-    public void syncOpenEditor(Player p)
+    public void syncOpenEditor(Player p, EditorState newState)
     {
         final UUID uuid = p.getUniqueId();
         // Run it sync otherwise it will not open
@@ -28,6 +26,8 @@ public class EditorConversationListener implements Listener {
                 if(player == null)
                     return;
                 Editor editor = Editor.getEditor(player);
+                if(newState != null)
+                    editor.setState(newState);
                 editor.openEditor();
             }
         }.runTask(MCPets.getInstance());
@@ -50,7 +50,7 @@ public class EditorConversationListener implements Listener {
         if(entry.equalsIgnoreCase("quit"))
         {
             conversation.quit();
-            syncOpenEditor(p);
+            syncOpenEditor(p, null);
             return;
         }
 
@@ -71,7 +71,7 @@ public class EditorConversationListener implements Listener {
             }
             else
             {
-                p.sendMessage("§cThe expected type for this parameter is §6" + conversation.getEditorItem().getType().getName());
+                p.sendMessage("§cThe expected type for this parameter is §6" + conversation.getEditorItem().getType().getName().replace("_", " "));
                 p.sendMessage("§7Please try again with the right type.");
             }
             return;
@@ -89,10 +89,15 @@ public class EditorConversationListener implements Listener {
 
         // If we just created a pet, we reload MCPets
         if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
-            MCPets.getInstance().reloadConfig();
+        {
+            Pet pet = Pet.getFromId(value.toString());
+            EditorPetEditing.register(p, pet);
+            syncOpenEditor(p, EditorState.PET_EDITOR_EDIT);
+            return;
+        }
 
         // Open back the editor
-        syncOpenEditor(p);
+        syncOpenEditor(p, null);
     }
 
 }

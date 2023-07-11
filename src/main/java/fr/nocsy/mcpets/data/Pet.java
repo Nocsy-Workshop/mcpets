@@ -60,9 +60,9 @@ public class Pet {
     //********** Static values **********
 
     @Getter
-    private static final HashMap<UUID, Pet> activePets = new HashMap<UUID, Pet>();
+    private static HashMap<UUID, Pet> activePets = new HashMap<UUID, Pet>();
     @Getter
-    private static final ArrayList<Pet> objectPets = new ArrayList<Pet>();
+    private static ArrayList<Pet> objectPets = new ArrayList<Pet>();
     @Getter
     private static HashMap<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
 

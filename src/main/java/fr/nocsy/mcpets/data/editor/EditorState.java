@@ -1,7 +1,9 @@
 package fr.nocsy.mcpets.data.editor;
 
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -10,6 +12,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -30,7 +33,11 @@ public enum EditorState {
     // Pet editor menu
     PET_EDITOR_EDIT("Edit the pet"),
     PET_EDITOR_LEVELS("Edit the living pet features"),
-    PET_EDITOR_SKINS("Edit the skins of the pet");
+    PET_EDITOR_SKINS("Edit the skins of the pet"),
+    // Levels editor menu
+    PET_EDITOR_LEVEL_EDIT("Edit the level features"),
+    // Skins editor menu
+    PET_EDITOR_SKIN_EDIT("Edit the skin parameters");
 
 
     @Getter
@@ -73,6 +80,8 @@ public enum EditorState {
             }
 
         }
+
+
         else if(this.equals(EditorState.CONFIG_EDITOR))
         {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
@@ -107,6 +116,8 @@ public enum EditorState {
             }
 
         }
+
+
         else if(this.equals(EditorState.PET_EDITOR))
         {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
@@ -146,11 +157,13 @@ public enum EditorState {
             }
 
         }
+
+
         else if(this.equals(EditorState.PET_EDITOR_EDIT))
         {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
-            Pet pet = EditorPetEditing.get(p);
+            Pet pet = EditorPetEditing.get(p).getPet();
             String filePath = PetConfig.getFilePath(pet.getId());
 
             HashMap<ItemStack, Integer> icons = new HashMap<>();
@@ -171,6 +184,8 @@ public enum EditorState {
             icons.put(EditorItems.PET_EDITOR_DISTANCE.setFilePath(filePath).getItem(), 38);
             icons.put(EditorItems.PET_EDITOR_SPAWN_RANGE.setFilePath(filePath).getItem(), 35);
             icons.put(EditorItems.PET_EDITOR_COMING_BACK_RANGE.setFilePath(filePath).getItem(), 39);
+            icons.put(EditorItems.PET_EDITOR_TAMING_PROGRESS_SKILL.setFilePath(filePath).getItem(), 37);
+            icons.put(EditorItems.PET_EDITOR_TAMING_FINISHED_SKILL.setFilePath(filePath).getItem(), 36);
             icons.put(EditorItems.PET_EDITOR_INVENTORY_SIZE.setFilePath(filePath).getItem(), 34);
             icons.put(EditorItems.PET_EDITOR_SIGNALS.setFilePath(filePath).getItem(), 40);
             icons.put(EditorItems.PET_EDITOR_SIGNAL_STICK.setFilePath(filePath).setupSignalStickItem(pet).getItem(), 41);
@@ -180,6 +195,116 @@ public enum EditorState {
             {
                 int position = icons.get(item);
                 currentView.setItem(position, item);
+            }
+
+        }
+
+
+        else if(this.equals(EditorState.PET_EDITOR_LEVELS))
+        {
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            for(int i = 45; i <= 53; i++)
+            {
+                currentView.setItem(i, EditorItems.FILLER.getItem());
+            }
+            currentView.setItem(49, EditorItems.PET_EDITOR_LEVEL_CREATE_NEW.getItem());
+            currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
+
+            EditorPetEditing editorPet = EditorPetEditing.get(p);
+            Pet pet = editorPet.getPet();
+            String filePath = PetConfig.getFilePath(pet.getId());
+
+            for(int i = 0; i < 54 && i < pet.getPetLevels().size(); i++)
+            {
+                PetLevel level = pet.getPetLevels().get(i);
+
+                EditorItems icon = EditorItems.PET_EDITOR_EDIT_LEVEL
+                        .setFilePath(filePath).replaceVariablePath(level.getLevelId())
+                        .setupPetLevelIcon(level);
+
+                ItemStack item = icon.getItem().clone();
+                item.setAmount(i+1);
+                currentView.setItem(i, item);
+
+                editorPet.getEditorPetLevelMapping().put(i, level);
+            }
+
+        }
+
+
+        else if(this.equals(EditorState.PET_EDITOR_LEVEL_EDIT))
+        {
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+
+            EditorPetEditing editorPet = EditorPetEditing.get(p);
+            Pet pet = editorPet.getPet();
+            String filePath = PetConfig.getFilePath(pet.getId());
+            PetLevel level = editorPet.getLevel();
+
+            HashMap<EditorItems, Integer> icons = new HashMap<>();
+
+            icons.put(EditorItems.BACK_TO_PET_LEVELS_EDIT, 0);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_DELETE, 8);
+
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_NAME, 12);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_EXP_THRESHOLD, 14);
+
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_MAX_HEALTH, 27);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_REGENERATION, 28);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_RESISTANCE_MODIFIER, 29);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_DAMAGE_MODIFIER, 36);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_POWER, 37);
+
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_COOLDOWN_RESPAWN, 30);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_COOLDOWN_REVOKE, 31);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_INVENTORY_EXTENSION, 32);
+
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_ANNOUNCEMENT_TEXT, 39);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_ANNOUNCEMENT_TYPE, 40);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_ANNOUNCEMENT_SKILL, 41);
+
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_EVOLUTION_PET_ID, 33);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_EVOLUTION_DELAY, 34);
+            icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_EVOLUTION_REMOVE_ACCESS, 35);
+
+            for(EditorItems item : icons.keySet())
+            {
+                int position = icons.get(item);
+                currentView.setItem(position, item.setFilePath(filePath)
+                                                    .replaceVariablePath(level.getLevelId())
+                                                    .getItem());
+            }
+        }
+
+
+        else if(this.equals(EditorState.PET_EDITOR_SKINS))
+        {
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            for(int i = 45; i <= 53; i++)
+            {
+                currentView.setItem(i, EditorItems.FILLER.getItem());
+            }
+            currentView.setItem(49, EditorItems.PET_EDITOR_SKIN_CREATE_NEW.getItem());
+            currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
+
+            EditorPetEditing editorPet = EditorPetEditing.get(p);
+            Pet pet = editorPet.getPet();
+            String filePath = PetConfig.getFilePath(pet.getId());
+
+            ArrayList<PetSkin> skins = PetSkin.getSkins(pet);
+            for(int i = 0; i < 54 && i < skins.size(); i++)
+            {
+                PetSkin skin = skins.get(i);
+
+                EditorItems icon = EditorItems.PET_EDITOR_EDIT_LEVEL
+                        .setFilePath(filePath).replaceVariablePath(skin.getPathId())
+                        .setupSkinIcon(skin);
+                currentView.setItem(i, icon.getItem());
+
+                editorPet.getEditorPetSkinMapping().put(i, skin);
             }
 
         }
