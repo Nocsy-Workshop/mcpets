@@ -131,6 +131,44 @@ public class EditorGlobalListener implements Listener {
                 editor.openEditor();
             }
 
+            // If we should create a pet level
+            else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_CREATE))
+            {
+                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                Pet pet = editorPet.getPet();
+                if(pet == null)
+                {
+                    Debugger.send("§cPet could not be found.");
+                    return;
+                }
+                PetConfig config = PetConfig.getConfig(pet.getId());
+                config.registerCleanPetLevel(null);
+                PetLevel level = pet.getPetLevels().get(pet.getPetLevels().size() - 1);
+
+                editorPet.setLevel(level);
+                editor.setState(EditorState.PET_EDITOR_LEVEL_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should delete a pet level
+            else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_DELETE))
+            {
+                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                Pet pet = editorPet.getPet();
+                if(pet == null)
+                {
+                    Debugger.send("§cPet could not be found.");
+                    return;
+                }
+                PetLevel petLevel = editorPet.getLevel();
+
+                PetConfig config = PetConfig.getConfig(pet.getId());
+                config.deletePetLevel(petLevel.getLevelId());
+                
+                editor.setState(EditorState.PET_EDITOR_LEVELS);
+                editor.openEditor();
+            }
+
             // If we should edit a pet skin
             else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_EDIT))
             {

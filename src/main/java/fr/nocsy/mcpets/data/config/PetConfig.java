@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -246,76 +247,7 @@ public class PetConfig extends AbstractConfig {
             PetSkin.load(key, pet, mythicMobId, skinPerm, skinIcon);
         }
 
-        ArrayList<PetLevel> levels = new ArrayList<>();
-
-        for(String key : getConfig().getKeys(true).stream()
-                                    .filter(key ->  key.contains("Levels") &&
-                                                    key.replace(".", ";").split(";").length == 2)
-                                    .collect(Collectors.toList()))
-        {
-            String levelId = key.replace(".", ";").split(";")[1];
-
-            String evolutionId = null;
-            int delayBeforeEvolution = 0;
-            boolean removePrevious = true;
-            double maxHealth = Optional.of(getConfig().getDouble(key + ".MaxHealth")).orElse(1D);
-            double regeneration = Optional.of(getConfig().getDouble(key + ".Regeneration")).orElse(0.1);
-            double resistanceModifier = Optional.of(getConfig().getDouble(key + ".ResistanceModifier")).orElse(1D);
-            double damageModifier = Optional.of(getConfig().getDouble(key + ".DamageModifier")).orElse(1D);
-            double power = Optional.of(getConfig().getDouble(key + ".Power")).orElse(1D);
-            int respawnCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Respawn")).orElse(GlobalConfig.getInstance().getDefaultRespawnCooldown());
-            int revokeCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Revoke")).orElse(0);;
-            int inventoryExtension = Optional.of(getConfig().getInt(key + ".InventoryExtension")).orElse(0);;
-            String levelName = getConfig().getString(key + ".Name");
-            double expThreshold = getConfig().getDouble(key + ".ExperienceThreshold");
-            String announcement = null;
-            PetAnnouncement announcementType = null;
-            String mythicSkill = Optional.ofNullable(getConfig().getString(key + ".Announcement.Skill")).orElse(null);
-
-            if(getConfig().get(key + ".Evolution.PetId") != null)
-            {
-                evolutionId = getConfig().getString(key + ".Evolution.PetId");
-                delayBeforeEvolution = getConfig().getInt(key + ".Evolution.DelayBeforeEvolution");
-                removePrevious = getConfig().get(key + ".Evolution.RemoveAccess") == null ||
-                                getConfig().getBoolean(key + ".Evolution.RemoveAccess");
-            }
-            if(getConfig().get(key + ".Announcement.Text") != null)
-            {
-                announcement = getConfig().getString(key + ".Announcement.Text");
-                announcementType = Arrays.stream(PetAnnouncement.values())
-                                .filter(type -> type.name().equalsIgnoreCase(getConfig().getString(key + ".Announcement.Type")))
-                                .findFirst().orElse(PetAnnouncement.CHAT);
-            }
-
-            PetLevel petLevel = new PetLevel(pet,
-                                            levelId,
-                                            evolutionId,
-                                            delayBeforeEvolution,
-                                            removePrevious,
-                                            maxHealth,
-                                            regeneration,
-                                            resistanceModifier,
-                                            damageModifier,
-                                            power,
-                                            respawnCooldown,
-                                            revokeCooldown,
-                                            inventoryExtension,
-                                            levelName,
-                                            expThreshold,
-                                            announcement,
-                                            announcementType,
-                                            mythicSkill);
-
-            levels.add(petLevel);
-        }
-
-        levels.sort(new Comparator<PetLevel>() {
-            @Override
-            public int compare(PetLevel level1, PetLevel level2) {
-                return level1.compareTo(level2);
-            }
-        });
-        pet.setPetLevels(levels);
+        reloadLevels();
     }
 
     private ItemStack legacyItemRead(ItemStack item, boolean showStats, String localName, String defaultName, String path)
@@ -356,6 +288,114 @@ public class PetConfig extends AbstractConfig {
             );
         }
         return itemStack;
+    }
+
+    private void reloadLevels()
+    {
+        ArrayList<PetLevel> levels = new ArrayList<>();
+
+        for(String key : getConfig().getKeys(true).stream()
+                .filter(key ->  key.contains("Levels") &&
+                        key.replace(".", ";").split(";").length == 2)
+                .collect(Collectors.toList()))
+        {
+            String levelId = key.replace(".", ";").split(";")[1];
+
+            String evolutionId = null;
+            int delayBeforeEvolution = 0;
+            boolean removePrevious = true;
+            double maxHealth = Optional.of(getConfig().getDouble(key + ".MaxHealth")).orElse(10D);
+            double regeneration = Optional.of(getConfig().getDouble(key + ".Regeneration")).orElse(0.1);
+            double resistanceModifier = Optional.of(getConfig().getDouble(key + ".ResistanceModifier")).orElse(1D);
+            double damageModifier = Optional.of(getConfig().getDouble(key + ".DamageModifier")).orElse(1D);
+            double power = Optional.of(getConfig().getDouble(key + ".Power")).orElse(1D);
+            int respawnCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Respawn")).orElse(GlobalConfig.getInstance().getDefaultRespawnCooldown());
+            int revokeCooldown = Optional.of(getConfig().getInt(key + ".Cooldowns.Revoke")).orElse(0);;
+            int inventoryExtension = Optional.of(getConfig().getInt(key + ".InventoryExtension")).orElse(0);;
+            String levelName = getConfig().getString(key + ".Name");
+            double expThreshold = getConfig().getDouble(key + ".ExperienceThreshold");
+            String announcement = null;
+            PetAnnouncement announcementType = null;
+            String mythicSkill = Optional.ofNullable(getConfig().getString(key + ".Announcement.Skill")).orElse(null);
+
+            if(getConfig().get(key + ".Evolution.PetId") != null)
+            {
+                evolutionId = getConfig().getString(key + ".Evolution.PetId");
+                delayBeforeEvolution = Optional.of(getConfig().getInt(key + ".Evolution.DelayBeforeEvolution")).orElse(0);
+                removePrevious = getConfig().get(key + ".Evolution.RemoveAccess") == null ||
+                        getConfig().getBoolean(key + ".Evolution.RemoveAccess");
+            }
+            if(getConfig().get(key + ".Announcement.Text") != null)
+            {
+                announcement = getConfig().getString(key + ".Announcement.Text");
+                announcementType = Arrays.stream(PetAnnouncement.values())
+                        .filter(type -> type.name().equalsIgnoreCase(getConfig().getString(key + ".Announcement.Type")))
+                        .findFirst().orElse(PetAnnouncement.CHAT);
+            }
+
+            PetLevel petLevel = new PetLevel(pet,
+                    levelId,
+                    evolutionId,
+                    delayBeforeEvolution,
+                    removePrevious,
+                    maxHealth,
+                    regeneration,
+                    resistanceModifier,
+                    damageModifier,
+                    power,
+                    respawnCooldown,
+                    revokeCooldown,
+                    inventoryExtension,
+                    levelName,
+                    expThreshold,
+                    announcement,
+                    announcementType,
+                    mythicSkill);
+
+            levels.add(petLevel);
+        }
+
+        levels.sort(new Comparator<PetLevel>() {
+            @Override
+            public int compare(PetLevel level1, PetLevel level2) {
+                return level1.compareTo(level2);
+            }
+        });
+        pet.setPetLevels(levels);
+    }
+
+    /**
+     * Method used only for the editor to register a clean level to the pet
+     * @param levelId
+     */
+    public void registerCleanPetLevel(@Nullable String levelId)
+    {
+        if(levelId == null)
+            levelId = UUID.randomUUID().toString();
+
+        double defaultExp = 0.0;
+        if(pet.getPetLevels().size() > 0)
+            defaultExp = pet.getPetLevels().get(pet.getPetLevels().size()-1).getExpThreshold() + 100;
+        getConfig().set("Levels." + levelId + ".Name", levelId);
+        getConfig().set("Levels." + levelId + ".ExperienceThreshold", defaultExp);
+        save();
+
+        // Then we reload the level cache
+        reloadLevels();
+    }
+
+    public void deletePetLevel(String levelId)
+    {
+
+        PetLevel petLevel = pet.getPetLevels().stream().filter(level -> level.getLevelId().equals(levelId)).findFirst().orElse(null);
+        if(petLevel == null)
+            return;
+
+        getConfig().set("Levels." + levelId, null);
+        save();
+
+        // Then we reload the cache
+        reloadLevels();
     }
 
 }
