@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data.editor;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import fr.nocsy.mcpets.utils.Utils;
@@ -32,10 +33,14 @@ public enum EditorExpectationType {
     MYTHICMOB("mythicmob"),
     SKILL("skill"),
     MOUNT_TYPE("mount_type"),
+    CATEGORY_ID("category_id"),
+    PET_LIST_ADD("pet_list_add"),
+    PET_LIST_REMOVE("pet_list_remove"),
 
     // Action expectations
     ITEM("item"),
     PAGE_SELECTOR("page_selector"),
+
     PET("pet"),
     PET_DELETE("pet_delete"),
     PET_LEVEL_EDIT("pet_level_edit"),
@@ -44,6 +49,10 @@ public enum EditorExpectationType {
     PET_SKIN_EDIT("pet_level_edit"),
     PET_LEVEL_CREATE("pet_level_create"),
     PET_SKIN_CREATE("pet_skin_create"),
+
+    CATEGORY_CREATE("category_create"),
+    CATEGORY_DELETE("category_delete"),
+    CATEGORY_EDIT("category_edit"),
     ;
 
     public static int ERROR_PARSE = -808757986;
@@ -62,7 +71,10 @@ public enum EditorExpectationType {
                 this.equals(EditorExpectationType.MYTHICMOB) ||
                 this.equals(EditorExpectationType.SKILL) ||
                 this.equals(EditorExpectationType.PET_CREATE) ||
-                this.equals(EditorExpectationType.PET))
+                this.equals(EditorExpectationType.PET) ||
+                this.equals(EditorExpectationType.CATEGORY_ID) ||
+                this.equals(EditorExpectationType.PET_LIST_ADD) ||
+                this.equals(EditorExpectationType.PET_LIST_REMOVE))
             return any + "";
         else if((this.equals(EditorExpectationType.FLOAT))
                 || this.equals(EditorExpectationType.POSITIVE_FLOAT))
@@ -135,7 +147,9 @@ public enum EditorExpectationType {
         {
             return true;
         }
-        else if(this.equals(EditorExpectationType.PET))
+        else if(this.equals(EditorExpectationType.PET) ||
+                this.equals(EditorExpectationType.PET_LIST_ADD) ||
+                this.equals(EditorExpectationType.PET_LIST_REMOVE))
         {
             Pet pet = Pet.getFromId(any + "");
             return pet != null;
@@ -161,6 +175,11 @@ public enum EditorExpectationType {
         else if(this.equals(EditorExpectationType.MOUNT_TYPE))
         {
             return ModelEngineAPI.getControllerRegistry().get(any + "") != null;
+        }
+        else if(this.equals(EditorExpectationType.CATEGORY_ID))
+        {
+            Category cat = Category.getFromId(any + "");
+            return cat != null;
         }
         try
         {

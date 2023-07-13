@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.editor;
 
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
@@ -10,9 +11,9 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class EditorPetEditing {
+public class EditorEditing {
 
-    private static HashMap<UUID, EditorPetEditing> petediting = new HashMap<>();
+    private static HashMap<UUID, EditorEditing> editing = new HashMap<>();
 
     @Getter
     private Pet pet;
@@ -22,25 +23,32 @@ public class EditorPetEditing {
     @Getter
     @Setter
     private PetSkin skin;
+    @Getter
+    @Setter
+    private Category category;
 
     @Getter
     private HashMap<Integer, PetLevel> editorPetLevelMapping = new HashMap<>();
     @Getter
     private HashMap<Integer, PetSkin> editorPetSkinMapping = new HashMap<>();
+    @Getter
+    private HashMap<Integer, Category> editorCategoryMapping = new HashMap<>();
 
-    public EditorPetEditing(Pet pet)
+    public EditorEditing(Pet pet)
     {
         this.pet = pet;
     }
 
     public static void register(Player p, Pet pet)
     {
-        petediting.put(p.getUniqueId(), new EditorPetEditing(pet));
+        editing.put(p.getUniqueId(), new EditorEditing(pet));
     }
 
-    public static EditorPetEditing get(Player p)
+    public static EditorEditing get(Player p)
     {
-        return petediting.get(p.getUniqueId());
+        if(!editing.containsKey(p.getUniqueId()))
+            editing.put(p.getUniqueId(), new EditorEditing(null));
+        return editing.get(p.getUniqueId());
     }
 
 }

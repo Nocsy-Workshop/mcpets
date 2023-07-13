@@ -4,18 +4,22 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.editor.EditorEditing;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CategoryConfig extends AbstractConfig {
+
+    @Getter
+    private static HashMap<String, CategoryConfig> mapping = new HashMap<>();
 
     @Getter
     private String id;
@@ -46,7 +50,8 @@ public class CategoryConfig extends AbstractConfig {
 
         this.id = fileName.replace(".yml", "");
         this.category = new Category(id);
-
+        if(getConfig().get("Id") == null)
+            getConfig().set("Id", this.id);
         if (getConfig().get("DisplayName") == null)
             getConfig().set("DisplayName", "Category title");
         if (getConfig().get("IconName") == null)
@@ -89,6 +94,7 @@ public class CategoryConfig extends AbstractConfig {
 
         // Load the excluded categories so we can prevent those pets to be added
         List<String> excludedIds = getConfig().getStringList("ExcludedCategories");
+        category.setExcludedCategoriesId(excludedIds);
         List<Category> excludedCategories = Category.getCategories().stream()
                                                                     .filter(cat -> excludedIds.contains(cat.getId()))
                                                                     .collect(Collectors.toList());
@@ -104,6 +110,7 @@ public class CategoryConfig extends AbstractConfig {
                     category.addPet(pet);
             }
             category.countMaxPages();
+            category.setDefaultCategory(true);
         }
         // Else if it's not default category, look for the specified pets
         else if (getConfig().get("Pets") != null)
@@ -176,6 +183,7 @@ public class CategoryConfig extends AbstractConfig {
             {
                 Category.getCategories().removeAll(Category.getCategories().stream().filter(cat -> config.getCategory().getId().equals(cat.getId())).collect(Collectors.toList()));
                 Category.add(config.getCategory());
+                mapping.put(config.getCategory().getId(), config);
             }
         }
 
@@ -189,6 +197,50 @@ public class CategoryConfig extends AbstractConfig {
 
         if (clear)
             MCPets.getLog().info(MCPets.getLogName() + Category.getCategories().size() + " categories registered successfully !");
+    }
+
+    public static void registerCleanCategory(Player creator)
+    {
+
+        String id = UUID.randomUUID().toString();
+        String folder = AbstractConfig.getPath() + "Categories/";
+        String fileName = id + ".yml";
+
+        File file = new File(folder + fileName);
+        if(!file.exists())
+        {
+            try
+            {
+                file.createNewFile();
+            } catch (IOException ignored) {}
+        }
+
+        new CategoryConfig(folder, fileName);
+        // reload the categories
+        load(AbstractConfig.getPath() + "Categories/", true);
+
+        // Associate the category the creator
+        EditorEditing editing = EditorEditing.get(creator);
+        editing.setCategory(Category.getFromId(id));
+    }
+
+    public void addPet(Pet pet)
+    {
+        List<String> pets = getConfig().getStringList("Pets");
+        if(!pets.contains(pet.getId()))
+            pets.add(pet.getId());
+        getConfig().set("Pets", pets);
+        save();
+        reload();
+    }
+
+    public void removePet(Pet pet)
+    {
+        List<String> pets = getConfig().getStringList("Pets");
+        pets.remove(pet.getId());
+        getConfig().set("Pets", pets);
+        save();
+        reload();
     }
 
 }

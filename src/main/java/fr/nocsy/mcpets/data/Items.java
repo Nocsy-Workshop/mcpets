@@ -91,7 +91,7 @@ public enum Items {
     {
         ArrayList<String> lore = new ArrayList<>();
 
-        ItemStack it = new ItemStack(Material.BARRIER);
+        ItemStack it = new ItemStack(Material.BEDROCK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("Unknown");
         meta.setLore(lore);

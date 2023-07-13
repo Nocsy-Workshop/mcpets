@@ -1,9 +1,11 @@
 package fr.nocsy.mcpets.data.editor;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.data.config.CategoryConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
@@ -12,6 +14,7 @@ import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,6 +35,7 @@ public enum EditorItems {
     BACK_TO_PET_EDIT(BACK_TO_ITEM("pet editor"), null, null, null, EditorState.PET_EDITOR_EDIT),
     BACK_TO_PET_LEVELS_EDIT(BACK_TO_ITEM("pet levels"), null, null, null, EditorState.PET_EDITOR_LEVELS),
     BACK_TO_PET_SKINS_EDIT(BACK_TO_ITEM("pet skins"), null, null, null, EditorState.PET_EDITOR_SKINS),
+    BACK_TO_CATEGORIES_EDIT(BACK_TO_ITEM("categories"), null, null, null, EditorState.CATEGORY_EDITOR),
 
     // Default selection menu
     CONFIG_EDITOR(CONFIG_EDITOR(), null, null, null, EditorState.CONFIG_EDITOR),
@@ -113,9 +117,24 @@ public enum EditorItems {
     PET_EDITOR_EDIT_SKIN(UNKNOWN(), null, null, EditorExpectationType.PET_SKIN_EDIT, null),
     PET_EDITOR_EDIT_SKIN_DELETE(DELETE("skin"), null, null, EditorExpectationType.PET_SKIN_DELETE, null),
     PET_EDITOR_SKIN_CREATE_NEW(CREATE_NEW_ITEM("skin", Material.LEATHER), null, null, EditorExpectationType.PET_SKIN_CREATE, null),
-    PET_EDITOR_EDIT_SKIN_ICON(UNKNOWN(), "Skins.%path%.Icon.Raw", null, EditorExpectationType.ITEM, null),
-    PET_EDITOR_EDIT_SKIN_MYTHICMOB(PET_EDITOR_SKIN_MYTHICMOB(), "Skins.%path%.MythicMob", null, null, null),
-    PET_EDITOR_EDIT_SKIN_PERMISSION(PET_EDITOR_SKIN_PERMISSION(), "Skins.%path%.Permission", null, null, null),
+    PET_EDITOR_EDIT_SKIN_ICON(UNKNOWN(), "%path%.Icon.Raw", null, EditorExpectationType.ITEM, null),
+    PET_EDITOR_EDIT_SKIN_MYTHICMOB(PET_EDITOR_SKIN_MYTHICMOB(), "%path%.MythicMob", null, EditorExpectationType.MYTHICMOB, null),
+    PET_EDITOR_EDIT_SKIN_PERMISSION(PET_EDITOR_SKIN_PERMISSION(), "%path%.Permission", null, EditorExpectationType.STRING, null),
+
+    // Category editor
+    CATEGORY_EDITOR_EDIT_CATEGORY(UNKNOWN(), null, null, EditorExpectationType.CATEGORY_EDIT, null),
+
+    CATEGORY_EDITOR_CATEGORY_CREATE(CREATE_NEW_ITEM("category", Material.KNOWLEDGE_BOOK), null, null, EditorExpectationType.CATEGORY_CREATE, null),
+    CATEGORY_EDITOR_CATEGORY_DELETE(DELETE("category"), null, null, EditorExpectationType.CATEGORY_DELETE, null),
+
+    CATEGORY_EDITOR_CATEGORY_EDIT_ID(CATEGORY_EDITOR_CATEGORY_EDIT_ID(), "Id", null, EditorExpectationType.STRING, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_ICON(UNKNOWN(), "Icon", null, EditorExpectationType.ITEM, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_ICON_NAME(CATEGORY_EDITOR_CATEGORY_EDIT_ICON_NAME(), "IconName", null, EditorExpectationType.STRING, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME(CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME(), "DisplayName", null, EditorExpectationType.STRING, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY(CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY(), "DefaultCategory", null, EditorExpectationType.BOOLEAN, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES(CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES(), "ExcludedCategories", null, EditorExpectationType.STRING_LIST, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(), "Pets", null, EditorExpectationType.PET_LIST_ADD, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(), "Pets", null, EditorExpectationType.PET_LIST_REMOVE, null),
     ;
 
     private final static String editorTag = "MCPets:Editor:";
@@ -181,7 +200,7 @@ public enum EditorItems {
         return this;
     }
 
-    public boolean save()
+    public boolean save(Player creator)
     {
         if(this.value == null)
             return false;
@@ -197,6 +216,25 @@ public enum EditorItems {
             // Create the pet config and add it to the pet objects for editing
             PetConfig petConfig = new PetConfig("Pets/", this.value.toString() + ".yml");
             Pet.getObjectPets().add(petConfig.getPet());
+            return true;
+        }
+        else if(this.getType().equals(EditorExpectationType.PET_LIST_ADD) ||
+                this.getType().equals(EditorExpectationType.PET_LIST_REMOVE))
+        {
+            Pet pet = Pet.getFromId(this.value + "");
+            if(pet == null)
+                return false;
+            
+            EditorEditing editing = EditorEditing.get(creator);
+            CategoryConfig config = CategoryConfig.getMapping().get(editing.getCategory().getId());
+            if(this.getType().equals(EditorExpectationType.PET_LIST_ADD))
+            {
+                config.addPet(pet);
+            }
+            else
+            {
+                config.removePet(pet);
+            }
             return true;
         }
         File file = new File(filePath);
@@ -1631,6 +1669,202 @@ public enum EditorItems {
         lores.add(" ");
         lores.add("§7Set the permission to");
         lores.add("§7unlock the skin.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+
+    /*
+     * Category icons
+     */
+
+    public EditorItems setupCategoryIcon(Category category)
+    {
+        ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
+        if(category.getIcon() != null)
+            it = category.getIcon().clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        meta.setDisplayName("§6Category: §e" + category.getIconName());
+        ArrayList<String> lores = new ArrayList<>();
+
+        lores.add("§eClick to edit the category.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = category;
+
+        return this;
+    }
+
+
+    public EditorItems setupEditCategoryIcon(Category category)
+    {
+        ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
+        if(category.getIcon() != null)
+            it = category.getIcon().clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        meta.setDisplayName("§6Category: §e" + category.getIconName());
+        ArrayList<String> lores = new ArrayList<>();
+
+        lores.add("§aExcluded categories:");
+        if(category.getExcludedCategoriesId().size() == 0)
+            lores.add("§7- §6None");
+        for(String categoryId : category.getExcludedCategoriesId())
+            lores.add("§7- " + categoryId);
+
+        lores.add(" ");
+
+        if(category.isDefaultCategory())
+        {
+            lores.add("§aIncludes all pets §7(default category)");
+        }
+        else
+        {
+            lores.add("§aIncluded Pets:");
+            if(category.getPets().size() == 0)
+                lores.add("§7- §6None");
+            for(Pet pet : category.getPets())
+                lores.add(" §7 - " + pet.getId());
+        }
+
+        lores.add(" ");
+
+        lores.add("§eClick with an item to edit");
+        lores.add("§ethe icon of the category.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = category;
+
+        return this;
+    }
+
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_ID()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Category ID");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Click to edit the category ID.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY()
+    {
+        ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Default category");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7(Optional) Should all the pet go");
+        lores.add("§7into that category by default ?");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Excluded categories");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§a(Optional)§7 Exclude all the pets");
+        lores.add("§7from the specified categories.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD()
+    {
+        ItemStack it = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§aAdd§6 a pets");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Add a pet to the category.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE()
+    {
+        ItemStack it = new ItemStack(Material.NETHER_BRICK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§cRemove§6 a pet");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Remove a pet from the category.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Category Inventory title");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the title of the category");
+        lores.add("§7inventory in the GUI.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_ICON_NAME()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Category icon name");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the name of the icon");
+        lores.add("§7for the category in the GUI.");
         lores.add(" ");
         lores.add("§7Current value: §e%value%");
 

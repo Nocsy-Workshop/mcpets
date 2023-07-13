@@ -232,21 +232,7 @@ public class PetConfig extends AbstractConfig {
         ItemStack signalStickItem = legacyItemRead(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), "§cSignal stick (not set)", "Signals.Item");
         pet.setSignalStick(signalStickItem);
 
-        PetSkin.clearList(pet);
-        for(String key : getConfig().getKeys(true).stream()
-                                                        .filter(key ->
-                                                                   key.contains("Skins") &&
-                                                                   key.replace(".", ";").split(";").length == 2)
-                                                        .collect(Collectors.toList()))
-        {
-            String mythicMobId = getConfig().getString(key + ".MythicMob");
-            String skinPerm = getConfig().getString(key + ".Permission");
-
-            ItemStack skinIcon = legacyItemRead(null, false, "", "§cSkin icon (not set)", key + ".Icon");
-
-            PetSkin.load(key, pet, mythicMobId, skinPerm, skinIcon);
-        }
-
+        reloadSkins();
         reloadLevels();
     }
 
@@ -396,6 +382,44 @@ public class PetConfig extends AbstractConfig {
 
         // Then we reload the cache
         reloadLevels();
+    }
+
+    private void reloadSkins()
+    {
+        PetSkin.clearList(pet);
+        for(String key : getConfig().getKeys(true).stream()
+                .filter(key ->
+                        key.contains("Skins") &&
+                                key.replace(".", ";").split(";").length == 2)
+                .collect(Collectors.toList()))
+        {
+            String mythicMobId = getConfig().getString(key + ".MythicMob");
+            String skinPerm = getConfig().getString(key + ".Permission");
+
+            ItemStack skinIcon = legacyItemRead(null, false, "", "§cSkin icon (not set)", key + ".Icon");
+
+            PetSkin.load(key, pet, mythicMobId, skinPerm, skinIcon);
+        }
+    }
+
+    public void registerCleanPetSkin()
+    {
+        String id = UUID.randomUUID().toString();
+        getConfig().set("Skins." + id + ".MythicMob", pet.getMythicMobName());
+        getConfig().set("Skins." + id + ".Permission", pet.getPermission());
+        save();
+
+        // Then we reload the level cache
+        reloadSkins();
+    }
+
+    public void deletePetSkin(String skinPath)
+    {
+        getConfig().set(skinPath, null);
+        save();
+
+        // Then we reload the cache
+        reloadSkins();
     }
 
 }

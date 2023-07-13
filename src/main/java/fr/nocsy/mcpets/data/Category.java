@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data;
 
+import fr.nocsy.mcpets.data.config.CategoryConfig;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
@@ -10,10 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class Category {
 
@@ -40,6 +38,14 @@ public class Category {
 
     @Getter
     private int maxPages;
+
+    @Getter
+    @Setter
+    private boolean defaultCategory;
+
+    @Getter
+    @Setter
+    private List<String> excludedCategoriesId;
 
     public Category(String id)
     {

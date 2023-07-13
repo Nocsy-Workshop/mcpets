@@ -1,7 +1,10 @@
 package fr.nocsy.mcpets.listeners.editor;
 
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
+import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.data.config.CategoryConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.editor.*;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
@@ -13,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public class EditorGlobalListener implements Listener {
 
@@ -61,7 +66,7 @@ public class EditorGlobalListener implements Listener {
             if(editorItem.getType().equals(EditorExpectationType.BOOLEAN))
             {
                 editorItem.toggleBooleanValue();
-                editorItem.save();
+                editorItem.save(p);
                 editor.openEditor();
 
                 changesMade = true;
@@ -88,7 +93,7 @@ public class EditorGlobalListener implements Listener {
                     Debugger.send("§cPet could not be found.");
                     return;
                 }
-                EditorPetEditing.register(p, pet);
+                EditorEditing.register(p, pet);
                 editor.setState(EditorState.PET_EDITOR_EDIT);
                 editor.openEditor();
             }
@@ -96,7 +101,7 @@ public class EditorGlobalListener implements Listener {
             // If we should delete the pet
             else if(editorItem.getType().equals(EditorExpectationType.PET_DELETE))
             {
-                Pet pet = EditorPetEditing.get(p).getPet();
+                Pet pet = EditorEditing.get(p).getPet();
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
@@ -117,7 +122,7 @@ public class EditorGlobalListener implements Listener {
             // If we should edit a pet level
             else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_EDIT))
             {
-                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                EditorEditing editorPet = EditorEditing.get(p);
                 Pet pet = editorPet.getPet();
                 if(pet == null)
                 {
@@ -134,7 +139,7 @@ public class EditorGlobalListener implements Listener {
             // If we should create a pet level
             else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_CREATE))
             {
-                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                EditorEditing editorPet = EditorEditing.get(p);
                 Pet pet = editorPet.getPet();
                 if(pet == null)
                 {
@@ -153,7 +158,7 @@ public class EditorGlobalListener implements Listener {
             // If we should delete a pet level
             else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_DELETE))
             {
-                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                EditorEditing editorPet = EditorEditing.get(p);
                 Pet pet = editorPet.getPet();
                 if(pet == null)
                 {
@@ -164,7 +169,7 @@ public class EditorGlobalListener implements Listener {
 
                 PetConfig config = PetConfig.getConfig(pet.getId());
                 config.deletePetLevel(petLevel.getLevelId());
-                
+
                 editor.setState(EditorState.PET_EDITOR_LEVELS);
                 editor.openEditor();
             }
@@ -172,7 +177,7 @@ public class EditorGlobalListener implements Listener {
             // If we should edit a pet skin
             else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_EDIT))
             {
-                EditorPetEditing editorPet = EditorPetEditing.get(p);
+                EditorEditing editorPet = EditorEditing.get(p);
                 Pet pet = editorPet.getPet();
                 if(pet == null)
                 {
@@ -187,6 +192,45 @@ public class EditorGlobalListener implements Listener {
                 editor.openEditor();
             }
 
+            // If we should create a pet skin
+            else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_CREATE))
+            {
+                EditorEditing editorPet = EditorEditing.get(p);
+                Pet pet = editorPet.getPet();
+                if(pet == null)
+                {
+                    Debugger.send("§cPet could not be found.");
+                    return;
+                }
+                PetConfig config = PetConfig.getConfig(pet.getId());
+                config.registerCleanPetSkin();
+                List<PetSkin> skins = PetSkin.getSkins(pet);
+                PetSkin skin = skins.get(skins.size()-1);
+
+                Utils.debug("Creating pet! " + pet.getId());
+
+                editorPet.setSkin(skin);
+                editor.setState(EditorState.PET_EDITOR_SKIN_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should delete a pet skin
+            else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_DELETE))
+            {
+                EditorEditing editorPet = EditorEditing.get(p);
+                Pet pet = editorPet.getPet();
+                if(pet == null)
+                {
+                    Debugger.send("§cPet could not be found.");
+                    return;
+                }
+                PetConfig config = PetConfig.getConfig(pet.getId());
+                config.deletePetSkin(editorPet.getSkin().getPathId());
+
+                editor.setState(EditorState.PET_EDITOR_SKINS);
+                editor.openEditor();
+            }
+
             // If it's an item, we need to serialize it
             else if(editorItem.getType().equals(EditorExpectationType.ITEM))
             {
@@ -196,12 +240,56 @@ public class EditorGlobalListener implements Listener {
                 if(!replaceItem.hasItemMeta())
                     return;
                 editorItem.setValue(replaceItem);
-                editorItem.save();
+                editorItem.save(p);
 
                 editor.openEditor();
 
                 changesMade = true;
             }
+
+            // If we should create a category
+            else if(editorItem.getType().equals(EditorExpectationType.CATEGORY_CREATE))
+            {
+
+                CategoryConfig.registerCleanCategory(p);
+                editor.setState(EditorState.CATEGORY_EDITOR_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should delete a category
+            else if(editorItem.getType().equals(EditorExpectationType.CATEGORY_DELETE))
+            {
+
+                EditorEditing editing = EditorEditing.get(p);
+                Category category = editing.getCategory();
+                if(category == null)
+                {
+                    Debugger.send("§cCategory could not be found.");
+                    return;
+                }
+                CategoryConfig config = CategoryConfig.getMapping().get(category.getId());
+                config.delete();
+
+                CategoryConfig.load(AbstractConfig.getPath() + "Categories/", true);
+                editor.setState(EditorState.CATEGORY_EDITOR);
+                editor.openEditor();
+            }
+
+            // If we should delete a category
+            else if(editorItem.getType().equals(EditorExpectationType.CATEGORY_EDIT))
+            {
+                EditorEditing editing = EditorEditing.get(p);
+                Category category = editing.getEditorCategoryMapping().get(e.getSlot());
+                if(category == null)
+                {
+                    Debugger.send("§cCategory could not be found.");
+                    return;
+                }
+                editing.setCategory(category);
+                editor.setState(EditorState.CATEGORY_EDITOR_EDIT);
+                editor.openEditor();
+            }
+
             // If it's more advanced, it needs typing, so starts a conversation!
             else
             {

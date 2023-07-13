@@ -3,7 +3,6 @@ package fr.nocsy.mcpets.listeners.editor;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.editor.*;
-import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -83,7 +82,7 @@ public class EditorConversationListener implements Listener {
         // Fetch the edited field and save it
         EditorItems editorItem = conversation.getEditorItem();
         editorItem.setValue(value);
-        editorItem.save();
+        editorItem.save(p);
 
         conversation.end();
 
@@ -91,7 +90,7 @@ public class EditorConversationListener implements Listener {
         if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
         {
             Pet pet = Pet.getFromId(value.toString());
-            EditorPetEditing.register(p, pet);
+            EditorEditing.register(p, pet);
             syncOpenEditor(p, EditorState.PET_EDITOR_EDIT);
             return;
         }

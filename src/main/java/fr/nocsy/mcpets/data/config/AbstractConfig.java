@@ -33,12 +33,11 @@ public abstract class AbstractConfig {
         if (!folder.exists())
             folder.mkdirs();
 
-        File file = new File(path + folderName + "/" + fileName);
+        File file = new File(getFullPath());
 
         if (!file.exists()) {
             try {
                 file.createNewFile();
-                Utils.debug("Creating file " + fileName + " in " + folderName);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -47,8 +46,13 @@ public abstract class AbstractConfig {
         loadConfig();
     }
 
+    public String getFullPath()
+    {
+        return path + folderName + "/" + fileName;
+    }
+
     public void save() {
-        File file = new File(path + folderName + "/" + fileName);
+        File file = new File(getFullPath());
         try {
             config.save(file);
         } catch (IOException e) {
@@ -58,12 +62,12 @@ public abstract class AbstractConfig {
 
     public boolean delete()
     {
-        File file = new File(path + folderName + "/" + fileName);
+        File file = new File(getFullPath());
         return file.delete();
     }
 
     public void loadConfig() {
-        File file = new File(path + folderName + "/" + fileName);
+        File file = new File(getFullPath());
         config = YamlConfiguration.loadConfiguration(file);
     }
 

@@ -1,7 +1,10 @@
 package fr.nocsy.mcpets.data.editor;
 
+import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
+import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.data.config.CategoryConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
@@ -12,9 +15,9 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public enum EditorState {
 
@@ -37,7 +40,10 @@ public enum EditorState {
     // Levels editor menu
     PET_EDITOR_LEVEL_EDIT("Edit the level features"),
     // Skins editor menu
-    PET_EDITOR_SKIN_EDIT("Edit the skin parameters");
+    PET_EDITOR_SKIN_EDIT("Edit the skin parameters"),
+
+    // Categories editor menu
+    CATEGORY_EDITOR_EDIT("Edit the category");
 
 
     @Getter
@@ -163,7 +169,7 @@ public enum EditorState {
         {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
-            Pet pet = EditorPetEditing.get(p).getPet();
+            Pet pet = EditorEditing.get(p).getPet();
             String filePath = PetConfig.getFilePath(pet.getId());
 
             HashMap<ItemStack, Integer> icons = new HashMap<>();
@@ -211,11 +217,11 @@ public enum EditorState {
             currentView.setItem(49, EditorItems.PET_EDITOR_LEVEL_CREATE_NEW.getItem());
             currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
 
-            EditorPetEditing editorPet = EditorPetEditing.get(p);
+            EditorEditing editorPet = EditorEditing.get(p);
             Pet pet = editorPet.getPet();
             String filePath = PetConfig.getFilePath(pet.getId());
 
-            for(int i = 0; i < 54 && i < pet.getPetLevels().size(); i++)
+            for(int i = 0; i < 45 && i < pet.getPetLevels().size(); i++)
             {
                 PetLevel level = pet.getPetLevels().get(i);
 
@@ -238,7 +244,7 @@ public enum EditorState {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
 
-            EditorPetEditing editorPet = EditorPetEditing.get(p);
+            EditorEditing editorPet = EditorEditing.get(p);
             Pet pet = editorPet.getPet();
             String filePath = PetConfig.getFilePath(pet.getId());
             PetLevel level = editorPet.getLevel();
@@ -281,6 +287,7 @@ public enum EditorState {
 
         else if(this.equals(EditorState.PET_EDITOR_SKINS))
         {
+
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
             for(int i = 45; i <= 53; i++)
@@ -290,21 +297,117 @@ public enum EditorState {
             currentView.setItem(49, EditorItems.PET_EDITOR_SKIN_CREATE_NEW.getItem());
             currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
 
-            EditorPetEditing editorPet = EditorPetEditing.get(p);
+            EditorEditing editorPet = EditorEditing.get(p);
             Pet pet = editorPet.getPet();
             String filePath = PetConfig.getFilePath(pet.getId());
 
             ArrayList<PetSkin> skins = PetSkin.getSkins(pet);
-            for(int i = 0; i < 54 && i < skins.size(); i++)
+            for(int i = 0; i < 45 && i < skins.size(); i++)
             {
                 PetSkin skin = skins.get(i);
 
-                EditorItems icon = EditorItems.PET_EDITOR_EDIT_LEVEL
+                EditorItems icon = EditorItems.PET_EDITOR_EDIT_SKIN
                         .setFilePath(filePath).replaceVariablePath(skin.getPathId())
                         .setupSkinIcon(skin);
+
                 currentView.setItem(i, icon.getItem());
 
                 editorPet.getEditorPetSkinMapping().put(i, skin);
+            }
+
+        }
+
+
+        else if(this.equals(EditorState.PET_EDITOR_SKIN_EDIT))
+        {
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            EditorEditing editorPet = EditorEditing.get(p);
+            Pet pet = editorPet.getPet();
+            String filePath = PetConfig.getFilePath(pet.getId());
+            PetSkin skin = editorPet.getSkin();
+
+            HashMap<EditorItems, Integer> icons = new HashMap<>();
+
+            icons.put(EditorItems.BACK_TO_PET_SKINS_EDIT, 0);
+            icons.put(EditorItems.PET_EDITOR_EDIT_SKIN_DELETE, 8);
+
+            icons.put(EditorItems.PET_EDITOR_EDIT_SKIN_MYTHICMOB, 20);
+            icons.put(EditorItems.PET_EDITOR_EDIT_SKIN_ICON, 22);
+            icons.put(EditorItems.PET_EDITOR_EDIT_SKIN_PERMISSION, 24);
+
+            for(EditorItems item : icons.keySet())
+            {
+                if(item.equals(EditorItems.PET_EDITOR_EDIT_SKIN_ICON))
+                    item.setupEditSkinIcon(skin);
+                int position = icons.get(item);
+                currentView.setItem(position, item.setFilePath(filePath)
+                        .replaceVariablePath(skin.getPathId())
+                        .getItem());
+            }
+        }
+
+        else if(this.equals(EditorState.CATEGORY_EDITOR))
+        {
+
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            for(int i = 45; i <= 53; i++)
+            {
+                currentView.setItem(i, EditorItems.FILLER.getItem());
+            }
+            currentView.setItem(49, EditorItems.CATEGORY_EDITOR_CATEGORY_CREATE.getItem());
+            currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
+
+            EditorEditing editorEditing = EditorEditing.get(p);
+
+            List<Category> categories = Category.getCategories();
+            for(int i = 0; i < 45 && i < categories.size(); i++)
+            {
+                Category category = categories.get(i);
+                CategoryConfig config = CategoryConfig.getMapping().get(category.getId());
+
+                EditorItems icon = EditorItems.CATEGORY_EDITOR_EDIT_CATEGORY
+                        .setFilePath(config.getFullPath())
+                        .setupCategoryIcon(category);
+
+                currentView.setItem(i, icon.getItem());
+
+                editorEditing.getEditorCategoryMapping().put(i, category);
+            }
+
+        }
+
+        else if(this.equals(EditorState.CATEGORY_EDITOR_EDIT))
+        {
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            EditorEditing editorEditing = EditorEditing.get(p);
+            Category category = editorEditing.getCategory();
+            String filePath = CategoryConfig.getMapping().get(category.getId()).getFullPath();
+
+            HashMap<EditorItems, Integer> icons = new HashMap<>();
+
+            icons.put(EditorItems.BACK_TO_CATEGORIES_EDIT, 0);
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_DELETE, 8);
+
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_ID, 11);
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_ICON, 13);
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY, 15);
+
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_ICON_NAME, 29);
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME, 38);
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES, 31);
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD, 33);
+            icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE, 42);
+
+
+            for(EditorItems item : icons.keySet())
+            {
+                if(item.equals(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_ICON))
+                    item.setupEditCategoryIcon(category);
+                int position = icons.get(item);
+                currentView.setItem(position, item.setFilePath(filePath).getItem());
             }
 
         }
