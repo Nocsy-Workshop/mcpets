@@ -3,11 +3,10 @@ package fr.nocsy.mcpets.data.editor;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
-import fr.nocsy.mcpets.data.config.AbstractConfig;
 import fr.nocsy.mcpets.data.config.CategoryConfig;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
-import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -43,7 +42,10 @@ public enum EditorState {
     PET_EDITOR_SKIN_EDIT("Edit the skin parameters"),
 
     // Categories editor menu
-    CATEGORY_EDITOR_EDIT("Edit the category");
+    CATEGORY_EDITOR_EDIT("Edit the category"),
+
+    // Item editor menu
+    ITEM_EDITOR_EDIT("Edit the item");
 
 
     @Getter
@@ -92,33 +94,35 @@ public enum EditorState {
         {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
-            EditorItems[] icons = {
-                    EditorItems.CONFIG_EDITOR_PREFIX,
-                    EditorItems.CONFIG_EDITOR_DEFAULT_NAME,
-                    EditorItems.CONFIG_EDITOR_USE_DEFAULT_MYTHICMOBS_NAMES,
-                    EditorItems.CONFIG_EDITOR_OVERRIDE_DEFAULT_NAME,
-                    EditorItems.CONFIG_EDITOR_RIGHT_CLICK_TO_OPEN_MENU,
-                    EditorItems.CONFIG_EDITOR_LEFT_CLICK_TO_OPEN_MENU,
-                    EditorItems.CONFIG_EDITOR_SNEAKMODE,
-                    EditorItems.CONFIG_EDITOR_NAMEABLE,
-                    EditorItems.CONFIG_EDITOR_MOUNTABLE,
-                    EditorItems.CONFIG_EDITOR_DISTANCE_TELEPORT,
-                    EditorItems.CONFIG_EDITOR_MAX_NAME_LENGTH,
-                    EditorItems.CONFIG_EDITOR_INVENTORY_SIZE,
-                    EditorItems.CONFIG_EDITOR_ENABLE_CLICK_BACK_TO_MENU,
-                    EditorItems.CONFIG_EDITOR_ACTIVATE_BACK_MENU_ICON,
-                    EditorItems.CONFIG_EDITOR_DISMOUNT_ON_DAMAGED,
-                    EditorItems.CONFIG_EDITOR_DISABLE_INVENTORY_WHILE_SIGNAL_STICK,
-                    EditorItems.CONFIG_EDITOR_PERCENT_HEALTH_ON_RESPAWN,
-                    EditorItems.CONFIG_EDITOR_AUTO_SAVE_DELAY,
-                    EditorItems.CONFIG_EDITOR_DEFAULT_RESPAWN_COOLDOWN,
-                    EditorItems.CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN,
-                    EditorItems.BACK_TO_GLOBAL_SELECTION,
-            };
+            HashMap<EditorItems, Integer> icons = new HashMap<>();
 
-            for(EditorItems editorItem : icons)
+            icons.put(EditorItems.BACK_TO_GLOBAL_SELECTION, 0);
+
+            icons.put(EditorItems.CONFIG_EDITOR_PREFIX, 18);
+            icons.put(EditorItems.CONFIG_EDITOR_DEFAULT_NAME, 19);
+            icons.put(EditorItems.CONFIG_EDITOR_USE_DEFAULT_MYTHICMOBS_NAMES, 20);
+            icons.put(EditorItems.CONFIG_EDITOR_OVERRIDE_DEFAULT_NAME, 21);
+            icons.put(EditorItems.CONFIG_EDITOR_RIGHT_CLICK_TO_OPEN_MENU, 22);
+            icons.put(EditorItems.CONFIG_EDITOR_LEFT_CLICK_TO_OPEN_MENU, 23);
+            icons.put(EditorItems.CONFIG_EDITOR_SNEAKMODE, 24);
+            icons.put(EditorItems.CONFIG_EDITOR_NAMEABLE, 25);
+            icons.put(EditorItems.CONFIG_EDITOR_MOUNTABLE, 26);
+            icons.put(EditorItems.CONFIG_EDITOR_DISTANCE_TELEPORT, 27);
+            icons.put(EditorItems.CONFIG_EDITOR_MAX_NAME_LENGTH, 28);
+            icons.put(EditorItems.CONFIG_EDITOR_INVENTORY_SIZE, 29);
+            icons.put(EditorItems.CONFIG_EDITOR_ENABLE_CLICK_BACK_TO_MENU, 30);
+            icons.put(EditorItems.CONFIG_EDITOR_ACTIVATE_BACK_MENU_ICON, 31);
+            icons.put(EditorItems.CONFIG_EDITOR_DISMOUNT_ON_DAMAGED, 32);
+            icons.put(EditorItems.CONFIG_EDITOR_DISABLE_INVENTORY_WHILE_SIGNAL_STICK, 33);
+            icons.put(EditorItems.CONFIG_EDITOR_PERCENT_HEALTH_ON_RESPAWN, 34);
+            icons.put(EditorItems.CONFIG_EDITOR_AUTO_SAVE_DELAY, 35);
+            icons.put(EditorItems.CONFIG_EDITOR_DEFAULT_RESPAWN_COOLDOWN, 39);
+            icons.put(EditorItems.CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN, 40);
+
+            for(EditorItems item : icons.keySet())
             {
-                currentView.addItem(editorItem.getItem());
+                int position = icons.get(item);
+                currentView.setItem(position, item.getItem());
             }
 
         }
@@ -132,7 +136,7 @@ public enum EditorState {
             {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
             }
-            currentView.setItem(53, EditorItems.PET_EDITOR_PAGE_SELECTOR.getItem());
+            currentView.setItem(53, EditorItems.PAGE_SELECTOR.getItem());
             currentView.setItem(49, EditorItems.PET_EDITOR_CREATE_NEW.getItem());
             currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
 
@@ -408,6 +412,69 @@ public enum EditorState {
                     item.setupEditCategoryIcon(category);
                 int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(filePath).getItem());
+            }
+
+        }
+
+
+        else if(this.equals(EditorState.ITEM_EDITOR))
+        {
+
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            for(int i = 45; i <= 53; i++)
+            {
+                currentView.setItem(i, EditorItems.FILLER.getItem());
+            }
+            currentView.setItem(49, EditorItems.ITEMS_CREATE.getItem());
+            currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
+            currentView.setItem(53, EditorItems.PAGE_SELECTOR.getItem());
+
+            EditorEditing editing = EditorEditing.get(p);
+            editing.getEditorItemMapping().clear();
+
+            HashMap<String, ItemStack> items = ItemsListConfig.getInstance().getItems();
+            List<String> itemsId = new ArrayList<>(items.keySet());
+            int page = EditorPageSelection.get(p);
+            for(int i = 45*page; i - 45*page < 45 && i - 45*page < items.size(); i++)
+            {
+                if(i >= itemsId.size())
+                    break;
+                String itemId = itemsId.get(i);
+
+                EditorItems icon = EditorItems.ITEMS_EDIT
+                        .replaceVariablePath(itemId)
+                        .setupItemIcon(itemId);
+
+                currentView.setItem(i, icon.getItem());
+
+                editing.getEditorItemMapping().put(i - 45*page, itemId);
+            }
+
+        }
+
+        else if(this.equals(EditorState.ITEM_EDITOR_EDIT))
+        {
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            EditorEditing editorEditing = EditorEditing.get(p);
+            String itemId = editorEditing.getItemId();
+
+            HashMap<EditorItems, Integer> icons = new HashMap<>();
+
+            icons.put(EditorItems.BACK_TO_ITEM_EDITOR, 0);
+            icons.put(EditorItems.ITEMS_DELETE, 8);
+
+            icons.put(EditorItems.ITEMS_EDIT_ID, 12);
+            icons.put(EditorItems.ITEMS_EDIT_ITEM, 14);
+
+
+            for(EditorItems item : icons.keySet())
+            {
+                if(item.equals(EditorItems.ITEMS_EDIT_ITEM))
+                    item.setupEditItemIcon(itemId);
+                int position = icons.get(item);
+                currentView.setItem(position, item.setFilePath(item.getInputFilePath()).replaceVariablePath(itemId).setValue(itemId).getItem());
             }
 
         }

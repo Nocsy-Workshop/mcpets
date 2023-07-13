@@ -198,7 +198,7 @@ public class PetSkin {
      */
     private void initIcon()
     {
-        icon = Items.UNKNOWN.getItem();
+        icon = Items.UNKNOWN.getItem().clone();
         ItemMeta meta = icon.getItemMeta();
         meta.setDisplayName("§6Skin §7: " + mythicMobId);
         ArrayList<String> lore = new ArrayList<>();

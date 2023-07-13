@@ -26,6 +26,9 @@ public class EditorEditing {
     @Getter
     @Setter
     private Category category;
+    @Getter
+    @Setter
+    private String itemId;
 
     @Getter
     private HashMap<Integer, PetLevel> editorPetLevelMapping = new HashMap<>();
@@ -33,6 +36,8 @@ public class EditorEditing {
     private HashMap<Integer, PetSkin> editorPetSkinMapping = new HashMap<>();
     @Getter
     private HashMap<Integer, Category> editorCategoryMapping = new HashMap<>();
+    @Getter
+    private HashMap<Integer, String> editorItemMapping = new HashMap<>();
 
     public EditorEditing(Pet pet)
     {

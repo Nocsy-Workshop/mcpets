@@ -48,7 +48,7 @@ public abstract class AbstractConfig {
 
     public String getFullPath()
     {
-        return path + folderName + "/" + fileName;
+        return (path + folderName + "/" + fileName).replace("//", "/");
     }
 
     public void save() {

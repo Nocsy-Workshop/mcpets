@@ -137,7 +137,7 @@ public class PetFood {
                     return itemStack;
                 }
                 // We found no match, so we set the item to unknown
-                itemStack = Items.UNKNOWN.getItem();
+                itemStack = Items.UNKNOWN.getItem().clone();
             }
             ItemMeta meta = itemStack.getItemMeta();
             meta.setLocalizedName("MCPets;Food;" + itemId);

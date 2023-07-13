@@ -6,7 +6,6 @@ import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import fr.nocsy.mcpets.utils.Utils;
-import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
@@ -26,6 +25,7 @@ public enum EditorExpectationType {
     POSITIVE_FLOAT("positive_float"),
     STRING("string"),
     STRING_LIST("string_list"),
+    ITEM_SECTION_ID("section_id"),
 
     // Restricted expectations
     PET_CREATE("pet_create"),
@@ -34,8 +34,8 @@ public enum EditorExpectationType {
     SKILL("skill"),
     MOUNT_TYPE("mount_type"),
     CATEGORY_ID("category_id"),
-    PET_LIST_ADD("pet_list_add"),
-    PET_LIST_REMOVE("pet_list_remove"),
+    PET_LIST_ADD("pet_id"),
+    PET_LIST_REMOVE("pet_id"),
 
     // Action expectations
     ITEM("item"),
@@ -53,6 +53,10 @@ public enum EditorExpectationType {
     CATEGORY_CREATE("category_create"),
     CATEGORY_DELETE("category_delete"),
     CATEGORY_EDIT("category_edit"),
+
+    ITEM_CREATE("item_create"),
+    ITEM_EDIT("item_edit"),
+    ITEM_DELETE("item_delete"),
     ;
 
     public static int ERROR_PARSE = -808757986;
@@ -74,7 +78,8 @@ public enum EditorExpectationType {
                 this.equals(EditorExpectationType.PET) ||
                 this.equals(EditorExpectationType.CATEGORY_ID) ||
                 this.equals(EditorExpectationType.PET_LIST_ADD) ||
-                this.equals(EditorExpectationType.PET_LIST_REMOVE))
+                this.equals(EditorExpectationType.PET_LIST_REMOVE) ||
+                this.equals(EditorExpectationType.ITEM_SECTION_ID))
             return any + "";
         else if((this.equals(EditorExpectationType.FLOAT))
                 || this.equals(EditorExpectationType.POSITIVE_FLOAT))

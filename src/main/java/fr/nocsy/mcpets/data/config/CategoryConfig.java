@@ -133,7 +133,7 @@ public class CategoryConfig extends AbstractConfig {
 
     private ItemStack setupUnkownIcon()
     {
-        ItemStack it = Items.UNKNOWN.getItem();
+        ItemStack it = Items.UNKNOWN.getItem().clone();
         ItemMeta meta = it.getItemMeta();
         meta.setLocalizedName("MCPets;" + id);
         meta.setDisplayName("§6" + id);

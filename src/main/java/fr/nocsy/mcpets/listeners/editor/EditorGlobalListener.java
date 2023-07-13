@@ -1,14 +1,15 @@
 package fr.nocsy.mcpets.listeners.editor;
 
 import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.AbstractConfig;
 import fr.nocsy.mcpets.data.config.CategoryConfig;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.editor.*;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
-import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,6 +19,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.UUID;
 
 public class EditorGlobalListener implements Listener {
 
@@ -36,6 +38,7 @@ public class EditorGlobalListener implements Listener {
             // if the item has a next state, just keep going in the menus
             if(editorItem.getNextState() != null)
             {
+                EditorPageSelection.set(p, 0);
                 editor.setState(editorItem.getNextState());
                 editor.openEditor();
             }
@@ -53,6 +56,12 @@ public class EditorGlobalListener implements Listener {
 
         if(editorItem != null)
         {
+            if(editorItem.name().contains("_DELETE") && e.getClick() != ClickType.SHIFT_LEFT)
+            {
+                p.sendMessage("§c§lWARNING:§7 Are you sure you want to delete it ? Click §cSHIFT + CLICK§7 if so.");
+                return;
+            }
+
             Editor editor = Editor.getEditor(p);
 
             e.setCancelled(true);
@@ -207,8 +216,6 @@ public class EditorGlobalListener implements Listener {
                 List<PetSkin> skins = PetSkin.getSkins(pet);
                 PetSkin skin = skins.get(skins.size()-1);
 
-                Utils.debug("Creating pet! " + pet.getId());
-
                 editorPet.setSkin(skin);
                 editor.setState(EditorState.PET_EDITOR_SKIN_EDIT);
                 editor.openEditor();
@@ -287,6 +294,48 @@ public class EditorGlobalListener implements Listener {
                 }
                 editing.setCategory(category);
                 editor.setState(EditorState.CATEGORY_EDITOR_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should create an item
+            else if(editorItem.getType().equals(EditorExpectationType.ITEM_CREATE))
+            {
+                EditorEditing editing = EditorEditing.get(p);
+
+                String key = UUID.randomUUID().toString();
+                ItemsListConfig.getInstance().setItemStack(key, Items.UNKNOWN.getItem().clone());
+                ItemsListConfig.getInstance().reload();
+
+                editing.setItemId(key);
+                editor.setState(EditorState.ITEM_EDITOR_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should create an item
+            else if(editorItem.getType().equals(EditorExpectationType.ITEM_EDIT))
+            {
+                EditorEditing editing = EditorEditing.get(p);
+                String itemId = editing.getEditorItemMapping().get(e.getSlot());
+                ItemStack item = ItemsListConfig.getInstance().getItemStack(itemId);
+                if(item == null)
+                {
+                    Debugger.send("§cItem could not be found.");
+                    return;
+                }
+                editing.setItemId(itemId);
+                editor.setState(EditorState.ITEM_EDITOR_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should delete a category
+            else if(editorItem.getType().equals(EditorExpectationType.ITEM_DELETE))
+            {
+
+                EditorEditing editing = EditorEditing.get(p);
+                String itemId = editing.getItemId();
+                ItemsListConfig.getInstance().removeItemStack(itemId);
+
+                editor.setState(EditorState.ITEM_EDITOR);
                 editor.openEditor();
             }
 

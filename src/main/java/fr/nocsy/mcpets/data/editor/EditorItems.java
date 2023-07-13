@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.AbstractConfig;
 import fr.nocsy.mcpets.data.config.CategoryConfig;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
@@ -36,6 +37,7 @@ public enum EditorItems {
     BACK_TO_PET_LEVELS_EDIT(BACK_TO_ITEM("pet levels"), null, null, null, EditorState.PET_EDITOR_LEVELS),
     BACK_TO_PET_SKINS_EDIT(BACK_TO_ITEM("pet skins"), null, null, null, EditorState.PET_EDITOR_SKINS),
     BACK_TO_CATEGORIES_EDIT(BACK_TO_ITEM("categories"), null, null, null, EditorState.CATEGORY_EDITOR),
+    BACK_TO_ITEM_EDITOR(BACK_TO_ITEM("items"), null, null, null, EditorState.ITEM_EDITOR),
 
     // Default selection menu
     CONFIG_EDITOR(CONFIG_EDITOR(), null, null, null, EditorState.CONFIG_EDITOR),
@@ -69,7 +71,7 @@ public enum EditorItems {
     // Pet editor
     PET_EDITOR_EDIT_PET(UNKNOWN(), null, null, EditorExpectationType.PET, null),
     PET_EDITOR_CREATE_NEW(CREATE_NEW_ITEM("pet", Material.MAGMA_CUBE_SPAWN_EGG), null, null, EditorExpectationType.PET_CREATE, null),
-    PET_EDITOR_PAGE_SELECTOR(PET_EDITOR_PAGE_SELECTOR(), null, null, EditorExpectationType.PAGE_SELECTOR, null),
+    PAGE_SELECTOR(PAGE_SELECTOR(), null, null, EditorExpectationType.PAGE_SELECTOR, null),
 
     PET_EDITOR_DELETE(DELETE("pet"), null, null, EditorExpectationType.PET_DELETE, null),
     PET_EDITOR_LEVELS(PET_EDITOR_LEVELS(), null, null, null, EditorState.PET_EDITOR_LEVELS),
@@ -135,6 +137,13 @@ public enum EditorItems {
     CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES(CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES(), "ExcludedCategories", null, EditorExpectationType.STRING_LIST, null),
     CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(), "Pets", null, EditorExpectationType.PET_LIST_ADD, null),
     CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(), "Pets", null, EditorExpectationType.PET_LIST_REMOVE, null),
+
+    // Items editor
+    ITEMS_EDIT(UNKNOWN(), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM_EDIT, null),
+    ITEMS_DELETE(DELETE("item"), null, null, EditorExpectationType.ITEM_DELETE, null),
+    ITEMS_CREATE(CREATE_NEW_ITEM("item", Material.EMERALD), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM_CREATE, null),
+    ITEMS_EDIT_ID(ITEMS_EDIT_ID(), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM_SECTION_ID, null),
+    ITEMS_EDIT_ITEM(UNKNOWN(), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM, null),
     ;
 
     private final static String editorTag = "MCPets:Editor:";
@@ -148,10 +157,11 @@ public enum EditorItems {
     @Getter
     private String filePath;
     @Getter
+    private String inputFilePath;
+    @Getter
     private String variablePath;
     private String variablePathPlaceholder;
     @Getter
-    @Setter
     private Object value;
     @Getter
     private EditorExpectationType type;
@@ -162,6 +172,7 @@ public enum EditorItems {
     {
         this.id = this.name().toUpperCase();
         this.item = item;
+        this.inputFilePath = filePath;
         this.filePath = "./plugins/MCPets/" + filePath + ".yml";
         this.variablePath = variablePath;
         this.variablePathPlaceholder = "";
@@ -205,6 +216,8 @@ public enum EditorItems {
         if(this.value == null)
             return false;
 
+        Utils.debug("§aFile path: §7 " + filePath);
+        Utils.debug("§6Placeholder: " + variablePathPlaceholder);
         if(this.getType().equals(EditorExpectationType.PET_CREATE))
         {
             String illegalCharacters = "#%<>&*{}?/\\$§+!`|'\"=:@.";
@@ -224,7 +237,7 @@ public enum EditorItems {
             Pet pet = Pet.getFromId(this.value + "");
             if(pet == null)
                 return false;
-            
+
             EditorEditing editing = EditorEditing.get(creator);
             CategoryConfig config = CategoryConfig.getMapping().get(editing.getCategory().getId());
             if(this.getType().equals(EditorExpectationType.PET_LIST_ADD))
@@ -237,10 +250,26 @@ public enum EditorItems {
             }
             return true;
         }
+
         File file = new File(filePath);
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        config.set(variablePath.replace("%path%", variablePathPlaceholder), this.value);
+
+        if(this.getType().equals(EditorExpectationType.ITEM_SECTION_ID))
+        {
+            EditorEditing editing = EditorEditing.get(creator);
+            String itemId = editing.getItemId();
+
+            ItemStack item = config.getItemStack(itemId);
+
+            config.set(itemId, null);
+            config.set(this.value.toString(), item);
+
+        }
+        else
+        {
+            config.set(variablePath.replace("%path%", variablePathPlaceholder), this.value);
+        }
 
         try
         {
@@ -313,6 +342,12 @@ public enum EditorItems {
         String id = localName.replace(editorTag, "");
 
         return Arrays.stream(EditorItems.values()).filter(editorItems -> editorItems.getId().equals(id)).findFirst().orElse(null);
+    }
+
+    public EditorItems setValue(Object any)
+    {
+        this.value = any;
+        return this;
     }
 
     /*
@@ -877,7 +912,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack PET_EDITOR_PAGE_SELECTOR()
+    private static ItemStack PAGE_SELECTOR()
     {
         ItemStack it = new ItemStack(Material.ARROW);
         ItemMeta meta = it.getItemMeta();
@@ -916,7 +951,9 @@ public enum EditorItems {
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to delete the " + what + ".");
+        lores.add("§cSHIFT§7 + Click to delete the " + what + ".");
+        lores.add(" ");
+        lores.add("§c§lWARNING: this is permanent.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1872,5 +1909,77 @@ public enum EditorItems {
         it.setItemMeta(meta);
         return it;
     }
+
+    /*
+     * Items editor
+     */
+
+    public EditorItems setupItemIcon(String itemId)
+    {
+        ItemStack it = new ItemStack(Material.BEDROCK);
+        if(ItemsListConfig.getInstance().getItemStack(itemId) != null)
+            it = ItemsListConfig.getInstance().getItemStack(itemId).clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        ArrayList<String> lores = new ArrayList<>();
+
+        lores.add(" ");
+        lores.add("§aId: §b" + itemId);
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = itemId;
+
+        return this;
+    }
+
+    public EditorItems setupEditItemIcon(String itemId)
+    {
+        ItemStack it = new ItemStack(Material.BEDROCK);
+        if(ItemsListConfig.getInstance().getItemStack(itemId) != null)
+            it = ItemsListConfig.getInstance().getItemStack(itemId).clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        ArrayList<String> lores = new ArrayList<>();
+        if(it.getItemMeta().hasLore() && it.getItemMeta().getLore() != null)
+        {
+            lores = (ArrayList<String>) it.getItemMeta().getLore();
+        }
+
+        lores.add(" ");
+        lores.add("§eClick with an item to change it.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = itemId;
+
+        return this;
+    }
+
+    private static ItemStack ITEMS_EDIT_ID()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Item ID");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Edit the ID of the item.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
 
 }

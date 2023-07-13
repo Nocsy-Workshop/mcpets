@@ -1,6 +1,8 @@
 package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.data.Items;
+import fr.nocsy.mcpets.utils.Utils;
+import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -10,6 +12,7 @@ public class ItemsListConfig extends AbstractConfig {
 
     private static ItemsListConfig instance;
 
+    @Getter
     private HashMap<String, ItemStack> items;
 
     private ItemsListConfig()
