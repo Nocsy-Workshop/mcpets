@@ -60,7 +60,7 @@ public class PetFoodConfig extends AbstractConfig {
             List<String> petIds = getConfig().getStringList(key + ".Pets");
 
             PetFood petFood = new PetFood(key, id, power, foodType, operator, signal, evolution, experienceThreshold, delay, permission, unlockedPet, petIds);
-            petFoods.put(id, petFood);
+            petFoods.put(key, petFood);
         }
 
     }

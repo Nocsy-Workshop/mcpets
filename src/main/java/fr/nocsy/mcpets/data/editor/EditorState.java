@@ -531,7 +531,7 @@ public enum EditorState {
             HashMap<EditorItems, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.BACK_TO_PETFOOD_EDITOR, 0);
-            icons.put(EditorItems.PET_EDITOR_DELETE, 8);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_DELETE, 8);
 
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_ID, 12);
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_ITEM_ID, 13);
@@ -555,6 +555,10 @@ public enum EditorState {
                 EditorItems replacedItem = item.replaceVariablePath(petFood.getId());
                 if(item.equals(EditorItems.PETFOOD_EDITOR_EDIT_ID))
                     replacedItem.setValue(petFood.getId());
+
+                if(item.equals(EditorItems.PETFOOD_EDITOR_EDIT_ITEM_ID))
+                    replacedItem.setupPetFoodEditorEditItem(petFood);
+
                 int position = icons.get(item);
                 currentView.setItem(position, replacedItem.getItem());
             }

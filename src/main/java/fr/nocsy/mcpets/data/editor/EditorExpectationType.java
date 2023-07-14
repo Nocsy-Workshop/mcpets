@@ -12,6 +12,7 @@ import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.api.skills.Skill;
 import lombok.Getter;
+import org.bukkit.Material;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,7 @@ public enum EditorExpectationType {
 
     // Restricted expectations
     PET_CREATE("pet_create"),
+    PET_ID("pet id"),
     ANNOUNCEMENT_TYPE("announcement_type"),
     MYTHICMOB("mythicmob"),
     SKILL("skill"),
@@ -41,7 +43,7 @@ public enum EditorExpectationType {
     CATEGORY_PET_LIST_REMOVE("pet_id"),
     PETFOOD_TYPE("petfood_edit"),
     OPERATOR_TYPE("petfood_edit"),
-    ITEM_ID("item_id"),
+    ITEM_ID_OR_MATERIAL("item_id_or_material"),
     PETFOOD_ID("petfood_id"),
     PETFOOD_PET_LIST_ADD("pet_id"),
     PETFOOD_PET_LIST_REMOVE("pet_id"),
@@ -88,7 +90,7 @@ public enum EditorExpectationType {
                 this.equals(EditorExpectationType.MYTHICMOB) ||
                 this.equals(EditorExpectationType.SKILL) ||
                 this.equals(EditorExpectationType.PET_CREATE) ||
-                this.equals(EditorExpectationType.PET) ||
+                this.equals(EditorExpectationType.PET_ID) ||
                 this.equals(EditorExpectationType.CATEGORY_ID) ||
                 this.equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
                 this.equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE) ||
@@ -97,7 +99,7 @@ public enum EditorExpectationType {
                 this.equals(EditorExpectationType.ITEM_SECTION_ID) ||
                 this.equals(EditorExpectationType.PETFOOD_TYPE) ||
                 this.equals(EditorExpectationType.OPERATOR_TYPE) ||
-                this.equals(EditorExpectationType.ITEM_ID) ||
+                this.equals(EditorExpectationType.ITEM_ID_OR_MATERIAL) ||
                 this.equals(EditorExpectationType.PETFOOD_ID))
             return any + "";
         else if((this.equals(EditorExpectationType.FLOAT))
@@ -171,7 +173,7 @@ public enum EditorExpectationType {
         {
             return true;
         }
-        else if(this.equals(EditorExpectationType.PET) ||
+        else if(this.equals(EditorExpectationType.PET_ID) ||
                 this.equals(EditorExpectationType.PETFOOD_PET_LIST_ADD) ||
                 this.equals(EditorExpectationType.PETFOOD_PET_LIST_REMOVE) ||
                 this.equals(EditorExpectationType.CATEGORY_PET_LIST_ADD)||
@@ -216,9 +218,12 @@ public enum EditorExpectationType {
         {
             return PetMath.get(any + "") != null;
         }
-        else if(this.equals(EditorExpectationType.ITEM_ID))
+        else if(this.equals(EditorExpectationType.ITEM_ID_OR_MATERIAL))
         {
-            return ItemsListConfig.getInstance().getItems().containsKey(any + "");
+            boolean value = ItemsListConfig.getInstance().getItems().containsKey(any + "");
+            if(!value)
+                value = Arrays.stream(Material.values()).anyMatch(mat -> mat.name().equalsIgnoreCase(any + ""));
+            return value;
         }
         try
         {

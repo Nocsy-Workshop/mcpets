@@ -55,17 +55,21 @@ public class EditorGlobalListener implements Listener {
 
         if(editorItem != null)
         {
-            if(editorItem.name().contains("_DELETE") && e.getClick() != ClickType.SHIFT_LEFT)
-            {
-                p.sendMessage("§c§lWARNING:§7 Are you sure you want to delete it ? Click §cSHIFT + CLICK§7 if so.");
-                return;
-            }
 
             Editor editor = Editor.getEditor(p);
 
             e.setCancelled(true);
             // If it has no type, do nothing
             if(editorItem.getType() == null)
+                return;
+
+            if(editorItem.name().contains("_DELETE") && e.getClick() != ClickType.SHIFT_LEFT)
+            {
+                p.sendMessage("§c§lWARNING:§7 Are you sure you want to delete it ? Click §cSHIFT + CLICK§7 if so.");
+                return;
+            }
+
+            if(resetFeature(e, editor, editorItem, p))
                 return;
 
             boolean changesMade = false;
@@ -345,8 +349,8 @@ public class EditorGlobalListener implements Listener {
 
                 String key = PetFoodConfig.getInstance().registerCleanPetfood();
 
-                editing.setItemId(key);
-                editor.setState(EditorState.PET_EDITOR_EDIT);
+                editing.setPetFood(PetFood.getFromId(key));
+                editor.setState(EditorState.PETFOOD_EDITOR_EDIT);
                 editor.openEditor();
             }
 
@@ -369,7 +373,6 @@ public class EditorGlobalListener implements Listener {
             // If we should delete an item
             else if(editorItem.getType().equals(EditorExpectationType.PETFOOD_DELETE))
             {
-
                 EditorEditing editing = EditorEditing.get(p);
                 PetFood petFood = editing.getPetFood();
                 PetFoodConfig.getInstance().removePetFood(petFood.getId());
@@ -391,6 +394,22 @@ public class EditorGlobalListener implements Listener {
 
         }
 
+    }
+
+    private boolean resetFeature(InventoryClickEvent e, Editor editor, EditorItems editorItem, Player p)
+    {
+        // Reset the edited feature
+        if(e.getClick() == ClickType.SHIFT_LEFT && editorItem.isResetable())
+        {
+            editorItem.setValue(EditorItems.RESET_VALUE_TAG);
+            if(editorItem.save(p))
+            {
+                editor.openEditor();
+                p.sendMessage("§aThe feature was reseted successfully! Please §nreload§a MCPets so the changes take effect!");
+                return true;
+            }
+        }
+        return false;
     }
 
 }
