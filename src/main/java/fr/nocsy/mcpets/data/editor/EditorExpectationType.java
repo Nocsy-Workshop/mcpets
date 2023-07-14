@@ -100,7 +100,8 @@ public enum EditorExpectationType {
                 this.equals(EditorExpectationType.PETFOOD_TYPE) ||
                 this.equals(EditorExpectationType.OPERATOR_TYPE) ||
                 this.equals(EditorExpectationType.ITEM_ID_OR_MATERIAL) ||
-                this.equals(EditorExpectationType.PETFOOD_ID))
+                this.equals(EditorExpectationType.PETFOOD_ID) ||
+                this.equals(EditorExpectationType.MOUNT_TYPE))
             return any + "";
         else if((this.equals(EditorExpectationType.FLOAT))
                 || this.equals(EditorExpectationType.POSITIVE_FLOAT))

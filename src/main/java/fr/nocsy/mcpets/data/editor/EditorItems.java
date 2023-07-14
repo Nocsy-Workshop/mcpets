@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.editor;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
@@ -206,7 +207,7 @@ public enum EditorItems {
         refreshData();
     }
 
-    private void refreshData()
+    public void refreshData()
     {
         if(filePath != null && variablePath != null)
         {
@@ -328,6 +329,7 @@ public enum EditorItems {
         try
         {
             config.save(file);
+            MCPets.loadConfigs();
         } catch (IOException ignored) {
             return false;
         }
@@ -337,7 +339,13 @@ public enum EditorItems {
 
     public void toggleBooleanValue()
     {
-        if(value instanceof Boolean)
+        if(this.type == null)
+            return;
+        if(value == null && this.type.equals(EditorExpectationType.BOOLEAN))
+        {
+            value = true;
+        }
+        else if(value != null && this.type.equals(EditorExpectationType.BOOLEAN))
         {
             value = !(Boolean) value;
         }
@@ -377,6 +385,9 @@ public enum EditorItems {
                 else
                 {
                     String valueStr = value == null ? "§6default (not set)" : value.toString();
+
+                    if(value == null && this.type == EditorExpectationType.BOOLEAN)
+                        valueStr = "false";
 
                     // Just some cute formatting for lores
                     if(valueStr.equalsIgnoreCase("true"))
@@ -1348,7 +1359,7 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Signal stick");
+        meta.setDisplayName("§6Signal stick from menu");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");

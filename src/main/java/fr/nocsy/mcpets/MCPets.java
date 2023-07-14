@@ -5,6 +5,8 @@ import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
+import fr.nocsy.mcpets.data.editor.Editor;
+import fr.nocsy.mcpets.data.editor.EditorItems;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
@@ -49,6 +51,9 @@ public class MCPets extends JavaPlugin {
         CategoryConfig.load(AbstractConfig.getPath() + "Categories/", true);
         Databases.init();
         PlayerData.initAll();
+
+        for(EditorItems item : EditorItems.values())
+            item.refreshData();
     }
 
     @Override

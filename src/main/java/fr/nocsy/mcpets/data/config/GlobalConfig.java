@@ -17,13 +17,13 @@ public class GlobalConfig extends AbstractConfig {
     private boolean worldguardsupport = true;
 
     @Getter
-    private String prefix = "§8[§6MCPets§8] » ";
+    private String prefix;
     @Getter
-    private String defaultName = "§9Pet of %player%";
+    private String defaultName;
     @Getter
     private boolean overrideDefaultName;
     @Getter
-    private int adaptiveInventory = -1;
+    private int adaptiveInventory;
     @Getter
     private boolean useDefaultMythicMobNames;
     @Getter
@@ -45,46 +45,46 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean enableClickBackToMenu;
     @Getter
-    private int distanceTeleport = 30;
+    private int distanceTeleport;
     @Getter
-    private int maxNameLenght = 16;
+    private int maxNameLenght;
     @Getter
-    private boolean activateBackMenuIcon = true;
+    private boolean activateBackMenuIcon;
 
     @Getter
-    private double percentHealthOnRespawn = 0.2;
+    private double percentHealthOnRespawn;
 
     @Getter
-    private int autoSave = 60*60;
+    private int autoSave;
 
     @Getter
-    private int experienceBarSize = 40;
+    private int experienceBarSize;
     @Getter
-    private String experienceSymbol = "|";
+    private String experienceSymbol;
     @Getter
-    private String experienceColorDone = "§a";
+    private String experienceColorDone;
     @Getter
-    private String experienceColorLeft = "§f";
+    private String experienceColorLeft;
 
 
     @Getter
-    private boolean globalRespawnCooldown = false;
+    private boolean globalRespawnCooldown;
     @Getter
-    private int defaultRespawnCooldown = 0;
+    private int defaultRespawnCooldown;
 
     @Getter
     private PetAnnouncement tamingAnnouncementType = PetAnnouncement.CHAT;
     @Getter
-    private int tamingBarSize = 40;
+    private int tamingBarSize;
     @Getter
-    private String tamingSymbol = "|";
+    private String tamingSymbol;
     @Getter
-    private String tamingColorDone = "§a";
+    private String tamingColorDone;
     @Getter
-    private String tamingColorLeft = "§f";
+    private String tamingColorLeft;
 
     @Getter
-    private boolean disableMySQL = false;
+    private boolean disableMySQL;
     @Getter
     private String MySQL_Prefix;
     @Getter
@@ -115,9 +115,9 @@ public class GlobalConfig extends AbstractConfig {
         super.init("", "config.yml");
 
         if (getConfig().get("Prefix") == null)
-            getConfig().set("Prefix", prefix);
+            getConfig().set("Prefix", "§8[§6MCPets§8] » ");
         if (getConfig().get("DefaultName") == null)
-            getConfig().set("DefaultName", defaultName);
+            getConfig().set("DefaultName", "§9Pet of %player%");
         if (getConfig().get("OverrideDefaultName") == null)
             getConfig().set("OverrideDefaultName", true);
         if (getConfig().get("EnableClickBackToMenu") == null)
@@ -143,41 +143,39 @@ public class GlobalConfig extends AbstractConfig {
         if (getConfig().get("DistanceTeleport") == null)
             getConfig().set("DistanceTeleport", 30);
         if (getConfig().get("MaxNameLenght") == null)
-            getConfig().set("MaxNameLenght", maxNameLenght);
+            getConfig().set("MaxNameLenght", 16);
         if (getConfig().get("InventorySize") == null)
             getConfig().set("InventorySize", -1);
         if (getConfig().get("PercentHealthOnRespawn") == null)
-            getConfig().set("PercentHealthOnRespawn", percentHealthOnRespawn);
+            getConfig().set("PercentHealthOnRespawn", 0.2);
         if (getConfig().get("ActivateBackMenuIcon") == null)
-            getConfig().set("ActivateBackMenuIcon", activateBackMenuIcon);
+            getConfig().set("ActivateBackMenuIcon", true);
         if(getConfig().get("AutoSaveDelay") == null)
-            getConfig().set("AutoSaveDelay", autoSave);
-        if(getConfig().get("AutoSaveDelay") == null)
-            getConfig().set("AutoSaveDelay", autoSave);
+            getConfig().set("AutoSaveDelay", 3600);
 
         if(getConfig().get("GlobalRespawnCooldown") == null)
-            getConfig().set("GlobalRespawnCooldown", globalRespawnCooldown);
+            getConfig().set("GlobalRespawnCooldown", false);
         if(getConfig().get("DefaultRespawnCooldown") == null)
-            getConfig().set("DefaultRespawnCooldown", defaultRespawnCooldown);
+            getConfig().set("DefaultRespawnCooldown", 0);
         if (getConfig().get("Experience.BarSize") == null)
-            getConfig().set("Experience.BarSize", experienceBarSize);
+            getConfig().set("Experience.BarSize", 40);
         if (getConfig().get("Experience.Symbol") == null)
-            getConfig().set("Experience.Symbol", experienceSymbol);
+            getConfig().set("Experience.Symbol", "|");
         if (getConfig().get("Experience.ColorDone") == null)
-            getConfig().set("Experience.ColorDone", experienceColorDone);
+            getConfig().set("Experience.ColorDone", "§a");
         if (getConfig().get("Experience.ColorLeft") == null)
-            getConfig().set("Experience.ColorLeft", experienceColorLeft);
+            getConfig().set("Experience.ColorLeft", "§f");
 
         if (getConfig().get("Taming.AnnouncementType") == null)
-            getConfig().set("Taming.AnnouncementType", tamingAnnouncementType.name());
+            getConfig().set("Taming.AnnouncementType", PetAnnouncement.CHAT.name());
         if (getConfig().get("Taming.BarSize") == null)
-            getConfig().set("Taming.BarSize", tamingBarSize);
+            getConfig().set("Taming.BarSize", 40);
         if (getConfig().get("Taming.Symbol") == null)
-            getConfig().set("Taming.Symbol", tamingSymbol);
+            getConfig().set("Taming.Symbol", "|");
         if (getConfig().get("Taming.ColorDone") == null)
-            getConfig().set("Taming.ColorDone", tamingColorDone);
+            getConfig().set("Taming.ColorDone", "§a");
         if (getConfig().get("Taming.ColorLeft") == null)
-            getConfig().set("Taming.ColorLeft", tamingColorLeft);
+            getConfig().set("Taming.ColorLeft", "§f");
 
 
         if (getConfig().get("MySQL.Prefix") == null)
@@ -191,7 +189,7 @@ public class GlobalConfig extends AbstractConfig {
         if (getConfig().get("MySQL.Port") == null)
             getConfig().set("MySQL.Port", "2560");
         if (getConfig().get("MySQL.Database") == null)
-            getConfig().set("MySQL.Database", "advancedpet_db");
+            getConfig().set("MySQL.Database", "mcpets_db");
         if(getConfig().get("BlackListedWorlds") == null)
             getConfig().set("BlackListedWorlds", new ArrayList<String>());
 
