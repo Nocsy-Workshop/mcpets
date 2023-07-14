@@ -163,7 +163,7 @@ public enum EditorState {
                 {
                     currentViewAmount++;
 
-                    ItemStack icon = EditorItems.PET_EDITOR_EDIT_PET.setupPetIcon(pet).getItem();
+                    ItemStack icon = EditorItems.PET_EDITOR_EDIT_PET.setupPetIcon(pet.getId()).getItem();
 
                     currentView.addItem(icon);
                     continue;
@@ -178,7 +178,7 @@ public enum EditorState {
         {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
-            Pet pet = EditorEditing.get(p).getPet();
+            Pet pet = PetConfig.loadConfigPet(EditorEditing.get(p).getPetId());
             String filePath = PetConfig.getFilePath(pet.getId());
 
             HashMap<ItemStack, Integer> icons = new HashMap<>();
@@ -188,7 +188,7 @@ public enum EditorState {
             icons.put(EditorItems.PET_EDITOR_LEVELS.getItem(), 11);
             icons.put(EditorItems.PET_EDITOR_SKINS.getItem(), 15);
             icons.put(EditorItems.PET_EDITOR_MYTHICMOB.setFilePath(filePath).getItem(), 49);
-            icons.put(EditorItems.PET_EDITOR_ICON.setFilePath(filePath).setupPetIconEdit(pet).getItem(), 13);
+            icons.put(EditorItems.PET_EDITOR_ICON.setFilePath(filePath).setupPetIconEdit(pet.getId()).getItem(), 13);
             icons.put(EditorItems.PET_EDITOR_PERMISSION.setFilePath(filePath).getItem(), 32);
             icons.put(EditorItems.PET_EDITOR_MOUNTABLE.setFilePath(filePath).getItem(), 27);
             icons.put(EditorItems.PET_EDITOR_MOUNT_TYPE.setFilePath(filePath).getItem(), 28);
@@ -203,7 +203,7 @@ public enum EditorState {
             icons.put(EditorItems.PET_EDITOR_TAMING_FINISHED_SKILL.setFilePath(filePath).getItem(), 36);
             icons.put(EditorItems.PET_EDITOR_INVENTORY_SIZE.setFilePath(filePath).getItem(), 34);
             icons.put(EditorItems.PET_EDITOR_SIGNALS.setFilePath(filePath).getItem(), 40);
-            icons.put(EditorItems.PET_EDITOR_SIGNAL_STICK.setFilePath(filePath).setupSignalStickItem(pet).getItem(), 41);
+            icons.put(EditorItems.PET_EDITOR_SIGNAL_STICK.setFilePath(filePath).setupSignalStickItem(pet.getId()).getItem(), 41);
             icons.put(EditorItems.PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU.setFilePath(filePath).getItem(), 42);
 
             for(ItemStack item : icons.keySet())
@@ -227,7 +227,7 @@ public enum EditorState {
             currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
 
             EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = editorPet.getPet();
+            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
             String filePath = PetConfig.getFilePath(pet.getId());
 
             for(int i = 0; i < 45 && i < pet.getPetLevels().size(); i++)
@@ -236,13 +236,13 @@ public enum EditorState {
 
                 EditorItems icon = EditorItems.PET_EDITOR_EDIT_LEVEL
                         .setFilePath(filePath).replaceVariablePath(level.getLevelId())
-                        .setupPetLevelIcon(level);
+                        .setupPetLevelIcon(pet.getId(), level.getLevelId());
 
                 ItemStack item = icon.getItem().clone();
                 item.setAmount(i+1);
                 currentView.setItem(i, item);
 
-                editorPet.getEditorPetLevelMapping().put(i, level);
+                editorPet.getEditorMapping().put(i, level.getLevelId());
             }
 
         }
@@ -254,9 +254,9 @@ public enum EditorState {
 
 
             EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = editorPet.getPet();
+            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
             String filePath = PetConfig.getFilePath(pet.getId());
-            PetLevel level = editorPet.getLevel();
+            PetLevel level = pet.getPetLevels().stream().filter(petLevel -> petLevel.getLevelId().equals(editorPet.getMappedId())).findFirst().orElse(null);
 
             HashMap<EditorItems, Integer> icons = new HashMap<>();
 
@@ -307,7 +307,7 @@ public enum EditorState {
             currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
 
             EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = editorPet.getPet();
+            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
             String filePath = PetConfig.getFilePath(pet.getId());
 
             ArrayList<PetSkin> skins = PetSkin.getSkins(pet);
@@ -317,11 +317,11 @@ public enum EditorState {
 
                 EditorItems icon = EditorItems.PET_EDITOR_EDIT_SKIN
                         .setFilePath(filePath).replaceVariablePath(skin.getPathId())
-                        .setupSkinIcon(skin);
+                        .setupSkinIcon(pet.getId(), skin.getPathId());
 
                 currentView.setItem(i, icon.getItem());
 
-                editorPet.getEditorPetSkinMapping().put(i, skin);
+                editorPet.getEditorMapping().put(i, skin.getPathId());
             }
 
         }
@@ -332,9 +332,9 @@ public enum EditorState {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
             EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = editorPet.getPet();
+            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
             String filePath = PetConfig.getFilePath(pet.getId());
-            PetSkin skin = editorPet.getSkin();
+            PetSkin skin = PetSkin.getSkins(pet).stream().filter(petSkin -> petSkin.getPathId().equals(editorPet.getMappedId())).findFirst().orElse(null);
 
             HashMap<EditorItems, Integer> icons = new HashMap<>();
 
@@ -348,7 +348,7 @@ public enum EditorState {
             for(EditorItems item : icons.keySet())
             {
                 if(item.equals(EditorItems.PET_EDITOR_EDIT_SKIN_ICON))
-                    item.setupEditSkinIcon(skin);
+                    item.setupEditSkinIcon(pet.getId(), skin.getPathId());
                 int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(filePath)
                         .replaceVariablePath(skin.getPathId())
@@ -378,11 +378,11 @@ public enum EditorState {
 
                 EditorItems icon = EditorItems.CATEGORY_EDITOR_EDIT_CATEGORY
                         .setFilePath(config.getFullPath())
-                        .setupCategoryIcon(category);
+                        .setupCategoryIcon(category.getId());
 
                 currentView.setItem(i, icon.getItem());
 
-                editorEditing.getEditorCategoryMapping().put(i, category);
+                editorEditing.getEditorMapping().put(i, category.getId());
             }
 
         }
@@ -392,7 +392,7 @@ public enum EditorState {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
             EditorEditing editorEditing = EditorEditing.get(p);
-            Category category = editorEditing.getCategory();
+            Category category = CategoryConfig.loadConfigCategory(editorEditing.getMappedId());
             String filePath = CategoryConfig.getMapping().get(category.getId()).getFullPath();
 
             HashMap<EditorItems, Integer> icons = new HashMap<>();
@@ -414,7 +414,7 @@ public enum EditorState {
             for(EditorItems item : icons.keySet())
             {
                 if(item.equals(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_ICON))
-                    item.setupEditCategoryIcon(category);
+                    item.setupEditCategoryIcon(category.getId());
                 int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(filePath).getItem());
             }
@@ -436,7 +436,7 @@ public enum EditorState {
             currentView.setItem(53, EditorItems.PAGE_SELECTOR.getItem());
 
             EditorEditing editing = EditorEditing.get(p);
-            editing.getEditorItemMapping().clear();
+            editing.getEditorMapping().clear();
 
             HashMap<String, ItemStack> items = ItemsListConfig.getInstance().getItems();
             List<String> itemsId = new ArrayList<>(items.keySet());
@@ -453,7 +453,7 @@ public enum EditorState {
 
                 currentView.setItem(i, icon.getItem());
 
-                editing.getEditorItemMapping().put(i - 45*page, itemId);
+                editing.getEditorMapping().put(i - 45*page, itemId);
             }
 
         }
@@ -463,7 +463,7 @@ public enum EditorState {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
             EditorEditing editorEditing = EditorEditing.get(p);
-            String itemId = editorEditing.getItemId();
+            String itemId = editorEditing.getMappedId();
 
             HashMap<EditorItems, Integer> icons = new HashMap<>();
 
@@ -499,7 +499,7 @@ public enum EditorState {
             currentView.setItem(53, EditorItems.PAGE_SELECTOR.getItem());
 
             EditorEditing editing = EditorEditing.get(p);
-            editing.getEditorItemMapping().clear();
+            editing.getEditorMapping().clear();
 
             HashMap<String, PetFood> items = PetFoodConfig.getInstance().getPetFoods();
             List<String> itemsId = new ArrayList<>(items.keySet());
@@ -512,11 +512,11 @@ public enum EditorState {
 
                 EditorItems icon = EditorItems.PETFOOD_EDITOR_EDIT
                         .replaceVariablePath(itemId)
-                        .setupPetfoodIcon(items.get(itemId));
+                        .setupPetfoodIcon(items.get(itemId).getId());
 
                 currentView.setItem(i, icon.getItem());
 
-                editing.getEditorPetfoodMapping().put(i - 45*page, items.get(itemId).getId());
+                editing.getEditorMapping().put(i - 45*page, items.get(itemId).getId());
             }
 
         }
@@ -526,7 +526,7 @@ public enum EditorState {
             currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
 
             EditorEditing editorEditing = EditorEditing.get(p);
-            PetFood petFood = editorEditing.getPetFood();
+            PetFood petFood = PetFoodConfig.loadConfigPetFood(editorEditing.getMappedId());
 
             HashMap<EditorItems, Integer> icons = new HashMap<>();
 
@@ -557,7 +557,7 @@ public enum EditorState {
                     replacedItem.setValue(petFood.getId());
 
                 if(item.equals(EditorItems.PETFOOD_EDITOR_EDIT_ITEM_ID))
-                    replacedItem.setupPetFoodEditorEditItem(petFood);
+                    replacedItem.setupPetFoodEditorEditItem(petFood.getId());
 
                 int position = icons.get(item);
                 currentView.setItem(position, replacedItem.getItem());

@@ -152,4 +152,15 @@ public class PetFoodConfig extends AbstractConfig {
         save();
         reload();
     }
+
+    /**
+     * Load a petfood directly from the config (only for editor)
+     * @return
+     */
+    public static PetFood loadConfigPetFood(String id)
+    {
+        PetFoodConfig config = new PetFoodConfig();
+        config.init();
+        return config.getPetFood(id);
+    }
 }

@@ -17,48 +17,19 @@ public class EditorEditing {
     private static HashMap<UUID, EditorEditing> editing = new HashMap<>();
 
     @Getter
-    private Pet pet;
+    @Setter
+    private String petId;
     @Getter
     @Setter
-    private PetLevel level;
-    @Getter
-    @Setter
-    private PetSkin skin;
-    @Getter
-    @Setter
-    private Category category;
-    @Getter
-    @Setter
-    private String itemId;
-    @Getter
-    @Setter
-    private PetFood petFood;
+    private String mappedId;
 
     @Getter
-    private HashMap<Integer, PetLevel> editorPetLevelMapping = new HashMap<>();
-    @Getter
-    private HashMap<Integer, PetSkin> editorPetSkinMapping = new HashMap<>();
-    @Getter
-    private HashMap<Integer, Category> editorCategoryMapping = new HashMap<>();
-    @Getter
-    private HashMap<Integer, String> editorItemMapping = new HashMap<>();
-    @Getter
-    private HashMap<Integer, String> editorPetfoodMapping = new HashMap<>();
-
-    public EditorEditing(Pet pet)
-    {
-        this.pet = pet;
-    }
-
-    public static void register(Player p, Pet pet)
-    {
-        editing.put(p.getUniqueId(), new EditorEditing(pet));
-    }
+    private HashMap<Integer, String> editorMapping = new HashMap<>();
 
     public static EditorEditing get(Player p)
     {
         if(!editing.containsKey(p.getUniqueId()))
-            editing.put(p.getUniqueId(), new EditorEditing(null));
+            editing.put(p.getUniqueId(), new EditorEditing());
         return editing.get(p.getUniqueId());
     }
 

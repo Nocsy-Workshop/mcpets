@@ -221,7 +221,19 @@ public class CategoryConfig extends AbstractConfig {
 
         // Associate the category the creator
         EditorEditing editing = EditorEditing.get(creator);
-        editing.setCategory(Category.getFromId(id));
+        editing.setMappedId(id);
+    }
+
+    /**
+     * Loads a fresh config category and output a category object (for editor only)
+     * @param id
+     * @return
+     */
+    public static Category loadConfigCategory(String id)
+    {
+        CategoryConfig oldConfig = CategoryConfig.getMapping().get(id);
+        CategoryConfig config = new CategoryConfig(oldConfig.getFolderName(), oldConfig.getFileName());
+        return config.getCategory();
     }
 
     public void addPet(Pet pet)

@@ -422,4 +422,16 @@ public class PetConfig extends AbstractConfig {
         reloadSkins();
     }
 
+    /**
+     * Load a fresh Pet Object instance with latest config info (for editor)
+     * @param petId
+     * @return
+     */
+    public static Pet loadConfigPet(String petId)
+    {
+        PetConfig oldConfig = PetConfig.getConfig(petId);
+        PetConfig refreshedConfig = new PetConfig(oldConfig.getFolderName(), oldConfig.getFileName());
+        return refreshedConfig.getPet();
+    }
+
 }

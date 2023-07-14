@@ -10,6 +10,7 @@ import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
+import org.bukkit.entity.Cat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -105,7 +106,8 @@ public class EditorGlobalListener implements Listener {
                     Debugger.send("§cPet could not be found.");
                     return;
                 }
-                EditorEditing.register(p, pet);
+                EditorEditing editing = EditorEditing.get(p);
+                editing.setPetId(pet.getId());
                 editor.setState(EditorState.PET_EDITOR_EDIT);
                 editor.openEditor();
             }
@@ -113,7 +115,7 @@ public class EditorGlobalListener implements Listener {
             // If we should delete the pet
             else if(editorItem.getType().equals(EditorExpectationType.PET_DELETE))
             {
-                Pet pet = EditorEditing.get(p).getPet();
+                Pet pet = PetConfig.loadConfigPet(EditorEditing.get(p).getPetId());
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
@@ -135,15 +137,17 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_EDIT))
             {
                 EditorEditing editorPet = EditorEditing.get(p);
-                Pet pet = editorPet.getPet();
+                Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
                     return;
                 }
-                PetLevel level = editorPet.getEditorPetLevelMapping().get(e.getSlot());
+                PetLevel level = PetConfig.loadConfigPet(editorPet.getPetId()).getPetLevels().stream()
+                                        .filter(petLevel -> petLevel.getLevelId().equals(editorPet.getEditorMapping().get(e.getSlot())))
+                                        .findFirst().orElse(null);
 
-                editorPet.setLevel(level);
+                editorPet.setMappedId(level.getLevelId());
                 editor.setState(EditorState.PET_EDITOR_LEVEL_EDIT);
                 editor.openEditor();
             }
@@ -152,7 +156,7 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_CREATE))
             {
                 EditorEditing editorPet = EditorEditing.get(p);
-                Pet pet = editorPet.getPet();
+                Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
@@ -162,7 +166,7 @@ public class EditorGlobalListener implements Listener {
                 config.registerCleanPetLevel(null);
                 PetLevel level = pet.getPetLevels().get(pet.getPetLevels().size() - 1);
 
-                editorPet.setLevel(level);
+                editorPet.setMappedId(level.getLevelId());
                 editor.setState(EditorState.PET_EDITOR_LEVEL_EDIT);
                 editor.openEditor();
             }
@@ -171,16 +175,18 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PET_LEVEL_DELETE))
             {
                 EditorEditing editorPet = EditorEditing.get(p);
-                Pet pet = editorPet.getPet();
+                Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
                     return;
                 }
-                PetLevel petLevel = editorPet.getLevel();
+                PetLevel level = PetConfig.loadConfigPet(editorPet.getPetId()).getPetLevels().stream()
+                        .filter(petLevel -> petLevel.getLevelId().equals(editorPet.getMappedId()))
+                        .findFirst().orElse(null);
 
                 PetConfig config = PetConfig.getConfig(pet.getId());
-                config.deletePetLevel(petLevel.getLevelId());
+                config.deletePetLevel(level.getLevelId());
 
                 editor.setState(EditorState.PET_EDITOR_LEVELS);
                 editor.openEditor();
@@ -190,16 +196,18 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_EDIT))
             {
                 EditorEditing editorPet = EditorEditing.get(p);
-                Pet pet = editorPet.getPet();
+                Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
                     return;
                 }
                 int slotMapping = e.getSlot();
-                PetSkin skin = editorPet.getEditorPetSkinMapping().get(slotMapping);
+                PetSkin skin = PetSkin.getSkins(pet).stream()
+                                                    .filter(petSkin -> petSkin.getPathId().equals(editorPet.getEditorMapping().get(slotMapping)))
+                                                    .findFirst().orElse(null);
 
-                editorPet.setSkin(skin);
+                editorPet.setMappedId(skin.getPathId());
                 editor.setState(EditorState.PET_EDITOR_SKIN_EDIT);
                 editor.openEditor();
             }
@@ -208,7 +216,7 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_CREATE))
             {
                 EditorEditing editorPet = EditorEditing.get(p);
-                Pet pet = editorPet.getPet();
+                Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
@@ -219,7 +227,7 @@ public class EditorGlobalListener implements Listener {
                 List<PetSkin> skins = PetSkin.getSkins(pet);
                 PetSkin skin = skins.get(skins.size()-1);
 
-                editorPet.setSkin(skin);
+                editorPet.setMappedId(skin.getPathId());
                 editor.setState(EditorState.PET_EDITOR_SKIN_EDIT);
                 editor.openEditor();
             }
@@ -228,14 +236,14 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PET_SKIN_DELETE))
             {
                 EditorEditing editorPet = EditorEditing.get(p);
-                Pet pet = editorPet.getPet();
+                Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
                 if(pet == null)
                 {
                     Debugger.send("§cPet could not be found.");
                     return;
                 }
                 PetConfig config = PetConfig.getConfig(pet.getId());
-                config.deletePetSkin(editorPet.getSkin().getPathId());
+                config.deletePetSkin(editorPet.getMappedId());
 
                 editor.setState(EditorState.PET_EDITOR_SKINS);
                 editor.openEditor();
@@ -271,7 +279,7 @@ public class EditorGlobalListener implements Listener {
             {
 
                 EditorEditing editing = EditorEditing.get(p);
-                Category category = editing.getCategory();
+                Category category = CategoryConfig.loadConfigCategory(editing.getMappedId());
                 if(category == null)
                 {
                     Debugger.send("§cCategory could not be found.");
@@ -289,13 +297,13 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.CATEGORY_EDIT))
             {
                 EditorEditing editing = EditorEditing.get(p);
-                Category category = editing.getEditorCategoryMapping().get(e.getSlot());
+                Category category = CategoryConfig.loadConfigCategory(editing.getEditorMapping().get(e.getSlot()));
                 if(category == null)
                 {
                     Debugger.send("§cCategory could not be found.");
                     return;
                 }
-                editing.setCategory(category);
+                editing.setMappedId(category.getId());
                 editor.setState(EditorState.CATEGORY_EDITOR_EDIT);
                 editor.openEditor();
             }
@@ -309,7 +317,7 @@ public class EditorGlobalListener implements Listener {
                 ItemsListConfig.getInstance().setItemStack(key, Items.UNKNOWN.getItem().clone());
                 ItemsListConfig.getInstance().reload();
 
-                editing.setItemId(key);
+                editing.setMappedId(key);
                 editor.setState(EditorState.ITEM_EDITOR_EDIT);
                 editor.openEditor();
             }
@@ -318,14 +326,14 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.ITEM_EDIT))
             {
                 EditorEditing editing = EditorEditing.get(p);
-                String itemId = editing.getEditorItemMapping().get(e.getSlot());
+                String itemId = editing.getEditorMapping().get(e.getSlot());
                 ItemStack item = ItemsListConfig.getInstance().getItemStack(itemId);
                 if(item == null)
                 {
                     Debugger.send("§cItem could not be found.");
                     return;
                 }
-                editing.setItemId(itemId);
+                editing.setMappedId(itemId);
                 editor.setState(EditorState.ITEM_EDITOR_EDIT);
                 editor.openEditor();
             }
@@ -335,7 +343,7 @@ public class EditorGlobalListener implements Listener {
             {
 
                 EditorEditing editing = EditorEditing.get(p);
-                String itemId = editing.getItemId();
+                String itemId = editing.getMappedId();
                 ItemsListConfig.getInstance().removeItemStack(itemId);
 
                 editor.setState(EditorState.ITEM_EDITOR);
@@ -349,7 +357,7 @@ public class EditorGlobalListener implements Listener {
 
                 String key = PetFoodConfig.getInstance().registerCleanPetfood();
 
-                editing.setPetFood(PetFood.getFromId(key));
+                editing.setMappedId(PetFood.getFromId(key).getId());
                 editor.setState(EditorState.PETFOOD_EDITOR_EDIT);
                 editor.openEditor();
             }
@@ -358,14 +366,14 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PETFOOD_EDIT))
             {
                 EditorEditing editing = EditorEditing.get(p);
-                String petFoodId = editing.getEditorPetfoodMapping().get(e.getSlot());
-                PetFood petFood = PetFood.getFromId(petFoodId);
+                String petFoodId = editing.getEditorMapping().get(e.getSlot());
+                PetFood petFood = PetFoodConfig.loadConfigPetFood(petFoodId);
                 if(petFood == null)
                 {
                     Debugger.send("§cPetfood could not be found.");
                     return;
                 }
-                editing.setPetFood(petFood);
+                editing.setMappedId(petFood.getId());
                 editor.setState(EditorState.PETFOOD_EDITOR_EDIT);
                 editor.openEditor();
             }
@@ -374,7 +382,7 @@ public class EditorGlobalListener implements Listener {
             else if(editorItem.getType().equals(EditorExpectationType.PETFOOD_DELETE))
             {
                 EditorEditing editing = EditorEditing.get(p);
-                PetFood petFood = editing.getPetFood();
+                PetFood petFood = PetFoodConfig.loadConfigPetFood(editing.getMappedId());
                 PetFoodConfig.getInstance().removePetFood(petFood.getId());
 
                 editor.setState(EditorState.PETFOOD_EDITOR);

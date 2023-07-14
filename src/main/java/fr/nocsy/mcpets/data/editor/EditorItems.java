@@ -93,7 +93,7 @@ public enum EditorItems {
     PET_EDITOR_TAMING_FINISHED_SKILL(PET_EDITOR_TAMING_FINISHED_SKILL(), "Taming.TamingFinishedSkill", null, EditorExpectationType.INT, null, true),
     PET_EDITOR_SIGNALS(PET_EDITOR_SIGNALS(), "Signals.Values", null, EditorExpectationType.STRING_LIST, null, true),
     PET_EDITOR_SIGNAL_STICK(PET_EDITOR_SIGNAL_STICK(), "Signals.Item.Raw", null, EditorExpectationType.ITEM, null, true),
-    PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(), "Signals.Item.GetFromMenu", null, EditorExpectationType.ITEM, null, true),
+    PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU(), "Signals.Item.GetFromMenu", null, EditorExpectationType.BOOLEAN, null, true),
     // Pet editor - Levels
     PET_EDITOR_EDIT_LEVEL(UNKNOWN(), null, null, EditorExpectationType.PET_LEVEL_EDIT, null, false),
     PET_EDITOR_EDIT_LEVEL_DELETE(DELETE("level"), null, null, EditorExpectationType.PET_LEVEL_DELETE, null, false),
@@ -262,7 +262,7 @@ public enum EditorItems {
                 return false;
 
             EditorEditing editing = EditorEditing.get(creator);
-            CategoryConfig config = CategoryConfig.getMapping().get(editing.getCategory().getId());
+            CategoryConfig config = CategoryConfig.getMapping().get(editing.getMappedId());
             if(this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD))
             {
                 config.addPet(pet);
@@ -281,7 +281,7 @@ public enum EditorItems {
                 return false;
 
             EditorEditing editing = EditorEditing.get(creator);
-            String key = editing.getPetFood().getId();
+            String key = editing.getMappedId();
             PetFoodConfig config = PetFoodConfig.getInstance();
             if(this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD))
             {
@@ -301,22 +301,33 @@ public enum EditorItems {
         if(this.getType().equals(EditorExpectationType.ITEM_SECTION_ID))
         {
             EditorEditing editing = EditorEditing.get(creator);
-            String itemId = editing.getItemId();
+            String itemId = editing.getMappedId();
 
             ItemStack item = config.getItemStack(itemId);
 
             config.set(itemId, null);
             config.set(this.value.toString(), item);
 
+            try
+            {
+                config.save(file);
+
+                editing.setMappedId(this.value.toString());
+                ItemsListConfig.reloadInstance();
+                return true;
+            }
+            catch (IOException ex)
+            {
+                return false;
+            }
         }
         else if(this.getType().equals(EditorExpectationType.PETFOOD_ID))
         {
             EditorEditing editing = EditorEditing.get(creator);
-            PetFood petFood = editing.getPetFood();
+            PetFood petFood = PetFood.getFromId(editing.getMappedId());
 
             PetFoodConfig.getInstance().changePetFoodKey(petFood, this.value.toString());
-            PetFood newPetFood = PetFoodConfig.getInstance().getPetFood(this.value.toString());
-            editing.setPetFood(newPetFood);
+            editing.setMappedId(this.value.toString());
             return true;
         }
         else
@@ -329,7 +340,6 @@ public enum EditorItems {
         try
         {
             config.save(file);
-            MCPets.loadConfigs();
         } catch (IOException ignored) {
             return false;
         }
@@ -921,8 +931,10 @@ public enum EditorItems {
      * PET EDITOR icons
       */
 
-    public EditorItems setupPetIcon(Pet pet)
+    public EditorItems setupPetIcon(String petId)
     {
+        Pet pet = PetConfig.loadConfigPet(petId);
+
         ItemStack it = pet.getIcon().clone();
         if(value != null && value instanceof ItemStack)
         {
@@ -946,8 +958,9 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupPetIconEdit(Pet pet)
+    public EditorItems setupPetIconEdit(String petId)
     {
+        Pet pet = PetConfig.loadConfigPet(petId);
         ItemStack it = pet.getIcon().clone();
         if(value != null && value instanceof ItemStack)
         {
@@ -975,8 +988,9 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupSignalStickItem(Pet pet)
+    public EditorItems setupSignalStickItem(String petId)
     {
+        Pet pet = PetConfig.loadConfigPet(petId);
         ItemStack it = pet.getSignalStick().clone();
         if(value != null && value instanceof ItemStack)
         {
@@ -1407,8 +1421,11 @@ public enum EditorItems {
      * PET EDITOR LEVEL icon
      */
 
-    public EditorItems setupPetLevelIcon(PetLevel level)
+    public EditorItems setupPetLevelIcon(String petId, String levelId)
     {
+        Pet pet = PetConfig.loadConfigPet(petId);
+        PetLevel level = pet.getPetLevels().stream().filter(petLevel -> petLevel.getLevelId().equals(levelId)).findFirst().orElse(null);
+
         ItemStack it = new ItemStack(Material.EXPERIENCE_BOTTLE);
         ItemMeta meta = it.getItemMeta();
 
@@ -1722,8 +1739,12 @@ public enum EditorItems {
      * PET EDITOR SKIN icon
      */
 
-    public EditorItems setupSkinIcon(PetSkin skin)
+    public EditorItems setupSkinIcon(String petId, String skinId)
     {
+
+        Pet pet = PetConfig.loadConfigPet(petId);
+        PetSkin skin = PetSkin.getSkins(pet).stream().filter(petSkin -> petSkin.getPathId().equals(skinId)).findFirst().orElse(null);
+
         ItemStack it = new ItemStack(Material.LEATHER);
         if(skin.getIcon() != null)
             it = skin.getIcon().clone();
@@ -1746,8 +1767,12 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupEditSkinIcon(PetSkin skin)
+    public EditorItems setupEditSkinIcon(String petId, String skinId)
     {
+
+        Pet pet = PetConfig.loadConfigPet(petId);
+        PetSkin skin = PetSkin.getSkins(pet).stream().filter(petSkin -> petSkin.getPathId().equals(skinId)).findFirst().orElse(null);
+
         ItemStack it = new ItemStack(Material.LEATHER);
         if(skin.getIcon() != null)
             it = skin.getIcon().clone();
@@ -1810,8 +1835,9 @@ public enum EditorItems {
      * Category icons
      */
 
-    public EditorItems setupCategoryIcon(Category category)
+    public EditorItems setupCategoryIcon(String categoryId)
     {
+        Category category = CategoryConfig.loadConfigCategory(categoryId);
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         if(category.getIcon() != null)
             it = category.getIcon().clone();
@@ -1834,8 +1860,9 @@ public enum EditorItems {
     }
 
 
-    public EditorItems setupEditCategoryIcon(Category category)
+    public EditorItems setupEditCategoryIcon(String categoryId)
     {
+        Category category = CategoryConfig.loadConfigCategory(categoryId);
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         if(category.getIcon() != null)
             it = category.getIcon().clone();
@@ -1848,8 +1875,8 @@ public enum EditorItems {
         lores.add("§aExcluded categories:");
         if(category.getExcludedCategoriesId().size() == 0)
             lores.add("§7- §6None");
-        for(String categoryId : category.getExcludedCategoriesId())
-            lores.add("§7- " + categoryId);
+        for(String excludedCategoryId : category.getExcludedCategoriesId())
+            lores.add("§7- " + excludedCategoryId);
 
         lores.add(" ");
 
@@ -2008,8 +2035,9 @@ public enum EditorItems {
     public EditorItems setupItemIcon(String itemId)
     {
         ItemStack it = new ItemStack(Material.BEDROCK);
-        if(ItemsListConfig.getInstance().getItemStack(itemId) != null)
-            it = ItemsListConfig.getInstance().getItemStack(itemId).clone();
+        ItemStack loadedIt = ItemsListConfig.loadConfigItem(itemId);
+        if(loadedIt != null)
+            it = loadedIt.clone();
 
         ItemMeta meta = it.getItemMeta();
 
@@ -2033,8 +2061,9 @@ public enum EditorItems {
     public EditorItems setupEditItemIcon(String itemId)
     {
         ItemStack it = new ItemStack(Material.BEDROCK);
-        if(ItemsListConfig.getInstance().getItemStack(itemId) != null)
-            it = ItemsListConfig.getInstance().getItemStack(itemId).clone();
+        ItemStack loadedIt = ItemsListConfig.loadConfigItem(itemId);
+        if(loadedIt != null)
+            it = loadedIt.clone();
 
         ItemMeta meta = it.getItemMeta();
 
@@ -2078,9 +2107,10 @@ public enum EditorItems {
      * Pet food editor
      */
 
-    public EditorItems setupPetfoodIcon(PetFood petFood)
+    public EditorItems setupPetfoodIcon(String petFoodId)
     {
         ItemStack it = new ItemStack(Material.BEDROCK);
+        PetFood petFood = PetFoodConfig.loadConfigPetFood(petFoodId);
         if(petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();
 
@@ -2103,9 +2133,10 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupEditPetFoodIcon(PetFood petFood)
+    public EditorItems setupEditPetFoodIcon(String petFoodId)
     {
         ItemStack it = new ItemStack(Material.BEDROCK);
+        PetFood petFood = PetFoodConfig.loadConfigPetFood(petFoodId);
         if(petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();
 
@@ -2147,8 +2178,9 @@ public enum EditorItems {
         return it;
     }
 
-    public EditorItems setupPetFoodEditorEditItem(PetFood petFood)
+    public EditorItems setupPetFoodEditorEditItem(String petFoodId)
     {
+        PetFood petFood = PetFoodConfig.loadConfigPetFood(petFoodId);
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         if(petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();

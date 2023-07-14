@@ -26,6 +26,12 @@ public class ItemsListConfig extends AbstractConfig {
         return instance;
     }
 
+    public static void reloadInstance()
+    {
+        instance = new ItemsListConfig();
+        instance.init();
+    }
+
     public void init() {
         super.init("", "menuIcons.yml");
 
@@ -87,6 +93,13 @@ public class ItemsListConfig extends AbstractConfig {
         items.remove(key);
         getConfig().set(key, null);
         save();
+    }
+
+    public static ItemStack loadConfigItem(String itemId)
+    {
+        ItemsListConfig config = new ItemsListConfig();
+        config.init();
+        return config.getItems().get(itemId);
     }
 
     public Set<String> listKeys()

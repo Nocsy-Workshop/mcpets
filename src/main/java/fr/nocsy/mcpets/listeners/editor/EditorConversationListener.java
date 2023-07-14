@@ -130,7 +130,10 @@ public class EditorConversationListener implements Listener {
         if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
         {
             Pet pet = Pet.getFromId(value.toString());
-            EditorEditing.register(p, pet);
+            if(pet == null)
+                return;
+            EditorEditing editing = EditorEditing.get(p);
+            editing.setPetId(pet.getId());
             syncOpenEditor(p, EditorState.PET_EDITOR_EDIT);
             return;
         }
