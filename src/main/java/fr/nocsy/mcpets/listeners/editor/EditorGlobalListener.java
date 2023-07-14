@@ -4,12 +4,11 @@ import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
-import fr.nocsy.mcpets.data.config.AbstractConfig;
-import fr.nocsy.mcpets.data.config.CategoryConfig;
-import fr.nocsy.mcpets.data.config.ItemsListConfig;
-import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.config.*;
 import fr.nocsy.mcpets.data.editor.*;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -282,7 +281,7 @@ public class EditorGlobalListener implements Listener {
                 editor.openEditor();
             }
 
-            // If we should delete a category
+            // If we should edit a category
             else if(editorItem.getType().equals(EditorExpectationType.CATEGORY_EDIT))
             {
                 EditorEditing editing = EditorEditing.get(p);
@@ -311,7 +310,7 @@ public class EditorGlobalListener implements Listener {
                 editor.openEditor();
             }
 
-            // If we should create an item
+            // If we should edit an item
             else if(editorItem.getType().equals(EditorExpectationType.ITEM_EDIT))
             {
                 EditorEditing editing = EditorEditing.get(p);
@@ -327,7 +326,7 @@ public class EditorGlobalListener implements Listener {
                 editor.openEditor();
             }
 
-            // If we should delete a category
+            // If we should delete an item
             else if(editorItem.getType().equals(EditorExpectationType.ITEM_DELETE))
             {
 
@@ -336,6 +335,46 @@ public class EditorGlobalListener implements Listener {
                 ItemsListConfig.getInstance().removeItemStack(itemId);
 
                 editor.setState(EditorState.ITEM_EDITOR);
+                editor.openEditor();
+            }
+
+            // If we should create an item
+            else if(editorItem.getType().equals(EditorExpectationType.PETFOOD_CREATE))
+            {
+                EditorEditing editing = EditorEditing.get(p);
+
+                String key = PetFoodConfig.getInstance().registerCleanPetfood();
+
+                editing.setItemId(key);
+                editor.setState(EditorState.PET_EDITOR_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should edit a petfood
+            else if(editorItem.getType().equals(EditorExpectationType.PETFOOD_EDIT))
+            {
+                EditorEditing editing = EditorEditing.get(p);
+                String petFoodId = editing.getEditorPetfoodMapping().get(e.getSlot());
+                PetFood petFood = PetFood.getFromId(petFoodId);
+                if(petFood == null)
+                {
+                    Debugger.send("§cPetfood could not be found.");
+                    return;
+                }
+                editing.setPetFood(petFood);
+                editor.setState(EditorState.PETFOOD_EDITOR_EDIT);
+                editor.openEditor();
+            }
+
+            // If we should delete an item
+            else if(editorItem.getType().equals(EditorExpectationType.PETFOOD_DELETE))
+            {
+
+                EditorEditing editing = EditorEditing.get(p);
+                PetFood petFood = editing.getPetFood();
+                PetFoodConfig.getInstance().removePetFood(petFood.getId());
+
+                editor.setState(EditorState.PETFOOD_EDITOR);
                 editor.openEditor();
             }
 

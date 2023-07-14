@@ -4,7 +4,10 @@ import com.ticxo.modelengine.api.ModelEngineAPI;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
+import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.api.skills.Skill;
@@ -34,8 +37,14 @@ public enum EditorExpectationType {
     SKILL("skill"),
     MOUNT_TYPE("mount_type"),
     CATEGORY_ID("category_id"),
-    PET_LIST_ADD("pet_id"),
-    PET_LIST_REMOVE("pet_id"),
+    CATEGORY_PET_LIST_ADD("pet_id"),
+    CATEGORY_PET_LIST_REMOVE("pet_id"),
+    PETFOOD_TYPE("petfood_edit"),
+    OPERATOR_TYPE("petfood_edit"),
+    ITEM_ID("item_id"),
+    PETFOOD_ID("petfood_id"),
+    PETFOOD_PET_LIST_ADD("pet_id"),
+    PETFOOD_PET_LIST_REMOVE("pet_id"),
 
     // Action expectations
     ITEM("item"),
@@ -57,6 +66,10 @@ public enum EditorExpectationType {
     ITEM_CREATE("item_create"),
     ITEM_EDIT("item_edit"),
     ITEM_DELETE("item_delete"),
+
+    PETFOOD_EDIT("petfood_edit"),
+    PETFOOD_CREATE("petfood_edit"),
+    PETFOOD_DELETE("petfood_delete"),
     ;
 
     public static int ERROR_PARSE = -808757986;
@@ -77,9 +90,15 @@ public enum EditorExpectationType {
                 this.equals(EditorExpectationType.PET_CREATE) ||
                 this.equals(EditorExpectationType.PET) ||
                 this.equals(EditorExpectationType.CATEGORY_ID) ||
-                this.equals(EditorExpectationType.PET_LIST_ADD) ||
-                this.equals(EditorExpectationType.PET_LIST_REMOVE) ||
-                this.equals(EditorExpectationType.ITEM_SECTION_ID))
+                this.equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
+                this.equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE) ||
+                this.equals(EditorExpectationType.PETFOOD_PET_LIST_ADD) ||
+                this.equals(EditorExpectationType.PETFOOD_PET_LIST_REMOVE) ||
+                this.equals(EditorExpectationType.ITEM_SECTION_ID) ||
+                this.equals(EditorExpectationType.PETFOOD_TYPE) ||
+                this.equals(EditorExpectationType.OPERATOR_TYPE) ||
+                this.equals(EditorExpectationType.ITEM_ID) ||
+                this.equals(EditorExpectationType.PETFOOD_ID))
             return any + "";
         else if((this.equals(EditorExpectationType.FLOAT))
                 || this.equals(EditorExpectationType.POSITIVE_FLOAT))
@@ -153,8 +172,10 @@ public enum EditorExpectationType {
             return true;
         }
         else if(this.equals(EditorExpectationType.PET) ||
-                this.equals(EditorExpectationType.PET_LIST_ADD) ||
-                this.equals(EditorExpectationType.PET_LIST_REMOVE))
+                this.equals(EditorExpectationType.PETFOOD_PET_LIST_ADD) ||
+                this.equals(EditorExpectationType.PETFOOD_PET_LIST_REMOVE) ||
+                this.equals(EditorExpectationType.CATEGORY_PET_LIST_ADD)||
+                this.equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE))
         {
             Pet pet = Pet.getFromId(any + "");
             return pet != null;
@@ -185,6 +206,19 @@ public enum EditorExpectationType {
         {
             Category cat = Category.getFromId(any + "");
             return cat != null;
+        }
+        else if(this.equals(EditorExpectationType.PETFOOD_TYPE))
+        {
+            PetFood food = PetFood.getFromId(any + "");
+            return food != null;
+        }
+        else if(this.equals(EditorExpectationType.OPERATOR_TYPE))
+        {
+            return PetMath.get(any + "") != null;
+        }
+        else if(this.equals(EditorExpectationType.ITEM_ID))
+        {
+            return ItemsListConfig.getInstance().getItems().containsKey(any + "");
         }
         try
         {

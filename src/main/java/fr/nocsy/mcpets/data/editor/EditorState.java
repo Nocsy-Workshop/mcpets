@@ -6,6 +6,8 @@ import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.CategoryConfig;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.config.PetFoodConfig;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -45,7 +47,10 @@ public enum EditorState {
     CATEGORY_EDITOR_EDIT("Edit the category"),
 
     // Item editor menu
-    ITEM_EDITOR_EDIT("Edit the item");
+    ITEM_EDITOR_EDIT("Edit the item"),
+
+    // Petfood editor menu
+    PETFOOD_EDITOR_EDIT("Edit the pet food");
 
 
     @Getter
@@ -475,6 +480,83 @@ public enum EditorState {
                     item.setupEditItemIcon(itemId);
                 int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(item.getInputFilePath()).replaceVariablePath(itemId).setValue(itemId).getItem());
+            }
+
+        }
+
+
+        else if(this.equals(EditorState.PETFOOD_EDITOR))
+        {
+
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            for(int i = 45; i <= 53; i++)
+            {
+                currentView.setItem(i, EditorItems.FILLER.getItem());
+            }
+            currentView.setItem(49, EditorItems.PETFOOD_EDITOR_EDIT_CREATE.getItem());
+            currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
+            currentView.setItem(53, EditorItems.PAGE_SELECTOR.getItem());
+
+            EditorEditing editing = EditorEditing.get(p);
+            editing.getEditorItemMapping().clear();
+
+            HashMap<String, PetFood> items = PetFoodConfig.getInstance().getPetFoods();
+            List<String> itemsId = new ArrayList<>(items.keySet());
+            int page = EditorPageSelection.get(p);
+            for(int i = 45*page; i - 45*page < 45 && i - 45*page < items.size(); i++)
+            {
+                if(i >= itemsId.size())
+                    break;
+                String itemId = itemsId.get(i);
+
+                EditorItems icon = EditorItems.PETFOOD_EDITOR_EDIT
+                        .replaceVariablePath(itemId)
+                        .setupPetfoodIcon(items.get(itemId));
+
+                currentView.setItem(i, icon.getItem());
+
+                editing.getEditorPetfoodMapping().put(i - 45*page, items.get(itemId).getId());
+            }
+
+        }
+
+        else if(this.equals(EditorState.PETFOOD_EDITOR_EDIT))
+        {
+            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+
+            EditorEditing editorEditing = EditorEditing.get(p);
+            PetFood petFood = editorEditing.getPetFood();
+
+            HashMap<EditorItems, Integer> icons = new HashMap<>();
+
+            icons.put(EditorItems.BACK_TO_PETFOOD_EDITOR, 0);
+            icons.put(EditorItems.PET_EDITOR_DELETE, 8);
+
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_ID, 12);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_ITEM_ID, 13);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_TYPE, 14);
+
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_POWER, 29);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_OPERATOR, 30);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_SIGNAL, 31);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_PETS_ADD, 32);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_PETS_REMOVE, 33);
+
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_EVOLUTION, 26);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_EXP_THRESHOLD, 35);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_DELAY, 44);
+
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_PERMISSION, 48);
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_UNLOCKED_PET, 49);
+
+            for(EditorItems item : icons.keySet())
+            {
+                EditorItems replacedItem = item.replaceVariablePath(petFood.getId());
+                if(item.equals(EditorItems.PETFOOD_EDITOR_EDIT_ID))
+                    replacedItem.setValue(petFood.getId());
+                int position = icons.get(item);
+                currentView.setItem(position, replacedItem.getItem());
             }
 
         }

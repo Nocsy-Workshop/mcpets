@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.data.editor;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,9 @@ public class EditorEditing {
     @Getter
     @Setter
     private String itemId;
+    @Getter
+    @Setter
+    private PetFood petFood;
 
     @Getter
     private HashMap<Integer, PetLevel> editorPetLevelMapping = new HashMap<>();
@@ -38,6 +42,8 @@ public class EditorEditing {
     private HashMap<Integer, Category> editorCategoryMapping = new HashMap<>();
     @Getter
     private HashMap<Integer, String> editorItemMapping = new HashMap<>();
+    @Getter
+    private HashMap<Integer, String> editorPetfoodMapping = new HashMap<>();
 
     public EditorEditing(Pet pet)
     {

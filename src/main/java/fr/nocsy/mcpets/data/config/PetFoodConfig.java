@@ -4,6 +4,7 @@ import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetFoodType;
 import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
+import lombok.Getter;
 
 import java.util.*;
 
@@ -11,6 +12,7 @@ public class PetFoodConfig extends AbstractConfig {
 
     private static PetFoodConfig instance;
 
+    @Getter
     private HashMap<String, PetFood> petFoods;
 
     private PetFoodConfig()
@@ -40,13 +42,14 @@ public class PetFoodConfig extends AbstractConfig {
     public void reload() {
 
         loadConfig();
+        petFoods = new HashMap<>();
 
         for(String key : getConfig().getKeys(false))
         {
-            String id = getConfig().getString(key + ".ItemId");
-            PetFoodType foodType = PetFoodType.get(getConfig().getString(key + ".Type"));
+            String id = Optional.ofNullable(getConfig().getString(key + ".ItemId")).orElse("None set");
+            PetFoodType foodType = Optional.ofNullable(PetFoodType.get(getConfig().getString(key + ".Type"))).orElse(PetFoodType.HEALTH);
             double power = getConfig().getDouble(key + ".Power");
-            PetMath operator = PetMath.get(getConfig().getString(key + ".Operator"));
+            PetMath operator = Optional.ofNullable(PetMath.get(getConfig().getString(key + ".Operator"))).orElse(PetMath.ADDITION);
             String signal = getConfig().getString(key + ".Signal");
             String evolution = getConfig().getString(key + ".Evolution");
             int experienceThreshold = getConfig().getInt(key + ".ExperienceThreshold");
@@ -79,5 +82,74 @@ public class PetFoodConfig extends AbstractConfig {
     public Collection<PetFood> list()
     {
         return petFoods.values();
+    }
+
+    public void addPet(String key, String id)
+    {
+        ArrayList<String> list = (ArrayList<String>) getConfig().getStringList(key + ".Pets");
+        if(list.contains(id))
+            return;
+        list.add(id);
+        getConfig().set(key + ".Pets", list);
+        save();
+        reload();
+    }
+
+    public void removePet(String key, String id)
+    {
+        ArrayList<String> list = (ArrayList<String>) getConfig().getStringList(key + ".Pets");
+        if(!list.contains(id))
+            return;
+        list.remove(id);
+        getConfig().set(key + ".Pets", list);
+        save();
+        reload();
+    }
+
+    /**
+     * Register a new pet food with default values in entry
+     */
+    public String registerCleanPetfood()
+    {
+        String key = UUID.randomUUID().toString();
+        getConfig().set(key + ".ItemId", "None set");
+        save();
+        reload();
+        return key;
+    }
+
+    /**
+     * Swap the petfood to a new key in the config
+     * @param food
+     * @param key
+     */
+    public void changePetFoodKey(PetFood food, String key)
+    {
+        getConfig().set(food.getId(), null);
+
+        getConfig().set(key + ".ItemId", food.getItemId());
+        getConfig().set(key + ".Type", food.getType().name());
+        getConfig().set(key + ".Power", food.getPower());
+        getConfig().set(key + ".Operator", food.getOperator().name());
+        getConfig().set(key + ".Signal", food.getSignal());
+        getConfig().set(key + ".Evolution", food.getEvolution());
+        getConfig().set(key + ".ExperienceThreshold", food.getExperienceThreshold());
+        getConfig().set(key + ".DelayBeforeEvolution", food.getDelay());
+        getConfig().set(key + ".Permission", food.getPermission());
+        getConfig().set(key + ".UnlockPet", food.getUnlockedPet());
+        getConfig().set(key + ".Pets", food.getPetIds());
+
+        save();
+        reload();
+    }
+
+    /**
+     * Remove a pet food
+     */
+    public void removePetFood(String key)
+    {
+        getConfig().set(key, null);
+        save();
+        reload();
     }
 }

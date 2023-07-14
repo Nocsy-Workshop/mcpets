@@ -4,10 +4,8 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
-import fr.nocsy.mcpets.data.config.AbstractConfig;
-import fr.nocsy.mcpets.data.config.CategoryConfig;
-import fr.nocsy.mcpets.data.config.ItemsListConfig;
-import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.config.*;
+import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
@@ -38,6 +36,7 @@ public enum EditorItems {
     BACK_TO_PET_SKINS_EDIT(BACK_TO_ITEM("pet skins"), null, null, null, EditorState.PET_EDITOR_SKINS),
     BACK_TO_CATEGORIES_EDIT(BACK_TO_ITEM("categories"), null, null, null, EditorState.CATEGORY_EDITOR),
     BACK_TO_ITEM_EDITOR(BACK_TO_ITEM("items"), null, null, null, EditorState.ITEM_EDITOR),
+    BACK_TO_PETFOOD_EDITOR(BACK_TO_ITEM("pet foods"), null, null, null, EditorState.PETFOOD_EDITOR),
 
     // Default selection menu
     CONFIG_EDITOR(CONFIG_EDITOR(), null, null, null, EditorState.CONFIG_EDITOR),
@@ -135,8 +134,8 @@ public enum EditorItems {
     CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME(CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME(), "DisplayName", null, EditorExpectationType.STRING, null),
     CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY(CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY(), "DefaultCategory", null, EditorExpectationType.BOOLEAN, null),
     CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES(CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES(), "ExcludedCategories", null, EditorExpectationType.STRING_LIST, null),
-    CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(), "Pets", null, EditorExpectationType.PET_LIST_ADD, null),
-    CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(), "Pets", null, EditorExpectationType.PET_LIST_REMOVE, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD(), "Pets", null, EditorExpectationType.CATEGORY_PET_LIST_ADD, null),
+    CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE(), "Pets", null, EditorExpectationType.CATEGORY_PET_LIST_REMOVE, null),
 
     // Items editor
     ITEMS_EDIT(UNKNOWN(), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM_EDIT, null),
@@ -144,6 +143,27 @@ public enum EditorItems {
     ITEMS_CREATE(CREATE_NEW_ITEM("item", Material.EMERALD), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM_CREATE, null),
     ITEMS_EDIT_ID(ITEMS_EDIT_ID(), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM_SECTION_ID, null),
     ITEMS_EDIT_ITEM(UNKNOWN(), "%path%", ItemsListConfig.getInstance().getFullPath(), EditorExpectationType.ITEM, null),
+
+    // Pet food
+    PETFOOD_EDITOR_EDIT(UNKNOWN(), null, "petfoods", EditorExpectationType.PETFOOD_EDIT, null),
+    PETFOOD_EDITOR_EDIT_CREATE(CREATE_NEW_ITEM("pet food", Material.COOKED_CHICKEN), null, "petfoods", EditorExpectationType.PETFOOD_CREATE, null),
+
+    PETFOOD_EDITOR_EDIT_DELETE(DELETE("pet food"), null, "petfoods", EditorExpectationType.PETFOOD_CREATE, null),
+    PETFOOD_EDITOR_EDIT_ID(PETFOOD_EDITOR_EDIT_ID(), "%path%", "petfoods", EditorExpectationType.PETFOOD_ID, null),
+    PETFOOD_EDITOR_EDIT_ITEM_ID(PETFOOD_EDITOR_EDIT_ITEM_ID(), "%path%.ItemId", "petfoods", EditorExpectationType.ITEM_ID, null),
+    PETFOOD_EDITOR_EDIT_TYPE(PETFOOD_EDITOR_EDIT_TYPE(), "%path%.Type", "petfoods", EditorExpectationType.PETFOOD_TYPE, null),
+    PETFOOD_EDITOR_EDIT_POWER(PETFOOD_EDITOR_EDIT_POWER(), "%path%.Power", "petfoods", EditorExpectationType.FLOAT, null),
+    PETFOOD_EDITOR_EDIT_OPERATOR(PETFOOD_EDITOR_EDIT_OPERATOR(), "%path%.Operator", "petfoods", EditorExpectationType.OPERATOR_TYPE, null),
+    PETFOOD_EDITOR_EDIT_SIGNAL(PETFOOD_EDITOR_EDIT_SIGNAL(), "%path%.Signal", "petfoods", EditorExpectationType.STRING, null),
+    PETFOOD_EDITOR_EDIT_PETS_ADD(PETFOOD_EDITOR_EDIT_PETS_ADD(), "%path%.Pets", "petfoods", EditorExpectationType.PETFOOD_PET_LIST_ADD, null),
+    PETFOOD_EDITOR_EDIT_PETS_REMOVE(PETFOOD_EDITOR_EDIT_PETS_REMOVE(), "%path%.Pets", "petfoods", EditorExpectationType.PETFOOD_PET_LIST_REMOVE, null),
+
+    PETFOOD_EDITOR_EDIT_EVOLUTION(PETFOOD_EDITOR_EDIT_EVOLUTION(), "%path%.Evolution", "petfoods", EditorExpectationType.PET, null),
+    PETFOOD_EDITOR_EDIT_EXP_THRESHOLD(PETFOOD_EDITOR_EDIT_EXP_THRESHOLD(), "%path%.ExperienceThreshold", "petfoods", EditorExpectationType.POSITIVE_INT, null),
+    PETFOOD_EDITOR_EDIT_DELAY(PETFOOD_EDITOR_EDIT_DELAY(), "%path%.DelayBeforeEvolution", "petfoods", EditorExpectationType.POSITIVE_INT, null),
+
+    PETFOOD_EDITOR_EDIT_PERMISSION(PETFOOD_EDITOR_EDIT_PERMISSION(), "%path%.Permission", "petfoods", EditorExpectationType.STRING, null),
+    PETFOOD_EDITOR_EDIT_UNLOCKED_PET(PETFOOD_EDITOR_EDIT_UNLOCKED_PET(), "%path%.UnlockPet", "petfoods", EditorExpectationType.PET, null),
     ;
 
     private final static String editorTag = "MCPets:Editor:";
@@ -216,8 +236,6 @@ public enum EditorItems {
         if(this.value == null)
             return false;
 
-        Utils.debug("§aFile path: §7 " + filePath);
-        Utils.debug("§6Placeholder: " + variablePathPlaceholder);
         if(this.getType().equals(EditorExpectationType.PET_CREATE))
         {
             String illegalCharacters = "#%<>&*{}?/\\$§+!`|'\"=:@.";
@@ -231,8 +249,8 @@ public enum EditorItems {
             Pet.getObjectPets().add(petConfig.getPet());
             return true;
         }
-        else if(this.getType().equals(EditorExpectationType.PET_LIST_ADD) ||
-                this.getType().equals(EditorExpectationType.PET_LIST_REMOVE))
+        else if(this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
+                this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE))
         {
             Pet pet = Pet.getFromId(this.value + "");
             if(pet == null)
@@ -240,13 +258,33 @@ public enum EditorItems {
 
             EditorEditing editing = EditorEditing.get(creator);
             CategoryConfig config = CategoryConfig.getMapping().get(editing.getCategory().getId());
-            if(this.getType().equals(EditorExpectationType.PET_LIST_ADD))
+            if(this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD))
             {
                 config.addPet(pet);
             }
             else
             {
                 config.removePet(pet);
+            }
+            return true;
+        }
+        else if(this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD) ||
+                this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_REMOVE))
+        {
+            Pet pet = Pet.getFromId(this.value + "");
+            if(pet == null)
+                return false;
+
+            EditorEditing editing = EditorEditing.get(creator);
+            String key = editing.getPetFood().getId();
+            PetFoodConfig config = PetFoodConfig.getInstance();
+            if(this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD))
+            {
+                config.addPet(key, pet.getId());
+            }
+            else
+            {
+                config.removePet(key, pet.getId());
             }
             return true;
         }
@@ -265,6 +303,14 @@ public enum EditorItems {
             config.set(itemId, null);
             config.set(this.value.toString(), item);
 
+        }
+        else if(this.getType().equals(EditorExpectationType.PETFOOD_ID))
+        {
+            EditorEditing editing = EditorEditing.get(creator);
+            PetFood petFood = editing.getPetFood();
+
+            PetFoodConfig.getInstance().changePetFoodKey(petFood, this.value.toString());
+            return true;
         }
         else
         {
@@ -1926,6 +1972,8 @@ public enum EditorItems {
 
         lores.add(" ");
         lores.add("§aId: §b" + itemId);
+        lores.add(" ");
+        lores.add("§eClick to edit that item.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1973,6 +2021,292 @@ public enum EditorItems {
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
         lores.add("§7Edit the ID of the item.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    /**
+     * Pet food editor
+     */
+
+    public EditorItems setupPetfoodIcon(PetFood petFood)
+    {
+        ItemStack it = new ItemStack(Material.BEDROCK);
+        if(petFood.getItemStack() != null)
+            it = petFood.getItemStack().clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        ArrayList<String> lores = new ArrayList<>();
+
+        lores.add(" ");
+        lores.add("§aId: §b" + petFood.getId());
+        lores.add(" ");
+        lores.add("§eClick to edit that petfood.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = petFood;
+
+        return this;
+    }
+
+    public EditorItems setupEditPetFoodIcon(PetFood petFood)
+    {
+        ItemStack it = new ItemStack(Material.BEDROCK);
+        if(petFood.getItemStack() != null)
+            it = petFood.getItemStack().clone();
+
+        ItemMeta meta = it.getItemMeta();
+
+        ArrayList<String> lores = new ArrayList<>();
+        if(it.getItemMeta().hasLore() && it.getItemMeta().getLore() != null)
+        {
+            lores = (ArrayList<String>) it.getItemMeta().getLore();
+        }
+
+        lores.add(" ");
+        lores.add("§eClick with an item to change it.");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+
+        this.item = it;
+
+        this.value = petFood;
+
+        return this;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_ID()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Petfood ID");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Edit the ID of the petfood.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_ITEM_ID()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Reference item ID");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the referenced item.");
+        lores.add("§7(register items in the item menu)");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_TYPE()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Pet food type");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the pet food type (see wiki).");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_POWER()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Power value");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the power of the pet food.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_OPERATOR()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Operator");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the mathematical operation");
+        lores.add("§7to be perfomed on the power of the food. (wiki)");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_SIGNAL()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Signal");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set the signal triggered when giving");
+        lores.add("§7the pet food to the pet.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_PETS_ADD()
+    {
+        ItemStack it = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§aAdd§6 pet");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§aAdd§7 a compatible pet. §a(Optional)");
+        lores.add(" ");
+        lores.add("§7Currently restricted pets:");
+        lores.add("§e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_PETS_REMOVE()
+    {
+        ItemStack it = new ItemStack(Material.NETHER_BRICK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§cRemove§6 pet");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§cRemove§7 a compatible pet. §a(Optional)");
+        lores.add(" ");
+        lores.add("§7Currently restricted pets:");
+        lores.add("§e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_EVOLUTION()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Evolution");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§a(Optional)§7 Set the evolution triggered");
+        lores.add("§7when the pet eats the food.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_EXP_THRESHOLD()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Experience threshold");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Set a value of experience after which");
+        lores.add("§7the food can be consumed by the pet.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_DELAY()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Delay before evolution");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7If you're using an evolution food, how long");
+        lores.add("§7before the evolution should be triggered.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_PERMISSION()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Permission");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Necessary permission to use the pet food.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_UNLOCKED_PET()
+    {
+        ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Unlocked pet");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7If the food type is §aUNLOCK§7,");
+        lores.add("§7which pet should be unlocked.");
         lores.add(" ");
         lores.add("§7Current value: §e%value%");
 
