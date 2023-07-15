@@ -123,6 +123,7 @@ public enum EditorState {
             icons.put(EditorItems.CONFIG_EDITOR_AUTO_SAVE_DELAY, 35);
             icons.put(EditorItems.CONFIG_EDITOR_DEFAULT_RESPAWN_COOLDOWN, 39);
             icons.put(EditorItems.CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN, 40);
+            icons.put(EditorItems.CONFIG_EDITOR_GLOBAL_AUTORESPAWN, 41);
 
             for(EditorItems item : icons.keySet())
             {

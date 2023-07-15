@@ -66,6 +66,7 @@ public enum EditorItems {
     CONFIG_EDITOR_AUTO_SAVE_DELAY(CONFIG_EDITOR_AUTO_SAVE_DELAY(), "AutoSaveDelay", "config", EditorExpectationType.INT, null, true),
     CONFIG_EDITOR_DEFAULT_RESPAWN_COOLDOWN(CONFIG_EDITOR_DEFAULT_RESPAWN_COOLDOWN(), "DefaultRespawnCooldown", "config", EditorExpectationType.INT, null, true),
     CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN(CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN(), "GlobalRespawnCooldown", "config", EditorExpectationType.BOOLEAN, null, true),
+    CONFIG_EDITOR_GLOBAL_AUTORESPAWN(CONFIG_EDITOR_GLOBAL_AUTORESPAWN(), "AutoRespawn", "config", EditorExpectationType.BOOLEAN, null, true),
 
     // Pet editor
     PET_EDITOR_EDIT_PET(UNKNOWN(), null, null, EditorExpectationType.PET, null, false),
@@ -901,6 +902,24 @@ public enum EditorItems {
         lores.add(" ");
         lores.add("§7Whether the player can not summon ANY pet");
         lores.add("§7while being on cooldown.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack CONFIG_EDITOR_GLOBAL_AUTORESPAWN()
+    {
+        ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Autorespawn");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7Whether when a pet dies, it is respawned");
+        lores.add("§7automatically at the player's side after reborn.");
         lores.add(" ");
         lores.add("§7Current value: §e%value%");
 

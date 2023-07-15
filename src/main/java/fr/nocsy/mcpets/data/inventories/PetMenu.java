@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.List;
+import java.util.UUID;
 
 public class PetMenu {
 
@@ -21,10 +22,14 @@ public class PetMenu {
     @Getter
     private final Inventory inventory;
 
+    @Getter
+    private final UUID owner;
+
     public PetMenu(Player p, int page, boolean addPager) {
         // Load the data from the player
         // Mainly for the pet stats
         PlayerData.get(p.getUniqueId());
+        owner = p.getUniqueId();
 
         List<Pet> availablePets = Pet.getAvailablePets(p);
 
@@ -68,7 +73,7 @@ public class PetMenu {
     }
 
     public void open(Player p) {
-        if(Category.getCategories().size() > 0)
+        if(p.getUniqueId().equals(owner) && Category.getCategories().size() > 0)
         {
             CategoriesMenu.open(p);
             return;

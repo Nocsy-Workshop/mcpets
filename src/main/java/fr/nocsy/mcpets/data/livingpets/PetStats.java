@@ -12,6 +12,7 @@ import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,9 @@ public class PetStats {
     // -1 Indicating deletion of the pet
     private PetTimer revokeTimer;
 
+    // This variable is just here to make sure the timer are not ran when initializing the files
+    private boolean initializingRun = true;
+
     /**
      * Set up the basic parameters
      * Launch the various pet stats schedulers
@@ -90,8 +94,32 @@ public class PetStats {
     {
         refreshMaxHealth();
         updateHealth();
-        respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 20);
-        revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 20);
+        respawnTimer = new PetTimer(currentLevel.getRespawnCooldown(), 20, new Runnable() {
+            @Override
+            public void run() {
+                // If it's an initialization run, we don't want the respawn to happen
+                if(initializingRun)
+                {
+                    initializingRun = false;
+                    return;
+                }
+                // Else, we check if the autorespawn could happen
+                if(GlobalConfig.getInstance().isAutorespawn())
+                {
+                    Player p = Bukkit.getPlayer(pet.getOwner());
+                    if(p != null && Pet.getActivePets().get(pet.getOwner()) == null)
+                    {
+                        pet.spawn(p.getLocation(), true);
+                        Debugger.send("§aPet §6" + pet.getId() + "§a was autorespawned after death.");
+                    }
+                    else
+                    {
+                        Debugger.send("§cPet §6" + pet.getId() + "§c was supposed to autorespawn, but the player already has a spawned pet with him, or is disconnected.");
+                    }
+                }
+            }
+        });
+        revokeTimer = new PetTimer(currentLevel.getRevokeCooldown(), 20, null);
     }
 
 
@@ -115,7 +143,7 @@ public class PetStats {
         // If the regeneration is none then do not launch the scheduler coz it's useless
         if(currentLevel.getRegeneration() <= 0)
             return;
-        regenerationTimer = new PetTimer(Integer.MAX_VALUE, 20);
+        regenerationTimer = new PetTimer(Integer.MAX_VALUE, 20, null);
         regenerationTimer.launch(new Runnable() {
             @Override
             public void run() {
@@ -127,7 +155,7 @@ public class PetStats {
                 }
                 else
                 {
-                    regenerationTimer.stop();
+                    regenerationTimer.stop(null);
                 }
             }
         });
@@ -143,7 +171,9 @@ public class PetStats {
                 @Override
                 public void run() {
                     if(!isDead())
-                        respawnTimer.stop();
+                    {
+                        respawnTimer.stop(null);
+                    }
                 }
             });
     }

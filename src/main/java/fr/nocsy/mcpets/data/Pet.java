@@ -855,6 +855,7 @@ public class Pet {
                 Player p = Bukkit.getPlayer(owner);
 
                 if (!getInstance().isStillHere()) {
+                    Debugger.send("§6[AiManager] : §cPet " + getId() + " is not here, so it gets despawned.");
                     despawn(PetDespawnReason.UNKNOWN);
                     stopAI();
                     return;
@@ -962,20 +963,25 @@ public class Pet {
                 mountManager.dismountAll();
             }
 
-            if (despawnSkill != null
-                    && reason != PetDespawnReason.SKIN) {
-                try {
-                    despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
-                } catch (Exception ex) {
+            // If it's not a death, we don't let the death animation happen
+            if(reason != PetDespawnReason.DEATH)
+            {
+                // Do we have a despawn skill to trigger or a skin swap?
+                if (despawnSkill != null
+                        && reason != PetDespawnReason.SKIN) {
+                    try {
+                        despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
+                    } catch (Exception ex) {
+                        if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
+                            activeMob.getEntity().getBukkitEntity().remove();
+                    }
+                } else {
+                    ModelEngineAPI.removeModeledEntity(activeMob.getEntity().getUniqueId());
+                    if (activeMob.getEntity() != null)
+                        activeMob.getEntity().remove();
                     if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
                         activeMob.getEntity().getBukkitEntity().remove();
                 }
-            } else {
-                ModelEngineAPI.removeModeledEntity(activeMob.getEntity().getUniqueId());
-                if (activeMob.getEntity() != null)
-                    activeMob.getEntity().remove();
-                if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
-                    activeMob.getEntity().getBukkitEntity().remove();
             }
 
             activePets.remove(owner);

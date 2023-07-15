@@ -8,6 +8,7 @@ import com.ticxo.modelengine.api.model.bone.Nameable;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -232,13 +233,25 @@ public class PetSkin {
 
         Location loc = instancePet.getActiveMob().getEntity().getBukkitEntity().getLocation();
 
+        boolean hasRider = instancePet.hasRider(Bukkit.getPlayer(instancePet.getOwner()));
         instancePet.setActiveSkin(this);
+
         instancePet.despawn(PetDespawnReason.SKIN);
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 instancePet.spawn(loc, false);
+                if(hasRider)
+                {
+                    Utils.debug("Riding back");
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            instancePet.setMount(Bukkit.getPlayer(instancePet.getOwner()));
+                        }
+                    }.runTaskLater(MCPets.getInstance(), 2L);
+                }
             }
         }.runTaskLater(MCPets.getInstance(), 2L);
         return true;

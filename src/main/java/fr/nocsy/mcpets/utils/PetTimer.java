@@ -20,24 +20,27 @@ public class PetTimer {
 
     private int task;
 
+    private Runnable endingRunnable;
+
     /**
      * Constructor
      * Frequency giving the tick when repeating the task
      * @param cooldown
      * @param frequency
      */
-    public PetTimer(int cooldown, long frequency)
+    public PetTimer(int cooldown, long frequency, Runnable endingRunnable)
     {
         this.cooldown = cooldown;
         this.remainingTime = 0;
         this.frequency = frequency;
+        this.endingRunnable = endingRunnable;
     }
 
     public void launch(Runnable runnable)
     {
         // If it's running then cancel the current scheduler
         if(isRunning())
-            stop();
+            stop(null);
         remainingTime = cooldown;
         task = Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), new Runnable() {
             @Override
@@ -45,7 +48,7 @@ public class PetTimer {
                 if(cooldown != Integer.MAX_VALUE)
                         remainingTime--;
                 if(remainingTime <= 0)
-                    stop();
+                    stop(endingRunnable);
 
                 if (runnable != null)
                     runnable.run();
@@ -54,11 +57,13 @@ public class PetTimer {
         runningTimers.put(this, task);
     }
 
-    public void stop()
+    public void stop(Runnable runnable)
     {
         Bukkit.getScheduler().cancelTask(task);
         runningTimers.remove(this);
         remainingTime = 0;
+        if(runnable != null)
+            runnable.run();
     }
 
     public boolean isRunning()

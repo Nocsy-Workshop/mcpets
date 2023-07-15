@@ -53,6 +53,8 @@ public class GlobalConfig extends AbstractConfig {
 
     @Getter
     private double percentHealthOnRespawn;
+    @Getter
+    private boolean autorespawn;
 
     @Getter
     private int autoSave;
@@ -157,6 +159,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("GlobalRespawnCooldown", false);
         if(getConfig().get("DefaultRespawnCooldown") == null)
             getConfig().set("DefaultRespawnCooldown", 0);
+        if(getConfig().get("AutoRespawn") == null)
+            getConfig().set("AutoRespawn", false);
         if (getConfig().get("Experience.BarSize") == null)
             getConfig().set("Experience.BarSize", 40);
         if (getConfig().get("Experience.Symbol") == null)
@@ -225,6 +229,7 @@ public class GlobalConfig extends AbstractConfig {
         activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
         adaptiveInventory = getConfig().getInt("InventorySize");
         percentHealthOnRespawn = getConfig().getDouble("PercentHealthOnRespawn");
+        autorespawn = getConfig().getBoolean("AutoRespawn");
         defaultRespawnCooldown = Math.max(0, getConfig().getInt("DefaultRespawnCooldown"));
         globalRespawnCooldown = getConfig().getBoolean("GlobalRespawnCooldown");
         // Says it'll be an adaptive inventory
