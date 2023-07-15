@@ -244,7 +244,6 @@ public class PetSkin {
                 instancePet.spawn(loc, false);
                 if(hasRider)
                 {
-                    Utils.debug("Riding back");
                     new BukkitRunnable() {
                         @Override
                         public void run() {
