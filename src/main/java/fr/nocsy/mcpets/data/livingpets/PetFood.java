@@ -272,6 +272,11 @@ public class PetFood {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but the pet §7"+ unlockedPet +"§7 does not exist.");
                     return false;
                 }
+                else if(p.hasPermission(unlockedPetObject.getPermission()))
+                {
+                    Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but they already own the pet.");
+                    return false;
+                }
 
                 Utils.givePermission(p.getUniqueId(), unlockedPetObject.getPermission());
                 Language.PETUNLOCKED.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
