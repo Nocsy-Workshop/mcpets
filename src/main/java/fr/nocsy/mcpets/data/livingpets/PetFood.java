@@ -275,6 +275,7 @@ public class PetFood {
                 else if(p.hasPermission(unlockedPetObject.getPermission()))
                 {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but they already own the pet.");
+                    Language.PETUNLOCKED_ALREADY.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
                     return false;
                 }
 

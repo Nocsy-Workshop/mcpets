@@ -108,6 +108,7 @@ public enum Language {
     PETFOOD_DOESNT_EXIST("§cThis pet food doesn't exist."),
     PETUNLOCK_NOPERM("§cYou are not allowed to use this item to unlock the pet."),
     PETUNLOCKED("§aYou've unlocked the pet %petName%, congratulations !"),
+    PETUNLOCKED_ALREADY("§cYou already own the pet §6%petName%§c."),
 
     PET_ALREADY_TAMED("§cThis pet is already tamed."),
     PET_DOESNT_EAT("§cThis pet can not eat that food."),

@@ -28,6 +28,7 @@ public enum PetDespawnReason {
     NO_OWNER("No owner found"),
     ACTIVE_MOB_LINKAGE_FAILED("link to the activeMob failed"),
     PETDESPAWN_SKILL("petdespawn skill"),
+    AI_TRACK_DESPAWN("AI track could not find the entity"),
     UNKNOWN("unknown");
 
 

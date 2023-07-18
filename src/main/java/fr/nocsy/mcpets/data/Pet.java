@@ -853,64 +853,64 @@ public class Pet {
             public void run() {
 
                 Player p = Bukkit.getPlayer(owner);
-
-                if (!getInstance().isStillHere()) {
-                    Debugger.send("§6[AiManager] : §cPet " + getId() + " is not here, so it gets despawned.");
-                    despawn(PetDespawnReason.UNKNOWN);
+                if(p == null)
+                {
+                    getInstance().despawn(PetDespawnReason.OWNER_NOT_HERE);
                     stopAI();
                     return;
                 }
 
-                if (p != null) {
+                if (p.isDead())
+                    return;
 
-                    if (p.isDead())
-                        return;
-
-                    final Location petLocation = p.getLocation();
-                    Location ownerLoc = petLocation;
-                    Location petLoc = getInstance().getActiveMob().getEntity().getBukkitEntity().getLocation();
-
-                    // If the owner is not in the same world as the pet and that the pet is fully tamed, we move it
-                    // to the owner
-                    if (!ownerLoc.getWorld().getName().equals(petLoc.getWorld().getName()) && tamingProgress == 1) {
-                        getInstance().despawn(PetDespawnReason.TELEPORT);
-                        getInstance().spawn(p, petLocation);
-                        return;
-                    }
-
-                    double distance = Utils.distance(ownerLoc, petLoc);
-
-                    // Following AI System
-                    if (distance < getInstance().getComingBackRange()) {
-                        // If the pet is too close then it stops
-                        PathFindingUtils.stop(activeMob.getEntity(), owner);
-                    } else if (distance > getInstance().getDistance() &&
-                            (distance < GlobalConfig.getInstance().getDistanceTeleport() || tamingProgress < 1)) {
-                        // If the pet is too far but not far enough to be teleported, then it follows up the owner
-                        // Except if the following is disabled
-                        // * Note : if the taming is not completed then the pet can not be teleported to the owner
-                        if(!followOwner)
-                            return;
-                        AbstractLocation aloc = new AbstractLocation(activeMob.getEntity().getWorld(), petLocation.getX(), petLocation.getY(), petLocation.getZ());
-                        PathFindingUtils.moveTo(activeMob.getEntity(), aloc);
-                    } else if (distance > GlobalConfig.getInstance().getDistanceTeleport()
-                            && !p.isFlying()
-                            && p.isOnGround()
-                            && teleportTick == 0) {
-                        // If the pet is really too far, and that the owner is not flying
-                        // And that we didn't teleport the pet a few ticks before
-                        // Then we teleport the pet to the owner
-                        // * Note that if the taming of the pet is not fully complete, then the pet won't be teleported
-                        // * but instead the pet will try to come closer to the owner according to the previous "if"
-                        getInstance().teleportToPlayer(p);
-                        teleportTick = 4;
-                    }
-                    if (teleportTick > 0)
-                        teleportTick--;
-                } else {
-                    getInstance().despawn(PetDespawnReason.OWNER_NOT_HERE);
+                if (!getInstance().isStillHere()) {
+                    Debugger.send("§6[AiManager] : §cPet " + getId() + " is not here, so it gets despawned.");
+                    getInstance().despawn(PetDespawnReason.AI_TRACK_DESPAWN);
                     stopAI();
+                    return;
                 }
+
+                final Location petLocation = p.getLocation();
+                Location ownerLoc = petLocation;
+                Location petLoc = getInstance().getActiveMob().getEntity().getBukkitEntity().getLocation();
+
+                // If the owner is not in the same world as the pet and that the pet is fully tamed, we move it
+                // to the owner
+                if (!ownerLoc.getWorld().getName().equals(petLoc.getWorld().getName()) && tamingProgress == 1) {
+                    getInstance().despawn(PetDespawnReason.TELEPORT);
+                    getInstance().spawn(p, petLocation);
+                    return;
+                }
+
+                double distance = Utils.distance(ownerLoc, petLoc);
+
+                // Following AI System
+                if (distance < getInstance().getComingBackRange()) {
+                    // If the pet is too close then it stops
+                    PathFindingUtils.stop(activeMob.getEntity(), owner);
+                } else if (distance > getInstance().getDistance() &&
+                        (distance < GlobalConfig.getInstance().getDistanceTeleport() || tamingProgress < 1)) {
+                    // If the pet is too far but not far enough to be teleported, then it follows up the owner
+                    // Except if the following is disabled
+                    // * Note : if the taming is not completed then the pet can not be teleported to the owner
+                    if(!followOwner)
+                        return;
+                    AbstractLocation aloc = new AbstractLocation(activeMob.getEntity().getWorld(), petLocation.getX(), petLocation.getY(), petLocation.getZ());
+                    PathFindingUtils.moveTo(activeMob.getEntity(), aloc);
+                } else if (distance > GlobalConfig.getInstance().getDistanceTeleport()
+                        && !p.isFlying()
+                        && p.isOnGround()
+                        && teleportTick == 0) {
+                    // If the pet is really too far, and that the owner is not flying
+                    // And that we didn't teleport the pet a few ticks before
+                    // Then we teleport the pet to the owner
+                    // * Note that if the taming of the pet is not fully complete, then the pet won't be teleported
+                    // * but instead the pet will try to come closer to the owner according to the previous "if"
+                    getInstance().teleportToPlayer(p);
+                    teleportTick = 4;
+                }
+                if (teleportTick > 0)
+                    teleportTick--;
 
             }
         }, 0L, 10L);
@@ -1024,7 +1024,7 @@ public class Pet {
         return activeMob != null &&
                 activeMob.getEntity() != null &&
                 activeMob.getEntity().getBukkitEntity() != null &&
-                !activeMob.getEntity().getBukkitEntity().isDead() &&
+                //!activeMob.getEntity().getBukkitEntity().isDead() &&     THIS ONE APPARENTLY DOESN'T WORK AS INTENDED
                 !activeMob.isDead() &&
                 !removed;
     }
