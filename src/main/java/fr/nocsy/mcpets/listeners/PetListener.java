@@ -353,7 +353,7 @@ public class PetListener implements Listener {
         Entity entity;
         try
         {
-            entity = e.getVehicle().getBase().getWorld().getEntity(e.getVehicle().getBase().getUniqueId());
+            entity = Bukkit.getEntity(e.getVehicle().getBase().getUniqueId());
         }
         catch (Exception ex)
         {
