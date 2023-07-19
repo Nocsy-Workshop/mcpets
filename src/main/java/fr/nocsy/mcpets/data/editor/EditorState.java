@@ -151,6 +151,7 @@ public enum EditorState {
 
             int currentIndex = 0;
             int currentViewAmount = 0;
+            int inventoryPosition = 0;
             for(Pet pet : pets)
             {
                 if(EditorItems.getCachedDeleted().contains(pet.getId()))
@@ -160,13 +161,14 @@ public enum EditorState {
                     currentIndex++;
                     continue;
                 }
-                else if(currentViewAmount <= 72)
+                else if(currentViewAmount <= 72 && inventoryPosition < currentView.getSize())
                 {
                     currentViewAmount++;
 
                     ItemStack icon = EditorItems.PET_EDITOR_EDIT_PET.setupPetIcon(pet.getId()).getItem();
 
-                    currentView.addItem(icon);
+                    currentView.setItem(inventoryPosition, icon);
+                    inventoryPosition++;
                     continue;
                 }
                 break;

@@ -36,8 +36,8 @@ public class Databases {
                 GlobalConfig.getInstance().getMySQL_PORT(),
                 GlobalConfig.getInstance().getMySQL_DB()));
         if (!Databases.getMySQL().init()) {
-            MCPets.getInstance().getLogger().severe("[Database] Can't initialize MySQL.");
-            MCPets.getInstance().getLogger().severe("[Database] Will be using YAML support instead.");
+            MCPets.getInstance().getLogger().info("[Database] Can't initialize MySQL.");
+            MCPets.getInstance().getLogger().info("[Database] Will be using YAML support instead (no worry it's not a bug).");
             GlobalConfig.getInstance().setDatabaseSupport(false);
             return false;
         }
