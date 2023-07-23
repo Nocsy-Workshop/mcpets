@@ -32,6 +32,8 @@ public class EventListener implements Listener {
         listeners.add(new EditorGlobalListener());
         listeners.add(new EditorConversationListener());
 
+        listeners.add(new DatabaseRefreshListener());
+
         for (Listener l : listeners) {
             plugin.getServer().getPluginManager().registerEvents(l, plugin);
         }

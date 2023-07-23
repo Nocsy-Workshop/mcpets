@@ -9,6 +9,7 @@ import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -150,7 +151,6 @@ public enum EditorState {
             ArrayList<Pet> pets = Pet.getObjectPets();
 
             int currentIndex = 0;
-            int currentViewAmount = 0;
             int inventoryPosition = 0;
             for(Pet pet : pets)
             {
@@ -161,9 +161,8 @@ public enum EditorState {
                     currentIndex++;
                     continue;
                 }
-                else if(currentViewAmount <= 72 && inventoryPosition < currentView.getSize())
+                else if(inventoryPosition < currentView.getSize()-9)
                 {
-                    currentViewAmount++;
 
                     ItemStack icon = EditorItems.PET_EDITOR_EDIT_PET.setupPetIcon(pet.getId()).getItem();
 
@@ -455,7 +454,6 @@ public enum EditorState {
                         .setupItemIcon(itemId);
 
                 currentView.setItem(i, icon.getItem());
-
                 editing.getEditorMapping().put(i - 45*page, itemId);
             }
 

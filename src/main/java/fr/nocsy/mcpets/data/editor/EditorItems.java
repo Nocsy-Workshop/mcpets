@@ -366,6 +366,8 @@ public enum EditorItems {
     {
         ItemStack it = item.clone();
         ItemMeta meta = it.getItemMeta();
+        if(it.getType().equals(Material.FILLED_MAP))
+            it.setType(Material.MAP);
         meta.setLocalizedName(editorTag + getId());
 
         // Basically, we are replacing the placeholder for the value within the lores

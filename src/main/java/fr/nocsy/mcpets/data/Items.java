@@ -130,7 +130,7 @@ public enum Items {
     private static ItemStack petmenu() {
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage().split("\n")));
 
-        ItemStack it = new ItemStack(Material.FILLED_MAP);
+        ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage());
         meta.setLore(lore);

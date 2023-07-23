@@ -462,10 +462,7 @@ public class PetStats {
     {
         if(GlobalConfig.getInstance().isDatabaseSupport())
         {
-            //TODO: Remove this if it worked!
-            // Disable the save DB on save all, which is only used when disabling a server
-            // This is an attempt on limiting the concurrent modifications from the databases
-            //PlayerData.saveDB();
+            PlayerData.saveDB();
         }
         else
         {
@@ -528,9 +525,11 @@ public class PetStats {
         if(petStats.getPet() == null || petStats.getPet().getOwner() == null)
             return false;
 
-        // If the pet stats is already registered, then we don't register a new one
+        // If the pet stats is already registered, then we overwrite the previous one
         if(get(petStats.getPet().getId(), petStats.getPet().getOwner()) != null)
-            return false;
+        {
+            petStatsList.remove(get(petStats.getPet().getId(), petStats.getPet().getOwner()));
+        }
 
         // We register the pet stats if we found no matches for the same pet
         // and the same owner in the current registration

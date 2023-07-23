@@ -32,6 +32,11 @@ public class Editor {
         return new Editor(p);
     }
 
+    public static void refreshEditor(Player p)
+    {
+        editors.remove(p.getUniqueId());
+    }
+
     public void setState(EditorState state)
     {
         this.state = state;

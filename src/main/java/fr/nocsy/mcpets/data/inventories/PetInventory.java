@@ -86,6 +86,8 @@ public class PetInventory {
     {
         if(pet.getOwner() == null)
             return null;
+        if(pet.getInventorySize() <= 0)
+            return null;
         HashMap<String, PetInventory> registeredMap = petInventories.get(pet.getOwner());
         if(registeredMap != null && registeredMap.get(pet.getId()) != null)
         {
@@ -116,6 +118,9 @@ public class PetInventory {
 
         Pet pet = Pet.getFromId(petId);
         if(pet == null)
+            return null;
+
+        if(pet.getInventorySize() <= 0)
             return null;
 
         pet.setOwner(owner);
