@@ -25,6 +25,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -402,21 +403,6 @@ public class LivingPetsListener implements Listener {
     public void unlockPet(PlayerInteractAtEntityEvent e)
     {
         unlockPet(e.getPlayer());
-    }
-
-    @EventHandler
-    public void saveExperienceDB(PetGainExperienceEvent e)
-    {
-        // Adding a layer of saving for MySQL users, that saves the DB for each experience gain
-        // since there seems to be recurrent saving issues
-        if(GlobalConfig.getInstance().isDatabaseSupport()) {
-            UUID owner = e.getPet().getOwner();
-            if(owner != null)
-            {
-                Databases.savePlayerData(owner);
-            }
-        }
-
     }
 
 }
