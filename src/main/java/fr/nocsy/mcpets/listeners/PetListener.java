@@ -36,13 +36,14 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Debug;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 public class PetListener implements Listener {
 
-    private final HashMap<UUID, Pet> reconnectionPets = new HashMap<>();
+    private final HashMap<UUID, String> reconnectionPets = new HashMap<>();
 
     @EventHandler
     public void interact(PlayerInteractEntityEvent e) {
@@ -128,15 +129,13 @@ public class PetListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        if (Pet.getActivePets().containsKey(p.getUniqueId()) && GlobalConfig.getInstance().isSpawnPetOnReconnect()) {
-            Pet pet = Pet.getActivePets().get(p.getUniqueId());
-
-            // delay before despawning the pet and adding it to reconnectionPets
-            Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-                pet.despawn(PetDespawnReason.DISCONNECTION);
-                reconnectionPets.put(p.getUniqueId(), pet);
-            }, 20L);
+        Pet pet = Pet.getActivePets().get(p.getUniqueId());
+        if(pet != null)
+        {
+            pet.despawn(PetDespawnReason.DISCONNECTION);
+            reconnectionPets.put(p.getUniqueId(), pet.getId());
         }
+        
     }
 
 
@@ -152,7 +151,11 @@ public class PetListener implements Listener {
             }
 
             if (reconnectionPets.containsKey(p.getUniqueId())) {
-                Pet pet = reconnectionPets.get(p.getUniqueId());
+                Pet pet = Pet.getFromId(reconnectionPets.get(p.getUniqueId()));
+                if(pet == null)
+                    return;
+                pet = pet.copy();
+                pet.setOwner(p.getUniqueId());
                 pet.spawn(p.getLocation(), true);
                 reconnectionPets.remove(p.getUniqueId());
             }
