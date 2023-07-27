@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.PetLevelUpEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -63,7 +64,8 @@ public class DatabaseRefreshListener implements Listener {
     {
         if(GlobalConfig.getInstance().isDatabaseSupport()) {
             UUID owner = e.getPlayer().getUniqueId();
-            Databases.savePlayerData(owner);
+            if(PlayerData.isRegistered(owner))
+                Databases.savePlayerData(owner);
         }
     }
 

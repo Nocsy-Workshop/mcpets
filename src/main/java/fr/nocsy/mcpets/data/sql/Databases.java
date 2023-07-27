@@ -185,6 +185,8 @@ public class Databases {
     public static void savePlayerData(UUID playerUUID) {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
+        if(!PlayerData.isRegistered(playerUUID))
+            return;
 
         synchronized (getLockForPlayer(playerUUID)) {
             PlayerData pd = PlayerData.getRegisteredData().get(playerUUID);

@@ -118,6 +118,16 @@ public class PetPlaceholdersManager {
             else
                 return pet.getPetStats().getCurrentLevel().getLevelName();
         }));
+
+        // Level name placeholder
+        register("pet.hp", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
+            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
+            if(pet == null || pet.getPetStats() == null)
+                return Double.toString(entity.getHealth());
+            else
+                return Double.toString(pet.getPetStats().getCurrentHealth());
+        }));
     }
 
     private static void register(String placeholder, Placeholder function)

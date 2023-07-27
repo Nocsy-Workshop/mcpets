@@ -35,6 +35,11 @@ public class PlayerData {
     private PlayerData() {
     }
 
+    public static boolean isRegistered(UUID player)
+    {
+        return registeredData.containsKey(player);
+    }
+
     public static PlayerData get(UUID owner) {
 
         if (registeredData.containsKey(owner)) {
