@@ -22,6 +22,7 @@ import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
 import io.lumine.mythic.api.skills.Skill;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.core.mobs.ActiveMob;
+import io.lumine.mythic.core.mobs.DespawnMode;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
@@ -196,6 +197,7 @@ public class Pet {
     private boolean followOwner;
 
     // Debug variables
+    @Setter
     private boolean recurrent_spawn = false;
 
     // AI variable
@@ -972,10 +974,16 @@ public class Pet {
                         despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
                     } catch (Exception ex) {
                         if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
+                        {
                             activeMob.getEntity().getBukkitEntity().remove();
+                            activeMob.despawn();
+                            activeMob.remove();
+                        }
                     }
                 } else {
                     ModelEngineAPI.removeModeledEntity(activeMob.getEntity().getUniqueId());
+                    activeMob.despawn();
+                    activeMob.remove();
                     if (activeMob.getEntity() != null)
                         activeMob.getEntity().remove();
                     if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)

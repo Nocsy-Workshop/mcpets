@@ -51,6 +51,8 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
                         continue;
 
                     ModeledEntity model = ModelEngineAPI.getModeledEntity(pet.getActiveMob().getUniqueId());
+                    if(model == null)
+                        continue;
                     MountManager mountManager = model.getMountManager();
                     if(mountManager.getDriverController() == null)
                         continue;
