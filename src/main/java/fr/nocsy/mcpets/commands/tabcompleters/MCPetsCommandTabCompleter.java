@@ -45,6 +45,7 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     completed.add("editor");
                     completed.add("spawn");
                     completed.add("open");
+                    completed.add("revoke");
                     completed.add("signalstick");
                     completed.add("item");
                     completed.add("clearStats");
