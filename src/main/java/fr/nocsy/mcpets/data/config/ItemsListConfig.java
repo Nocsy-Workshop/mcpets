@@ -39,6 +39,8 @@ public class ItemsListConfig extends AbstractConfig {
             getConfig().set("mount", Items.MOUNT.getItem());
         if (getConfig().get("rename") == null)
             getConfig().set("rename", Items.RENAME.getItem());
+        if (getConfig().get("inventory") == null)
+            getConfig().set("inventory", Items.INVENTORY.getItem());
         if (getConfig().get("petmenu") == null)
             getConfig().set("petmenu", Items.PETMENU.getItem());
         if (getConfig().get("skins") == null)

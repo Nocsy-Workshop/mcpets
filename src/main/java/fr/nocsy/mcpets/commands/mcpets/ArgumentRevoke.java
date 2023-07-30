@@ -18,15 +18,9 @@ public class ArgumentRevoke extends AArgument {
     }
 
     @Override
-    public boolean additionalConditions()
-    {
-        return sender instanceof Player;
-    }
-
-    @Override
     public void commandEffect() {
 
-        if(args.length == 1)
+        if(args.length == 1 && sender instanceof Player)
         {
             Player p = (Player) sender;
             Pet pet = Pet.fromOwner(p.getUniqueId());
@@ -60,6 +54,11 @@ public class ArgumentRevoke extends AArgument {
 
         }
 
+    }
+
+    @Override
+    protected boolean additionalConditions() {
+        return true;
     }
 
 }
