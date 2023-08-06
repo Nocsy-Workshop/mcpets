@@ -43,7 +43,7 @@ public enum PetAnnouncement {
                 p.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
                 break;
             case "actionbar":
-                p.sendActionBar(message);
+                Utils.sendActionBar(p, message);
                 break;
             default:
                 p.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
