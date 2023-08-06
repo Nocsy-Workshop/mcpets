@@ -229,7 +229,7 @@ public class PetFood {
                 Debugger.send("§cCould not give TAMING PROGRESS to the pet because it has reached maximum value.");
             }
         }
-        else if(type.getType().equals(PetFoodType.EXPERIENCE.getType()))
+        else if(type.getType().equals(PetFoodType.EXP.getType()))
         {
             if(pet.getPetStats() != null)
             {

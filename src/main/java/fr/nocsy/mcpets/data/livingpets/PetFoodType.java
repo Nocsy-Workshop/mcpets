@@ -8,7 +8,7 @@ public enum PetFoodType {
 
     HEALTH("health"),
     TAME("tame"),
-    EXPERIENCE("exp"),
+    EXP("exp"),
     EVOLUTION("evolution"),
     UNLOCK("unlock");
 

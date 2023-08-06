@@ -1061,7 +1061,10 @@ public class Pet {
             if(GlobalConfig.getInstance().isUseDefaultMythicMobNames())
                 name = activeMob.getDisplayName();
             else
-                name = GlobalConfig.getInstance().getDefaultName().replace("%player%", Bukkit.getOfflinePlayer(owner).getName());
+                name = GlobalConfig.getInstance().getDefaultName()
+                        .replace("%player%", Bukkit.getOfflinePlayer(owner).getName())
+                        .replace("%pet_id%", id)
+                        .replace("%pet_name%", icon.getItemMeta().getDisplayName());
         }
 
 
@@ -1077,7 +1080,10 @@ public class Pet {
             currentName = name;
             if (isStillHere()) {
                 if (currentName == null || currentName.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
-                    activeMob.getEntity().getBukkitEntity().setCustomName(GlobalConfig.getInstance().getDefaultName().replace("%player%", Bukkit.getOfflinePlayer(owner).getName()));
+                    activeMob.getEntity().getBukkitEntity().setCustomName(GlobalConfig.getInstance().getDefaultName()
+                            .replace("%player%", Bukkit.getOfflinePlayer(owner).getName())
+                            .replace("%pet_id%", id)
+                            .replace("%pet_name%", icon.getItemMeta().getDisplayName()));
 
                     new BukkitRunnable() {
 

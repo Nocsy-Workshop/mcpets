@@ -112,7 +112,7 @@ public class LivingPetsListener implements Listener {
                     return;
                 }
 
-                if(petFood.getType().equals(PetFoodType.EXPERIENCE) &&
+                if(petFood.getType().equals(PetFoodType.EXP) &&
                         pet.getOwner() != null &&
                         pet.getOwner().equals(p.getUniqueId()))
                 {

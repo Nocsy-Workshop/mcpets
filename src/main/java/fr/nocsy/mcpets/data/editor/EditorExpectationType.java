@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.data.livingpets.PetFoodType;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
@@ -41,8 +42,8 @@ public enum EditorExpectationType {
     CATEGORY_ID("category_id"),
     CATEGORY_PET_LIST_ADD("pet_id"),
     CATEGORY_PET_LIST_REMOVE("pet_id"),
-    PETFOOD_TYPE("petfood_edit"),
-    OPERATOR_TYPE("petfood_edit"),
+    PETFOOD_TYPE("petfood_type"),
+    OPERATOR_TYPE("operator_type"),
     ITEM_ID_OR_MATERIAL("item_id_or_material"),
     PETFOOD_ID("petfood_id"),
     PETFOOD_PET_LIST_ADD("pet_id"),
@@ -70,7 +71,7 @@ public enum EditorExpectationType {
     ITEM_DELETE("item_delete"),
 
     PETFOOD_EDIT("petfood_edit"),
-    PETFOOD_CREATE("petfood_edit"),
+    PETFOOD_CREATE("petfood_create"),
     PETFOOD_DELETE("petfood_delete"),
     ;
 
@@ -212,8 +213,8 @@ public enum EditorExpectationType {
         }
         else if(this.equals(EditorExpectationType.PETFOOD_TYPE))
         {
-            PetFood food = PetFood.getFromId(any + "");
-            return food != null;
+            PetFoodType type = Arrays.stream(PetFoodType.values()).filter(petFoodType -> petFoodType.getType().equalsIgnoreCase(any + "")).findFirst().orElse(null);
+            return type != null;
         }
         else if(this.equals(EditorExpectationType.OPERATOR_TYPE))
         {
