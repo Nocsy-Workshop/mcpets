@@ -8,6 +8,7 @@ import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.sql.PlayerDataNoDatabase;
 import fr.nocsy.mcpets.utils.BukkitSerialization;
+import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -89,11 +90,19 @@ public class PetInventory {
         if(pet.getInventorySize() <= 0)
             return null;
         HashMap<String, PetInventory> registeredMap = petInventories.get(pet.getOwner());
-        if(registeredMap != null && registeredMap.get(pet.getId()) != null)
+        if(registeredMap != null
+                && registeredMap.get(pet.getId()) != null
+                && registeredMap.get(pet.getId()).getInventory().getSize() == pet.getInventorySize())
         {
             return registeredMap.get(pet.getId());
         }
-        return new PetInventory(pet, null, pet.getOwner());
+
+        Inventory inv = null;
+        if(registeredMap != null && registeredMap.get(pet.getId()) != null)
+        {
+            inv = registeredMap.get(pet.getId()).getInventory();
+        }
+        return new PetInventory(pet, inv, pet.getOwner());
     }
 
     public void setInventory(Inventory inventory)

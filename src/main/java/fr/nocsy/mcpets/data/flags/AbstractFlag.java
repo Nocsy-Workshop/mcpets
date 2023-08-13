@@ -85,7 +85,8 @@ public abstract class AbstractFlag {
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
         RegionAssociable associable =  new DelayedRegionOverlapAssociation(query, loc, true);
-
+        if(query == null || loc == null || associable == null || getFlag() == null)
+            return false;
         return query.testState(loc, associable, getFlag());
     }
 
