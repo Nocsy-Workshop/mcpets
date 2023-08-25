@@ -7,16 +7,17 @@ import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
+import io.lumine.mythic.api.skills.placeholders.PlaceholderDouble;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 
 public class PetExperienceMechanic implements ITargetedEntitySkill {
 
-    double experience = 0;
+    PlaceholderDouble experience;
 
     public PetExperienceMechanic(MythicLineConfig config) {
-        this.experience = config.getDouble(new String[]{"exp"}, this.experience);
+        this.experience = config.getPlaceholderDouble(new String[]{"exp"}, this.experience);
     }
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
@@ -29,7 +30,7 @@ public class PetExperienceMechanic implements ITargetedEntitySkill {
             Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {
                 @Override
                 public void run() {
-                    pet.getPetStats().addExperience(experience);
+                    pet.getPetStats().addExperience(experience.get());
                 }
             });
             return SkillResult.SUCCESS;

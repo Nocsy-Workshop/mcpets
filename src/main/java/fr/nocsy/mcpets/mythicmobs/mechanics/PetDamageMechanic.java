@@ -8,6 +8,7 @@ import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
+import io.lumine.mythic.api.skills.placeholders.PlaceholderDouble;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Damageable;
@@ -15,11 +16,11 @@ import org.bukkit.entity.Entity;
 
 public class PetDamageMechanic implements ITargetedEntitySkill {
 
-    double damage = 0;
+    PlaceholderDouble damage;
     boolean applyStats = true;
 
     public PetDamageMechanic(MythicLineConfig config) {
-        this.damage = config.getDouble(new String[]{"damage"}, this.damage);
+        this.damage = config.getPlaceholderDouble(new String[]{"damage"}, this.damage);
         this.applyStats = config.getBoolean(new String[]{"applyStats"}, this.applyStats);
     }
 
@@ -30,14 +31,14 @@ public class PetDamageMechanic implements ITargetedEntitySkill {
         if(pet != null && entity instanceof Damageable)
         {
 
-            PetDamageEvent event = new PetDamageEvent(pet, pet.getPetStats().getModifiedAttackDamages(damage));
+            PetDamageEvent event = new PetDamageEvent(pet, pet.getPetStats().getModifiedAttackDamages(damage.get()));
             Utils.callEvent(event);
             if(event.isCancelled())
                 return SkillResult.CONDITION_FAILED;
 
-            damage = event.getDamageAmount();
+            double damageValue = event.getDamageAmount();
 
-            ((Damageable) entity).damage(damage, caster);
+            ((Damageable) entity).damage(damageValue, caster);
             return SkillResult.SUCCESS;
         }
         return SkillResult.CONDITION_FAILED;

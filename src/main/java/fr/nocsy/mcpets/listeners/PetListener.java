@@ -21,8 +21,6 @@ import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import io.lumine.mythic.bukkit.events.MythicMobDespawnEvent;
-import io.lumine.mythic.bukkit.events.MythicMobPreSpawnEvent;
-import io.lumine.mythic.bukkit.events.MythicMobSpawnEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
@@ -34,11 +32,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -156,6 +152,7 @@ public class PetListener implements Listener {
                 if(pet == null)
                     return;
                 pet = pet.copy();
+                pet.setCheckPermission(false);
                 pet.setOwner(p.getUniqueId());
                 pet.spawn(p.getLocation(), true);
                 reconnectionPets.remove(p.getUniqueId());
@@ -208,20 +205,15 @@ public class PetListener implements Listener {
 
     }
 
-    /**
-     * Wtf is this doing seriously ? Makes no sense.
-     *
-     * @param e
-     */
     @EventHandler
     public void damaged(EntityDamageEvent e) {
         if (e.getEntity() instanceof Player) {
             Pet pet = Pet.getFromEntity(e.getEntity());
-            if (pet != null && pet.isInvulnerable()) {
+            // Cosmetic pets shouldn't be damageable
+            if (pet != null && pet.getPetStats() == null) {
                 e.setDamage(0);
                 e.setCancelled(true);
             }
-            return;
         }
     }
 

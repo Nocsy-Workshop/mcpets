@@ -52,6 +52,22 @@ public class LivingPetsListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    // Trigger for the PetDamagedEvent
+    public void petDamagedHandler(EntityDamageByEntityEvent e)
+    {
+        Entity entity = e.getEntity();
+        Pet pet = Pet.getFromEntity(entity);
+        if(pet != null && pet.getPetStats() != null)
+        {
+            PetDamagedByEntityEvent event = new PetDamagedByEntityEvent(pet, e.getDamager(), e.getDamage(), true);
+            Utils.callEvent(event);
+
+            e.setCancelled(event.isCancelled());
+            e.setDamage(event.getModifiedDamageAmount());
+        }
+    }
+
     @EventHandler
     // Trigger the PetDeathEvent
     public void petDeathHandler(EntityDeathEvent e)
