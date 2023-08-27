@@ -31,7 +31,7 @@ public class PetDamageMechanic implements ITargetedEntitySkill {
         if(pet != null && entity instanceof Damageable)
         {
 
-            PetDamageEvent event = new PetDamageEvent(pet, pet.getPetStats().getModifiedAttackDamages(damage.get()));
+            PetDamageEvent event = new PetDamageEvent(pet, pet.getPetStats().getModifiedAttackDamages(damage.get(data, target)));
             Utils.callEvent(event);
             if(event.isCancelled())
                 return SkillResult.CONDITION_FAILED;

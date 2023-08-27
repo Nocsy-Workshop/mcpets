@@ -17,7 +17,8 @@ public class PetDamageFlagListener implements Listener {
         Player p = null;
         if (e.getDamager() instanceof Player)
             p = (Player) e.getDamager();
-        else if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player)
+
+        if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player)
             p = (Player)((Projectile)e.getDamager()).getShooter();
 
         if(p == null)

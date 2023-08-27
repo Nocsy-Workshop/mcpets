@@ -17,7 +17,7 @@ public class PetExperienceMechanic implements ITargetedEntitySkill {
     PlaceholderDouble experience;
 
     public PetExperienceMechanic(MythicLineConfig config) {
-        this.experience = config.getPlaceholderDouble(new String[]{"exp"}, this.experience);
+        this.experience = config.getPlaceholderDouble(new String[]{"exp"}, 0.0D);
     }
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
@@ -27,10 +27,11 @@ public class PetExperienceMechanic implements ITargetedEntitySkill {
         if(pet != null && pet.getPetStats() != null)
         {
             // Call the experience gain on sync so it can trigger events
+            final double expValue = experience.get(data);
             Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {
                 @Override
                 public void run() {
-                    pet.getPetStats().addExperience(experience.get());
+                    pet.getPetStats().addExperience(expValue);
                 }
             });
             return SkillResult.SUCCESS;
