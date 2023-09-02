@@ -1,7 +1,5 @@
 package fr.nocsy.mcpets.listeners;
 
-import com.ticxo.modelengine.api.events.ModelDismountEvent;
-import com.ticxo.modelengine.api.events.ModelMountEvent;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.Items;
@@ -196,7 +194,7 @@ public class PetListener implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             Pet pet = Pet.fromOwner(p.getUniqueId());
-            if(pet != null && pet.hasRider(p))
+            if(pet != null && pet.hasMount(p))
             {
                 pet.dismount(p);
             }

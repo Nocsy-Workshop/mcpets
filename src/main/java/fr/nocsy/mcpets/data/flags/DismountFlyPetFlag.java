@@ -2,12 +2,10 @@ package fr.nocsy.mcpets.data.flags;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.mount.MountManager;
-import com.ticxo.modelengine.api.mount.controller.MountController;
+import com.ticxo.modelengine.api.model.bone.manager.MountManager;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -53,13 +51,15 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
                     ModeledEntity model = ModelEngineAPI.getModeledEntity(pet.getActiveMob().getUniqueId());
                     if(model == null)
                         continue;
-                    MountManager mountManager = model.getMountManager();
-                    if(mountManager.getDriverController() == null)
+                    MountManager mountManager = model.getMountData().getMainMountManager();
+                    if(model.getMountData() == null ||
+                            model.getMountData().getMainMountManager() ==  null ||
+                            model.getMountData().getMainMountManager().getType() == null)
                         continue;
 
-                    String name = mountManager.getDriverController().getClass().getSimpleName();
+                    String name = model.getMountData().getMainMountManager().getType().getId();
 
-                    if(!name.toUpperCase().contains("FLY"))
+                    if(name == null || !name.toUpperCase().contains("FLY"))
                         continue;
 
                     Player p = Bukkit.getPlayer(owner);

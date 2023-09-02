@@ -3,8 +3,11 @@ package fr.nocsy.mcpets.data;
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.mount.MountManager;
-import com.ticxo.modelengine.api.mount.controller.MountController;
+import com.ticxo.modelengine.api.model.bone.BoneBehaviorTypes;
+import com.ticxo.modelengine.api.model.bone.ModelBone;
+import com.ticxo.modelengine.api.model.bone.manager.MountManager;
+import com.ticxo.modelengine.api.model.bone.type.NameTag;
+import com.ticxo.modelengine.api.mount.controller.MountControllerType;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.config.FormatArg;
@@ -22,7 +25,6 @@ import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
 import io.lumine.mythic.api.skills.Skill;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.core.mobs.ActiveMob;
-import io.lumine.mythic.core.mobs.DespawnMode;
 import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
@@ -958,9 +960,9 @@ public class Pet {
         if (activeMob != null) {
 
             ModeledEntity model = ModelEngineAPI.getModeledEntity(activeMob.getEntity().getUniqueId());
-            if (model != null)
+            MountManager mountManager = model.getMountData().getMainMountManager();
+            if (mountManager != null)
             {
-                MountManager mountManager = model.getMountManager();
                 mountManager.dismountAll();
             }
 
@@ -1186,19 +1188,24 @@ public class Pet {
                     activeMob.getEntity().getBukkitEntity().addPassenger(ent);
                     return false;
                 }
-                MountManager mountManager = model.getMountManager();
 
-                MountController controller = (MountController)ModelEngineAPI.getControllerRegistry().get(mountType);
-                if (controller == null) {
-                    controller = (MountController)ModelEngineAPI.getControllerRegistry().getDefault();
-                }
+                MountManager mountManager = model.getMountData().getMainMountManager();
+                if (mountManager == null)
+                    return false;
+
+                MountControllerType controllerType = (MountControllerType)ModelEngineAPI.getMountControllerTypeRegistry().get(mountType);
+
                 if(ent.getVehicle() != null)
                     ent.getVehicle().eject();
-                mountManager.removeRiders(mountManager.getDriver());
+                if(mountManager.getDriver() != null)
+                mountManager.dismountDriver();
                 try
                 {
-                    mountManager.setDriver(ent, controller);
-                    mountManager.setCanDamageMount(ent.getUniqueId(), false);
+                    mountManager.mountDriver(ent, controllerType);
+                    mountManager.mountDriver(ent, controllerType, mountController -> {
+                        mountController.setCanDamageMount(false);
+                        //mountController.setCanInteractMount(false);
+                    });
                 }
                 catch(IllegalStateException ex)
                 {
@@ -1226,32 +1233,12 @@ public class Pet {
             if (model == null) {
                 return false;
             }
-            MountManager mountManager = model.getMountManager();
+            MountManager mountManager = model.getMountData().getMainMountManager();
+            if (mountManager == null)
+                return false;
 
             return mountManager.getDriver() != null && mountManager.getDriver().getUniqueId().equals(ent.getUniqueId());
         }
-        return false;
-    }
-
-    public boolean hasRider(Entity ent)
-    {
-        if (ent == null)
-            return false;
-
-        // Try - catch to prevent onDisable no class def found print
-        try {
-            if (isStillHere()) {
-                UUID localUUID = activeMob.getEntity().getUniqueId();
-                ModeledEntity model = ModelEngineAPI.getModeledEntity(localUUID);
-                if (model == null) {
-                    return false;
-                }
-                MountManager mountManager = model.getMountManager();
-                return mountManager.hasRider(ent);
-            }
-
-        } catch (NoClassDefFoundError ignored) {}
-
         return false;
     }
 
@@ -1270,8 +1257,10 @@ public class Pet {
                 if (model == null) {
                     return;
                 }
-                MountManager mountManager = model.getMountManager();
-                mountManager.removeRiders(ent);
+                MountManager mountManager = model.getMountData().getMainMountManager();
+                if(mountManager == null)
+                    return;
+                mountManager.dismountRider(ent);
             }
 
         } catch (NoClassDefFoundError ignored) {
@@ -1291,12 +1280,11 @@ public class Pet {
             if(name != null)
                 name = name.replace("'", " ");
 
-            com.ticxo.modelengine.api.model.bone.Nameable bone = getNameBone();
-            if (bone == null)
+            NameTag tag = getNameBone();
+            if (tag == null)
                 return;
-            bone.setCustomName(name);
-            bone.setCustomNameVisible(visible);
-
+            tag.setString(name);
+            tag.setVisible(visible);
         }
     }
 
@@ -1305,7 +1293,7 @@ public class Pet {
      * Null if it's null or invisible
      * @return
      */
-    public com.ticxo.modelengine.api.model.bone.Nameable getNameBone()
+    public NameTag getNameBone()
     {
         if (isStillHere()) {
 
@@ -1325,10 +1313,16 @@ public class Pet {
             else
                 return null;
 
-            com.ticxo.modelengine.api.model.bone.Nameable bone = (com.ticxo.modelengine.api.model.bone.Nameable)activeModel.getNametagHandler().getBones().get("name");
+            ModelBone bone = activeModel.getBone("name")
+                    .stream()
+                    .filter(modelBone -> modelBone.getBoneBehavior(BoneBehaviorTypes.NAMETAG).orElse(null) != null)
+                    .findFirst().orElse(null);
+
             if (bone == null)
                 return null;
-            return bone;
+
+            NameTag nameTag = bone.getBoneBehavior(BoneBehaviorTypes.NAMETAG).orElse(null);
+            return nameTag;
 
         }
         return null;
