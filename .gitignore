@@ -113,3 +113,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 /META-INF/*.MF
+/src/main/resources/META-INF/*.MF
