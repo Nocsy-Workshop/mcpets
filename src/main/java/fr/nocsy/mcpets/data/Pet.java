@@ -961,7 +961,8 @@ public class Pet {
             if (model != null)
             {
                 MountManager mountManager = model.getMountManager();
-                mountManager.dismountAll();
+                if(mountManager != null)
+                    mountManager.dismountAll();
             }
 
             // If it's not a death, we don't let the death animation happen

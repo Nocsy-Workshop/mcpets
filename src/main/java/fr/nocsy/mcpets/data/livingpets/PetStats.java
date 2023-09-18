@@ -354,7 +354,7 @@ public class PetStats {
     public double getModifiedResistanceDamages(double value)
     {
         if(currentLevel.getResistanceModifier() == 0)
-            return Double.MAX_VALUE;
+            return Integer.MAX_VALUE;
         return value / currentLevel.getResistanceModifier();
     }
 
