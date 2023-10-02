@@ -960,10 +960,13 @@ public class Pet {
         if (activeMob != null) {
 
             ModeledEntity model = ModelEngineAPI.getModeledEntity(activeMob.getEntity().getUniqueId());
-            MountManager mountManager = model.getMountData().getMainMountManager();
-            if (mountManager != null)
+            if(model != null && model.getMountData() != null)
             {
-                mountManager.dismountAll();
+                MountManager mountManager = model.getMountData().getMainMountManager();
+                if (mountManager != null)
+                {
+                    mountManager.dismountAll();
+                }
             }
 
             // If it's not a death, we don't let the death animation happen
