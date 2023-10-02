@@ -196,7 +196,7 @@ public class PetListener implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             Pet pet = Pet.fromOwner(p.getUniqueId());
-            if(pet != null && pet.hasRider(p))
+            if(pet != null && pet.hasMount(p))
             {
                 pet.dismount(p);
             }
@@ -309,14 +309,14 @@ public class PetListener implements Listener {
     @EventHandler
     public void despawnOnDismount(ModelDismountEvent e)
     {
-        if(e.getVehicle() == null || e.getVehicle().getBase() == null)
+        if(e.getVehicle() == null || e.getVehicle().getModeledEntity() == null || e.getVehicle().getModeledEntity().getBase() == null)
             return;
 
         // Running this as sync coz we fetch an entity
         new BukkitRunnable() {
             @Override
             public void run() {
-                Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getBase().getUniqueId()));
+                Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID()));
                 if(pet != null && pet.isDespawnOnDismount())
                 {
                     pet.despawn(PetDespawnReason.DISMOUNT);
@@ -363,13 +363,13 @@ public class PetListener implements Listener {
         if(e.getPassenger() == null)
             return;
 
-        if(e.getVehicle() == null || e.getVehicle().getBase() == null)
+        if(e.getVehicle() == null || e.getVehicle().getModeledEntity() == null || e.getVehicle().getModeledEntity().getBase() == null)
             return;
 
         Entity entity;
         try
         {
-            entity = Bukkit.getEntity(e.getVehicle().getBase().getUniqueId());
+            entity = Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID());
         }
         catch (Exception ex)
         {
@@ -385,7 +385,7 @@ public class PetListener implements Listener {
             return;
 
         // if it's not the owner or an admin mounting the pet, then we cancel it
-        if(e.getSeat().isDriverBone() &&
+        if(e.getSeat().isDriver() &&
                 !pet.getOwner().equals(player.getUniqueId()) &&
                 !player.hasPermission(PPermission.ADMIN.getPermission()))
         {
@@ -408,7 +408,7 @@ public class PetListener implements Listener {
         // If user doesn't have the perm to mount the pet, cancel the event
         if(pet.getMountPermission() != null
                 && !player.hasPermission(pet.getMountPermission())
-                && e.getSeat().isDriverBone())
+                && e.getSeat().isDriver())
         {
             e.setCancelled(true);
             Language.CANT_MOUNT_PET_YET.sendMessage(player);

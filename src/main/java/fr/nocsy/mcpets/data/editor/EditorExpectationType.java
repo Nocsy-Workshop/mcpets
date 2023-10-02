@@ -204,7 +204,7 @@ public enum EditorExpectationType {
         }
         else if(this.equals(EditorExpectationType.MOUNT_TYPE))
         {
-            return ModelEngineAPI.getControllerRegistry().get(any + "") != null;
+            return ModelEngineAPI.getMountControllerTypeRegistry().get(any + "") != null;
         }
         else if(this.equals(EditorExpectationType.CATEGORY_ID))
         {

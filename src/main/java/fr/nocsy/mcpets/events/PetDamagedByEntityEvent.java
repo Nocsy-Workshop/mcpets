@@ -20,7 +20,6 @@ public class PetDamagedByEntityEvent extends Event implements Cancellable {
     @Setter
     private double originalDamageAmount;
     @Getter
-    @Setter
     private double modifiedDamageAmount;
     private boolean applyPetStats;
 
