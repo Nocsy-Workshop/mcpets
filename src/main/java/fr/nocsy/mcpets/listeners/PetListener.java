@@ -241,17 +241,20 @@ public class PetListener implements Listener {
             if (pet != null) {
                 if (!pet.isRemoved()) {
                     pet.despawn(PetDespawnReason.MYTHICMOBS);
-                    Player owner = Bukkit.getPlayer(pet.getOwner());
-                    if (owner != null) {
-                        if(repeatRespawn.containsKey(owner.getUniqueId()) && repeatRespawn.get(owner.getUniqueId()) == 3)
+                    UUID ownerUUID = pet.getOwner();
+                    if (ownerUUID != null) {
+                        Player owner = Bukkit.getPlayer(pet.getOwner());
+                        if(owner == null)
+                            return;
+                        if(repeatRespawn.containsKey(ownerUUID) && repeatRespawn.get(ownerUUID) == 3)
                         {
                             Language.REVOKED_UNKNOWN.sendMessage(owner);
                             repeatRespawn.remove(owner.getUniqueId());
                             return;
                         }
                         int value = 1;
-                        if(repeatRespawn.containsKey(owner.getUniqueId()))
-                            value = repeatRespawn.get(owner.getUniqueId());
+                        if(repeatRespawn.containsKey(ownerUUID))
+                            value = repeatRespawn.get(ownerUUID);
                         pet.spawn(owner, owner.getLocation());
                         pet.setRecurrent_spawn(false);
                         repeatRespawn.put(owner.getUniqueId(), value + 1);

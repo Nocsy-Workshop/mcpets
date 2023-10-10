@@ -54,15 +54,12 @@ public class PetLevel {
     @Getter
     private double regeneration;
 
-    @Getter
     // Handles the damage resistance of the pet
     private double resistanceModifier;
 
-    @Getter
     // Handles the damage of the pet
     private double damageModifier;
 
-    @Getter
     // Handles the power of the pet
     // Used for the spells for instance
     private double power;
@@ -322,6 +319,33 @@ public class PetLevel {
         announce(owner);
         playSkill(owner);
         evolve(owner, false);
+    }
+
+    private double getBuffedModifier(double originalValue, PetFoodType modifier)
+    {
+        double value = originalValue;
+
+        for(PetFoodBuff buff : PetFoodBuff.getBuffs(pet))
+        {
+            if(buff.getType() == modifier)
+            {
+                value = buff.getOperator().get(value, buff.getPower());
+            }
+        }
+
+        return value;
+    }
+
+    public double getDamageModifier() {
+        return getBuffedModifier(damageModifier, PetFoodType.BUFF_DAMAGE);
+    }
+
+    public double getResistanceModifier() {
+        return getBuffedModifier(resistanceModifier, PetFoodType.BUFF_RESISTANCE);
+    }
+
+    public double getPower() {
+        return getBuffedModifier(power, PetFoodType.BUFF_POWER);
     }
 
     public int compareTo(PetLevel level)

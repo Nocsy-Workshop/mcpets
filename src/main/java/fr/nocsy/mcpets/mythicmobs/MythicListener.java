@@ -91,6 +91,11 @@ public class MythicListener implements Listener {
             PetDamageMechanic mechanic = new PetDamageMechanic(event.getConfig());
             event.register(mechanic);
         }
+        else if (event.getMechanicName().equalsIgnoreCase("PetBuff"))
+        {
+            PetBuffMechanic mechanic = new PetBuffMechanic(event.getConfig());
+            event.register(mechanic);
+        }
         else if (event.getMechanicName().equalsIgnoreCase("SetLivingPet"))
         {
             SetLivingPetMechanic mechanic = new SetLivingPetMechanic(event.getConfig());

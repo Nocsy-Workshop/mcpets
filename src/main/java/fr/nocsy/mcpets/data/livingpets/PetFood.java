@@ -72,6 +72,10 @@ public class PetFood {
     private String unlockedPet;
 
 
+    //----------------- Buffs item section ------------------//
+    @Getter
+    private long duration;
+
     /**
      * Constructor
      * @param itemId
@@ -90,7 +94,8 @@ public class PetFood {
             int delay,
             String permission,
             String unlockedPet,
-            List<String> petIds
+            List<String> petIds,
+            long duration
     )
     {
         this.id = id;
@@ -105,6 +110,7 @@ public class PetFood {
         this.permission = permission;
         this.unlockedPet = unlockedPet;
         this.petIds = petIds;
+        this.duration = duration;
 
         // Setup the item stack
         this.getItemStack();
@@ -239,6 +245,11 @@ public class PetFood {
                     Debugger.send("§cCould not give EXP to the pet because it has reached maximum value.");
                 }
             }
+        }
+        else if(type.getType().toUpperCase().contains("BUFF"))
+        {
+            PetFoodBuff buff = new PetFoodBuff(pet, this.type, (float)this.power, this.operator, duration);
+            triggered = buff.apply();
         }
         else if(type.getType().equals(PetFoodType.EVOLUTION.getType()))
         {

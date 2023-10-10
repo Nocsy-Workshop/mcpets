@@ -538,6 +538,7 @@ public enum EditorState {
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_ITEM_ID, 13);
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_TYPE, 14);
 
+            icons.put(EditorItems.PETFOOD_EDITOR_EDIT_DURATION, 28);
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_POWER, 29);
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_OPERATOR, 30);
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_SIGNAL, 31);

@@ -10,7 +10,12 @@ public enum PetFoodType {
     TAME("tame"),
     EXP("exp"),
     EVOLUTION("evolution"),
-    UNLOCK("unlock");
+    UNLOCK("unlock"),
+
+    BUFF_DAMAGE("buff_damage"),
+    BUFF_RESISTANCE("buff_resistance"),
+    BUFF_POWER("buff_power")
+    ;
 
     @Getter
     private String type;

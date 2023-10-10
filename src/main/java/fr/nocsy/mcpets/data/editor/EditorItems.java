@@ -154,6 +154,7 @@ public enum EditorItems {
     PETFOOD_EDITOR_EDIT_ITEM_ID(UNKNOWN(), "%path%.ItemId", "petfoods", EditorExpectationType.ITEM_ID_OR_MATERIAL, null, false),
     PETFOOD_EDITOR_EDIT_TYPE(PETFOOD_EDITOR_EDIT_TYPE(), "%path%.Type", "petfoods", EditorExpectationType.PETFOOD_TYPE, null, false),
     PETFOOD_EDITOR_EDIT_POWER(PETFOOD_EDITOR_EDIT_POWER(), "%path%.Power", "petfoods", EditorExpectationType.FLOAT, null, false),
+    PETFOOD_EDITOR_EDIT_DURATION(PETFOOD_EDITOR_EDIT_DURATION(), "%path%.Duration", "petfoods", EditorExpectationType.INT, null, false),
     PETFOOD_EDITOR_EDIT_OPERATOR(PETFOOD_EDITOR_EDIT_OPERATOR(), "%path%.Operator", "petfoods", EditorExpectationType.OPERATOR_TYPE, null, true),
     PETFOOD_EDITOR_EDIT_SIGNAL(PETFOOD_EDITOR_EDIT_SIGNAL(), "%path%.Signal", "petfoods", EditorExpectationType.STRING, null, true),
     PETFOOD_EDITOR_EDIT_PETS_ADD(PETFOOD_EDITOR_EDIT_PETS_ADD(), "%path%.Pets", "petfoods", EditorExpectationType.PETFOOD_PET_LIST_ADD, null, false),
@@ -2249,6 +2250,24 @@ public enum EditorItems {
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
         lores.add("§7Set the power of the pet food.");
+        lores.add(" ");
+        lores.add("§7Current value: §e%value%");
+
+        meta.setLore(lores);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack PETFOOD_EDITOR_EDIT_DURATION()
+    {
+        ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName("§6Duration of the buff");
+
+        ArrayList<String> lores = new ArrayList<>();
+        lores.add(" ");
+        lores.add("§7If the pet food is a buff,");
+        lores.add("§7sets the duration (in ticks) of the effect.");
         lores.add(" ");
         lores.add("§7Current value: §e%value%");
 

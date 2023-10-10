@@ -54,12 +54,27 @@ public class PetFoodConfig extends AbstractConfig {
             String evolution = getConfig().getString(key + ".Evolution");
             int experienceThreshold = getConfig().getInt(key + ".ExperienceThreshold");
             int delay = getConfig().getInt(key + ".DelayBeforeEvolution");
+            long duration = getConfig().getLong(key + ".Duration");
             String permission = getConfig().getString(key + ".Permission");
             String unlockedPet = getConfig().getString(key + ".UnlockPet");
 
             List<String> petIds = getConfig().getStringList(key + ".Pets");
 
-            PetFood petFood = new PetFood(key, id, power, foodType, operator, signal, evolution, experienceThreshold, delay, permission, unlockedPet, petIds);
+            PetFood petFood = new PetFood(
+                    key,
+                    id,
+                    power,
+                    foodType,
+                    operator,
+                    signal,
+                    evolution,
+                    experienceThreshold,
+                    delay,
+                    permission,
+                    unlockedPet,
+                    petIds,
+                    duration
+            );
             petFoods.put(key, petFood);
         }
 
@@ -136,6 +151,7 @@ public class PetFoodConfig extends AbstractConfig {
         getConfig().set(key + ".ExperienceThreshold", food.getExperienceThreshold());
         getConfig().set(key + ".DelayBeforeEvolution", food.getDelay());
         getConfig().set(key + ".Permission", food.getPermission());
+        getConfig().set(key + ".Duration", food.getDuration());
         getConfig().set(key + ".UnlockPet", food.getUnlockedPet());
         getConfig().set(key + ".Pets", food.getPetIds());
 

@@ -946,15 +946,17 @@ public class Pet {
 
         stopAI();
         removed = true;
-
-        Player ownerPlayer = Bukkit.getPlayer(owner);
-        if (ownerPlayer != null) {
-            if (reason.equals(PetDespawnReason.UNKNOWN) ||
-                    reason.equals(PetDespawnReason.SPAWN_ISSUE)) {
-                Language.REVOKED_UNKNOWN.sendMessage(ownerPlayer);
+        if(owner != null)
+        {
+            Player ownerPlayer = Bukkit.getPlayer(owner);
+            if (ownerPlayer != null) {
+                if (reason.equals(PetDespawnReason.UNKNOWN) ||
+                        reason.equals(PetDespawnReason.SPAWN_ISSUE)) {
+                    Language.REVOKED_UNKNOWN.sendMessage(ownerPlayer);
+                }
+                if(enableSignalStickFromMenu)
+                    clearStickSignals(ownerPlayer, this.id);
             }
-            if(enableSignalStickFromMenu)
-                clearStickSignals(ownerPlayer, this.id);
         }
 
         if (activeMob != null) {
