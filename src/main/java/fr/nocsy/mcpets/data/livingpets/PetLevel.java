@@ -341,7 +341,10 @@ public class PetLevel {
     }
 
     public double getResistanceModifier() {
-        return getBuffedModifier(resistanceModifier, PetFoodType.BUFF_RESISTANCE);
+        double value = getBuffedModifier(resistanceModifier, PetFoodType.BUFF_RESISTANCE);
+        if(value == 0)
+            return value = 10E-5;
+        return value;
     }
 
     public double getPower() {

@@ -29,6 +29,7 @@ import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
 import lombok.Setter;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -822,10 +823,6 @@ public class Pet {
 
         // Put the Metadata on the pet that characterizes it so we can identify it later
         ent.setMetadata("AlmPet", new FixedMetadataValue(MCPets.getInstance(), this));
-        if (ent.isInvulnerable()) {
-            this.invulnerable = true;
-            ent.setInvulnerable(false);
-        }
     }
 
     /**
@@ -901,7 +898,7 @@ public class Pet {
                     AbstractLocation aloc = new AbstractLocation(activeMob.getEntity().getWorld(), petLocation.getX(), petLocation.getY(), petLocation.getZ());
                     PathFindingUtils.moveTo(activeMob.getEntity(), aloc);
                 } else if (distance > GlobalConfig.getInstance().getDistanceTeleport()
-                        && !p.isFlying()
+                        && !p.isFlying() && !p.isGliding()
                         && p.isOnGround()
                         && teleportTick == 0) {
                     // If the pet is really too far, and that the owner is not flying
@@ -1283,7 +1280,10 @@ public class Pet {
         if (isStillHere()) {
 
             if(name != null)
+            {
                 name = name.replace("'", " ");
+                Utils.hex(name);
+            }
 
             NameTag tag = getNameBone();
             if (tag == null)
@@ -1413,6 +1413,8 @@ public class Pet {
         if(iconName == null)
             iconName = "§cUndefined";
         iconName = Utils.translateHexColorCodes("#", "", iconName);
+        if(MCPets.getPlaceholderAPI() != null)
+            iconName = PlaceholderAPI.setPlaceholders(Bukkit.getPlayer(owner), iconName);
         if (mat == null
                 && textureBase64 != null) {
             item = Utils.createHead(iconName, description, textureBase64);

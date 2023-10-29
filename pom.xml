@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.ticxo.modelengine</groupId>
             <artifactId>ModelEngine</artifactId>
-            <version>R4.0.0</version>
+            <version>R4.0.3</version>
         </dependency>
 
     </dependencies>

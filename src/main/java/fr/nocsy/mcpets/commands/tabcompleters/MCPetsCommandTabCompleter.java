@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MCPetsCommandTabCompleter implements TabCompleter {
@@ -45,6 +46,7 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     completed.add("editor");
                     completed.add("spawn");
                     completed.add("open");
+                    completed.add("inventory");
                     completed.add("revoke");
                     completed.add("signalstick");
                     completed.add("item");
@@ -60,7 +62,7 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     {
                         completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
                     }
-                    else if(args[0].equalsIgnoreCase("open"))
+                    else if(args[0].equalsIgnoreCase("open") || args[0].equalsIgnoreCase("inventory"))
                     {
                         completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
                     }
@@ -101,7 +103,8 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     {
                         completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
                     }
-                    else if(args[0].equalsIgnoreCase("signalstick"))
+                    else if(args[0].equalsIgnoreCase("signalstick") ||
+                            args[0].equalsIgnoreCase("inventory"))
                     {
                         completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
                     }

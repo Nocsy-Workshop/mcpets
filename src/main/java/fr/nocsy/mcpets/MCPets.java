@@ -30,6 +30,8 @@ public class MCPets extends JavaPlugin {
 
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
+
+    @Getter
     private static PlaceholderAPICompat placeholderAPI;
 
     @Getter
