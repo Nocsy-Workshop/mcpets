@@ -1413,8 +1413,12 @@ public class Pet {
         if(iconName == null)
             iconName = "§cUndefined";
         iconName = Utils.translateHexColorCodes("#", "", iconName);
-        if(MCPets.getPlaceholderAPI() != null)
-            iconName = PlaceholderAPI.setPlaceholders(Bukkit.getPlayer(owner), iconName);
+        if(MCPets.getPlaceholderAPI() != null) {
+            Player player = null;
+            if(owner != null)
+                player = Bukkit.getPlayer(owner);
+            iconName = PlaceholderAPI.setPlaceholders(player, iconName);
+        }
         if (mat == null
                 && textureBase64 != null) {
             item = Utils.createHead(iconName, description, textureBase64);
