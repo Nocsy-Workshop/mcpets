@@ -1,10 +1,6 @@
 package fr.nocsy.mcpets.data.config;
 
-import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.utils.Utils;
-import lombok.Getter;
-import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -155,8 +151,7 @@ public enum Language {
     {
         String m = Utils.hex(message);
 
-        if(MCPets.getPlaceholderAPI() != null)
-            m = PlaceholderAPI.setPlaceholders(null, m);
+        m = Utils.applyPlaceholders(null, m);
         return m;
     }
 
@@ -164,8 +159,7 @@ public enum Language {
     {
         String m = Utils.hex(message);
 
-        if(MCPets.getPlaceholderAPI() != null)
-            m = PlaceholderAPI.setPlaceholders(p, m);
+        m = Utils.applyPlaceholders(null, m);
         return m;
     }
 

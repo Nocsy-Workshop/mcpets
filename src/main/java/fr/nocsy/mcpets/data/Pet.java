@@ -29,7 +29,6 @@ import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
 import lombok.Setter;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -1413,12 +1412,7 @@ public class Pet {
         if(iconName == null)
             iconName = "§cUndefined";
         iconName = Utils.translateHexColorCodes("#", "", iconName);
-        if(MCPets.getPlaceholderAPI() != null) {
-            Player player = null;
-            if(owner != null)
-                player = Bukkit.getPlayer(owner);
-            iconName = PlaceholderAPI.setPlaceholders(player, iconName);
-        }
+        iconName = Utils.applyPlaceholders(owner, iconName);
         if (mat == null
                 && textureBase64 != null) {
             item = Utils.createHead(iconName, description, textureBase64);

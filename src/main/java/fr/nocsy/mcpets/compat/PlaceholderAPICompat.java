@@ -10,8 +10,10 @@ public class PlaceholderAPICompat extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player player, String identifier){
-        Pet pet = MCPetsAPI.getActivePet(player.getUniqueId());
         String defaultOutput = "";
+        if(player == null)
+            return defaultOutput;
+        Pet pet = MCPetsAPI.getActivePet(player.getUniqueId());
         if(pet == null)
             return defaultOutput;
 

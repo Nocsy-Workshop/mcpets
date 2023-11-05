@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.BlacklistConfig;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
 import net.md_5.bungee.api.ChatMessageType;
@@ -281,6 +282,19 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    public static String applyPlaceholders(UUID uuid, String msg)
+    {
+        if(MCPets.getPlaceholderAPI() == null) {
+            return msg;
+        }
+        if(uuid == null)
+            uuid = UUID.randomUUID();
+        Player p = Bukkit.getPlayer(uuid);
+        if(p == null)
+            return PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(uuid), msg);
+        return PlaceholderAPI.setPlaceholders(p, msg);
     }
 
 }
