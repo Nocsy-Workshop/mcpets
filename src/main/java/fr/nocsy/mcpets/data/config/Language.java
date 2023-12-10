@@ -83,7 +83,6 @@ public enum Language {
     NO_PERM("§cYou're not allowed to use this command."),
     BLACKLISTED_WORLD("§cMCPets is disabled in this world."),
 
-    CATEGORY_PET_AMOUNT("§e%petAmount% §6registered"),
     CATEGORY_MENU_TITLE("§0☀ §4Pets §8- Pick a category §0☀"),
     CATEGORY_DOESNT_EXIST("§cThis category does not exist."),
 

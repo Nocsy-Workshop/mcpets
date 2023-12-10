@@ -1019,7 +1019,7 @@ public class Pet {
      * Teleport the pet to the player
      */
     public void teleportToPlayer(Player p) {
-        Location loc = Utils.bruised(p.getLocation(), getDistance());
+        Location loc = Utils.bruised(p.getLocation(), Math.min(getSpawnRange(), getDistance()));
         Debugger.send("§7teleporting pet " + id + " to player " + p.getName());
         if (isStillHere())
             this.teleport(loc);
@@ -1476,9 +1476,9 @@ public class Pet {
             }
 
             // Get the positive or negative sign symbol of the bonus
-            String signSymbol_damageModifer = Utils.getSignSymbol(petStats.getCurrentLevel().getDamageModifier() - 1);
-            String signSymbol_resistanceModifer = Utils.getSignSymbol(petStats.getCurrentLevel().getResistanceModifier() - 1);
-            String signSymbol_power = Utils.getSignSymbol(petStats.getCurrentLevel().getPower() - 1);
+            String signSymbol_damageModifer = Utils.getSignSymbol(petStats.getDamageModifier() - 1);
+            String signSymbol_resistanceModifer = Utils.getSignSymbol(petStats.getResistanceModifier() - 1);
+            String signSymbol_power = Utils.getSignSymbol(petStats.getPower() - 1);
 
             String currentHealthStr = Integer.toString((int) petStats.getCurrentHealth());
             if (petStats.getCurrentHealth() == 0 &&
@@ -1500,9 +1500,9 @@ public class Pet {
                     new FormatArg("%health%", currentHealthStr),
                     new FormatArg("%maxhealth%", Integer.toString((int) petStats.getCurrentLevel().getMaxHealth())),
                     new FormatArg("%regeneration%", Double.toString(petStats.getCurrentLevel().getRegeneration())),
-                    new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getCurrentLevel().getDamageModifier() - 1))),
-                    new FormatArg("%resistancemodifier%", signSymbol_resistanceModifer + (int) (100 * (petStats.getCurrentLevel().getResistanceModifier() - 1))),
-                    new FormatArg("%power%", signSymbol_power + (int) (100 * (petStats.getCurrentLevel().getPower() - 1))),
+                    new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getDamageModifier() - 1))),
+                    new FormatArg("%resistancemodifier%", signSymbol_resistanceModifer + (int) (100 * (petStats.getResistanceModifier() - 1))),
+                    new FormatArg("%power%", signSymbol_power + (int) (100 * (petStats.getPower() - 1))),
                     new FormatArg("%experience%", Integer.toString((int) petStats.getExperience())),
                     new FormatArg("%threshold%", Integer.toString((int) petStats.getNextLevel().getExpThreshold())),
                     new FormatArg("%progressbar%", progressBar.toString()));

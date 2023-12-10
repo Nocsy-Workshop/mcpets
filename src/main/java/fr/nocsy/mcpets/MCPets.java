@@ -30,6 +30,7 @@ public class MCPets extends JavaPlugin {
 
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
+    private static boolean luckPermsNotFound = false;
 
     @Getter
     private static PlaceholderAPICompat placeholderAPI;
@@ -124,7 +125,10 @@ public class MCPets extends JavaPlugin {
                 luckPerms = provider.getProvider();
             }
         } catch (NoClassDefFoundError error) {
-            Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
+            if (!luckPermsNotFound) {
+                luckPermsNotFound = true;
+                Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
+            }
         }
     }
 

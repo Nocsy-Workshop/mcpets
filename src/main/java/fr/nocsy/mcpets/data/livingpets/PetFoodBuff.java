@@ -34,6 +34,7 @@ public class PetFoodBuff {
         this.type = type;
         this.power = power;
         this.duration = duration;
+        this.operator = operator;
     }
 
     public boolean apply()
@@ -47,12 +48,17 @@ public class PetFoodBuff {
         }
 
         List<PetFoodBuff> buffs = getBuffs(pet);
+        ArrayList<PetFoodBuff> toRemove = new ArrayList<>();
         for(PetFoodBuff buff : buffs)
         {
             if(buff.getType() == this.getType())
             {
-                buff.stop();
+                toRemove.add(buff);
             }
+        }
+        for (PetFoodBuff buff : toRemove)
+        {
+            buff.stop();
         }
 
         runTask();
@@ -62,8 +68,16 @@ public class PetFoodBuff {
     private void runTask()
     {
         ArrayList<PetFoodBuff> buffs = (ArrayList<PetFoodBuff>) getBuffs(pet);
-
         buffs.add(this);
+        runningBuffs.put(pet, buffs);
+
+        Debugger.send("§7Applying buff §a" + type.name() + "§7 on §6" + pet.getId() + "§7 for §a" + duration + "§7 ticks.");
+        Debugger.send("§7Buff information: " +
+                "  \nPet owner is §b" + pet.getOwner() +
+                "  \n§aType: §7" + type.name() +
+                "  \n§aPower: §7" + power +
+                "  \n§aOperator: §7" + operator.name() +
+                "  \n§aDuration: §7" + duration + "§7 ticks.");
 
         PetFoodBuff instance = this;
 
@@ -78,7 +92,10 @@ public class PetFoodBuff {
     public void stop()
     {
         ArrayList<PetFoodBuff> buffs = runningBuffs.get(pet);
+        if(buffs == null)
+            return;
         buffs.remove(this);
+        Debugger.send("§7Buff §a" + type.name() + "§7 applied to §6" + pet.getId() + "§7 has §cexpired§7 after §a" + duration + "§7 ticks.");
     }
 
     public static List<PetFoodBuff> getBuffs(Pet pet)

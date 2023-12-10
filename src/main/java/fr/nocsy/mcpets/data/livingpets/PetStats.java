@@ -261,6 +261,39 @@ public class PetStats {
     }
 
     /**
+     * Returns the buffed applied value using the said modifier
+     * @return
+     */
+    private double getBuffedModifier(double originalValue, PetFoodType modifier)
+    {
+        double value = originalValue;
+
+        for(PetFoodBuff buff : PetFoodBuff.getBuffs(pet))
+        {
+            if(buff.getType() == modifier)
+            {
+                value = buff.getOperator().get(value, buff.getPower());
+            }
+        }
+        return value;
+    }
+
+    public double getDamageModifier() {
+        return getBuffedModifier(getCurrentLevel().getFlatDamageModifier(), PetFoodType.BUFF_DAMAGE);
+    }
+
+    public double getResistanceModifier() {
+        double value = getBuffedModifier(getCurrentLevel().getFlatResistanceModifier(), PetFoodType.BUFF_RESISTANCE);
+        if(value == 0)
+            return value = 10E-5;
+        return value;
+    }
+
+    public double getPower() {
+        return getBuffedModifier(getCurrentLevel().getFlatPower(), PetFoodType.BUFF_POWER);
+    }
+
+    /**
      * Get the extended inventory size value
      * Depends of the actual pet inventory size and the current level bonuses
      * @return
@@ -343,7 +376,7 @@ public class PetStats {
      */
     public double getModifiedAttackDamages(double value)
     {
-        return value * currentLevel.getDamageModifier();
+        return value * getDamageModifier();
     }
 
     /**
@@ -353,9 +386,9 @@ public class PetStats {
      */
     public double getModifiedResistanceDamages(double value)
     {
-        if(currentLevel.getResistanceModifier() == 0)
+        if(getResistanceModifier() == 0)
             return Integer.MAX_VALUE;
-        return value / currentLevel.getResistanceModifier();
+        return value / getResistanceModifier();
     }
 
     /**

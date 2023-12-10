@@ -115,6 +115,15 @@ public class LivingPetsListener implements Listener {
                     return;
                 }
 
+                if(petFood.getType().name().contains("BUFF"))
+                {
+                    // Cancel the interaction event
+                    e.setCancelled(true);
+                    if(petFood.apply(pet, p))
+                        petFood.consume(p);
+                    return;
+                }
+
                 if(petFood.getType().equals(PetFoodType.EVOLUTION) &&
                         pet.getOwner() != null &&
                         pet.getOwner().equals(p.getUniqueId()))
@@ -156,7 +165,9 @@ public class LivingPetsListener implements Listener {
                     // Call the pet tamed by player event
                     PetTamedByPlayerEvent event = new PetTamedByPlayerEvent(pet, p, petFood);
                     Utils.callEvent(event);
+                    return;
                 }
+
                 // The pet has already been tamed, so let's do nothing
                 else
                 {

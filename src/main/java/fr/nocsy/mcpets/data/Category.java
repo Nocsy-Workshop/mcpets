@@ -133,13 +133,7 @@ public class Category {
         ItemMeta meta = icon.getItemMeta();
         meta.setLocalizedName("MCPetsCategory;" + this.getId());
         meta.setDisplayName(iconName);
-        ArrayList<String> lore = (ArrayList<String>) meta.getLore() != null
-                ? (ArrayList<String>) meta.getLore()
-                : new ArrayList<>();
 
-        lore.add(" ");
-        lore.add(Language.CATEGORY_PET_AMOUNT.getMessageFormatted(new FormatArg("%petAmount%", Integer.toString(pets.size()))));
-        meta.setLore(lore);
         icon.setItemMeta(meta);
     }
 

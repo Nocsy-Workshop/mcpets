@@ -45,13 +45,13 @@ public class PlaceholderAPICompat extends PlaceholderExpansion {
                 return pet.getOwner().toString();
             case "PET_POWER":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getCurrentLevel().getPower());
+                    return String.valueOf(pet.getPetStats().getPower());
             case "PET_DAMAGE_MODIFIER":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getCurrentLevel().getDamageModifier());
+                    return String.valueOf(pet.getPetStats().getDamageModifier());
             case "PET_RESISTANCE_MODIFIER":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getCurrentLevel().getResistanceModifier());
+                    return String.valueOf(pet.getPetStats().getResistanceModifier());
             default:
                 return defaultOutput;
         }

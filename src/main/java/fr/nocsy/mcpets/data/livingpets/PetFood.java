@@ -223,6 +223,11 @@ public class PetFood {
                 Debugger.send("§cCould not give HEALTH to the pet because it is already at maximum value.");
             }
         }
+        else if(type.getType().toUpperCase().contains("BUFF"))
+        {
+            PetFoodBuff buff = new PetFoodBuff(pet, this.type, (float)this.power, this.operator, duration);
+            triggered = buff.apply();
+        }
         else if(type.getType().equals(PetFoodType.TAME.getType()))
         {
             if(pet.getTamingProgress() != 1)
@@ -245,11 +250,6 @@ public class PetFood {
                     Debugger.send("§cCould not give EXP to the pet because it has reached maximum value.");
                 }
             }
-        }
-        else if(type.getType().toUpperCase().contains("BUFF"))
-        {
-            PetFoodBuff buff = new PetFoodBuff(pet, this.type, (float)this.power, this.operator, duration);
-            triggered = buff.apply();
         }
         else if(type.getType().equals(PetFoodType.EVOLUTION.getType()))
         {

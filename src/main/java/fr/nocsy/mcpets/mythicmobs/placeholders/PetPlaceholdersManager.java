@@ -21,7 +21,7 @@ public class PetPlaceholdersManager {
             if(pet == null || pet.getPetStats() == null)
                 return "1";
             else
-                return Double.toString(pet.getPetStats().getCurrentLevel().getPower());
+                return Double.toString(pet.getPetStats().getPower());
         }));
 
         // Damage modifier placeholder
@@ -31,7 +31,7 @@ public class PetPlaceholdersManager {
             if(pet == null || pet.getPetStats() == null)
                 return "1";
             else
-                return Double.toString(pet.getPetStats().getCurrentLevel().getDamageModifier());
+                return Double.toString(pet.getPetStats().getDamageModifier());
         }));
 
         // Resistance modifier placeholder
@@ -41,7 +41,7 @@ public class PetPlaceholdersManager {
             if(pet == null || pet.getPetStats() == null)
                 return "1";
             else
-                return Double.toString(pet.getPetStats().getCurrentLevel().getResistanceModifier());
+                return Double.toString(pet.getPetStats().getResistanceModifier());
         }));
 
         // Experience placeholder

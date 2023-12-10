@@ -453,7 +453,7 @@ public enum EditorState {
                         .replaceVariablePath(itemId)
                         .setupItemIcon(itemId);
 
-                currentView.setItem(i, icon.getItem());
+                currentView.setItem(i - 45*page, icon.getItem());
                 editing.getEditorMapping().put(i - 45*page, itemId);
             }
 
