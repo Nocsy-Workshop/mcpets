@@ -13,6 +13,7 @@ import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.*;
 import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -46,7 +47,7 @@ public class LivingPetsListener implements Listener {
         {
             PetDamagedEvent event = new PetDamagedEvent(pet, e.getDamage(), true);
             Utils.callEvent(event);
-
+            Debugger.send("§7PetDamagedEvent triggered for pet §6" + pet.getId() + "§7 with original damages §6" + e.getDamage() + "§7 and modified damages §6" + event.getModifiedDamageAmount() + "§7.");
             e.setCancelled(event.isCancelled());
             e.setDamage(event.getModifiedDamageAmount());
         }

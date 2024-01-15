@@ -26,7 +26,10 @@ public class PlaceholderAPICompat extends PlaceholderExpansion {
                 return String.valueOf(pet.getDistance());
             case "PET_HEALTH":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getCurrentHealth());
+                    return String.valueOf(Math.round(pet.getPetStats().getCurrentHealth()));
+            case "PET_MAX_HEALTH":
+                if(pet.getPetStats() != null)
+                    return String.valueOf(Math.round(pet.getPetStats().getCurrentLevel().getMaxHealth()));
             case "PET_ICON_NAME":
                 if(pet.getIcon() != null)
                     return pet.getIcon().getItemMeta().getDisplayName();
@@ -38,20 +41,20 @@ public class PlaceholderAPICompat extends PlaceholderExpansion {
                     return String.valueOf(pet.getPetStats().getCurrentLevel().getLevelId());
             case "PET_EXP":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getExperience());
+                    return String.valueOf(Math.round(pet.getPetStats().getExperience()));
             case "PET_OWNER_NAME":
                 return Bukkit.getPlayer(pet.getOwner()).getName();
             case "PET_OWNER_UUID":
                 return pet.getOwner().toString();
             case "PET_POWER":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getPower());
+                    return String.valueOf(Math.round(pet.getPetStats().getPower()));
             case "PET_DAMAGE_MODIFIER":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getDamageModifier());
+                    return String.valueOf(Math.round(pet.getPetStats().getDamageModifier()));
             case "PET_RESISTANCE_MODIFIER":
                 if(pet.getPetStats() != null)
-                    return String.valueOf(pet.getPetStats().getResistanceModifier());
+                    return String.valueOf(Math.round(pet.getPetStats().getResistanceModifier()));
             default:
                 return defaultOutput;
         }
