@@ -29,14 +29,14 @@ public enum EditorItems {
     UNKNOWN(UNKNOWN(), null, null, null, null, false),
     FILLER(FILLER(), null, null, null, null, false),
 
-    BACK_TO_GLOBAL_SELECTION(BACK_TO_ITEM("global menu"), null, null, null, EditorState.GLOBAL_EDITOR, false),
-    BACK_TO_PET_SELECTION(BACK_TO_ITEM("pet selection menu"), null, null, null, EditorState.PET_EDITOR, false),
-    BACK_TO_PET_EDIT(BACK_TO_ITEM("pet editor"), null, null, null, EditorState.PET_EDITOR_EDIT, false),
-    BACK_TO_PET_LEVELS_EDIT(BACK_TO_ITEM("pet levels"), null, null, null, EditorState.PET_EDITOR_LEVELS, false),
-    BACK_TO_PET_SKINS_EDIT(BACK_TO_ITEM("pet skins"), null, null, null, EditorState.PET_EDITOR_SKINS, false),
-    BACK_TO_CATEGORIES_EDIT(BACK_TO_ITEM("categories"), null, null, null, EditorState.CATEGORY_EDITOR, false),
-    BACK_TO_ITEM_EDITOR(BACK_TO_ITEM("items"), null, null, null, EditorState.ITEM_EDITOR, false),
-    BACK_TO_PETFOOD_EDITOR(BACK_TO_ITEM("pet foods"), null, null, null, EditorState.PETFOOD_EDITOR, false),
+    BACK_TO_GLOBAL_SELECTION(BACK_TO_ITEM("全局菜单"), null, null, null, EditorState.GLOBAL_EDITOR, false),
+    BACK_TO_PET_SELECTION(BACK_TO_ITEM("宠物选择菜单"), null, null, null, EditorState.PET_EDITOR, false),
+    BACK_TO_PET_EDIT(BACK_TO_ITEM("宠物编辑"), null, null, null, EditorState.PET_EDITOR_EDIT, false),
+    BACK_TO_PET_LEVELS_EDIT(BACK_TO_ITEM("宠物等级"), null, null, null, EditorState.PET_EDITOR_LEVELS, false),
+    BACK_TO_PET_SKINS_EDIT(BACK_TO_ITEM("宠物皮肤"), null, null, null, EditorState.PET_EDITOR_SKINS, false),
+    BACK_TO_CATEGORIES_EDIT(BACK_TO_ITEM("类别"), null, null, null, EditorState.CATEGORY_EDITOR, false),
+    BACK_TO_ITEM_EDITOR(BACK_TO_ITEM("物品"), null, null, null, EditorState.ITEM_EDITOR, false),
+    BACK_TO_PETFOOD_EDITOR(BACK_TO_ITEM("宠物食物"), null, null, null, EditorState.PETFOOD_EDITOR, false),
 
     // Default selection menu
     CONFIG_EDITOR(CONFIG_EDITOR(), null, null, null, EditorState.CONFIG_EDITOR, false),
@@ -559,11 +559,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.COOKED_CHICKEN);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6编辑宠物食品");
+        meta.setDisplayName("§6编辑宠物食物");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7点击编辑/添加宠物食品.");
+        lores.add("§7点击编辑/添加宠物食物.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2143,7 +2143,7 @@ public enum EditorItems {
         lores.add(" ");
         lores.add("§aId: §b" + petFood.getId());
         lores.add(" ");
-        lores.add("§e点击以编辑该宠物食品.");
+        lores.add("§e点击以编辑该宠物食物.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2187,11 +2187,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6宠物食品ID");
+        meta.setDisplayName("§6宠物食物ID");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7编辑宠物食品ID.");
+        lores.add("§7编辑宠物食物ID.");
         lores.add(" ");
         lores.add("§7当前值: §e%value%");
 
@@ -2207,7 +2207,7 @@ public enum EditorItems {
         if(petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6食品物品");
+        meta.setDisplayName("§6食物物品");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
@@ -2228,11 +2228,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6宠物食品类型");
+        meta.setDisplayName("§6宠物食物类型");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7设置宠物食品类型(参见 wiki).");
+        lores.add("§7设置宠物食物类型(参见 wiki).");
         lores.add(" ");
         lores.add("§7当前值: §e%value%");
 
@@ -2249,7 +2249,7 @@ public enum EditorItems {
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7设置宠物食品的力量.");
+        lores.add("§7设置宠物食物的力量.");
         lores.add(" ");
         lores.add("§7当前值: §e%value%");
 
@@ -2266,7 +2266,7 @@ public enum EditorItems {
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7如果宠物食品是增益效果,");
+        lores.add("§7如果宠物食物是增益效果,");
         lores.add("§7则设置效果的持续时间(以刻度为单位).");
         lores.add(" ");
         lores.add("§7当前值: §e%value%");
@@ -2408,7 +2408,7 @@ public enum EditorItems {
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7使用宠物食品所需的权限.");
+        lores.add("§7使用宠物食物所需的权限.");
         lores.add(" ");
         lores.add("§7当前值: §e%value%");
 
