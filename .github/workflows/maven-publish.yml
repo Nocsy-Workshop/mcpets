@@ -3,12 +3,12 @@ name: Pre release
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
   build:
-    name: Gradle-Build
+    name: Build
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -23,10 +23,8 @@ jobs:
           cache: 'gradle'
         
       # Build
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build with Maven
+        run: mvn package
 
       # Auto release
       - name: Auto release
