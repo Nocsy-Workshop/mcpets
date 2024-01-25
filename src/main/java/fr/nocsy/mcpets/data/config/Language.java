@@ -74,7 +74,7 @@ public enum Language {
     KEY_ADDED("§a成功添加键,对应的物品."),
     KEY_LIST("§a可用键:"),
 
-    RELOAD_SUCCESS("§a重新加载成功."),
+    RELOAD_SUCCESS("§a重新加载成功.汉化作者:jhqwqmc"),
     HOW_MANY_PETS_LOADED("§a%numberofpets% 宠物已成功注册"),
 
     REQUIRES_MODELENGINE("§c此插件需要 ModelEngine r2.3.1.似乎未满足此要求."),
