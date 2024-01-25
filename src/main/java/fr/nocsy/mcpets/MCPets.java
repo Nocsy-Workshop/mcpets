@@ -105,7 +105,7 @@ public class MCPets extends JavaPlugin {
     @Override
     public void onDisable() {
         getLog().info("-=-=-=-= MCPets 禁用 =-=-=-=-");
-        getLog().info("          再见");
+        getLog().info("           再见");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
 
         PetStats.saveAll();
