@@ -31,13 +31,13 @@ public class EditorConversation {
     public void start()
     {
         conversations.put(player.getUniqueId(), this);
-        player.sendMessage("§aPlease type in the chat the value you want to set for the \"§e" + editorItem.getId().replace("_", " ").toLowerCase() + "§a\".");
+        player.sendMessage("§a请在聊天中输入要为\"§e" + editorItem.getId().replace("_", " ").toLowerCase() + "§a\"设置的值.");
 
         if(editorItem.getType().equals(EditorExpectationType.STRING_LIST))
         {
-            player.sendMessage("§eSeperate the different elements with a comma §c, §e like this example: §6SPELL,SHIELD");
+            player.sendMessage("§e使用逗号§c, §e分隔不同的元素,就像这个例子一样:§6SPELL,SHIELD");
         }
-        player.sendMessage("§aType §cQuit§a if you don't want to change the value anymore.");
+        player.sendMessage("§a如果您不想再更改值,请输入§cQuit§a.");
     }
 
     public boolean entryMatch(String entry)
@@ -53,14 +53,14 @@ public class EditorConversation {
     public void quit()
     {
         conversations.remove(player.getUniqueId());
-        player.sendMessage("§cThe value was left unchanged.");
+        player.sendMessage("§c值保持不变.");
     }
 
     public void end()
     {
         conversations.remove(player.getUniqueId());
-        player.sendMessage("§aThe value for \"§e" + editorItem.getId().replace("_", " ").toLowerCase() + "§a\" was changed successfully!");
-        player.sendMessage("§aDon't forget to §nreload§a MCPets for the changes to take effect.");
+        player.sendMessage("§a\"§e" + editorItem.getId().replace("_", " ").toLowerCase() + "§a\"的值已成功更改!");
+        player.sendMessage("§a不要忘记§n重新加载§aMCPets以使更改生效.");
     }
 
 }

@@ -17,7 +17,7 @@ public class FlagsManager {
         registered = true;
 
         if (instance == null) {
-            MCPets.getLog().warning("The main instance is null. The flags could not be registered...");
+            MCPets.getLog().warning("主实例为空.标志无法注册...");
             return;
         }
 
@@ -45,7 +45,7 @@ public class FlagsManager {
      * Start the schedulers
      */
     public static void launchFlags() {
-        MCPets.getLog().info("-=- Launching Flags -=-");
+        MCPets.getLog().info("-=- 启动标志 -=-");
         int count = 0;
         for (AbstractFlag flag : flags) {
             if (flag instanceof StoppableFlag) {
@@ -53,7 +53,7 @@ public class FlagsManager {
                 count++;
             }
         }
-        MCPets.getLog().info(count + " flags launched.");
+        MCPets.getLog().info(count + " 个标志已启动.");
     }
 
     /**

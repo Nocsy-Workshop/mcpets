@@ -398,7 +398,7 @@ public enum EditorItems {
                 }
                 else
                 {
-                    String valueStr = value == null ? "§6default (not set)" : value.toString();
+                    String valueStr = value == null ? "§6默认(未设置)" : value.toString();
 
                     if(value == null && this.type == EditorExpectationType.BOOLEAN)
                         valueStr = "false";
@@ -420,7 +420,7 @@ public enum EditorItems {
         if(resetable)
         {
             newLores.add(" ");
-            newLores.add("§cSHIFT + click§7 to §creset§7 the value.");
+            newLores.add("§c按住§cSHIFT键+点击§7可§c重置§7该值.");
         }
 
         meta.setLore(newLores);
@@ -463,7 +463,7 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.BARRIER);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cUnknown item");
+        meta.setDisplayName("§c未知物品");
         it.setItemMeta(meta);
         return it;
     }
@@ -481,11 +481,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cBack to " + where);
+        meta.setDisplayName("§c回到 " + where);
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to go back to the " + where + ".");
+        lores.add("§7点击返回 " + where + ".");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -499,11 +499,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.MOJANG_BANNER_PATTERN);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Edit configuration");
+        meta.setDisplayName("§6编辑配置");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to edit the config options.");
+        lores.add("§7点击编辑配置选项.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -514,11 +514,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.MAGMA_CUBE_SPAWN_EGG);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Edit pets");
+        meta.setDisplayName("§6编辑宠物");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to edit/create pets.");
+        lores.add("§7点击编辑/创建宠物.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -529,11 +529,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Edit categories");
+        meta.setDisplayName("§6编辑类别");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to edit/create categories.");
+        lores.add("§7点击编辑/创建类别.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -544,11 +544,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.EMERALD);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Edit items");
+        meta.setDisplayName("§6编辑物品");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to edit/add items.");
+        lores.add("§7点击编辑/添加物品.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -559,11 +559,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.COOKED_CHICKEN);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Edit pet food");
+        meta.setDisplayName("§6编辑宠物食品");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to edit/add pet food.");
+        lores.add("§7点击编辑/添加宠物食品.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -578,13 +578,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Prefix");
+        meta.setDisplayName("§6前缀");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to edit the plugin's prefix.");
+        lores.add("§7点击编辑插件的前缀.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -595,14 +595,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Default pet name");
+        meta.setDisplayName("§6默认宠物名");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the name of the pet when");
-        lores.add("§7none is set.");
+        lores.add("§7未设置宠物名称");
+        lores.add("§7时设置.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -613,14 +613,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Use default MythicMobs name");
+        meta.setDisplayName("§6使用默认的 MythicMobs 名称");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the MythicMobs name should");
-        lores.add("§7show up as the default name.");
+        lores.add("§7MythicMobs 名称是否应");
+        lores.add("§7显示为默认名称.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -631,14 +631,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Override default name");
+        meta.setDisplayName("§6覆盖默认名称");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether renaming the pet should override");
-        lores.add("§7the default name when it's empty.");
+        lores.add("§7当宠物为空时重命名");
+        lores.add("§7是否应覆盖默认名称.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -649,13 +649,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Right click to open menu");
+        meta.setDisplayName("§6右键点击打开菜单");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the menu should open on right click.");
+        lores.add("§7右键点击时是否打开菜单.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -666,13 +666,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Left click to open menu");
+        meta.setDisplayName("§6左键点击打开菜单");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the menu should open on left click.");
+        lores.add("§7左键点击是否打开菜单.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -683,14 +683,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Sneak mode to open menu");
+        meta.setDisplayName("§6潜行状态打开菜单");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether sneaking is required");
-        lores.add("§7to open the menu when interacting.");
+        lores.add("§7交互时是否需要");
+        lores.add("§7潜行才能打开菜单.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -701,13 +701,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Nameable");
+        meta.setDisplayName("§6可命名");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether all pets can have custom names.");
+        lores.add("§7是否所有宠物都可以自定义名字.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -718,15 +718,15 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Override default name");
+        meta.setDisplayName("§6覆盖默认名称");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether all pets should be mountable");
-        lores.add("§7by default, if the feature is enabled");
-        lores.add("§7and parameterized for the pet.");
+        lores.add("§7如果该功能已为宠物启用");
+        lores.add("§7并参数化,则默认情况下");
+        lores.add("§7所有宠物是否都应可安装.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -737,14 +737,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Distance before teleport");
+        meta.setDisplayName("§6传送前距离");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the minimum distance before the");
-        lores.add("§7pet is teleported back to its owner.");
+        lores.add("§7设置宠物传送回主人");
+        lores.add("§7身边的最短距离.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -755,14 +755,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Max name length");
+        meta.setDisplayName("§6最大名称长度");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the maximum length of a");
-        lores.add("§7custom pet name.");
+        lores.add("§7设置自定义宠物名");
+        lores.add("§7的最大长度.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -773,14 +773,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Summoning Inventory size");
+        meta.setDisplayName("§6召唤物物品栏大小");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the size of the inventory to a given");
-        lores.add("§7value, or -1 for adaptive inventory.");
+        lores.add("§7将物品栏大小设置为给定");
+        lores.add("§7值,或 -1 表示自适应物品栏.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -791,14 +791,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Enable click back to menu (category)");
+        meta.setDisplayName("§6启用点击返回菜单(类别)");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether clicking outside a category menu");
-        lores.add("§7should open back the category selection.");
+        lores.add("§7点击类别菜单外部");
+        lores.add("§7是否应打开类别选择.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -809,14 +809,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Activate back menu icon");
+        meta.setDisplayName("§6激活返回菜单图标");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the \"back to menu\" icon should");
-        lores.add("§7show up in the interaction menu.");
+        lores.add("§7交互菜单中是否");
+        lores.add("§7显示“返回菜单”图标.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -827,14 +827,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Dismount on damaged");
+        meta.setDisplayName("§6受伤时下来");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the player should be dismounted");
-        lores.add("§7when taking damages.");
+        lores.add("§7玩家受到伤害时");
+        lores.add("§7是否应该下来.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -845,14 +845,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Percent health on respawn");
+        meta.setDisplayName("§6重生时的健康百分比");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Percentage of health restored to the pet");
-        lores.add("§7restored after dying (living pet).");
+        lores.add("§7宠物死亡后恢复的");
+        lores.add("§7生命值百分比(活体宠物).");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -863,14 +863,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Auto-save database delay");
+        meta.setDisplayName("§6自动保存数据库延迟");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7How long before the database should save");
-        lores.add("§7on a regular basis.");
+        lores.add("§7数据库应定期");
+        lores.add("§7多久保存.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -881,14 +881,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Default respawn cooldown");
+        meta.setDisplayName("§6默认重生冷却时间");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7How long before the pet should be revived");
-        lores.add("§7by default (living pet).");
+        lores.add("§7默认情况下宠物");
+        lores.add("§7多久会复活(活体宠物).");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -899,14 +899,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Global respawn cooldown");
+        meta.setDisplayName("§6全局重生冷却时间");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the player can not summon ANY pet");
-        lores.add("§7while being on cooldown.");
+        lores.add("§7玩家在冷却时是否");
+        lores.add("§7无法召唤任何宠物.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -917,14 +917,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Autorespawn");
+        meta.setDisplayName("§6自动重生");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether when a pet dies, it is respawned");
-        lores.add("§7automatically at the player's side after reborn.");
+        lores.add("§7宠物死亡后是否重生后");
+        lores.add("§7自动重生到玩家身边.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -935,14 +935,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Disable inventory while signal stick");
+        meta.setDisplayName("§6信号棒时禁用物品栏");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the inventory should be accessible while");
-        lores.add("§7clicking the pet with a signal stick.");
+        lores.add("§7用信号棒点击宠物时");
+        lores.add("§7是否可以访问物品栏.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -970,7 +970,7 @@ public enum EditorItems {
 
         ArrayList<String> lores = (ArrayList<String>) og_lores;
         lores.add(" ");
-        lores.add("§eClick to edit that pet.");
+        lores.add("§e点击以编辑该宠物.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -994,13 +994,13 @@ public enum EditorItems {
         if(og_lores == null)
             og_lores = new ArrayList<>();
 
-        if(og_lores.contains("§eClick with an item on that icon"))
+        if(og_lores.contains("§e点击该图标上的物品"))
             return this;
 
         ArrayList<String> lores = (ArrayList<String>) og_lores;
         lores.add(" ");
-        lores.add("§eClick with an item on that icon");
-        lores.add("§eto replace the pet icon.");
+        lores.add("§e点击该图标上的物品");
+        lores.add("§e以替换宠物图标.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1019,8 +1019,8 @@ public enum EditorItems {
             it = (ItemStack) ((ItemStack) value).clone();
         }
         ItemMeta meta = it.getItemMeta();
-        if(meta.getDisplayName().equals("§cUndefined"))
-            meta.setDisplayName("§6Signal stick");
+        if(meta.getDisplayName().equals("§c未定义"))
+            meta.setDisplayName("§6信号棒");
 
         List<String> og_lores = it.getItemMeta().getLore();
         if(og_lores == null)
@@ -1028,8 +1028,8 @@ public enum EditorItems {
 
         ArrayList<String> lores = (ArrayList<String>) og_lores;
         lores.add(" ");
-        lores.add("§eClick with an item on that icon");
-        lores.add("§eto replace the signal stick.");
+        lores.add("§e点击该图标上的物品");
+        lores.add("§e以替换信号棒.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1043,12 +1043,12 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ARROW);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§aPage selector");
+        meta.setDisplayName("§a页面选择器");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§cLeft§7 click to go on the previous page");
-        lores.add("§aRight§7 click to go on the next page");
+        lores.add("§c左键§7点击转到上一页");
+        lores.add("§a右键§7点击进入下一页");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1059,11 +1059,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(type);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§aCreate a new " + what);
+        meta.setDisplayName("§a创建一个新的 " + what);
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to create a new " + what + ".");
+        lores.add("§7点击创建一个新的 " + what + ".");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1074,13 +1074,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.BARRIER);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cDelete the " + what);
+        meta.setDisplayName("§c删除 " + what);
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§cSHIFT§7 + Click to delete the " + what + ".");
+        lores.add("§cSHIFT§7 + 点击删除 " + what + ".");
         lores.add(" ");
-        lores.add("§c§lWARNING: this is permanent.");
+        lores.add("§c§l警告: 这是永久性的.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1095,9 +1095,9 @@ public enum EditorItems {
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the MythicMob that handles the pet.");
+        lores.add("§7设置处理宠物的 MythicMob.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1108,14 +1108,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Permission");
+        meta.setDisplayName("§6权限");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the permission that enables");
-        lores.add("§7to unlock the pet.");
+        lores.add("§7设置宠物");
+        lores.add("§7解锁权限.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1126,15 +1126,15 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Mountable");
+        meta.setDisplayName("§6坐骑");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether or not the pet is mountable.");
-        lores.add("§7This requires the pet to have a \"mount\" bone");
-        lores.add("§7within the Blockbench file (check wiki).");
+        lores.add("§7宠物是否可骑乘.");
+        lores.add("§7这要求宠物在 Blockbench 文件");
+        lores.add("§7中具有“安装”骨骼(查看 wiki).");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1145,14 +1145,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Mount type");
+        meta.setDisplayName("§6坐骑类型");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the mount type of the pet.");
-        lores.add("§7Only active if the pet is mountable.");
+        lores.add("§7设置宠物的坐骑类型.");
+        lores.add("§7仅当宠物可骑乘时才有效.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1163,14 +1163,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Despawn on Dismount");
+        meta.setDisplayName("§6下来后消失");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the player should be dismounted");
-        lores.add("§7of the pet when it is despawned.");
+        lores.add("§7玩家在宠物消失");
+        lores.add("§7时是否应该下来.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1181,14 +1181,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Auto-ride");
+        meta.setDisplayName("§6自动骑乘");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the player should automatically");
-        lores.add("§7ride its pet when it's spawned.");
+        lores.add("§7玩家是否应该在宠物");
+        lores.add("§7生成时自动骑乘它.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1199,14 +1199,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Mount permission");
+        meta.setDisplayName("§6坐骑权限");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set a permission to allow the player");
-        lores.add("§7to ride the mount (if mounting enabled)");
+        lores.add("§7设置允许玩家骑乘坐骑");
+        lores.add("§7的权限(如果启用了坐骑)");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1217,13 +1217,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Despawn skill");
+        meta.setDisplayName("§6消失技能");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set an optional despawn skill.");
+        lores.add("§7设置可选的消失技能.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1234,14 +1234,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Come back distance");
+        meta.setDisplayName("§6返回距离");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the minimum distance before the pet");
-        lores.add("§7comes back to the owner.");
+        lores.add("§7设置宠物回到主人身边");
+        lores.add("§7之前的最短距离.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1252,14 +1252,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Spawn range");
+        meta.setDisplayName("§6生成范围");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the radius in which the pet is");
-        lores.add("§7potentially being spawned into.");
+        lores.add("§7设置宠物可能");
+        lores.add("§7生成的半径.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1270,14 +1270,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Close up come back distance");
+        meta.setDisplayName("§6近距离回来距离");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set distance at which the pets stands");
-        lores.add("§7once it is close enough to the owner");
+        lores.add("§7一旦宠物离主人足够近");
+        lores.add("§7设定宠物站立的距离");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1288,13 +1288,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Inventory size");
+        meta.setDisplayName("§6物品栏大小");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set a size for the pet inventory.");
+        lores.add("§7设置宠物物品栏的大小.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1305,14 +1305,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Taming - Progress skill");
+        meta.setDisplayName("§6驯服 - 进化技能");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set a skill for when a player");
-        lores.add("§7tames the pet.");
+        lores.add("§7设置玩家驯服宠物");
+        lores.add("§7时的技能.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1323,14 +1323,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Taming - Finished skill");
+        meta.setDisplayName("§6驯服 - 完成技能");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set a skill for when a player");
-        lores.add("§7has finished taming the pet.");
+        lores.add("§7设置玩家驯服");
+        lores.add("§7宠物后的技能.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1345,10 +1345,10 @@ public enum EditorItems {
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the icon that represents the pet.");
+        lores.add("§7设置代表宠物的图标.");
         lores.add(" ");
-        lores.add("§7Click it with an item from your inventory");
-        lores.add("§7to modify the current item.");
+        lores.add("§7点击库存中的物品");
+        lores.add("§7以修改当前物品.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1359,14 +1359,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Signals");
+        meta.setDisplayName("§6信号");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the list of signals that");
-        lores.add("§7can be casted using the signal stick.");
+        lores.add("§7设置可以使用信号棒");
+        lores.add("§7投射的信号列表.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1377,14 +1377,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Signal stick");
+        meta.setDisplayName("§6信号棒");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the signal stick item.");
+        lores.add("§7设置信号棒物品.");
         lores.add(" ");
-        lores.add("§7Click it with an item from your inventory");
-        lores.add("§7to modify the current item.");
+        lores.add("§7点击物品栏中的物品");
+        lores.add("§7以修改当前物品.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1395,14 +1395,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Signal stick from menu");
+        meta.setDisplayName("§6菜单中的信号棒");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the signal stick is accessible");
-        lores.add("§7in the interaction menu directly.");
+        lores.add("§7是否可以在交互菜单");
+        lores.add("§7中直接访问信号棒.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1413,11 +1413,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.LEATHER);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Skins");
+        meta.setDisplayName("§6皮肤");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Add/Delete skins for that pet.");
+        lores.add("§7添加/删除该宠物的皮肤.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1428,11 +1428,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.EXPERIENCE_BOTTLE);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Living pet features");
+        meta.setDisplayName("§6活体宠物特征");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Add/Edit living pet features.");
+        lores.add("§7添加/编辑活体宠物特征.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1454,9 +1454,9 @@ public enum EditorItems {
         meta.setDisplayName("§a" + level.getLevelName());
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Experience threshold: §a" + level.getExpThreshold());
+        lores.add("§7经验阈值: §a" + level.getExpThreshold());
         lores.add(" ");
-        lores.add("§eClick to edit that level.");
+        lores.add("§e点击编辑该等级.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1472,13 +1472,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Level name");
+        meta.setDisplayName("§6等级名称");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the display name of the level.");
+        lores.add("§7设置等级的显示名称.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1493,11 +1493,11 @@ public enum EditorItems {
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the minimum experience value");
-        lores.add("§7for the pet to access that level.");
-        lores.add("§cNote that the first level starts at 0 XP");
+        lores.add("§设置宠物进入该");
+        lores.add("§7级别的最低经验值.");
+        lores.add("§c请注意第 1 级从 0 XP 开始");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1508,13 +1508,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Maximum health");
+        meta.setDisplayName("§6最大生命值");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the pet's health.");
+        lores.add("§7设置宠物的生命值.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1525,14 +1525,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Regeneration");
+        meta.setDisplayName("§6再生");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the regeneration of health");
-        lores.add("§7over time. §c(health/second)");
+        lores.add("§7设置随着时间的推移生命值");
+        lores.add("§7的恢复速度. §c(生命值/秒)");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1543,14 +1543,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Resistance modifier");
+        meta.setDisplayName("§6修改抗性");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the by how much the damage received");
-        lores.add("§7are divided by.");
+        lores.add("§7设置受到的");
+        lores.add("§7伤害除以多少.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1561,16 +1561,16 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Damage modifier");
+        meta.setDisplayName("§6修改伤害");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set by how much the damage done by");
-        lores.add("§7the pet can be multiplicated by.");
-        lores.add("§cThis is not automatic and should be used");
-        lores.add("§cas a placeholder in MythicMobs (see wiki)");
+        lores.add("§7设置宠物所造成的");
+        lores.add("§7伤害可以乘以多少.");
+        lores.add("§c这不是自动的,应该在 MythicMobs");
+        lores.add("§c中用作占位符(参见 wiki)");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1581,16 +1581,16 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Power modifier");
+        meta.setDisplayName("§6修改力量");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set by how much the spell power done of");
-        lores.add("§7the pet can be multiplicated by.");
-        lores.add("§cThis is not automatic and should be used");
-        lores.add("§cas a placeholder in MythicMobs (see wiki)");
+        lores.add("§7设置宠物的法术");
+        lores.add("§7力量可以乘以多少.");
+        lores.add("§c这不是自动的,应该在 MythicMobs");
+        lores.add("§c中用作占位符(参见 wiki)");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1601,14 +1601,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Cooldown - Respawn");
+        meta.setDisplayName("§6冷却时间 - 重生");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set how long before the pet can");
-        lores.add("§7be respawned after dying.");
+        lores.add("§7设置宠物死亡后");
+        lores.add("§7多久可以重生.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1619,14 +1619,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Cooldown - Revoke");
+        meta.setDisplayName("§6冷却时间 - 撤销");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set how long before the pet can");
-        lores.add("§7be respawned after being revoked.");
+        lores.add("§7设置宠物被撤销");
+        lores.add("§7后多久可以重生.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1637,14 +1637,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Inventory extension");
+        meta.setDisplayName("§6物品栏扩展");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set how many more slots are unlocked");
-        lores.add("§7in the pet inventory at that level.");
+        lores.add("§7设置该等级的宠物物品栏");
+        lores.add("§7中还解锁了多少个槽位.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1655,14 +1655,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Announcement - Text");
+        meta.setDisplayName("§6公告 - 文字");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set a text to be announced when");
-        lores.add("§7the pet evolves.");
+        lores.add("§7设置宠物进化时");
+        lores.add("§7要宣布的文字.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1673,13 +1673,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Announcement - Type");
+        meta.setDisplayName("§6公告 - 类型");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the announcement type.");
+        lores.add("§7设置公告类型.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1690,14 +1690,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Announcement - Skill");
+        meta.setDisplayName("§6公告 - 技能");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the skill casted when");
-        lores.add("§7the pet evolves.");
+        lores.add("§7设置宠物进化时");
+        lores.add("§7施展的技能.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1708,13 +1708,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Evolution - Pet ID");
+        meta.setDisplayName("§6进化 - 宠物ID");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the pet ID of the evolution.");
+        lores.add("§7设置进化宠物ID.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1725,14 +1725,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Evolution - Delay");
+        meta.setDisplayName("§6进化 - 延迟");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set a delay before the evolution");
-        lores.add("§7is triggered (like the skill duration, in ticks).");
+        lores.add("§7设置触发进化之前的");
+        lores.add("§7延迟(如技能持续时间,以刻度为单位).");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1743,14 +1743,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Evolution - Remove old access");
+        meta.setDisplayName("§6进化 - 删除旧的访问权限");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Whether the previous pet permission should");
-        lores.add("§7be removed when evolving (recommended to true)");
+        lores.add("§7进化时是否移除之前");
+        lores.add("§7的宠物权限(建议为true)");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1773,10 +1773,10 @@ public enum EditorItems {
 
         ItemMeta meta = it.getItemMeta();
 
-        meta.setDisplayName("§6Skin: §e" + skin.getMythicMobId());
+        meta.setDisplayName("§6皮肤: §e" + skin.getMythicMobId());
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§eClick to edit that skin.");
+        lores.add("§e点击以编辑该皮肤.");
 
         meta.setLore(lores);
 
@@ -1801,11 +1801,11 @@ public enum EditorItems {
 
         ItemMeta meta = it.getItemMeta();
 
-        meta.setDisplayName("§6Skin: §e" + skin.getMythicMobId());
+        meta.setDisplayName("§6皮肤: §e" + skin.getMythicMobId());
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§eClick with an item to edit");
-        lores.add("§ethe icon of the skin.");
+        lores.add("§e点击某个物品即可");
+        lores.add("§e编辑皮肤的图标.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1821,13 +1821,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Skin - MythicMob");
+        meta.setDisplayName("§6皮肤 - MythicMob");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the mythicmob to swap to as a skin");
+        lores.add("§7将 Mythicmob 设置为交换皮肤");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1838,14 +1838,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Skin - Permission");
+        meta.setDisplayName("§6皮肤 - 权限");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the permission to");
-        lores.add("§7unlock the skin.");
+        lores.add("§7设置皮肤");
+        lores.add("§7解锁权限.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1866,10 +1866,10 @@ public enum EditorItems {
 
         ItemMeta meta = it.getItemMeta();
 
-        meta.setDisplayName("§6Category: §e" + category.getIconName());
+        meta.setDisplayName("§6类别: §e" + category.getIconName());
         ArrayList<String> lores = new ArrayList<>();
 
-        lores.add("§eClick to edit the category.");
+        lores.add("§e点击编辑类别.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1891,12 +1891,12 @@ public enum EditorItems {
 
         ItemMeta meta = it.getItemMeta();
 
-        meta.setDisplayName("§6Category: §e" + category.getIconName());
+        meta.setDisplayName("§6类别: §e" + category.getIconName());
         ArrayList<String> lores = new ArrayList<>();
 
-        lores.add("§aExcluded categories:");
+        lores.add("§a排除类别:");
         if(category.getExcludedCategoriesId().size() == 0)
-            lores.add("§7- §6None");
+            lores.add("§7- §6无");
         for(String excludedCategoryId : category.getExcludedCategoriesId())
             lores.add("§7- " + excludedCategoryId);
 
@@ -1904,21 +1904,21 @@ public enum EditorItems {
 
         if(category.isDefaultCategory())
         {
-            lores.add("§aIncludes all pets §7(default category)");
+            lores.add("§a包括所有宠物§7(默认类别)");
         }
         else
         {
-            lores.add("§aIncluded Pets:");
+            lores.add("§a包含宠物:");
             if(category.getPets().size() == 0)
-                lores.add("§7- §6None");
+                lores.add("§7- §6无");
             for(Pet pet : category.getPets())
                 lores.add(" §7 - " + pet.getId());
         }
 
         lores.add(" ");
 
-        lores.add("§eClick with an item to edit");
-        lores.add("§ethe icon of the category.");
+        lores.add("§e点击某个物品可");
+        lores.add("§e编辑该类别的图标.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1934,13 +1934,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Category ID");
+        meta.setDisplayName("§6类别ID");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Click to edit the category ID.");
+        lores.add("§7单击可编辑类别ID.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1951,14 +1951,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Default category");
+        meta.setDisplayName("§6默认类别");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7(Optional) Should all the pet go");
-        lores.add("§7into that category by default ?");
+        lores.add("§7(可选)默认情况下所有");
+        lores.add("§7宠物都应该属于该类别吗?");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1970,14 +1970,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Excluded categories");
+        meta.setDisplayName("§6排除类别");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§a(Optional)§7 Exclude all the pets");
-        lores.add("§7from the specified categories.");
+        lores.add("§a(可选)§7 从指定类别");
+        lores.add("§7中排除所有宠物.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -1988,11 +1988,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.GOLD_INGOT);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§aAdd§6 a pets");
+        meta.setDisplayName("§a添加§6宠物");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Add a pet to the category.");
+        lores.add("§7将宠物添加到类别中.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2003,11 +2003,11 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.NETHER_BRICK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cRemove§6 a pet");
+        meta.setDisplayName("§c删除§6宠物");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Remove a pet from the category.");
+        lores.add("§7从类别中删除宠物.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2018,14 +2018,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Category Inventory title");
+        meta.setDisplayName("§6类别 物品名称");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the title of the category");
-        lores.add("§7inventory in the GUI.");
+        lores.add("§7在 GUI 中设置");
+        lores.add("§7类别物品栏的标题.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2036,14 +2036,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Category icon name");
+        meta.setDisplayName("§6类别图标名称");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the name of the icon");
-        lores.add("§7for the category in the GUI.");
+        lores.add("§7设置 GUI 中");
+        lores.add("§7类别的图标名称.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2068,7 +2068,7 @@ public enum EditorItems {
         lores.add(" ");
         lores.add("§aId: §b" + itemId);
         lores.add(" ");
-        lores.add("§eClick to edit that item.");
+        lores.add("§e点击以编辑该物品.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2096,7 +2096,7 @@ public enum EditorItems {
         }
 
         lores.add(" ");
-        lores.add("§eClick with an item to change it.");
+        lores.add("§e点击某个物品即可更改它.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2112,13 +2112,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Item ID");
+        meta.setDisplayName("§6物品ID");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Edit the ID of the item.");
+        lores.add("§7编辑物品.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2143,7 +2143,7 @@ public enum EditorItems {
         lores.add(" ");
         lores.add("§aId: §b" + petFood.getId());
         lores.add(" ");
-        lores.add("§eClick to edit that petfood.");
+        lores.add("§e点击以编辑该宠物食品.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2171,7 +2171,7 @@ public enum EditorItems {
         }
 
         lores.add(" ");
-        lores.add("§eClick with an item to change it.");
+        lores.add("§e点击某个物品即可更改它.");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2187,13 +2187,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Petfood ID");
+        meta.setDisplayName("§6宠物食品ID");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Edit the ID of the petfood.");
+        lores.add("§7编辑宠物食品ID.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2207,15 +2207,15 @@ public enum EditorItems {
         if(petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Food item");
+        meta.setDisplayName("§6食品物品");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the food item.");
-        lores.add("§7It can be either a registered §apet item§7");
-        lores.add("§7for more customization, or any §bMATERIAL§7.");
+        lores.add("§7设置食物物品.");
+        lores.add("§7它可以是注册的§a宠物物品§7");
+        lores.add("§7以进行更多定制也可以是任何§b材料§7.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2228,13 +2228,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Pet food type");
+        meta.setDisplayName("§6宠物食品类型");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the pet food type (see wiki).");
+        lores.add("§7设置宠物食品类型(参见 wiki).");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2245,13 +2245,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Power value");
+        meta.setDisplayName("§6力量值");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the power of the pet food.");
+        lores.add("§7设置宠物食品的力量.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2262,14 +2262,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Duration of the buff");
+        meta.setDisplayName("§6增益效果的持续时间");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7If the pet food is a buff,");
-        lores.add("§7sets the duration (in ticks) of the effect.");
+        lores.add("§7如果宠物食品是增益效果,");
+        lores.add("§7则设置效果的持续时间(以刻度为单位).");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2280,14 +2280,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Operator");
+        meta.setDisplayName("§6操作员");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the mathematical operation");
-        lores.add("§7to be perfomed on the power of the food. (wiki)");
+        lores.add("§7设置要对食物的力量");
+        lores.add("§7执行的数学运算. (wiki)");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2298,14 +2298,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Signal");
+        meta.setDisplayName("§6信号");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set the signal triggered when giving");
-        lores.add("§7the pet food to the pet.");
+        lores.add("§7设置给宠物喂食");
+        lores.add("§7时触发的信号.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2316,13 +2316,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.GOLD_INGOT);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§aAdd§6 pet");
+        meta.setDisplayName("§a添加§6宠物");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§aAdd§7 a compatible pet. §a(Optional)");
+        lores.add("§a添加§7兼容宠物. §a(可选)");
         lores.add(" ");
-        lores.add("§7Currently restricted pets: §e%value%");
+        lores.add("§7目前限制宠物: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2333,13 +2333,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.NETHER_BRICK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§cRemove§6 pet");
+        meta.setDisplayName("§c移除§6宠物");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§cRemove§7 a compatible pet. §a(Optional)");
+        lores.add("§c移除§7兼容宠物. §a(可选)");
         lores.add(" ");
-        lores.add("§7Currently restricted pets: §e%value%");
+        lores.add("§7目前限制宠物: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2350,14 +2350,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Evolution");
+        meta.setDisplayName("§6进化");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§a(Optional)§7 Set the evolution triggered");
-        lores.add("§7when the pet eats the food.");
+        lores.add("§a(可选)§7 设置宠物吃食物");
+        lores.add("§7时触发进化.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2368,14 +2368,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Experience threshold");
+        meta.setDisplayName("§6经验门槛");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Set a value of experience after which");
-        lores.add("§7the food can be consumed by the pet.");
+        lores.add("§7设置经验值,之后");
+        lores.add("§7宠物可以食用食物.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2386,14 +2386,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Delay before evolution");
+        meta.setDisplayName("§6进化前的延迟");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7If you're using an evolution food, how long");
-        lores.add("§7before the evolution should be triggered.");
+        lores.add("§7如果您使用的是进化食物,");
+        lores.add("§7进化应该提前多久触发.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2404,13 +2404,13 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Permission");
+        meta.setDisplayName("§6权限");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7Necessary permission to use the pet food.");
+        lores.add("§7使用宠物食品所需的权限.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);
@@ -2421,14 +2421,14 @@ public enum EditorItems {
     {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("§6Unlocked pet");
+        meta.setDisplayName("§6解锁宠物");
 
         ArrayList<String> lores = new ArrayList<>();
         lores.add(" ");
-        lores.add("§7If the food type is §aUNLOCK§7,");
-        lores.add("§7which pet should be unlocked.");
+        lores.add("§7如果食物类型为§a解锁§7,");
+        lores.add("§7应该解锁哪只宠物.");
         lores.add(" ");
-        lores.add("§7Current value: §e%value%");
+        lores.add("§7当前值: §e%value%");
 
         meta.setLore(lores);
         it.setItemMeta(meta);

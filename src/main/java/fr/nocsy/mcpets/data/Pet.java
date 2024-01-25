@@ -536,7 +536,7 @@ public class Pet {
      */
     public int spawn(Location loc, boolean bruise) {
 
-        Debugger.send("§aSpawning pet " + id + "...");
+        Debugger.send("§a生成宠物 " + id + "...");
         // if the pet has no pet stats, then we try to set one
         if(petStats == null)
         {
@@ -556,7 +556,7 @@ public class Pet {
 
         // If the event is cancelled trigger a despawn
         if (event.isCancelled()) {
-            Debugger.send("§cThe spawn event was cancelled.");
+            Debugger.send("§c生成事件被取消.");
             despawn(PetDespawnReason.CANCELLED);
             return BLOCKED;
         }
@@ -566,7 +566,7 @@ public class Pet {
             despawn(PetDespawnReason.LOOP_SPAWN);
             if (Bukkit.getPlayer(owner) != null)
                 Language.LOOP_SPAWN.sendMessage(Bukkit.getPlayer(owner));
-            Debugger.send("§cPet was despawned coz it was stuck in a spawn loop.");
+            Debugger.send("§c宠物因为陷入生成循环而被取消生成.");
             return BLOCKED;
         } else {
             recurrent_spawn = true;
@@ -583,7 +583,7 @@ public class Pet {
         if (checkPermission && owner != null &&
                 Bukkit.getPlayer(owner) != null &&
                 !Bukkit.getPlayer(owner).hasPermission(permission)) {
-            Debugger.send("§cUser is not allowed to spawn that pet.");
+            Debugger.send("§c用户不被允许生成该宠物.");
             despawn(PetDespawnReason.DONT_HAVE_PERM);
             return NOT_ALLOWED;
         }
@@ -596,16 +596,17 @@ public class Pet {
         // Any issue with the mythicmobs definition ?
         // Any issue with the owner definition ?
         if (mythicMobName == null) {
-            Debugger.send("§cMythicMob name is null, check out your pet config.");
+            Debugger.send("§cMythicMob名称为空,请检查您的宠物配置.");
             return MYTHIC_MOB_NULL;
         } else if (owner == null) {
-            Debugger.send("§cOwner was not found.");
+            Debugger.send("§c未找到所有者.");
             return OWNER_NULL;
         }
 
         if(MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).isEmpty())
         {
-            Debugger.send("§cThe MythicMob §6" + mythicMobName + "§c doesn't exist in MythicMobs. §7Check your pet config to make sure the MythicMob you chose actually exists.");
+            Debugger.send("§c在MythicMob中找不到 §6" + mythicMobName + "§c. §7请检查您的宠物配置,确保您选择的MythicMob确实存在.");
+
             return MYTHIC_MOB_NULL;
         }
 
@@ -630,14 +631,14 @@ public class Pet {
             catch (NullPointerException | NoSuchElementException ex)
             {
                 // if there's been a problem, trigger a despawn
-                Debugger.send("§cMythicMob " + mythicMobName + " was not found.");
+                Debugger.send("§c未找到MythicMob " + mythicMobName + ".");
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
             }
 
             // If the pet is not here, trigger a despawn
             if (ent == null) {
-                Debugger.send("§cMythicMob was found but the entity was not able to spawn.");
+                Debugger.send("§c找到MythicMob,但实体无法生成.");
                 despawn(PetDespawnReason.SPAWN_ISSUE);
                 return MYTHIC_MOB_NULL;
             }
@@ -649,7 +650,7 @@ public class Pet {
             // Sometimes it can happen that the mob isn't registered, so we try to register it manually
             if(activeMob == null)
             {
-                Debugger.send("§6Warn: §7MythicMobs didn't have the mob in the registry, let's try to register it manually.");
+                Debugger.send("§6警告: §7MythicMob注册表中没有找到该生物,请尝试手动注册.");
                 ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(
                         BukkitAdapter.adapt(ent),
                         MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).get(),
@@ -661,7 +662,7 @@ public class Pet {
 
             // If any weird thing happened and the activeMob couldn't be registered, then we cancel everything
             if (activeMob == null) {
-                Debugger.send("§cMythicMob was spawned but MCPets couldn't link it to an active mob. Trying again in 0.5s automatically...");
+                Debugger.send("§cMythicMob已生成,但 MCPets 无法将其链接到活跃生物.将在0.5秒后自动重试...");
                 // We remove the entity coz that'll not be done by the despawn since the activeMob is null
                 ent.remove();
                 new BukkitRunnable() {
@@ -700,14 +701,14 @@ public class Pet {
             // Either we despawned a previous pet or not
             if (returnDespawned)
             {
-                Debugger.send("§aSpawn successfuly happened. Previous pet is going to be despawned.");
+                Debugger.send("§a生成成功.之前的宠物将被取消生成.");
                 return DESPAWNED_PREVIOUS;
             }
             return MOB_SPAWN;
 
         } catch (InvalidMobTypeException e) {
             // If there's a mob bug, despawn the current pet
-            Debugger.send("§cImpossible to spawn the pet: MythicMob was not found.");
+            Debugger.send("§c无法生成宠物:未找到MythicMob.");
             despawn(PetDespawnReason.SPAWN_ISSUE);
             return NO_MOB_MATCH;
         }
@@ -811,7 +812,7 @@ public class Pet {
     {
         if(mob == null)
         {
-            Debugger.send("§cCould not set the active pet to the new one: mob instance is null");
+            Debugger.send("§c无法将活跃宠物设置为新的宠物:生物实例为空");
             despawn(PetDespawnReason.CHANGING_TO_NULL_ACTIVEMOB);
             return;
         }
@@ -863,7 +864,7 @@ public class Pet {
                     return;
 
                 if (!getInstance().isStillHere()) {
-                    Debugger.send("§6[AiManager] : §cPet " + getId() + " is not here, so it gets despawned.");
+                    Debugger.send("§6[AiManager] : §c宠物 " + getId() + " 不在这里,因此它将被取消生成.");
                     getInstance().despawn(PetDespawnReason.AI_TRACK_DESPAWN);
                     stopAI();
                     return;
@@ -938,7 +939,7 @@ public class Pet {
         PetDespawnEvent event = new PetDespawnEvent(this, reason);
         Utils.callEvent(event);
 
-        Debugger.send("§6Pet §7" + id + "§6 has §cdespawned§6. Reason: §a" + reason.getReason());
+        Debugger.send("§6宠物 §7" + id + "§6 已经 §c取消生成§6.原因:§a" + reason.getReason());
 
         stopAI();
         removed = true;
@@ -997,7 +998,7 @@ public class Pet {
             activePets.remove(owner);
             return true;
         }
-        Debugger.send("§cActive mob was not found, so it could not be despawned.");
+        Debugger.send("§c未找到活跃生物,因此无法取消生成.");
         activePets.remove(owner);
         return false;
     }
@@ -1020,7 +1021,7 @@ public class Pet {
      */
     public void teleportToPlayer(Player p) {
         Location loc = Utils.bruised(p.getLocation(), Math.min(getSpawnRange(), getDistance()));
-        Debugger.send("§7teleporting pet " + id + " to player " + p.getName());
+        Debugger.send("§7将宠物 " + id + " 传送到玩家 " + p.getName());
         if (isStillHere())
             this.teleport(loc);
     }
@@ -1115,7 +1116,7 @@ public class Pet {
                     }
                 }.runTaskLater(MCPets.getInstance(), 10L);
 
-                Debugger.send("§7Applying name " + name + " to pet " + id);
+                Debugger.send("§7将名称 " + name + " 应用于宠物 " + id);
                 if (save) {
                     String savedName = currentName + "";
                     if(isDefaultName)
@@ -1127,7 +1128,7 @@ public class Pet {
             }
 
         } catch (Exception ex) {
-            MCPets.getLog().warning("[MCPets] : Exception raised while naming the pet " + ex.getClass().getSimpleName() + " | setDisplayName(" + Language.TAG_TO_REMOVE_NAME.getMessage() + ") for the pet " + this.id);
+            MCPets.getLog().warning("[MCPets] : 在为宠物 " + this.id + " 命名时引发异常 " + ex.getClass().getSimpleName() + " | setDisplayName(" + Language.TAG_TO_REMOVE_NAME.getMessage() + ")");
             ex.printStackTrace();
         }
     }
@@ -1372,7 +1373,7 @@ public class Pet {
             ActiveMob mob = this.getActiveMob();
             try
             {
-                Debugger.send("§aSending signal §6" + signal + "§a to pet " + id);
+                Debugger.send("§a向宠物 " + id + " 发送信号 §6" + signal);
                 mob.signalMob(mob.getEntity(), signal);
                 return true;
             }
@@ -1410,7 +1411,7 @@ public class Pet {
 
         Material mat = materialType != null ? Material.getMaterial(materialType) : null;
         if(iconName == null)
-            iconName = "§cUndefined";
+            iconName = "§c未定义";
         iconName = Utils.translateHexColorCodes("#", "", iconName);
         iconName = Utils.applyPlaceholders(owner, iconName);
         if (mat == null

@@ -58,7 +58,7 @@ public class BukkitSerialization {
             dataOutput.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to save item stacks.", e);
+            throw new IllegalStateException("无法保存物品堆叠.", e);
         }
     }
 
@@ -93,7 +93,7 @@ public class BukkitSerialization {
             dataOutput.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to save item stacks.", e);
+            throw new IllegalStateException("无法保存物品堆叠.", e);
         }
     }
 
@@ -122,7 +122,7 @@ public class BukkitSerialization {
             dataOutput.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to save item stacks.", e);
+            throw new IllegalStateException("无法保存物品堆叠.", e);
         }
     }
 
@@ -155,7 +155,7 @@ public class BukkitSerialization {
             dataInput.close();
             return inventory;
         } catch (ClassNotFoundException e) {
-            throw new IOException("Unable to decode class type.", e);
+            throw new IOException("无法解码类类型.", e);
         }
     }
 
@@ -184,7 +184,7 @@ public class BukkitSerialization {
             dataInput.close();
             return item;
         } catch (ClassNotFoundException e) {
-            throw new IOException("Unable to decode class type.", e);
+            throw new IOException("无法解码类类型.", e);
         }
     }
 
@@ -214,7 +214,7 @@ public class BukkitSerialization {
             dataInput.close();
             return items;
         } catch (ClassNotFoundException e) {
-            throw new IOException("Unable to decode class type.", e);
+            throw new IOException("无法解码类类型.", e);
         }
     }
 }

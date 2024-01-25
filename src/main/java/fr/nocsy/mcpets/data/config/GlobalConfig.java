@@ -119,7 +119,7 @@ public class GlobalConfig extends AbstractConfig {
         if (getConfig().get("Prefix") == null)
             getConfig().set("Prefix", "§8[§6MCPets§8] » ");
         if (getConfig().get("DefaultName") == null)
-            getConfig().set("DefaultName", "§9Pet of %player%");
+            getConfig().set("DefaultName", "§9%player% 的宠物");
         if (getConfig().get("OverrideDefaultName") == null)
             getConfig().set("OverrideDefaultName", true);
         if (getConfig().get("EnableClickBackToMenu") == null)

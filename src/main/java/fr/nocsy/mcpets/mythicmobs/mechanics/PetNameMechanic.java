@@ -15,7 +15,7 @@ public class PetNameMechanic implements ITargetedEntitySkill {
     boolean save;
 
     public PetNameMechanic(MythicLineConfig config) {
-        this.petName = config.getString(new String[]{"name"}, "No name");
+        this.petName = config.getString(new String[]{"name"}, "没有名字");
         this.save =  config.getBoolean(new String[]{"save"}, false);
     }
 

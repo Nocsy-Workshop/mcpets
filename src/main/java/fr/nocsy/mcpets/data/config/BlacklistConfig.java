@@ -39,7 +39,7 @@ public class BlacklistConfig extends AbstractConfig {
         blackListedWords.clear();
         blackListedWords.addAll(getConfig().getStringList("Blacklist"));
 
-        MCPets.getLog().info(MCPets.getLogName() + "Blacklist file reloaded.");
+        MCPets.getLog().info(MCPets.getLogName() + "黑名单文件已重新加载.");
     }
 
 }

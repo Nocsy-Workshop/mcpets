@@ -27,7 +27,7 @@ public class PetDamageFlagListener implements Listener {
 
         if(FlagsManager.getFlag(PetDamageableByPlayerFlag.NAME).testState(BukkitAdapter.adapt(e.getPet().getActiveMob().getLocation())))
         {
-            Debugger.send("§7The pet §6" + e.getPet().getId() + "§7 didn't receive damages from §6" + p.getName() + "§7 because of the flag §6" + PetDamageableByPlayerFlag.NAME + "§7.");
+            Debugger.send("§7由于旗帜 §6" + PetDamageableByPlayerFlag.NAME + "§7 宠物 §6" + e.getPet().getId() + "§7 没有受到 §6" + p.getName() + "§7的伤害.");
             e.setCancelled(true);
             e.setOriginalDamages(0);
         }

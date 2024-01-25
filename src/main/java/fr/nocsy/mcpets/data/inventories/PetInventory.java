@@ -42,7 +42,7 @@ public class PetInventory {
     private PetInventory(Pet pet, @Nullable Inventory premadeInventory, UUID owner)
     {
         if(pet == null)
-            throw new NullPointerException("Pet can not be null.");
+            throw new NullPointerException("宠物不能为空.");
         this.pet = pet;
         this.pet.setOwner(owner);
 

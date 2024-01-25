@@ -47,7 +47,7 @@ public class LivingPetsListener implements Listener {
         {
             PetDamagedEvent event = new PetDamagedEvent(pet, e.getDamage(), true);
             Utils.callEvent(event);
-            Debugger.send("§7PetDamagedEvent triggered for pet §6" + pet.getId() + "§7 with original damages §6" + e.getDamage() + "§7 and modified damages §6" + event.getModifiedDamageAmount() + "§7.");
+            Debugger.send("§7为宠物 §6" + pet.getId() + "§7 触发PetDamagedEvent原始伤害为 §6" + e.getDamage() + "§7 修改伤害为 §6" + event.getModifiedDamageAmount() + "§7.");
             e.setCancelled(event.isCancelled());
             e.setDamage(event.getModifiedDamageAmount());
         }

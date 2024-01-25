@@ -10,10 +10,10 @@ import io.lumine.mythic.core.utils.annotations.MythicCondition;
 import io.lumine.mythic.core.utils.annotations.MythicField;
 import org.bukkit.entity.Entity;
 
-@MythicCondition(author="Nocsy",name="petExperience",description="Tests value of the experience of the pet")
+@MythicCondition(author="Nocsy",name="petExperience",description="测试宠物的经验值")
 public class PetExperienceCondition extends SkillCondition implements IEntityCondition {
 
-    @MythicField(name = "experience", aliases = {"exp"}, description = "The experience value to check")
+    @MythicField(name = "experience", aliases = {"exp"}, description = "需要检查的经验值")
     private RangedDouble experience;
 
     public PetExperienceCondition(String line, MythicLineConfig mlc) {

@@ -82,7 +82,7 @@ public class PetConfig extends AbstractConfig {
      */
     public static void loadPets(String folderPath, boolean clearPets) {
         if (clearPets) {
-            Bukkit.getConsoleSender().sendMessage("§9Loading pets... ");
+            Bukkit.getConsoleSender().sendMessage("§9正在加载宠物...");
             Pet.getObjectPets().clear();
         }
 
@@ -100,10 +100,10 @@ public class PetConfig extends AbstractConfig {
 
             if (petConfig.getPet() != null) {
                 if(Pet.getObjectPets().stream().anyMatch(pet -> pet.getId().equalsIgnoreCase(petConfig.getPet().getId())))
-                    Bukkit.getConsoleSender().sendMessage("  §c* " + petConfig.getPet().getId() + " could not be loaded: another pet with the same ID already exists.");
+                    Bukkit.getConsoleSender().sendMessage("  §c* " + petConfig.getPet().getId() + "无法加载:具有相同 ID 的另一个宠物已存在.");
                 else
                 {
-                    Bukkit.getConsoleSender().sendMessage("  §7- " + petConfig.getPet().getId() + " loaded succesfully.");
+                    Bukkit.getConsoleSender().sendMessage("  §7- " + petConfig.getPet().getId() + "加载成功.");
                     Pet.getObjectPets().add(petConfig.getPet());
                 }
             }
@@ -119,7 +119,7 @@ public class PetConfig extends AbstractConfig {
         });
 
         if (clearPets)
-            MCPets.getLog().info(MCPets.getLogName() + Pet.getObjectPets().size() + " pets registered successfully !");
+            MCPets.getLog().info(MCPets.getLogName() + Pet.getObjectPets().size() + "宠物注册成功!");
     }
 
     /**
@@ -164,8 +164,8 @@ public class PetConfig extends AbstractConfig {
 
         if (id == null) {
             // Warning case on which something essential would be missing
-            MCPets.getLog().warning(MCPets.getLogName() + "This pet could not be registered. Please check the configuration file to make sure you didn't miss anything.");
-            MCPets.getLog().warning(MCPets.getLogName() + "Information about the registered pet : ");
+            MCPets.getLog().warning(MCPets.getLogName() + "该宠物无法注册. 请检查配置文件以确保您没有遗漏任何内容.");
+            MCPets.getLog().warning(MCPets.getLogName() + "已登记宠物信息:");
             MCPets.getLog().warning("id : " + id);
             MCPets.getLog().warning("mobType : " + mobType);
             MCPets.getLog().warning("permission : " + permission);
@@ -202,7 +202,7 @@ public class PetConfig extends AbstractConfig {
                     Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(despawnSkillName);
                     optionalSkill.ifPresent(pet::setDespawnSkill);
                     if (pet.getDespawnSkill() == null) {
-                        MCPets.getLog().warning(MCPets.getLogName() + "Impossible to link the despawn skill \"" + despawnSkillName + "\" to the pet \"" + pet.getId() + "\", because this skill doesn't exist.");
+                        MCPets.getLog().warning(MCPets.getLogName() + "无法将消失技能 \"" + despawnSkillName + "\" 链接到宠物 \"" + pet.getId() + "\",因为该技能不存在.");
                     }
                 }
             }.runTaskLater(MCPets.getInstance(), 5L);
@@ -226,10 +226,10 @@ public class PetConfig extends AbstractConfig {
             }.runTaskLater(MCPets.getInstance(), 5L);
         }
 
-        ItemStack icon = legacyItemRead(pet.getIcon(), true, pet.toString(), "§cIcon (not set)", "Icon");
+        ItemStack icon = legacyItemRead(pet.getIcon(), true, pet.toString(), "§c图标(未设置)", "Icon");
         pet.setIcon(icon);
 
-        ItemStack signalStickItem = legacyItemRead(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), "§cSignal stick (not set)", "Signals.Item");
+        ItemStack signalStickItem = legacyItemRead(pet.getSignalStick(), false, Items.buildSignalStickTag(pet), "§c信号棒(未设置)", "Signals.Item");
         pet.setSignalStick(signalStickItem);
 
         reloadSkins();
@@ -396,7 +396,7 @@ public class PetConfig extends AbstractConfig {
             String mythicMobId = getConfig().getString(key + ".MythicMob");
             String skinPerm = getConfig().getString(key + ".Permission");
 
-            ItemStack skinIcon = legacyItemRead(null, false, "", "§cSkin icon (not set)", key + ".Icon");
+            ItemStack skinIcon = legacyItemRead(null, false, "", "§c皮肤图标(未设置)", key + ".Icon");
 
             PetSkin.load(key, pet, mythicMobId, skinPerm, skinIcon);
         }

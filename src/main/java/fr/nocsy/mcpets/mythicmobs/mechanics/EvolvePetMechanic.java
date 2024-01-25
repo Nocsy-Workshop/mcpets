@@ -27,10 +27,10 @@ public class EvolvePetMechanic implements ITargetedEntitySkill {
 
         Pet pet = Pet.getFromEntity(entity);
         Pet evolution = Pet.getFromId(evolutionId);
-        Debugger.send("§6[Evolution Mechanic]:");
+        Debugger.send("§6[进化机制]:");
         if(pet != null)
-            Debugger.send("§7- pet: §a" + pet.getId() + "§7 has pet stats ? §a" + (pet.getPetStats() != null));
-        Debugger.send("§7- evolution: §a" + evolutionId + " exists ? §a" + (evolution != null));
+            Debugger.send("§7- 宠物: §a" + pet.getId() + "§7 有宠物统计数据? §a" + (pet.getPetStats() != null));
+        Debugger.send("§7- 进化: §a" + evolutionId + " 存在吗? §a" + (evolution != null));
         if(evolution != null
                 && pet != null
                 && pet.getPetStats() != null)

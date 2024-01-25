@@ -43,7 +43,7 @@ public class PetFoodBuff {
         PetStats stats = pet.getPetStats();
         if(stats == null)
         {
-            Debugger.send("§cBuff could not be triggered on that pet as it has no statistics of a living pet.");
+            Debugger.send("§c无法在该宠物上触发增益效果,因为它没有生活宠物的统计信息.");
             return false;
         }
 
@@ -71,13 +71,13 @@ public class PetFoodBuff {
         buffs.add(this);
         runningBuffs.put(pet, buffs);
 
-        Debugger.send("§7Applying buff §a" + type.name() + "§7 on §6" + pet.getId() + "§7 for §a" + duration + "§7 ticks.");
-        Debugger.send("§7Buff information: " +
-                "  \nPet owner is §b" + pet.getOwner() +
-                "  \n§aType: §7" + type.name() +
-                "  \n§aPower: §7" + power +
-                "  \n§aOperator: §7" + operator.name() +
-                "  \n§aDuration: §7" + duration + "§7 ticks.");
+        Debugger.send("§7应用增益效果 §a" + type.name() + "§7 到 §6" + pet.getId() + "§7,持续 §a" + duration + "§7 个刻.");
+        Debugger.send("§7增益效果信息:" +
+                "  \n宠物所有者是 §b" + pet.getOwner() +
+                "  \n§a类型: §7" + type.name() +
+                "  \n§a强度: §7" + power +
+                "  \n§a运算符: §7" + operator.name() +
+                "  \n§a持续时间: §7" + duration + "§7 tick.");
 
         PetFoodBuff instance = this;
 
@@ -95,7 +95,7 @@ public class PetFoodBuff {
         if(buffs == null)
             return;
         buffs.remove(this);
-        Debugger.send("§7Buff §a" + type.name() + "§7 applied to §6" + pet.getId() + "§7 has §cexpired§7 after §a" + duration + "§7 ticks.");
+        Debugger.send("§7应用到 §6" + pet.getId() + "§7 的增益效果 §a" + type.name() + "§7 在 §a" + duration + "§7 个tick后 §c过期§7.");
     }
 
     public static List<PetFoodBuff> getBuffs(Pet pet)

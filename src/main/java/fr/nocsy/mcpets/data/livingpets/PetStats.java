@@ -111,11 +111,11 @@ public class PetStats {
                     if(p != null && Pet.getActivePets().get(pet.getOwner()) == null)
                     {
                         pet.spawn(p.getLocation(), true);
-                        Debugger.send("§aPet §6" + pet.getId() + "§a was autorespawned after death.");
+                        Debugger.send("§a宠物 §6" + pet.getId() + "§a 在死亡后自动重生.");
                     }
                     else
                     {
-                        Debugger.send("§cPet §6" + pet.getId() + "§c was supposed to autorespawn, but the player already has a spawned pet with him, or is disconnected.");
+                        Debugger.send("§c宠物 §6" + pet.getId() + "§c 应该自动重生,但玩家已经有一个生成的宠物,或者已断开连接.");
                     }
                 }
             }
@@ -324,14 +324,14 @@ public class PetStats {
 
         // add the experience to the pet
         experience = experience + event.getExperience();
-        Debugger.send("§7adding " + experience + "xp to the pet " + pet.getId());
+        Debugger.send("§7向宠物 " + pet.getId() + " 添加 " + experience + " 经验值");
 
         // Look if there's a level up to perform
         PetLevel nextLevel = getNextLevel();
         boolean levelUp = false;
         while(!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience)
         {
-            Debugger.send("§aPet §7" + pet.getId() + "§a is leveling up to §6" + nextLevel.getLevelName());
+            Debugger.send("§a宠物 §7" + pet.getId() + "§a 正在升级到 §6" + nextLevel.getLevelName());
             // note that's there's been a levelup
             levelUp = true;
             // Set the current level to the next one
@@ -351,7 +351,7 @@ public class PetStats {
         // If there is no next level, set the experience so that it's the plateau value
         if(getNextLevel().equals(currentLevel) && experience > currentLevel.getExpThreshold())
         {
-            Debugger.send("§7Pet " + pet.getId() + "is §cnot leveling up§7 as it has reached §cmaximum level§7, or that you §calready own the evolution§7.");
+            Debugger.send("§7宠物 " + pet.getId() + "§c未升级§7,因为它已达到§c最大级别§7,或者您已经拥有该§c进化§7.");
             experience = currentLevel.getExpThreshold();
         }
 

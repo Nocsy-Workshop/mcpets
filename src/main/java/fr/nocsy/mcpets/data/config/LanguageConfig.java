@@ -53,9 +53,9 @@ public class LanguageConfig extends AbstractConfig {
 
         if(Language.PET_INVENTORY_TITLE.getMessage().equals(Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage()))
         {
-            MCPets.getLog().severe(MCPets.getLogName() + "Interaction menu and prime menu have the same name, which might lead to unexpected behaviors. Please consider having different names for both menus.");
+            MCPets.getLog().severe(MCPets.getLogName() + "交互菜单和主菜单具有相同的名称,这可能会导致意外的行为. 请考虑为两个菜单使用不同的名称.");
         }
 
-        MCPets.getLog().info(MCPets.getLogName() + "Language file reloaded.");
+        MCPets.getLog().info(MCPets.getLogName() + "语言文件已重新加载.\n汉化作者:jhqwqmc");
     }
 }

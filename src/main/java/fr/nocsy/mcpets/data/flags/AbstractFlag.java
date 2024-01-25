@@ -49,23 +49,23 @@ public abstract class AbstractFlag {
             registry.register(flag);
             this.flag = flag; // only set our field if there was no error
 
-            MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " flag registered successfully !");
+            MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " 标志成功注册!");
 
         } catch (Exception e) {
-            MCPets.getLog().warning(MCPets.getLogName() + "Exception raised " + e.getClass().getSimpleName());
-            MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " seems to be conflicting with a previously existing instance of the plugin. Trying to attach the flag to the previous version...");
+            MCPets.getLog().warning(MCPets.getLogName() + "引发异常 " + e.getClass().getSimpleName());
+            MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " 似乎与先前存在的插件实例发生冲突.尝试将该标志附加到先前的版本中...");
             // some other plugin registered a flag by the same name already.
             // you can use the existing flag, but this may cause conflicts - be sure to check type
             Flag<?> existing = registry.get(flagName);
-            MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " has been considered as " + existing + " by Worldguard");
+            MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " 已被Worldguard视为 " + existing);
             if (existing instanceof StateFlag) {
                 this.flag = (StateFlag) existing;
-                MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " flag attached successfully !");
+                MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " 标志成功附加!");
             } else {
                 // types don't match - this is bad news! some other plugin conflicts with you
                 // hopefully this never actually happens
-                MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " Flag couldn't be attached... Server restart will be necessary to fix the issue.");
-                MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " has raised the following exception : " + e.getClass().getSimpleName());
+                MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " 无法附加标志...需要重新启动服务器来解决此问题.");
+                MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " 引发了以下异常:" + e.getClass().getSimpleName());
                 e.printStackTrace();
             }
 

@@ -350,7 +350,7 @@ public class PetListener implements Listener {
             !e.getEntity().hasPermission(PPermission.ADMIN.getPermission()))
         {
             e.setCancelled(true);
-            Debugger.send("§c" + e.getEntity().getName() + " can not mount " + e.getPet().getId() + " as he's not the owner, nor an admin.");
+            Debugger.send("§c" + e.getEntity().getName() + " 不能骑乘 " + e.getPet().getId() + ",因为他既不是所有者也不是管理员.");
         }
         // If user doesn't have the perm to mount the pet, cancel the event
         if(e.getPet().getMountPermission() != null && !e.getEntity().hasPermission(e.getPet().getMountPermission()))
@@ -393,7 +393,7 @@ public class PetListener implements Listener {
                 !player.hasPermission(PPermission.ADMIN.getPermission()))
         {
             e.setCancelled(true);
-            Debugger.send("[ModelMountEvent] §c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
+            Debugger.send("[ModelMountEvent] §c" + player.getName() + " 不能骑乘 " + pet.getId() + " 的模型,因为他既不是所有者也不是管理员.");
         }
 
         if(GlobalConfig.getInstance().isWorldguardsupport() &&
@@ -401,7 +401,7 @@ public class PetListener implements Listener {
                 FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
         {
             e.setCancelled(true);
-            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
+            Debugger.send("§c" + player.getName() + " 无法骑乘 " + pet.getId() + " 的模型,因为某个区域阻止了骑乘.");
             Language.NOT_MOUNTABLE_HERE.sendMessage(player);
             if(pet.isDespawnOnDismount())
                 pet.despawn(PetDespawnReason.FLAG);
@@ -429,7 +429,7 @@ public class PetListener implements Listener {
                 FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation()))
         {
             e.setCancelled(true);
-            Debugger.send("[EntityMountPetEvent] §c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
+            Debugger.send("[EntityMountPetEvent] §c" + player.getName() + " 无法骑乘 " + pet.getId() + " 的模型,因为某个区域阻止了骑乘.");
             Language.NOT_MOUNTABLE_HERE.sendMessage(player);
             if(pet.isDespawnOnDismount())
                 pet.despawn(PetDespawnReason.FLAG);

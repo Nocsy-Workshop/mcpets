@@ -10,10 +10,10 @@ import io.lumine.mythic.core.utils.annotations.MythicCondition;
 import io.lumine.mythic.core.utils.annotations.MythicField;
 import org.bukkit.entity.Entity;
 
-@MythicCondition(author="Nocsy",name="petTaming",description="Tests value of the taming of the pet")
+@MythicCondition(author="Nocsy",name="petTaming",description="测试宠物的驯服价值")
 public class PetTamingCondition extends SkillCondition implements IEntityCondition {
 
-    @MythicField(name = "taming", aliases = {"t"}, description = "The taming value to check")
+    @MythicField(name = "taming", aliases = {"t"}, description = "要检查的驯服值")
     private RangedDouble taming;
 
     public PetTamingCondition(String line, MythicLineConfig mlc) {

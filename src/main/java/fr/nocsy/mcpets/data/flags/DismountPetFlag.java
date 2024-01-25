@@ -26,10 +26,10 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
     @Override
     public void launch() {
         if (getFlag() == null) {
-            MCPets.getLog().warning(MCPets.getLogName() + "Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
+            MCPets.getLog().warning(MCPets.getLogName() + "标志 " + getFlagName() + " 无法启动,因为它为空.请联系Nocsy.");
             return;
         } else {
-            MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
+            MCPets.getLog().info(MCPets.getLogName() + "正在启动标志 " + getFlagName() + ".");
         }
 
         task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), new Runnable() {

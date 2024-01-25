@@ -27,7 +27,7 @@ public class Databases {
     public static boolean init() {
         if(GlobalConfig.getInstance().isDisableMySQL())
         {
-            MCPets.getInstance().getLogger().info("MySQL is disabled. Flat support will be used.");
+            MCPets.getInstance().getLogger().info("MySQL 已禁用.将使用平面支持.");
             return false;
         }
         Databases.setMySQL(new MySQLDB(GlobalConfig.getInstance().getMySQL_USER(),
@@ -36,8 +36,8 @@ public class Databases {
                 GlobalConfig.getInstance().getMySQL_PORT(),
                 GlobalConfig.getInstance().getMySQL_DB()));
         if (!Databases.getMySQL().init()) {
-            MCPets.getInstance().getLogger().info("[Database] Can't initialize MySQL.");
-            MCPets.getInstance().getLogger().info("[Database] Will be using YAML support instead (no worry it's not a bug).");
+            MCPets.getInstance().getLogger().info("[数据库] 无法初始化 MySQL.");
+            MCPets.getInstance().getLogger().info("[数据库] 将使用 YAML 支持代替(不用担心,这不是一个错误).");
             GlobalConfig.getInstance().setDatabaseSupport(false);
             return false;
         }
@@ -246,7 +246,7 @@ public class Databases {
                 outputMap.put(pet_id, content);
             } catch (IndexOutOfBoundsException ex) {
                 ex.printStackTrace();
-                MCPets.getInstance().getLogger().severe("[Database] Index out of bound for (147) : " + seriaContents);
+                MCPets.getInstance().getLogger().severe("[数据库] 超出范围的索引 (147) : " + seriaContents);
             }
         }
 

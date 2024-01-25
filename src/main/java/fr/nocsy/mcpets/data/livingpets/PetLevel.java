@@ -211,8 +211,8 @@ public class PetLevel {
         String evId = "null";
         if (evolution != null)
             evId = evolution.getId();
-        Debugger.send("Pet §6" + this.getPet().getId() + "§7 is trying to evolve as §a" + evId);
-        Debugger.send("Checking conditions: §6can evolve ? §a" + canEvolve(player, evolution) + " §7| §6forced ? §a" + forceEvolution);
+        Debugger.send("宠物 §6" + this.getPet().getId() + "§7 正在尝试进化为 §a" + evId);
+        Debugger.send("检查条件: §6可以进化 ? §a" + canEvolve(player, evolution) + " §7| §6强制进化 ? §a" + forceEvolution);
         if(canEvolve(player, evolution) || forceEvolution)
         {
             if(evolution == null)
@@ -248,7 +248,7 @@ public class PetLevel {
                 // If we can not define an inventory in the evolution, then we lose the content so it doesn't make sense
                 if(evolutionInventory == null)
                 {
-                    Bukkit.getLogger().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
+                    Bukkit.getLogger().severe("无法加载玩家 " + player + " 的宠物 " + evolutionId + " 的物品栏\n关键问题: 无法进化宠物.");
                     return false;
                 }
                 evolutionInventory.setInventory(petInventory.getInventory());
@@ -291,14 +291,14 @@ public class PetLevel {
         if(p != null)
         {
             Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
-            Debugger.send("§a" + pet.getId() + "§6 can not evolve into §a" + evolutionId
-                    + "§6 because the §cplayer" + p.getName() + " already owns the evolution§6.");
+            Debugger.send("§a" + pet.getId() + "§6 无法进化为 §a" + evolutionId
+                    + "§6,因为玩家 §c" + p.getName() + "§6 已经拥有该进化§6.");
             return false;
         }
 
         if(evolutionId != null)
         {
-            Bukkit.getLogger().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
+            Bukkit.getLogger().warning("宠物 " + pet.getId() + " 尝试进化为 " + evolutionId + ",但此进化在 MCPets 中不存在.请提供已注册宠物的ID.");
             return false;
         }
         return false;

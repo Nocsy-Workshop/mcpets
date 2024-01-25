@@ -23,35 +23,35 @@ import java.util.List;
 
 public enum EditorState {
 
-    DEFAULT("No title - Default"),
+    DEFAULT("无标题 - 默认"),
 
-    // First menu
-    GLOBAL_EDITOR("What do you want to edit ?"),
+    // 第一个菜单
+    GLOBAL_EDITOR("您想要编辑什么?"),
 
-    // Second dive menu
-    CONFIG_EDITOR("Click a config option to edit"),
-    PET_EDITOR("Click a pet you want to edit"),
-    CATEGORY_EDITOR("Click a category you want to edit"),
-    ITEM_EDITOR("Click an item you want to edit"),
-    PETFOOD_EDITOR("Click a pet food you want to edit"),
+    // 第二个菜单
+    CONFIG_EDITOR("单击要编辑的配置选项"),
+    PET_EDITOR("单击要编辑的宠物"),
+    CATEGORY_EDITOR("单击要编辑的类别"),
+    ITEM_EDITOR("单击要编辑的物品"),
+    PETFOOD_EDITOR("单击要编辑的宠物食物"),
 
-    // Pet editor menu
-    PET_EDITOR_EDIT("Edit the pet"),
-    PET_EDITOR_LEVELS("Edit the living pet features"),
-    PET_EDITOR_SKINS("Edit the skins of the pet"),
-    // Levels editor menu
-    PET_EDITOR_LEVEL_EDIT("Edit the level features"),
-    // Skins editor menu
-    PET_EDITOR_SKIN_EDIT("Edit the skin parameters"),
+    // 宠物编辑菜单
+    PET_EDITOR_EDIT("编辑宠物"),
+    PET_EDITOR_LEVELS("编辑活体宠物特性"),
+    PET_EDITOR_SKINS("编辑宠物的皮肤"),
+    // 等级编辑菜单
+    PET_EDITOR_LEVEL_EDIT("编辑等级特性"),
+    // 皮肤编辑菜单
+    PET_EDITOR_SKIN_EDIT("编辑皮肤参数"),
 
-    // Categories editor menu
-    CATEGORY_EDITOR_EDIT("Edit the category"),
+    // 类别编辑菜单
+    CATEGORY_EDITOR_EDIT("编辑类别"),
 
-    // Item editor menu
-    ITEM_EDITOR_EDIT("Edit the item"),
+    // 物品编辑菜单
+    ITEM_EDITOR_EDIT("编辑物品"),
 
-    // Petfood editor menu
-    PETFOOD_EDITOR_EDIT("Edit the pet food");
+    // 宠物食物编辑菜单
+    PETFOOD_EDITOR_EDIT("编辑宠物食物");
 
 
     @Getter

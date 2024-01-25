@@ -64,23 +64,23 @@ public class EditorConversationListener implements Listener {
         {
             if(conversation.getEditorItem().getType().equals(EditorExpectationType.MYTHICMOB))
             {
-                p.sendMessage("§cThe mythicmob §e" + entry + "§c does not exist. Check your MythicMob mob file to obtain the right ID.");
+                p.sendMessage("§cmythicmob §e" + entry + "§c 不存在.请检查您的mythicmob文件以获取正确的ID.");
             }
             else if(conversation.getEditorItem().getType().equals(EditorExpectationType.SKILL))
             {
-                p.sendMessage("§cThe skill §e" + entry + "§c does not exist. Check your MythicMob skills to obtain the right ID.");
+                p.sendMessage("§c技能 §e" + entry + "§c 不存在.请检查您的Mythicmob技能以获取正确的ID.");
             }
             else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
             {
-                p.sendMessage("§cThe pet §e" + entry + "§c already exists. Please use another ID.");
+                p.sendMessage("§c宠物 §e" + entry + "§c 已经存在.请使用其他ID.");
             }
             else
             {
-                p.sendMessage("§cThe expected type for this parameter is §6" + conversation.getEditorItem().getType().getName().replace("_", " "));
-                p.sendMessage("§cPlease try again with the right type.");
+                p.sendMessage("§c该参数的预期类型为 §6" + conversation.getEditorItem().getType().getName().replace("_", " "));
+                p.sendMessage("§c请使用正确的类型再次尝试.");
                 if(conversation.getEditorItem().getType().equals(EditorExpectationType.ITEM_ID_OR_MATERIAL))
                 {
-                    p.sendMessage("§bPossible items id are:");
+                    p.sendMessage("§b可能的物品ID有:");
                     p.sendMessage("§7" + ItemsListConfig.getInstance().getItems().keySet());
                 }
                 else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_ID) ||
@@ -89,27 +89,27 @@ public class EditorConversationListener implements Listener {
                         conversation.getEditorItem().getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
                         conversation.getEditorItem().getType().equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE))
                 {
-                    p.sendMessage("§bPossible pet ids are:");
+                    p.sendMessage("§b可能的宠物ID有:");
                     p.sendMessage("§7" + Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
                 }
                 else if(conversation.getEditorItem().getType().equals(EditorExpectationType.OPERATOR_TYPE) )
                 {
-                    p.sendMessage("§bPossible operators are:");
+                    p.sendMessage("§b可能的运算符有:");
                     p.sendMessage("§7" + Arrays.toString(PetMath.values()));
                 }
                 else if(conversation.getEditorItem().getType().equals(EditorExpectationType.MOUNT_TYPE) )
                 {
-                    p.sendMessage("§bPossible mount types are:");
+                    p.sendMessage("§b可能的骑乘类型有:");
                     p.sendMessage("§7[walking, flying]");
                 }
                 else if(conversation.getEditorItem().getType().equals(EditorExpectationType.ANNOUNCEMENT_TYPE))
                 {
-                    p.sendMessage("§bPossible announcement types are:");
+                    p.sendMessage("§b可能的公告类型有:");
                     p.sendMessage("§7" + Arrays.toString(PetAnnouncement.values()));
                 }
                 else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PETFOOD_TYPE))
                 {
-                    p.sendMessage("§bPossible pet food types are:");
+                    p.sendMessage("§b可能的宠物食物类型有:");
                     p.sendMessage("§7" + Arrays.toString(PetFoodType.values()));
                 }
             }

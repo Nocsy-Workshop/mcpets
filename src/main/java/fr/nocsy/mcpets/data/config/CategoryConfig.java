@@ -196,7 +196,7 @@ public class CategoryConfig extends AbstractConfig {
         });
 
         if (clear)
-            MCPets.getLog().info(MCPets.getLogName() + Category.getCategories().size() + " categories registered successfully !");
+            MCPets.getLog().info(MCPets.getLogName() + Category.getCategories().size() + "类别注册成功!");
     }
 
     public static void registerCleanCategory(Player creator)

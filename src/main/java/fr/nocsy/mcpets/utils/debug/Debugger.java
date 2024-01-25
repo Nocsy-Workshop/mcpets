@@ -29,13 +29,13 @@ public class Debugger {
         if(!isEnabled())
             return;
 
-        Bukkit.getConsoleSender().sendMessage("§7[MCPETS DEBUG]: §6" + msg);
+        Bukkit.getConsoleSender().sendMessage("§7[MCPETS 调试]: §6" + msg);
         for(UUID uuid : listeners)
         {
             Player p = Bukkit.getPlayer(uuid);
             if(p != null)
             {
-                p.sendMessage("§7[DEBUG]: §6" + msg);
+                p.sendMessage("§7[调试]: §6" + msg);
             }
         }
     }

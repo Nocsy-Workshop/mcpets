@@ -66,7 +66,7 @@ public class MCPets extends JavaPlugin {
 
         if(!checkMythicMobs())
         {
-            getLog().severe("MCPets could not be loaded : MythicMobs could not be found or this version is not compatible with the plugin.");
+            getLog().severe("无法加载 MCPets : 找不到 MythicMobs 或该版本与插件不兼容.");
             return;
         }
 
@@ -78,7 +78,7 @@ public class MCPets extends JavaPlugin {
             if (GlobalConfig.getInstance().isWorldguardsupport())
                 FlagsManager.init(this);
         } catch (Exception ex) {
-            getLog().warning(getLogName() + "Flag manager has raised an exception " + ex.getClass().getSimpleName());
+            getLog().warning(getLogName() + "标志管理器引发了一个异常 " + ex.getClass().getSimpleName());
             ex.printStackTrace();
         }
 
@@ -94,8 +94,8 @@ public class MCPets extends JavaPlugin {
         // Register the placeholders
         PetPlaceholdersManager.registerPlaceholders();
 
-        getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
-        getLog().info("      Plugin made by Nocsy");
+        getLog().info("-=-=-=-= MCPets 已加载 =-=-=-=-");
+        getLog().info("      Nocsy 制作的插件");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
 
         FlagsManager.launchFlags();
@@ -104,8 +104,8 @@ public class MCPets extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLog().info("-=-=-=-= MCPets disable =-=-=-=-");
-        getLog().info("          See you soon");
+        getLog().info("-=-=-=-= MCPets 禁用 =-=-=-=-");
+        getLog().info("          再见");
         getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
 
         PetStats.saveAll();
@@ -127,7 +127,7 @@ public class MCPets extends JavaPlugin {
         } catch (NoClassDefFoundError error) {
             if (!luckPermsNotFound) {
                 luckPermsNotFound = true;
-                Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
+                Bukkit.getLogger().warning("[MCPets] : 无法找到 LuckPerms. 与授予权限相关的某些功能将不可用.");
             }
         }
     }
@@ -142,7 +142,7 @@ public class MCPets extends JavaPlugin {
                 GlobalConfig.getInstance().setWorldguardsupport(true);
         } catch (NoClassDefFoundError error) {
             GlobalConfig.getInstance().setWorldguardsupport(false);
-            Bukkit.getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
+            Bukkit.getLogger().warning("[MCPets] : 无法找到 WorldGuard. 标志将不可用.");
         }
     }
 
@@ -161,7 +161,7 @@ public class MCPets extends JavaPlugin {
                 return true;
             }
         } catch (NoClassDefFoundError error) {
-            getLog().warning("[MCPets] : MythicMobs could not be found.");
+            getLog().warning("[MCPets] : 无法找到 MythicMobs.");
         }
         return false;
     }
