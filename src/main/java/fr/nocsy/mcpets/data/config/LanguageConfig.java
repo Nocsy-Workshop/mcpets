@@ -56,6 +56,6 @@ public class LanguageConfig extends AbstractConfig {
             MCPets.getLog().severe(MCPets.getLogName() + "交互菜单和主菜单具有相同的名称,这可能会导致意外的行为. 请考虑为两个菜单使用不同的名称.");
         }
 
-        MCPets.getLog().info(MCPets.getLogName() + "语言文件已重新加载.\n汉化作者:jhqwqmc");
+        MCPets.getLog().info(MCPets.getLogName() + "语言文件已重新加载.汉化作者:jhqwqmc");
     }
 }

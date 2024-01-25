@@ -119,7 +119,7 @@ public class PetConfig extends AbstractConfig {
         });
 
         if (clearPets)
-            MCPets.getLog().info(MCPets.getLogName() + Pet.getObjectPets().size() + "宠物注册成功!");
+            MCPets.getLog().info(MCPets.getLogName() + Pet.getObjectPets().size() + "个宠物注册成功!");
     }
 
     /**

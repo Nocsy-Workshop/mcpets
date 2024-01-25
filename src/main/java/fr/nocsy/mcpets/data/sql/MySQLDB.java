@@ -29,7 +29,7 @@ public class MySQLDB {
 
     public boolean init() {
         if (this.user == null || this.pass == null || this.ip == null || this.port == null || this.db == null) {
-            MCPets.getInstance().getLogger().severe("Missing SQL parameter.");
+            MCPets.getInstance().getLogger().severe("缺少 SQL 参数.");
             MCPets.getInstance().getLogger().severe("User : " + user);
             MCPets.getInstance().getLogger().severe("Pass : " + pass);
             MCPets.getInstance().getLogger().severe("Host : " + ip);
@@ -42,7 +42,7 @@ public class MySQLDB {
             String url = urlBuilder();
             this.sqlCon = DriverManager.getConnection(url, this.user, this.pass);
         } catch (Exception e) {
-            MCPets.getInstance().getLogger().severe("Could not reach SQL database. Please configure your database parameters.");
+            MCPets.getInstance().getLogger().severe("无法访问 SQL 数据库. 请配置您的数据库参数.");
             return false;
         }
         return true;
