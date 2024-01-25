@@ -46,7 +46,7 @@ public class PetFoodConfig extends AbstractConfig {
 
         for(String key : getConfig().getKeys(false))
         {
-            String id = Optional.ofNullable(getConfig().getString(key + ".ItemId")).orElse("None set");
+            String id = Optional.ofNullable(getConfig().getString(key + ".ItemId")).orElse("未设置");
             PetFoodType foodType = Optional.ofNullable(PetFoodType.get(getConfig().getString(key + ".Type"))).orElse(PetFoodType.HEALTH);
             double power = getConfig().getDouble(key + ".Power");
             PetMath operator = Optional.ofNullable(PetMath.get(getConfig().getString(key + ".Operator"))).orElse(PetMath.ADDITION);
@@ -127,7 +127,7 @@ public class PetFoodConfig extends AbstractConfig {
     public String registerCleanPetfood()
     {
         String key = UUID.randomUUID().toString();
-        getConfig().set(key + ".ItemId", "None set");
+        getConfig().set(key + ".ItemId", "未设置");
         save();
         reload();
         return key;

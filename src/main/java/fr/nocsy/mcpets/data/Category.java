@@ -52,8 +52,8 @@ public class Category {
         this.id = id;
         this.icon = null;
         this.pets = new ArrayList<>();
-        this.displayName = "Unknown";
-        this.iconName = "Unknown";
+        this.displayName = "未知";
+        this.iconName = "未知";
     }
 
     public boolean openInventory(Player p, int page)

@@ -93,7 +93,7 @@ public enum Items {
 
         ItemStack it = new ItemStack(Material.BEDROCK);
         ItemMeta meta = it.getItemMeta();
-        meta.setDisplayName("Unknown");
+        meta.setDisplayName("未知");
         meta.setLore(lore);
         meta.setLocalizedName("AlmPet;Unknown");
 

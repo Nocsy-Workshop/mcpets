@@ -53,9 +53,9 @@ public class CategoryConfig extends AbstractConfig {
         if(getConfig().get("Id") == null)
             getConfig().set("Id", this.id);
         if (getConfig().get("DisplayName") == null)
-            getConfig().set("DisplayName", "Category title");
+            getConfig().set("DisplayName", "类别标题");
         if (getConfig().get("IconName") == null)
-            getConfig().set("IconName", "Category name");
+            getConfig().set("IconName", "类别名称");
         if (getConfig().get("Icon") == null)
             getConfig().set("Icon", setupUnkownIcon());
         if (getConfig().get("Pets") == null)

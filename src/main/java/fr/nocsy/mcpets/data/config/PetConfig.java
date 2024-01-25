@@ -56,7 +56,7 @@ public class PetConfig extends AbstractConfig {
         if (getConfig().get("Id") == null)
             getConfig().set("Id", fileName.replace(".yml", ""));
         if (getConfig().get("MythicMob") == null)
-            getConfig().set("MythicMob", "No MythicMob defined");
+            getConfig().set("MythicMob", "未定义 MythicMob");
         if (getConfig().get("Permission") == null)
             getConfig().set("Permission", PPermission.USE.getPermission());
         if (getConfig().get("Distance") == null)
@@ -66,9 +66,9 @@ public class PetConfig extends AbstractConfig {
         if (getConfig().get("ComingBackRange") == null)
             getConfig().set("ComingBackRange", 3);
         if (getConfig().get("MythicMob") == null)
-            getConfig().set("MythicMob", "No MythicMob defined");
+            getConfig().set("MythicMob", "未定义 MythicMob");
         if (getConfig().get("MythicMob") == null)
-            getConfig().set("MythicMob", "No MythicMob defined");
+            getConfig().set("MythicMob", "未定义 MythicMob");
 
         save();
     }
