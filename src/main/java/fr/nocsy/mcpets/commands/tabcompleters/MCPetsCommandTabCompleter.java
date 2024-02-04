@@ -103,10 +103,15 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                     {
                         completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
                     }
-                    else if(args[0].equalsIgnoreCase("signalstick") ||
-                            args[0].equalsIgnoreCase("inventory"))
+                    else if(args[0].equalsIgnoreCase("signalstick"))
                     {
                         completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
+                    }
+                    else if( args[0].equalsIgnoreCase("inventory"))
+                    {
+                        completed.addAll(Pet.getObjectPets().stream()
+                                .filter(pet -> pet.getInventorySize() > 0)
+                                .map(Pet::getId).collect(Collectors.toList()));
                     }
                     else if(args[0].equalsIgnoreCase("item") &&
                             (args[1].equalsIgnoreCase("give") || args[1].equalsIgnoreCase("remove")))

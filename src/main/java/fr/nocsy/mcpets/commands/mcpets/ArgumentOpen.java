@@ -32,7 +32,7 @@ public class ArgumentOpen extends AArgument {
             return;
         }
 
-        PetMenu menu = new PetMenu(playerToOpen, 0, false);
+        PetMenu menu = new PetMenu(playerToOpen, 0);
         menu.open((Player) sender);
         return;
     }

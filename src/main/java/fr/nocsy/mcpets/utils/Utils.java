@@ -1,12 +1,10 @@
 package fr.nocsy.mcpets.utils;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.BlacklistConfig;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.Node;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -21,7 +19,7 @@ import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Base64;
 import java.util.List;
@@ -32,38 +30,38 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
-    @SuppressWarnings("deprecation")
     public static ItemStack createHead(String name, List<String> lore, String base64) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1, (short)3);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+
+        meta.setDisplayName(name);
+
+        byte[] decodedBytes = Base64.getDecoder().decode(base64);
+        String decodedString = new String(decodedBytes);
+
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = parser.parse(decodedString).getAsJsonObject();
+        String url = jsonObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
+
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-        item.setDurability((short) 3);
-        SkullMeta headMeta = (SkullMeta) item.getItemMeta();
-
-        headMeta.setDisplayName(name);
-        headMeta.setLore(lore);
-
-        item.setItemMeta(headMeta);
-        PlayerProfile profile = headMeta.getOwnerProfile();
-        if(profile == null)
-            profile = Bukkit.createPlayerProfile(UUID.randomUUID(), UUID.randomUUID().toString());
-        PlayerTextures textures = profile.getTextures();
-        try
-        {
-            String decoded = new String(Base64.getDecoder().decode(base64));
-            textures.setSkin(new URL(decoded));
-        } catch (Exception e) {}
-
-        profile.setTextures(textures);
-        profile.update();
-        if(profile.isComplete())
-        {
-            headMeta.setOwnerProfile(profile);
-            item.setItemMeta(headMeta);
-            return item;
+        PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("4fbecd49-c7d4-4c18-8410-adf7a7348728"));
+        PlayerTextures pt = pp.getTextures();
+        URL urlObject = null;
+        try {
+            urlObject = new URL(url);
+        } catch (MalformedURLException e) {
+            try {
+                urlObject = new URL("http://textures.minecraft.net/texture/8dcfabbbb4d7b0381135bf07b6af3de920ab4c366c06c37fa4c4e8b8f43bbb2b");
+            } catch (MalformedURLException malformedURLException) {
+                malformedURLException.printStackTrace();
+            }
         }
-        else
-        {
-            return item;
-        }
+
+        pt.setSkin(urlObject);
+        pp.setTextures(pt);
+        meta.setOwnerProfile(pp);
+        item.setItemMeta(meta);
+        return item;
     }
 
     public static double distance(Location loc1, Location loc2) {

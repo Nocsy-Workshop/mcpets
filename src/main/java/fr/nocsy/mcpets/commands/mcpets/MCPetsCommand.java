@@ -37,7 +37,7 @@ public class MCPetsCommand implements CCommand {
         if (sender.hasPermission(getPermission())) {
 
             if (sender instanceof Player && args.length == 0) {
-                PetMenu menu = new PetMenu((Player) sender, 0, false);
+                PetMenu menu = new PetMenu((Player) sender, 0);
                 menu.open((Player) sender);
                 return;
             }
@@ -47,6 +47,7 @@ public class MCPetsCommand implements CCommand {
                     new ArgumentClearStats(sender, args),
                     new ArgumentDebug(sender, args),
                     new ArgumentItem(sender, args),
+                    new ArgumentInventory(sender, args),
                     new ArgumentMount(sender, args),
                     new ArgumentName(sender, args),
                     new ArgumentOpen(sender, args),

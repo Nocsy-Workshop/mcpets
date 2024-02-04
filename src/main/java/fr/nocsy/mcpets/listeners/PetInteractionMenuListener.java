@@ -183,7 +183,7 @@ public class PetInteractionMenuListener implements Listener {
     }
 
     private void openBackPetMenu(Player p) {
-        PetMenu menu = new PetMenu(p, 0, false);
+        PetMenu menu = new PetMenu(p, 0);
         menu.open(p);
     }
 
