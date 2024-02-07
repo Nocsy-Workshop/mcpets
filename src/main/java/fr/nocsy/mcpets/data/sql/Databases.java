@@ -191,7 +191,7 @@ public class Databases {
         synchronized (getLockForPlayer(playerUUID)) {
             PlayerData pd = PlayerData.getRegisteredData().get(playerUUID);
 
-            String names = buildStringSerialized(pd.getMapOfRegisteredNames());
+            String names = buildStringSerialized(pd.getMapOfRegisteredNames()).replace("'", "").replace("\"", "");
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
 
             StringBuilder data = new StringBuilder();

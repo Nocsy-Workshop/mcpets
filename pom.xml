@@ -44,6 +44,10 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
             <id>minecraft-repo</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
@@ -97,6 +101,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.mojang</groupId>
             <artifactId>authlib</artifactId>
             <version>1.5.21</version>
@@ -108,7 +118,7 @@
         <dependency>
             <groupId>io.lumine</groupId>
             <artifactId>Mythic-Dist</artifactId>
-            <version>5.4.1-SNAPSHOT</version>
+            <version>5.6.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -23,10 +23,10 @@ public class PetMenuListener implements Listener {
                     int page = Integer.parseInt(it.getItemMeta().getLocalizedName().split(";")[1]);
                     p.closeInventory();
                     if (e.getClick() == ClickType.LEFT) {
-                        PetMenu menu = new PetMenu(p, Math.max(page - 1, 0), true);
+                        PetMenu menu = new PetMenu(p, Math.max(page - 1, 0));
                         menu.open(p);
                     } else {
-                        PetMenu menu = new PetMenu(p, page + 1, true);
+                        PetMenu menu = new PetMenu(p, page + 1);
                         menu.open(p);
                     }
                     return;

@@ -182,13 +182,11 @@ public class PetLevel {
      */
     public boolean canEvolve(UUID player, Pet evolution)
     {
-        if(evolution != null)
-        {
-            // If the owner already has the evolution, then we say that the pet can not evolve
-            // Else it can evolve
-            return !Utils.hasPermission(player, evolution.getPermission());
-        }
-        return true;
+        if(player == null || evolution == null)
+            return false;
+        // If the owner already has the evolution, then we say that the pet can not evolve
+        // Else it can evolve
+        return !Utils.hasPermission(player, evolution.getPermission());
     }
 
     /**
