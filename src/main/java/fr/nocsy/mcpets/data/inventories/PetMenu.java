@@ -41,7 +41,11 @@ public class PetMenu {
         // Let's see if we need to add a pager to the inventory
         // Either we have more than 53 pets or we are at a page greater than 0
         boolean addPager = page > 0;
-        for(int i = 53 * page; i < availablePets.size(); i++)
+        int pageSize = 53;
+        if (GlobalConfig.getInstance().getAdaptiveInventory() > 0) {
+            pageSize = GlobalConfig.getInstance().getAdaptiveInventory() - 1;
+        }
+        for(int i = pageSize * page; i < availablePets.size(); i++)
         {
             // We can not have more than 53 pets selected at a given page
             if(selectedPets.size() >= 53)

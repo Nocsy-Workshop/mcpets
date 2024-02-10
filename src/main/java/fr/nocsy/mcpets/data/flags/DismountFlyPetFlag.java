@@ -6,6 +6,7 @@ import com.ticxo.modelengine.api.model.bone.manager.MountManager;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -48,7 +49,8 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
                     if (!pet.isMountable())
                         continue;
 
-                    ModeledEntity model = ModelEngineAPI.getModeledEntity(pet.getActiveMob().getUniqueId());
+                    UUID uuid = pet.getActiveMob().getUniqueId();
+                    ModeledEntity model = ModelEngineAPI.getModeledEntity(uuid);
                     if(model == null)
                         continue;
                     MountManager mountManager = model.getMountData().getMainMountManager();
@@ -56,11 +58,21 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
                             model.getMountData().getMainMountManager() ==  null ||
                             model.getMountData().getMainMountManager().getType() == null)
                         continue;
-
-                    String name = model.getMountData().getMainMountManager().getType().getId();
-
-                    if(name == null || !name.toUpperCase().contains("FLY"))
+                    if(!mountManager.hasRiders())
                         continue;
+
+                    try
+                    {
+                        String controllerClass = ModelEngineAPI.getMountPairManager().getController(owner).getClass().getSimpleName();
+                        String petMountType = pet.getMountType();
+                        String type = petMountType + " " + model.getMountData().getMainMountManager().getType().getId() + " " + controllerClass;
+                        if(!type.toUpperCase().contains("FLY"))
+                            continue;
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
 
                     Player p = Bukkit.getPlayer(owner);
 
