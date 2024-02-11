@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
@@ -31,37 +32,39 @@ import java.util.regex.Pattern;
 public class Utils {
 
     public static ItemStack createHead(String name, List<String> lore, String base64) {
-        ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1, (short)3);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-
-        meta.setDisplayName(name);
-
-        byte[] decodedBytes = Base64.getDecoder().decode(base64);
-        String decodedString = new String(decodedBytes);
-
-        JsonParser parser = new JsonParser();
-        JsonObject jsonObject = parser.parse(decodedString).getAsJsonObject();
-        String url = jsonObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
-
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-        PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("4fbecd49-c7d4-4c18-8410-adf7a7348728"));
-        PlayerTextures pt = pp.getTextures();
-        URL urlObject = null;
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+        meta.setDisplayName(name);
         try {
-            urlObject = new URL(url);
-        } catch (MalformedURLException e) {
-            try {
-                urlObject = new URL("http://textures.minecraft.net/texture/8dcfabbbb4d7b0381135bf07b6af3de920ab4c366c06c37fa4c4e8b8f43bbb2b");
-            } catch (MalformedURLException malformedURLException) {
-                malformedURLException.printStackTrace();
-            }
-        }
+            byte[] decodedBytes = Base64.getDecoder().decode(base64);
+            String decodedString = new String(decodedBytes);
 
-        pt.setSkin(urlObject);
-        pp.setTextures(pt);
-        meta.setOwnerProfile(pp);
-        item.setItemMeta(meta);
-        return item;
+            JsonParser parser = new JsonParser();
+            JsonObject jsonObject = parser.parse(decodedString).getAsJsonObject();
+            String url = jsonObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
+
+            PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("4fbecd49-c7d4-4c18-8410-adf7a7348728"));
+            PlayerTextures pt = pp.getTextures();
+            URL urlObject = null;
+            try {
+                urlObject = new URL(url);
+            } catch (MalformedURLException e) {
+                try {
+                    urlObject = new URL("http://textures.minecraft.net/texture/8dcfabbbb4d7b0381135bf07b6af3de920ab4c366c06c37fa4c4e8b8f43bbb2b");
+                } catch (MalformedURLException malformedURLException) {
+                    malformedURLException.printStackTrace();
+                }
+            }
+
+            pt.setSkin(urlObject);
+            pp.setTextures(pt);
+            meta.setOwnerProfile(pp);
+            item.setItemMeta(meta);
+            return item;
+        } catch (Exception e) {
+            item.setItemMeta(meta);
+            return item;
+        }
     }
 
     public static double distance(Location loc1, Location loc2) {
