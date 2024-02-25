@@ -35,6 +35,7 @@ public class Utils {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setDisplayName(name);
+        meta.setLore(lore);
         try {
             byte[] decodedBytes = Base64.getDecoder().decode(base64);
             String decodedString = new String(decodedBytes);
