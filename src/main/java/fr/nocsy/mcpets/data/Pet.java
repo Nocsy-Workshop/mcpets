@@ -129,15 +129,15 @@ public class Pet {
 
     @Getter
     @Setter
-    private Skill despawnSkill;
+    private String despawnSkill;
 
     @Getter
     @Setter
-    private Skill tamingProgressSkill;
+    private String tamingProgressSkill;
 
     @Getter
     @Setter
-    private Skill tamingOverSkill;
+    private String tamingOverSkill;
 
     @Getter
     @Setter
@@ -489,17 +489,19 @@ public class Pet {
                         petStats.setHealth(petStats.getCurrentLevel().getMaxHealth());
                     }
                 }.runTaskLater(MCPets.getInstance(), 2L);
-                if (tamingOverSkill != null) {
+                Skill tamingOverSkillMM = Utils.getSkill(tamingOverSkill);
+                if (tamingOverSkillMM != null) {
                     try {
-                        tamingOverSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
+                        tamingOverSkillMM.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
                     } catch (Exception ignored) {}
                 }
             }
             else
             {
-                if (tamingProgressSkill != null) {
+                Skill tamingProgressSkillMM = Utils.getSkill(tamingProgressSkill);
+                if (tamingProgressSkillMM != null) {
                     try {
-                        tamingProgressSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
+                        tamingProgressSkillMM.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
                     } catch (Exception ignored) {}
                 }
             }
@@ -971,10 +973,11 @@ public class Pet {
             if(reason != PetDespawnReason.DEATH)
             {
                 // Do we have a despawn skill to trigger or a skin swap?
-                if (despawnSkill != null
+                Skill despawnSkillMM = Utils.getSkill(despawnSkill);
+                if (despawnSkillMM != null
                         && reason != PetDespawnReason.SKIN) {
                     try {
-                        despawnSkill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
+                        despawnSkillMM.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
                     } catch (Exception ex) {
                         if (activeMob.getEntity() != null && activeMob.getEntity().getBukkitEntity() != null)
                         {
@@ -1147,6 +1150,8 @@ public class Pet {
         pet.setSpawnRange(spawnRange);
         pet.setComingBackRange(comingBackRange);
         pet.setDespawnSkill(despawnSkill);
+        pet.setTamingProgressSkill(tamingProgressSkill);
+        pet.setTamingOverSkill(tamingOverSkill);
         pet.setMountable(mountable);
         pet.setMountPermission(mountPermission);
         pet.setDespawnOnDismount(despawnOnDismount);
@@ -1464,21 +1469,33 @@ public class Pet {
             StringBuilder progressBar = new StringBuilder();
             PetLevel nextLevel = petStats.getNextLevel();
             if (nextLevel != null) {
-                // Size of the progress bar in the hovering
-                int progressBarSize = GlobalConfig.instance.getExperienceBarSize();
+                if(nextLevel.equals(petStats.getCurrentLevel()))
+                {
+                    progressBar.append(Language.PET_STATS_MAX_LEVEL.getMessage());
+                }
+                else
+                {
+                    // Size of the progress bar in the hovering
+                    int progressBarSize = GlobalConfig.instance.getExperienceBarSize();
 
-                double experienceRatio = (petStats.getExperience() - petStats.getCurrentLevel().getExpThreshold()) / (nextLevel.getExpThreshold() - petStats.getCurrentLevel().getExpThreshold());
-                int indexProgress = Math.min(progressBarSize, (int) (experienceRatio * progressBarSize + 0.5));
+                    double experienceRatio = (petStats.getExperience() - petStats.getCurrentLevel().getExpThreshold()) / (nextLevel.getExpThreshold() - petStats.getCurrentLevel().getExpThreshold());
+                    int indexProgress = Math.min(progressBarSize, (int) (experienceRatio * progressBarSize + 0.5));
 
-                for (int i = 0; i < progressBarSize; i++) {
-                    if (i < indexProgress)
-                        progressBar.append(GlobalConfig.getInstance().getExperienceColorDone() +
-                                GlobalConfig.getInstance().getExperienceSymbol() +
-                                GlobalConfig.getInstance().getExperienceColorLeft());
-                    else
-                        progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft() +
-                                GlobalConfig.getInstance().getExperienceSymbol() +
-                                GlobalConfig.getInstance().getExperienceColorLeft());
+                    for (int i = 0; i < progressBarSize; i++) {
+                        if (i < indexProgress)
+                            progressBar.append(GlobalConfig.getInstance().getExperienceColorDone() +
+                                    GlobalConfig.getInstance().getExperienceSymbol() +
+                                    GlobalConfig.getInstance().getExperienceColorLeft());
+                        else
+                            progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft() +
+                                    GlobalConfig.getInstance().getExperienceSymbol() +
+                                    GlobalConfig.getInstance().getExperienceColorLeft());
+                    }
+                }
+                if(nextLevel.getEvolutionId() != null &&
+                        !nextLevel.canEvolve(owner,  Pet.getFromId(nextLevel.getEvolutionId())))
+                {
+                    progressBar.append('\n').append(Language.PET_STATS_EVOLUTION_ALREADY_OWNED.getMessage());
                 }
             }
 

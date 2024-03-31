@@ -331,6 +331,20 @@ public class PetStats {
         boolean levelUp = false;
         while(!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience)
         {
+            if(nextLevel.getEvolutionId() != null &&
+                    !nextLevel.canEvolve(pet.getOwner(), Pet.getFromId(nextLevel.getEvolutionId())))
+            {
+                Debugger.send("Pet §6" + pet.getId() + "§7 can not evolve into §a" + nextLevel.getEvolutionId() + "§7 because the player already owns the evolution.");
+                if(experience == nextLevel.getExpThreshold()-1 + event.getExperience()) {
+                    experience = nextLevel.getExpThreshold() - 1;
+                    return false;
+                }
+                else
+                {
+                    experience = nextLevel.getExpThreshold()-1;
+                    break;
+                }
+            }
             Debugger.send("§aPet §7" + pet.getId() + "§a is leveling up to §6" + nextLevel.getLevelName());
             // note that's there's been a levelup
             levelUp = true;
@@ -364,8 +378,7 @@ public class PetStats {
             return null;
 
         return pet.getPetLevels().stream()
-                                    .filter(petLevel -> petLevel.getExpThreshold() > currentLevel.getExpThreshold() &&
-                                                        petLevel.canEvolve(pet.getOwner(), Pet.getFromId(petLevel.getEvolutionId())))
+                                    .filter(petLevel -> petLevel.getExpThreshold() > currentLevel.getExpThreshold())
                                     .findFirst().orElse(currentLevel);
     }
 

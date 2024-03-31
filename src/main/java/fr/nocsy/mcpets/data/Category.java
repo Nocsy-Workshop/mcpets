@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.data.config.CategoryConfig;
 import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,7 +64,12 @@ public class Category {
 
         p.closeInventory();
 
-        int invSize = pets.size() - page*53 + 1; //Adding 1 for the page manager
+        int invSize = GlobalConfig.getInstance().getAdaptiveInventory();
+        // If we're using the adaptive inventory, we need to calculate the size of the inventory
+        if(invSize <= 0)
+        {
+            invSize = pets.size() - page * 53 + 1; //Adding 1 for the page manager
+        }
         invSize = Math.min(54, invSize);
         while(invSize <= 0 || invSize%9 != 0)
         {
@@ -71,7 +77,7 @@ public class Category {
         }
 
         ArrayList<Pet> showedPets = new ArrayList<>();
-        for(int i = page*53; i < pets.size(); i++)
+        for(int i = page*(invSize-1); i < pets.size(); i++)
         {
             if(showedPets.size() >= invSize-1)
                 break;
@@ -113,9 +119,20 @@ public class Category {
     {
         this.maxPages = 1;
         int count = pets.size();
+        int invSize = GlobalConfig.getInstance().getAdaptiveInventory();
+        if(invSize > 0)
+        {
+            while (invSize <= 0 || invSize % 9 != 0)
+                invSize++;
+            invSize--;
+        }
+        else
+        {
+            invSize = 53;
+        }
         while(count > 0)
         {
-            if(count%53 == 0)
+            if(count%invSize == 0)
                 maxPages++;
             count--;
         }

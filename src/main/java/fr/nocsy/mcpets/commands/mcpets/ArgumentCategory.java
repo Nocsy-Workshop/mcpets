@@ -17,14 +17,13 @@ public class ArgumentCategory extends AArgument {
     }
 
     @Override
-    public boolean additionalConditions()
-    {
-        return sender.hasPermission(PPermission.ADMIN.getPermission());
+    public boolean additionalConditions() {
+        return true;
     }
 
     @Override
     public void commandEffect() {
-        if(args.length == 2 && sender instanceof Player)
+        if(args.length == 2 && sender instanceof Player && sender.hasPermission(PPermission.USE.getPermission()))
         {
             String categoryId = args[1];
 
@@ -37,7 +36,7 @@ public class ArgumentCategory extends AArgument {
 
             category.openInventory((Player)sender, 0);
         }
-        else if(args.length == 3)
+        else if(args.length == 3 && sender.hasPermission(PPermission.ADMIN.getPermission()))
         {
             String categoryId = args[1];
 

@@ -131,6 +131,8 @@ public enum Language {
             "\n§7Experience: §a%experience%/%threshold% xp" +
             "\n%progressbar%"),
 
+    PET_STATS_EVOLUTION_ALREADY_OWNED("§cEvolution already owned."),
+    PET_STATS_MAX_LEVEL("§7Maximum level reached."),
     DEBUGGER_JOINING("§aDebugger is enabled. You are now listening to it."),
     DEBUGGER_LEAVE("§aDebugger is §7disabled§a. You will not be listening to it anymore.");
 

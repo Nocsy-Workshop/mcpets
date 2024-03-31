@@ -119,14 +119,22 @@ public class PetPlaceholdersManager {
                 return pet.getPetStats().getCurrentLevel().getLevelName();
         }));
 
-        // Level name placeholder
         register("pet.hp", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
             if(pet == null || pet.getPetStats() == null)
-                return Double.toString(entity.getHealth());
+                return Integer.toString((int)entity.getHealth());
             else
-                return Double.toString(pet.getPetStats().getCurrentHealth());
+                return Integer.toString((int)pet.getPetStats().getCurrentHealth());
+        }));
+
+        register("pet.max.hp", Placeholder.meta((meta,arg) -> {
+            AbstractEntity entity = meta.getCaster().getEntity();
+            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
+            if(pet == null || pet.getPetStats() == null)
+                return Integer.toString((int)entity.getMaxHealth());
+            else
+                return Integer.toString((int)pet.getPetStats().getCurrentLevel().getMaxHealth());
         }));
     }
 

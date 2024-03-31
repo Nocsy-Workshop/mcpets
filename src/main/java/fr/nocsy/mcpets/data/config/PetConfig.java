@@ -195,36 +195,9 @@ public class PetConfig extends AbstractConfig {
         pet.setSignals(signals);
         pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
 
-        if (despawnSkillName != null) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(despawnSkillName);
-                    optionalSkill.ifPresent(pet::setDespawnSkill);
-                    if (pet.getDespawnSkill() == null) {
-                        MCPets.getLog().warning(MCPets.getLogName() + "Impossible to link the despawn skill \"" + despawnSkillName + "\" to the pet \"" + pet.getId() + "\", because this skill doesn't exist.");
-                    }
-                }
-            }.runTaskLater(MCPets.getInstance(), 5L);
-        }
-        if (tamingSkillName != null) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(tamingSkillName);
-                    optionalSkill.ifPresent(pet::setTamingProgressSkill);
-                }
-            }.runTaskLater(MCPets.getInstance(), 5L);
-        }
-        if (tamingOverSkillName != null) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(tamingOverSkillName);
-                    optionalSkill.ifPresent(pet::setTamingOverSkill);
-                }
-            }.runTaskLater(MCPets.getInstance(), 5L);
-        }
+        pet.setDespawnSkill(despawnSkillName);
+        pet.setTamingProgressSkill(tamingSkillName);
+        pet.setTamingOverSkill(tamingOverSkillName);
 
         ItemStack icon = legacyItemRead(pet.getIcon(), true, pet.toString(), "§cIcon (not set)", "Icon");
         pet.setIcon(icon);
