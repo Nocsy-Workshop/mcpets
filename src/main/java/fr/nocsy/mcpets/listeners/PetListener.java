@@ -282,9 +282,11 @@ public class PetListener implements Listener {
             if (pet != null) {
                 if (!pet.isRemoved()) {
                     pet.despawn(PetDespawnReason.DEATH);
-                    Player owner = Bukkit.getPlayer(pet.getOwner());
-                    if (owner != null) {
-                        Language.REVOKED.sendMessage(owner);
+                    if (pet.getOwner() != null) {
+                        Player owner = Bukkit.getPlayer(pet.getOwner());
+                        if (owner != null) {
+                            Language.REVOKED.sendMessage(owner);
+                        }
                     }
                 }
             }
