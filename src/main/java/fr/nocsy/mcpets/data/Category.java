@@ -89,11 +89,15 @@ public class Category {
         if(showedPets.isEmpty() && page > 0)
             return false;
 
-        invSize = showedPets.size();
-        if(maxPages > 1)
-            invSize++;
-        while(invSize <= 0 || invSize % 9 != 0)
-            invSize++;
+        // Adaptive inventory setting
+        if(GlobalConfig.getInstance().getAdaptiveInventory() <= 0)
+        {
+            invSize = showedPets.size();
+            if(maxPages > 1)
+                invSize++;
+            while(invSize <= 0 || invSize % 9 != 0)
+                invSize++;
+        }
 
         Inventory inventory = Bukkit.createInventory(null,  invSize, displayName);
 
@@ -148,7 +152,7 @@ public class Category {
     private void setupData()
     {
         ItemMeta meta = icon.getItemMeta();
-        meta.setLocalizedName("MCPetsCategory;" + this.getId());
+        meta.setItemName("MCPetsCategory;" + this.getId());
         meta.setDisplayName(iconName);
 
         icon.setItemMeta(meta);
@@ -169,9 +173,9 @@ public class Category {
         if(pager != null
                 && !pager.getType().isAir()
                 && pager.hasItemMeta()
-                && pager.getItemMeta().hasLocalizedName())
+                && pager.getItemMeta().hasItemName())
         {
-            String[] data = pager.getItemMeta().getLocalizedName().split(";");
+            String[] data = pager.getItemMeta().getItemName().split(";");
             if(data.length != 3)
                 return -1;
 
@@ -247,9 +251,9 @@ public class Category {
         if(pager != null
                 && !pager.getType().isAir()
                 && pager.hasItemMeta()
-                && pager.getItemMeta().hasLocalizedName())
+                && pager.getItemMeta().hasItemName())
         {
-            String[] data = pager.getItemMeta().getLocalizedName().split(";");
+            String[] data = pager.getItemMeta().getItemName().split(";");
             if(data.length != 3)
                 return null;
 

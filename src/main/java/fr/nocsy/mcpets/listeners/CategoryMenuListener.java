@@ -37,7 +37,7 @@ public class CategoryMenuListener implements Listener {
 
             ItemStack it = e.getCurrentItem();
             if (it != null) {
-                if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("MCPetsPage;")) {
+                if (it.hasItemMeta() && it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("MCPetsPage;")) {
 
                     int currentPage = category.getCurrentPage(e.getClickedInventory());
                     if (e.getClick() == ClickType.LEFT) {

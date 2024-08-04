@@ -95,9 +95,9 @@ public class PetInteractionMenuListener implements Listener {
             }
 
             ItemStack it = e.getCurrentItem();
-            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName() && it.getItemMeta().hasLocalizedName()) {
+            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName() && it.getItemMeta().hasItemName()) {
 
-                String localizedName = it.getItemMeta().getLocalizedName();
+                String localizedName = it.getItemMeta().getItemName();
                 if (localizedName.contains("AlmPetPage;"))
                     return;
 

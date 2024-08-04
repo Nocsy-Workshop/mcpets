@@ -19,8 +19,8 @@ public class PetMenuListener implements Listener {
             Player p = (Player) e.getWhoClicked();
             ItemStack it = e.getCurrentItem();
             if (it != null) {
-                if (it.hasItemMeta() && it.getItemMeta().hasLocalizedName() && it.getItemMeta().getLocalizedName().contains("AlmPetPage;")) {
-                    int page = Integer.parseInt(it.getItemMeta().getLocalizedName().split(";")[1]);
+                if (it.hasItemMeta() && it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("AlmPetPage;")) {
+                    int page = Integer.parseInt(it.getItemMeta().getItemName().split(";")[1]);
                     p.closeInventory();
                     if (e.getClick() == ClickType.LEFT) {
                         PetMenu menu = new PetMenu(p, Math.max(page - 1, 0));

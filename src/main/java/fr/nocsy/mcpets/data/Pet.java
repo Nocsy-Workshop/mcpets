@@ -35,12 +35,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.util.*;
 
@@ -307,8 +307,8 @@ public class Pet {
      * @return
      */
     public static Pet getFromIcon(ItemStack icon) {
-        if (icon.hasItemMeta() && icon.getItemMeta().hasLocalizedName()) {
-            return fromString(icon.getItemMeta().getLocalizedName());
+        if (icon.hasItemMeta() && icon.getItemMeta().hasItemName()) {
+            return fromString(icon.getItemMeta().getItemName());
         }
         return null;
     }
@@ -1429,12 +1429,12 @@ public class Pet {
                 && textureBase64 != null) {
             item = Utils.createHead(iconName, desc, textureBase64);
             ItemMeta meta = item.getItemMeta();
-            meta.setLocalizedName(localizedName);
+            meta.setItemName(localizedName);
             item.setItemMeta(meta);
         } else if (mat != null) {
             item = new ItemStack(mat);
             ItemMeta meta = item.getItemMeta();
-            meta.setLocalizedName(localizedName);
+            meta.setItemName(localizedName);
             meta.setCustomModelData(customModelData);
             meta.setDisplayName(iconName);
             meta.setLore(desc);
@@ -1442,7 +1442,7 @@ public class Pet {
         } else if(item == null){
             item = Utils.createHead(iconName, desc, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQ5Y2M1OGFkMjVhMWFiMTZkMzZiYjVkNmQ0OTNjOGY1ODk4YzJiZjMwMmI2NGUzMjU5MjFjNDFjMzU4NjcifX19");
             ItemMeta meta = item.getItemMeta();
-            meta.setLocalizedName(localizedName);
+            meta.setItemName(localizedName);
             item.setItemMeta(meta);
         }
 
