@@ -45,6 +45,9 @@ public class PetFood {
     private String signal;
 
     @Getter
+    private long cooldown;
+
+    @Getter
     private List<String> petIds;
 
     @Getter
@@ -89,6 +92,7 @@ public class PetFood {
             PetFoodType type,
             PetMath operator,
             String signal,
+            long cooldown,
             String evolution,
             int experienceThreshold,
             int delay,
@@ -104,6 +108,7 @@ public class PetFood {
         this.type = type;
         this.operator = operator;
         this.signal = signal;
+        this.cooldown = cooldown;
         this.evolution = evolution;
         this.experienceThreshold = experienceThreshold;
         this.delay = delay;
@@ -188,6 +193,12 @@ public class PetFood {
         }.runTaskLater(MCPets.getInstance(), delay);
     }
 
+    private int getRemainingCooldownInSeconds(Pet pet) {
+        long foodEatenTimestamp = pet.getFoodEatenTimestamp(id);
+        long remainingCooldown = foodEatenTimestamp + cooldown - System.currentTimeMillis();
+        return remainingCooldown < 0 ? 0 : (int) (remainingCooldown / 1000L);
+    }
+
     /**
      * Give the food to the pet
      * @param pet
@@ -206,6 +217,13 @@ public class PetFood {
 
         if(!isCompatibleWithPet(pet))
             return false;
+
+        int foodCooldown = getRemainingCooldownInSeconds(pet);
+        if (foodCooldown > 0) {
+            Debugger.send("§7NOT applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 because it's on cooldown for " + foodCooldown + "s more");
+            Language.PET_FOOD_ON_COOLDOWN.sendMessageFormated(p, new FormatArg("%timeleft%", foodCooldown));
+            return false;
+        }
 
         // says whether the petfood was triggered or not
         boolean triggered = false;
@@ -299,6 +317,7 @@ public class PetFood {
         if(triggered)
         {
             pet.sendSignal(signal);
+            pet.applyFoodCooldown(id);
         }
 
         registerWaitingList(pet.getOwner(), 5L);

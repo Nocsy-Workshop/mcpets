@@ -113,6 +113,7 @@ public enum Language {
 
     PET_ALREADY_TAMED("§cThis pet is already tamed."),
     PET_DOESNT_EAT("§cThis pet can not eat that food."),
+    PET_FOOD_ON_COOLDOWN("§cThe pet won't eat this food for another %timeleft% seconds"),
 
     PET_STATUS_ALIVE("§aAvailable"),
     PET_STATUS_REVOKED("§cUnavailable §7(%timeleft%s left)"),
