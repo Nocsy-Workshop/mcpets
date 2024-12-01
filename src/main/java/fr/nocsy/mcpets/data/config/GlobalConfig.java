@@ -152,14 +152,14 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("PercentHealthOnRespawn", 0.2);
         if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", true);
-        if(getConfig().get("AutoSaveDelay") == null)
+        if (getConfig().get("AutoSaveDelay") == null)
             getConfig().set("AutoSaveDelay", 3600);
 
-        if(getConfig().get("GlobalRespawnCooldown") == null)
+        if (getConfig().get("GlobalRespawnCooldown") == null)
             getConfig().set("GlobalRespawnCooldown", false);
-        if(getConfig().get("DefaultRespawnCooldown") == null)
+        if (getConfig().get("DefaultRespawnCooldown") == null)
             getConfig().set("DefaultRespawnCooldown", 0);
-        if(getConfig().get("AutoRespawn") == null)
+        if (getConfig().get("AutoRespawn") == null)
             getConfig().set("AutoRespawn", false);
         if (getConfig().get("Experience.BarSize") == null)
             getConfig().set("Experience.BarSize", 40);
@@ -181,7 +181,6 @@ public class GlobalConfig extends AbstractConfig {
         if (getConfig().get("Taming.ColorLeft") == null)
             getConfig().set("Taming.ColorLeft", "§f");
 
-
         if (getConfig().get("MySQL.Prefix") == null)
             getConfig().set("MySQL.Prefix", "");
         if (getConfig().get("MySQL.User") == null)
@@ -194,8 +193,10 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("MySQL.Port", "2560");
         if (getConfig().get("MySQL.Database") == null)
             getConfig().set("MySQL.Database", "mcpets_db");
-        if(getConfig().get("BlackListedWorlds") == null)
+        if (getConfig().get("BlackListedWorlds") == null)
             getConfig().set("BlackListedWorlds", new ArrayList<String>());
+        if (getConfig().get("DisableMySQL") == null)
+            getConfig().set("DisableMySQL", false);
 
         save();
         reload();

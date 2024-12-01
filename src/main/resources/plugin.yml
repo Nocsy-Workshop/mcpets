@@ -1,7 +1,14 @@
-name: MCPets
-main: fr.nocsy.mcpets.MCPets
-version: 4.1.4
+name: '${project.name}'
+version: '${project.version}'
 description: MCModels affiliate plugin. Join the workshop ! https://discord.gg/p7QTm2gUyf
+load: STARTUP
+author: Nocsy
+website: 'https://mcpets.gitbook.io/mcpets'
+
+main: fr.nocsy.mcpets.MCPets
+api-version: 1.17
+database: false
+prefix: '${project.name}'
 depend:
   - MythicMobs
   - ModelEngine
@@ -9,11 +16,19 @@ softdepend:
   - WorldGuard
   - LuckPerms
   - PlaceholderAPI
-author: Nocsy
-api-version: 1.17
+loadbefore: []
+
 commands:
   mcpets:
     description: Command to manage your pets
     Usage: /mcpets
     permission: mcpets.use
-    aliases: [ pets ]
+    aliases: [pets]
+
+permissions:
+  mcpets.use:
+    default: true
+  mcpets.admin:
+    default: op
+  mcpets.color:
+    default: op

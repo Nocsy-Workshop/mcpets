@@ -1,5 +1,7 @@
 package fr.nocsy.mcpets.data.config;
 
+import org.jetbrains.annotations.NotNull;
+
 public class FormatArg {
     private final String toReplace;
     private final String replaceWith;
@@ -7,6 +9,11 @@ public class FormatArg {
     public FormatArg(String toReplace, String replaceWith) {
         this.toReplace = toReplace;
         this.replaceWith = replaceWith;
+    }
+
+    public FormatArg(String toReplace, @NotNull Integer replaceWith) {
+        this.toReplace = toReplace;
+        this.replaceWith = Integer.toString(replaceWith);
     }
 
     /**

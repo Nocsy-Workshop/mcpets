@@ -159,6 +159,8 @@ public class Pet {
     @Setter
     private boolean enableSignalStickFromMenu;
 
+    private Map<String, Long> petFoodEatenTimestamps;
+
     //********** Entity features **********
 
     @Setter
@@ -215,6 +217,7 @@ public class Pet {
         this.instance = this;
         this.checkPermission = true;
         this.firstSpawn = true;
+        this.petFoodEatenTimestamps = new HashMap<>();
     }
 
     /**
@@ -506,6 +509,14 @@ public class Pet {
                 }
             }
         }
+    }
+
+    public long getFoodEatenTimestamp(String petFoodId) {
+        return petFoodEatenTimestamps.getOrDefault(petFoodId, 0L);
+    }
+
+    public void applyFoodCooldown(String petFoodId) {
+        petFoodEatenTimestamps.put(petFoodId, System.currentTimeMillis());
     }
 
     /**

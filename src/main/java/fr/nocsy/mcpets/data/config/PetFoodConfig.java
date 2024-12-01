@@ -51,6 +51,7 @@ public class PetFoodConfig extends AbstractConfig {
             double power = getConfig().getDouble(key + ".Power");
             PetMath operator = Optional.ofNullable(PetMath.get(getConfig().getString(key + ".Operator"))).orElse(PetMath.ADDITION);
             String signal = getConfig().getString(key + ".Signal");
+            long cooldown = getConfig().getLong(key + ".Cooldown", 0L) * 1000L;
             String evolution = getConfig().getString(key + ".Evolution");
             int experienceThreshold = getConfig().getInt(key + ".ExperienceThreshold");
             int delay = getConfig().getInt(key + ".DelayBeforeEvolution");
@@ -67,6 +68,7 @@ public class PetFoodConfig extends AbstractConfig {
                     foodType,
                     operator,
                     signal,
+                    cooldown,
                     evolution,
                     experienceThreshold,
                     delay,
