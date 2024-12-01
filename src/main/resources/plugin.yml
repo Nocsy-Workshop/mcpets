@@ -3,7 +3,7 @@ version: '${project.version}'
 description: MCModels affiliate plugin. Join the workshop ! https://discord.gg/p7QTm2gUyf
 load: STARTUP
 author: Nocsy
-website: ''
+website: 'https://mcpets.gitbook.io/mcpets'
 
 main: fr.nocsy.mcpets.MCPets
 api-version: 1.17
