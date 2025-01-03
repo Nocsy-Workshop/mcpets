@@ -1,7 +1,7 @@
 name: '${project.name}'
 version: '${project.version}'
 description: MCModels affiliate plugin. Join the workshop ! https://discord.gg/p7QTm2gUyf
-load: STARTUP
+load: POSTWORLD
 author: Nocsy
 website: 'https://mcpets.gitbook.io/mcpets'
 
