@@ -11,12 +11,13 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import dev.lone.itemsadder.api.CustomStack;
 
 import java.util.*;
 
@@ -132,6 +133,19 @@ public class PetFood {
         // Setup the item stack
         if(itemStack == null)
         {
+            if (itemId.contains("itemsadder")) {
+                // Expected: itemsadder-namespace:item_name
+                String[] parts = itemId.split("-", 2);
+                
+                if (parts.length == 2 && parts[0].equalsIgnoreCase("itemsadder")) {
+                    CustomStack customStack = CustomStack.getInstance(parts[1]);
+                    if (customStack != null) {
+                        itemStack = customStack.getItemStack();
+                        return itemStack;
+                    }
+                }
+            }
+
             // Fetch the item stack within the registered ones
             itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
 
@@ -217,6 +231,19 @@ public class PetFood {
 
         if(!isCompatibleWithPet(pet))
             return false;
+
+        ItemStack mainHandItem = p.getInventory().getItemInMainHand();
+        if (mainHandItem != null && mainHandItem.hasItemMeta()) {
+            String itemName = mainHandItem.getItemMeta().getDisplayName();
+            String expectedItemName = itemStack.getItemMeta().getDisplayName();
+
+            if (itemId.startsWith("itemsadder:")) {
+                // Comparar nomes de itens do ItemAdder
+                if (!itemName.equals(expectedItemName)) {
+                    return false;
+                }
+            }
+        }
 
         int foodCooldown = getRemainingCooldownInSeconds(pet);
         if (foodCooldown > 0) {
@@ -351,21 +378,39 @@ public class PetFood {
         if(it == null)
             return null;
         // if the item is a default MC item, then look for possible matches
-        if(!it.hasItemMeta() || !it.getItemMeta().hasItemName())
-        {
-            return PetFoodConfig.getInstance().list().stream()
-                                .filter(petFood -> petFood.isDefaultMCItem()
-                                                && petFood.getItemStack() != null
-                                                && petFood.getItemStack().getType().equals(it.getType()))
-                                .findFirst()
-                                .orElse(null);
+
+        if (it.hasItemMeta() && it.getItemMeta().hasDisplayName()) {
+            String itemName = it.getItemMeta().getDisplayName();
+    
+            for (PetFood petFood : PetFoodConfig.getInstance().list()) {
+                ItemStack petFoodItem = petFood.getItemStack();
+                if (petFoodItem == null || !petFoodItem.hasItemMeta() || !petFoodItem.getItemMeta().hasDisplayName()) {
+                    continue;
+                }
+    
+                String configName = petFoodItem.getItemMeta().getDisplayName();
+                if (ChatColor.stripColor(configName).equals(ChatColor.stripColor(itemName))) {
+                    return petFood;
+                }
+            }
         }
         // if the item isn't a default MCItem, go through the localized informations
         return PetFoodConfig.getInstance().list().stream()
-                                .filter(petFood -> petFood.getItemStack() != null
-                                        && petFood.getItemStack().getItemMeta().getItemName().equals(it.getItemMeta().getItemName()))
-                                .findFirst()
-                                .orElse(null);
+            .filter(petFood -> {
+                ItemStack petFoodItem = petFood.getItemStack();
+                if (petFoodItem == null || !petFoodItem.hasItemMeta() || it.getItemMeta() == null) {
+                    return false;
+                }
+
+                ItemMeta petFoodMeta = petFoodItem.getItemMeta();
+                ItemMeta currentMeta = it.getItemMeta();
+                if (petFoodMeta == null || currentMeta == null) return false;
+
+                return petFoodMeta.getItemName() != null
+                    && petFoodMeta.getItemName().equals(currentMeta.getItemName());
+            })
+            .findFirst()
+            .orElse(null);
     }
 
     /**
