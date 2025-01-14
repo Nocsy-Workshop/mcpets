@@ -17,7 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import dev.lone.itemsadder.api.CustomStack;
 
 import java.util.*;
 
@@ -133,15 +132,25 @@ public class PetFood {
         // Setup the item stack
         if(itemStack == null)
         {
-            if (itemId.contains("itemsadder")) {
+            if (itemId.contains("itemsadder") && MCPets.getItemsAdder() != null) {
                 // Expected: itemsadder-namespace:item_name
                 String[] parts = itemId.split("-", 2);
-                
+            
                 if (parts.length == 2 && parts[0].equalsIgnoreCase("itemsadder")) {
-                    CustomStack customStack = CustomStack.getInstance(parts[1]);
-                    if (customStack != null) {
-                        itemStack = customStack.getItemStack();
-                        return itemStack;
+                    try {
+                        Class<?> customStackClass = (Class<?>) MCPets.getItemsAdder();
+                        Object customStack = customStackClass
+                            .getMethod("getInstance", String.class)
+                            .invoke(null, parts[1]);
+            
+                        if (customStack != null) {
+                            itemStack = (ItemStack) customStackClass
+                                .getMethod("getItemStack")
+                                .invoke(customStack);
+                            return itemStack;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -238,7 +247,6 @@ public class PetFood {
             String expectedItemName = itemStack.getItemMeta().getDisplayName();
 
             if (itemId.startsWith("itemsadder:")) {
-                // Comparar nomes de itens do ItemAdder
                 if (!itemName.equals(expectedItemName)) {
                     return false;
                 }
