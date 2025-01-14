@@ -364,16 +364,18 @@ public class PetFood {
      * Consume the pet food in the main hand of the player
      * @param p
      */
-    public void consume(Player p)
-    {
-        if(p == null)
-            return;
-
-        ItemStack it = itemStack.clone();
-        it.setAmount(p.getInventory().getItemInMainHand().getAmount()-1);
-        if(it.getAmount() == 0)
-            it = new ItemStack(Material.AIR);
-        p.getInventory().setItemInMainHand(it);
+    public void consume(Player p) {
+        if (p == null) return;
+    
+        ItemStack mainHandItem = p.getInventory().getItemInMainHand();
+        if (mainHandItem == null || mainHandItem.getType().isAir()) return;
+    
+        int currentAmount = mainHandItem.getAmount();
+        if (currentAmount <= 1) {
+            p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        } else {
+            mainHandItem.setAmount(currentAmount - 1);
+        }
     }
 
     /**

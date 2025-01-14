@@ -142,7 +142,6 @@ public class MCPets extends JavaPlugin {
     
         if (Bukkit.getPluginManager().getPlugin("ItemsAdder") != null) {
             try {
-                // Verifica se a classe CustomStack está disponível
                 Class<?> customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack");
                 itemsAdder = customStackClass;
                 return true;
