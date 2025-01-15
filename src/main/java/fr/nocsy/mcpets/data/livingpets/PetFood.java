@@ -11,6 +11,8 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -383,45 +385,75 @@ public class PetFood {
      * @param it
      * @return
      */
-    public static PetFood getFromItem(ItemStack it)
-    {
-        if(it == null)
+    public static PetFood getFromItem(ItemStack it) {
+        if (it == null || it.getType() == Material.AIR) {
             return null;
-        // if the item is a default MC item, then look for possible matches
-
-        if (it.hasItemMeta() && it.getItemMeta().hasDisplayName()) {
-            String itemName = it.getItemMeta().getDisplayName();
+        }
     
-            for (PetFood petFood : PetFoodConfig.getInstance().list()) {
-                ItemStack petFoodItem = petFood.getItemStack();
-                if (petFoodItem == null || !petFoodItem.hasItemMeta() || !petFoodItem.getItemMeta().hasDisplayName()) {
-                    continue;
+        // find itemsadder item for pet food, expected "itemsadder-namespace:itemname"
+        for (PetFood petFood : PetFoodConfig.getInstance().list()) {
+            if (petFood.getItemId().startsWith("itemsadder-")) {
+                String[] parts = petFood.getItemId().split("-", 2);
+                if (parts.length == 2 && MCPets.getItemsAdder() != null) {
+                    try {
+                        Class<?> itemsAdderClass = (Class<?>) MCPets.getItemsAdder();
+                        Object customStack = itemsAdderClass
+                            .getMethod("getInstance", String.class)
+                            .invoke(null, parts[1]);
+    
+                        if (customStack != null) {
+                            ItemStack itemsAdderStack = (ItemStack) itemsAdderClass
+                                .getMethod("getItemStack")
+                                .invoke(customStack);
+    
+                            if (itemsAdderStack != null && it.isSimilar(itemsAdderStack)) {
+                                return petFood;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+            }
+        }
     
-                String configName = petFoodItem.getItemMeta().getDisplayName();
-                if (ChatColor.stripColor(configName).equals(ChatColor.stripColor(itemName))) {
+        // if the item is a default MC item, then look for possible matches
+        for (PetFood petFood : PetFoodConfig.getInstance().list()) {
+            if (!petFood.getItemId().startsWith("itemsadder-")) {
+                ItemStack petFoodItem = petFood.getItemStack();
+                if (petFoodItem != null && it.getType() == petFoodItem.getType() && petFood.isDefaultMCItem()) {
                     return petFood;
                 }
             }
         }
+    
         // if the item isn't a default MCItem, go through the localized informations
-        return PetFoodConfig.getInstance().list().stream()
-            .filter(petFood -> {
+        if (it.hasItemMeta()) {
+            ItemMeta itemMeta = it.getItemMeta();
+            for (PetFood petFood : PetFoodConfig.getInstance().list()) {
                 ItemStack petFoodItem = petFood.getItemStack();
-                if (petFoodItem == null || !petFoodItem.hasItemMeta() || it.getItemMeta() == null) {
-                    return false;
+                if (petFoodItem != null && petFoodItem.hasItemMeta()) {
+                    ItemMeta petFoodMeta = petFoodItem.getItemMeta();
+    
+                    if (petFoodMeta.hasDisplayName() && itemMeta.hasDisplayName() &&
+                        ChatColor.stripColor(petFoodMeta.getDisplayName()).equals(ChatColor.stripColor(itemMeta.getDisplayName()))) {
+                        if (petFoodMeta.hasLore() && itemMeta.hasLore()) {
+                            List<String> petFoodLore = petFoodMeta.getLore();
+                            List<String> itemLore = itemMeta.getLore();
+    
+                            if (petFoodLore != null && itemLore != null && petFoodLore.equals(itemLore)) {
+                                return petFood;
+                            }
+                        } else if (!petFoodMeta.hasLore() && !itemMeta.hasLore()) {
+                            return petFood;
+                        }
+                    }
                 }
-
-                ItemMeta petFoodMeta = petFoodItem.getItemMeta();
-                ItemMeta currentMeta = it.getItemMeta();
-                if (petFoodMeta == null || currentMeta == null) return false;
-
-                return petFoodMeta.getItemName() != null
-                    && petFoodMeta.getItemName().equals(currentMeta.getItemName());
-            })
-            .findFirst()
-            .orElse(null);
-    }
+            }
+        }
+    
+        return null;
+    }    
 
     /**
      * Get the PetFood from the id
