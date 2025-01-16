@@ -146,7 +146,7 @@ public class MCPets extends JavaPlugin {
                 itemsAdder = customStackClass;
                 return true;
             } catch (ClassNotFoundException e) {
-                Bukkit.getLogger().warning("[MCPets] : ItemsAdder API not found.");
+                Bukkit.getLogger().info("[MCPets] : ItemsAdder API not found. Itemsadder custom items won't be available for pet foods.");
             }
         }
     
