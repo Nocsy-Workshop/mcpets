@@ -25,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PetInteractionMenuListener implements Listener {
@@ -83,13 +84,14 @@ public class PetInteractionMenuListener implements Listener {
                 return;
             }
 
+            Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
+            if (pet == null || !pet.isStillHere()) {
+                p.closeInventory();
+                Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
+                return;
+            }
+
             if (e.getSlot() == 4) {
-                Pet pet = Pet.getFromLastInteractedWith(p);
-                if (pet == null || !pet.isStillHere()) {
-                    p.closeInventory();
-                    Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
-                    return;
-                }
                 revoke(p, pet);
                 p.closeInventory();
                 return;
@@ -105,22 +107,6 @@ public class PetInteractionMenuListener implements Listener {
                 if(localizedName.equals(Items.PETMENU.getLocalizedName()))
                 {
                     openBackPetMenu(p);
-                    return;
-                }
-
-                Pet pet = Pet.getFromLastInteractedWith(p);
-                if (pet == null) {
-                    pet = Pet.getFromLastOpInteractedWith(p);
-                    if(pet == null)
-                    {
-                        p.closeInventory();
-                        return;
-                    }
-                }
-
-                if (!pet.isStillHere()) {
-                    Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
-                    p.closeInventory();
                     return;
                 }
 
@@ -160,15 +146,13 @@ public class PetInteractionMenuListener implements Listener {
                 return;
             }
 
-            Pet pet = Pet.getFromLastInteractedWith(p);
-            if(pet == null)
-                pet = Pet.getFromLastOpInteractedWith(p);
+            Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
 
             if (pet != null && pet.isStillHere()) {
                 if (!p.hasPermission(PPermission.COLOR.getPermission()))
                     name = ChatColor.stripColor(name);
 
-                if(name == null || name.isEmpty())
+                if(name.isEmpty())
                 {
                     Language.NICKNAME_NOT_CHANGED.sendMessage(p);
                     return;
