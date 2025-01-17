@@ -41,10 +41,10 @@ public class CategoriesMenu {
             return null;
 
         if(icon.hasItemMeta() &&
-            icon.getItemMeta().hasItemName() &&
-            icon.getItemMeta().getItemName().contains("MCPetsCategory"))
+            icon.getItemMeta().hasLocalizedName() &&
+            icon.getItemMeta().getLocalizedName().contains("MCPetsCategory"))
         {
-            String[] data = icon.getItemMeta().getItemName().split(";");
+            String[] data = icon.getItemMeta().getLocalizedName().split(";");
             if(data.length == 2)
             {
                 String catId = data[1];

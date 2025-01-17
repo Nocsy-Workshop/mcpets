@@ -35,7 +35,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -310,8 +309,8 @@ public class Pet {
      * @return
      */
     public static Pet getFromIcon(ItemStack icon) {
-        if (icon.hasItemMeta() && icon.getItemMeta().hasItemName()) {
-            return fromString(icon.getItemMeta().getItemName());
+        if (icon.hasItemMeta() && icon.getItemMeta().hasLocalizedName()) {
+            return fromString(icon.getItemMeta().getLocalizedName());
         }
         return null;
     }
@@ -1189,12 +1188,10 @@ public class Pet {
             return false;
 
         EntityMountPetEvent event = new EntityMountPetEvent(ent, this);
-        EntityMountEvent vanillaMountEvent = new EntityMountEvent(ent, activeMob.getEntity().getBukkitEntity());
-        Utils.callEvent(vanillaMountEvent);
         Utils.callEvent(event);
 
         // We still return true as it's a normal situation, not linked to mounting point issue
-        if (event.isCancelled() || vanillaMountEvent.isCancelled())
+        if (event.isCancelled())
             return true;
 
         if (isStillHere()) {
@@ -1440,12 +1437,12 @@ public class Pet {
                 && textureBase64 != null) {
             item = Utils.createHead(iconName, desc, textureBase64);
             ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            meta.setLocalizedName(localizedName);
             item.setItemMeta(meta);
         } else if (mat != null) {
             item = new ItemStack(mat);
             ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            meta.setLocalizedName(localizedName);
             meta.setCustomModelData(customModelData);
             meta.setDisplayName(iconName);
             meta.setLore(desc);
@@ -1453,7 +1450,7 @@ public class Pet {
         } else if(item == null){
             item = Utils.createHead(iconName, desc, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQ5Y2M1OGFkMjVhMWFiMTZkMzZiYjVkNmQ0OTNjOGY1ODk4YzJiZjMwMmI2NGUzMjU5MjFjNDFjMzU4NjcifX19");
             ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            meta.setLocalizedName(localizedName);
             item.setItemMeta(meta);
         }
 

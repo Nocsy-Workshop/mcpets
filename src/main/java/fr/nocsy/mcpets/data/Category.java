@@ -152,7 +152,7 @@ public class Category {
     private void setupData()
     {
         ItemMeta meta = icon.getItemMeta();
-        meta.setItemName("MCPetsCategory;" + this.getId());
+        meta.setLocalizedName("MCPetsCategory;" + this.getId());
         meta.setDisplayName(iconName);
 
         icon.setItemMeta(meta);
@@ -173,9 +173,9 @@ public class Category {
         if(pager != null
                 && !pager.getType().isAir()
                 && pager.hasItemMeta()
-                && pager.getItemMeta().hasItemName())
+                && pager.getItemMeta().hasLocalizedName())
         {
-            String[] data = pager.getItemMeta().getItemName().split(";");
+            String[] data = pager.getItemMeta().getLocalizedName().split(";");
             if(data.length != 3)
                 return -1;
 
@@ -251,9 +251,9 @@ public class Category {
         if(pager != null
                 && !pager.getType().isAir()
                 && pager.hasItemMeta()
-                && pager.getItemMeta().hasItemName())
+                && pager.getItemMeta().hasLocalizedName())
         {
-            String[] data = pager.getItemMeta().getItemName().split(";");
+            String[] data = pager.getItemMeta().getLocalizedName().split(";");
             if(data.length != 3)
                 return null;
 

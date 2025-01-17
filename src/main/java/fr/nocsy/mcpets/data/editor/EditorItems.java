@@ -369,7 +369,7 @@ public enum EditorItems {
         ItemMeta meta = it.getItemMeta();
         if(it.getType().equals(Material.FILLED_MAP))
             it.setType(Material.MAP);
-        meta.setItemName(editorTag + getId());
+        meta.setLocalizedName(editorTag + getId());
 
         // Basically, we are replacing the placeholder for the value within the lores
         List<String> lores = meta.getLore();
@@ -438,7 +438,7 @@ public enum EditorItems {
         if(it == null || !it.hasItemMeta())
             return null;
 
-        String localName = it.getItemMeta().getItemName();
+        String localName = it.getItemMeta().getLocalizedName();
         // Item does not have the editor tag, so it's not an editor item
         if(!localName.contains(editorTag))
             return null;

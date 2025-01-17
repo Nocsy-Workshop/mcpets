@@ -78,7 +78,7 @@ public enum Items {
     private void prepareItem()
     {
         ItemMeta meta = item.getItemMeta();
-        meta.setItemName(getLocalizedName());
+        meta.setLocalizedName(getLocalizedName());
         item.setItemMeta(meta);
     }
 
@@ -95,7 +95,7 @@ public enum Items {
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("Unknown");
         meta.setLore(lore);
-        meta.setItemName("AlmPet;Unknown");
+        meta.setLocalizedName("AlmPet;Unknown");
 
         it.setItemMeta(meta);
 
@@ -134,7 +134,7 @@ public enum Items {
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage());
         meta.setLore(lore);
-        meta.setItemName("AlmPet;BackToPetMenu");
+        meta.setLocalizedName("AlmPet;BackToPetMenu");
 
         it.setItemMeta(meta);
 
@@ -147,7 +147,7 @@ public enum Items {
         ItemStack it = new ItemStack(Material.CHEST);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.INVENTORY_ITEM_NAME.getMessage());
-        meta.setItemName("AlmPet;Inventory");
+        meta.setLocalizedName("AlmPet;Inventory");
 
         it.setItemMeta(meta);
 
@@ -160,7 +160,7 @@ public enum Items {
         ItemStack it = new ItemStack(Material.MAGMA_CREAM);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.SKINS_ITEM_NAME.getMessage());
-        meta.setItemName("AlmPet;Skins");
+        meta.setLocalizedName("AlmPet;Skins");
 
         it.setItemMeta(meta);
 
@@ -173,7 +173,7 @@ public enum Items {
         ItemStack it = new ItemStack(Material.LEATHER_HORSE_ARMOR);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.EQUIPMENT_ITEM_NAME.getMessage());
-        meta.setItemName("AlmPet;Inventory");
+        meta.setLocalizedName("AlmPet;Inventory");
 
         it.setItemMeta(meta);
 
@@ -194,7 +194,7 @@ public enum Items {
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
                                                                             new FormatArg("%maxPage%", Integer.toString((int)(Pet.getAvailablePets(p).size()/54 + 0.5)))));
 
-        meta.setItemName("AlmPetPage;" + index);
+        meta.setLocalizedName("AlmPetPage;" + index);
 
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.TURNPAGE_ITEM_DESCRIPTION.getMessage().split("\n")));
         meta.setLore(lore);
@@ -208,7 +208,7 @@ public enum Items {
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName(Language.TURNPAGE_ITEM_NAME.getMessageFormatted(new FormatArg("%currentPage%", Integer.toString(index+1)),
                                                                             new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
-        meta.setItemName("MCPetsPage;" + category.getId() + ";" + index);
+        meta.setLocalizedName("MCPetsPage;" + category.getId() + ";" + index);
 
         ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.TURNPAGE_ITEM_DESCRIPTION.getMessageFormatted(
                                                         new FormatArg("%currentPage%", Integer.toString(index)),
@@ -241,7 +241,7 @@ public enum Items {
         lore.addAll(Arrays.asList(Language.NICKNAME_ITEM_LORE.getMessage().split("\n")));
 
         meta.setLore(lore);
-        meta.setItemName(null);
+        meta.setLocalizedName(null);
         it.setItemMeta(meta);
         return it;
     }
@@ -262,8 +262,8 @@ public enum Items {
     public static boolean isSignalStick(ItemStack it) {
         return it != null &&
                 it.hasItemMeta() &&
-                it.getItemMeta().hasItemName() &&
-                it.getItemMeta().getItemName().contains(Pet.SIGNAL_STICK_TAG);
+                it.getItemMeta().hasLocalizedName() &&
+                it.getItemMeta().getLocalizedName().contains(Pet.SIGNAL_STICK_TAG);
     }
 
     public static ItemStack turnIntoSignalStick(ItemStack it, Pet pet)
@@ -273,7 +273,7 @@ public enum Items {
                 pet == null)
             return it;
         ItemMeta meta = it.getItemMeta();
-        meta.setItemName(buildSignalStickTag(pet));
+        meta.setLocalizedName(buildSignalStickTag(pet));
         it.setItemMeta(meta);
         return it;
     }
@@ -289,9 +289,9 @@ public enum Items {
     {
         if(it != null &&
             it.hasItemMeta() &&
-            it.getItemMeta().hasItemName())
+            it.getItemMeta().hasLocalizedName())
         {
-            String[] split = it.getItemMeta().getItemName().split(";");
+            String[] split = it.getItemMeta().getLocalizedName().split(";");
             if(split.length == 2)
                 return split[1];
         }

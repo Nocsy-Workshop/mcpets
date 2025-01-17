@@ -216,7 +216,7 @@ public class PetConfig extends AbstractConfig {
         {
             itemStack = getConfig().getItemStack(path + ".Raw");
             ItemMeta meta = itemStack.getItemMeta();
-            meta.setItemName(localName);
+            meta.setLocalizedName(localName);
             itemStack.setItemMeta(meta);
             if(showStats)
                 itemStack = pet.applyStats(itemStack);

@@ -135,7 +135,7 @@ public class CategoryConfig extends AbstractConfig {
     {
         ItemStack it = Items.UNKNOWN.getItem().clone();
         ItemMeta meta = it.getItemMeta();
-        meta.setItemName("MCPets;" + id);
+        meta.setLocalizedName("MCPets;" + id);
         meta.setDisplayName("§6" + id);
         it.setItemMeta(meta);
         return it;

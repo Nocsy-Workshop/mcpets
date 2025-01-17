@@ -151,7 +151,7 @@ public class PetFood {
                 itemStack = Items.UNKNOWN.getItem().clone();
             }
             ItemMeta meta = itemStack.getItemMeta();
-            meta.setItemName("MCPets;Food;" + itemId);
+            meta.setLocalizedName("MCPets;Food;" + itemId);
             itemStack.setItemMeta(meta);
         }
 
@@ -351,7 +351,7 @@ public class PetFood {
         if(it == null)
             return null;
         // if the item is a default MC item, then look for possible matches
-        if(!it.hasItemMeta() || !it.getItemMeta().hasItemName())
+        if(!it.hasItemMeta() || !it.getItemMeta().hasLocalizedName())
         {
             return PetFoodConfig.getInstance().list().stream()
                                 .filter(petFood -> petFood.isDefaultMCItem()
@@ -363,7 +363,7 @@ public class PetFood {
         // if the item isn't a default MCItem, go through the localized informations
         return PetFoodConfig.getInstance().list().stream()
                                 .filter(petFood -> petFood.getItemStack() != null
-                                        && petFood.getItemStack().getItemMeta().getItemName().equals(it.getItemMeta().getItemName()))
+                                        && petFood.getItemStack().getItemMeta().getLocalizedName().equals(it.getItemMeta().getLocalizedName()))
                                 .findFirst()
                                 .orElse(null);
     }

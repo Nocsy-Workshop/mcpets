@@ -72,9 +72,9 @@ public class PetSkin {
     public static PetSkin fromIcon(ItemStack it)
     {
         if(it.hasItemMeta() &&
-            it.getItemMeta().hasItemName())
+            it.getItemMeta().hasLocalizedName())
         {
-            String[] code = it.getItemMeta().getItemName().split(";");
+            String[] code = it.getItemMeta().getLocalizedName().split(";");
             if(code.length > 0 && code[0].equals("MCPetsSkins"))
             {
                 String petId = code[1];
@@ -209,7 +209,7 @@ public class PetSkin {
     private void prepareIcon()
     {
         ItemMeta meta = icon.getItemMeta();
-        meta.setItemName("MCPetsSkins;" + objectPet.getId() + ";" + uuid);
+        meta.setLocalizedName("MCPetsSkins;" + objectPet.getId() + ";" + uuid);
         icon.setItemMeta(meta);
     }
 
