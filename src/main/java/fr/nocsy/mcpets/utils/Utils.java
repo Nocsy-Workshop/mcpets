@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.BlacklistConfig;
-import fr.nocsy.mcpets.utils.debug.Debugger;
 import io.lumine.mythic.api.skills.Skill;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatMessageType;
@@ -244,18 +243,17 @@ public class Utils {
      */
     public static boolean hasPermission(@NotNull UUID uuid, String permission)
     {
-        if(MCPets.getLuckPerms() != null)
-        {
-            return PermsUtils.hasPermission(uuid, permission);
-        }
-
+        boolean hasPerm = false;
         Player p = Bukkit.getPlayer(uuid);
         if(p != null)
         {
-            return p.hasPermission(permission);
+            hasPerm = p.hasPermission(permission);
         }
-
-        return false;
+        if(!hasPerm && MCPets.getLuckPerms() != null)
+        {
+            return PermsUtils.hasPermission(uuid, permission);
+        }
+        return hasPerm;
     }
 
     /**
