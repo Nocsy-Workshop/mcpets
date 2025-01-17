@@ -82,7 +82,7 @@ public class PetListener implements Listener {
         }
         if(pet != null && p.isOp())
         {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+            PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
             pet.setLastOpInteracted(p);
             menu.open(p);
         }
@@ -115,7 +115,7 @@ public class PetListener implements Listener {
         }
         if(pet != null && p.isOp())
         {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+            PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
             pet.setLastOpInteracted(p);
             menu.open(p);
             e.setCancelled(true);
