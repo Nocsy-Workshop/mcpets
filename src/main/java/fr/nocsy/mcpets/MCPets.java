@@ -20,6 +20,7 @@ import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import dev.lone.itemsadder.api.ItemsAdder;
 
 import java.util.logging.Logger;
 
@@ -30,6 +31,7 @@ public class MCPets extends JavaPlugin {
 
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
+    private static Object itemsAdder;
     private static boolean luckPermsNotFound = false;
 
     @Getter
@@ -73,6 +75,7 @@ public class MCPets extends JavaPlugin {
         checkWorldGuard();
         checkLuckPerms();
         checkPlaceholderApi();
+        checkItemsAdder();
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport())
@@ -130,6 +133,24 @@ public class MCPets extends JavaPlugin {
                 Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
             }
         }
+    }
+
+    private static boolean checkItemsAdder() {
+        if (itemsAdder != null) {
+            return true;
+        }
+    
+        if (Bukkit.getPluginManager().getPlugin("ItemsAdder") != null) {
+            try {
+                Class<?> customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack");
+                itemsAdder = customStackClass;
+                return true;
+            } catch (ClassNotFoundException e) {
+                Bukkit.getLogger().info("[MCPets] : ItemsAdder API not found. Itemsadder custom items won't be available for pet foods.");
+            }
+        }
+    
+        return false;
     }
 
     /**
@@ -203,5 +224,15 @@ public class MCPets extends JavaPlugin {
         return luckPerms;
     }
 
+    /**
+     * Return ItemsAdder instance
+     * @return
+     */
+    public static Object getItemsAdder()
+    {
+        if(itemsAdder == null)
+            checkItemsAdder();
+        return itemsAdder;
+    }
 
 }

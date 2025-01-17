@@ -11,7 +11,9 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -132,6 +134,29 @@ public class PetFood {
         // Setup the item stack
         if(itemStack == null)
         {
+            if (itemId.contains("itemsadder") && MCPets.getItemsAdder() != null) {
+                // Expected: itemsadder-namespace:item_name
+                String[] parts = itemId.split("-", 2);
+            
+                if (parts.length == 2 && parts[0].equalsIgnoreCase("itemsadder")) {
+                    try {
+                        Class<?> customStackClass = (Class<?>) MCPets.getItemsAdder();
+                        Object customStack = customStackClass
+                            .getMethod("getInstance", String.class)
+                            .invoke(null, parts[1]);
+            
+                        if (customStack != null) {
+                            itemStack = (ItemStack) customStackClass
+                                .getMethod("getItemStack")
+                                .invoke(customStack);
+                            return itemStack;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             // Fetch the item stack within the registered ones
             itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
 
@@ -217,6 +242,18 @@ public class PetFood {
 
         if(!isCompatibleWithPet(pet))
             return false;
+
+        ItemStack mainHandItem = p.getInventory().getItemInMainHand();
+        if (mainHandItem != null && mainHandItem.hasItemMeta()) {
+            String itemName = mainHandItem.getItemMeta().getDisplayName();
+            String expectedItemName = itemStack.getItemMeta().getDisplayName();
+
+            if (itemId.startsWith("itemsadder:")) {
+                if (!itemName.equals(expectedItemName)) {
+                    return false;
+                }
+            }
+        }
 
         int foodCooldown = getRemainingCooldownInSeconds(pet);
         if (foodCooldown > 0) {
@@ -329,16 +366,18 @@ public class PetFood {
      * Consume the pet food in the main hand of the player
      * @param p
      */
-    public void consume(Player p)
-    {
-        if(p == null)
-            return;
-
-        ItemStack it = itemStack.clone();
-        it.setAmount(p.getInventory().getItemInMainHand().getAmount()-1);
-        if(it.getAmount() == 0)
-            it = new ItemStack(Material.AIR);
-        p.getInventory().setItemInMainHand(it);
+    public void consume(Player p) {
+        if (p == null) return;
+    
+        ItemStack mainHandItem = p.getInventory().getItemInMainHand();
+        if (mainHandItem == null || mainHandItem.getType().isAir()) return;
+    
+        int currentAmount = mainHandItem.getAmount();
+        if (currentAmount <= 1) {
+            p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+        } else {
+            mainHandItem.setAmount(currentAmount - 1);
+        }
     }
 
     /**
@@ -346,27 +385,75 @@ public class PetFood {
      * @param it
      * @return
      */
-    public static PetFood getFromItem(ItemStack it)
-    {
-        if(it == null)
+    public static PetFood getFromItem(ItemStack it) {
+        if (it == null || it.getType() == Material.AIR) {
             return null;
-        // if the item is a default MC item, then look for possible matches
-        if(!it.hasItemMeta() || !it.getItemMeta().hasItemName())
-        {
-            return PetFoodConfig.getInstance().list().stream()
-                                .filter(petFood -> petFood.isDefaultMCItem()
-                                                && petFood.getItemStack() != null
-                                                && petFood.getItemStack().getType().equals(it.getType()))
-                                .findFirst()
-                                .orElse(null);
         }
+    
+        // find itemsadder item for pet food, expected "itemsadder-namespace:itemname"
+        for (PetFood petFood : PetFoodConfig.getInstance().list()) {
+            if (petFood.getItemId().startsWith("itemsadder-")) {
+                String[] parts = petFood.getItemId().split("-", 2);
+                if (parts.length == 2 && MCPets.getItemsAdder() != null) {
+                    try {
+                        Class<?> itemsAdderClass = (Class<?>) MCPets.getItemsAdder();
+                        Object customStack = itemsAdderClass
+                            .getMethod("getInstance", String.class)
+                            .invoke(null, parts[1]);
+    
+                        if (customStack != null) {
+                            ItemStack itemsAdderStack = (ItemStack) itemsAdderClass
+                                .getMethod("getItemStack")
+                                .invoke(customStack);
+    
+                            if (itemsAdderStack != null && it.isSimilar(itemsAdderStack)) {
+                                return petFood;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    
+        // if the item is a default MC item, then look for possible matches
+        for (PetFood petFood : PetFoodConfig.getInstance().list()) {
+            if (!petFood.getItemId().startsWith("itemsadder-")) {
+                ItemStack petFoodItem = petFood.getItemStack();
+                if (petFoodItem != null && it.getType() == petFoodItem.getType() && petFood.isDefaultMCItem()) {
+                    return petFood;
+                }
+            }
+        }
+    
         // if the item isn't a default MCItem, go through the localized informations
-        return PetFoodConfig.getInstance().list().stream()
-                                .filter(petFood -> petFood.getItemStack() != null
-                                        && petFood.getItemStack().getItemMeta().getItemName().equals(it.getItemMeta().getItemName()))
-                                .findFirst()
-                                .orElse(null);
-    }
+        if (it.hasItemMeta()) {
+            ItemMeta itemMeta = it.getItemMeta();
+            for (PetFood petFood : PetFoodConfig.getInstance().list()) {
+                ItemStack petFoodItem = petFood.getItemStack();
+                if (petFoodItem != null && petFoodItem.hasItemMeta()) {
+                    ItemMeta petFoodMeta = petFoodItem.getItemMeta();
+    
+                    if (petFoodMeta.hasDisplayName() && itemMeta.hasDisplayName() &&
+                        ChatColor.stripColor(petFoodMeta.getDisplayName()).equals(ChatColor.stripColor(itemMeta.getDisplayName()))) {
+                        if (petFoodMeta.hasLore() && itemMeta.hasLore()) {
+                            List<String> petFoodLore = petFoodMeta.getLore();
+                            List<String> itemLore = itemMeta.getLore();
+    
+                            if (petFoodLore != null && itemLore != null && petFoodLore.equals(itemLore)) {
+                                return petFood;
+                            }
+                        } else if (!petFoodMeta.hasLore() && !itemMeta.hasLore()) {
+                            return petFood;
+                        }
+                    }
+                }
+            }
+        }
+    
+        return null;
+    }    
 
     /**
      * Get the PetFood from the id
