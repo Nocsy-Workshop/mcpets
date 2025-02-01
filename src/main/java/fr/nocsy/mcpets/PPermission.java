@@ -14,5 +14,4 @@ public enum PPermission {
     PPermission(String permission) {
         this.permission = permission;
     }
-
 }

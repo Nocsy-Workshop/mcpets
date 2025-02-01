@@ -3,7 +3,6 @@ package fr.nocsy.mcpets.data.config;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetFoodType;
 import fr.nocsy.mcpets.utils.PetMath;
-import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 
 import java.util.*;
@@ -15,8 +14,7 @@ public class PetFoodConfig extends AbstractConfig {
     @Getter
     private HashMap<String, PetFood> petFoods;
 
-    private PetFoodConfig()
-    {
+    private PetFoodConfig() {
         petFoods = new HashMap<>();
     }
 
@@ -44,8 +42,7 @@ public class PetFoodConfig extends AbstractConfig {
         loadConfig();
         petFoods = new HashMap<>();
 
-        for(String key : getConfig().getKeys(false))
-        {
+        for (String key : getConfig().getKeys(false)) {
             String id = Optional.ofNullable(getConfig().getString(key + ".ItemId")).orElse("None set");
             PetFoodType foodType = Optional.ofNullable(PetFoodType.get(getConfig().getString(key + ".Type"))).orElse(PetFoodType.HEALTH);
             double power = getConfig().getDouble(key + ".Power");
@@ -84,25 +81,19 @@ public class PetFoodConfig extends AbstractConfig {
 
     /**
      * Return the pet food with the said id
-     * @param id
-     * @return
      */
-    public PetFood getPetFood(String id)
-    {
+    public PetFood getPetFood(String id) {
         return petFoods.get(id);
     }
 
     /**
      * List the registered pet foods
-     * @return
      */
-    public Collection<PetFood> list()
-    {
+    public Collection<PetFood> list() {
         return petFoods.values();
     }
 
-    public void addPet(String key, String id)
-    {
+    public void addPet(String key, String id) {
         ArrayList<String> list = (ArrayList<String>) getConfig().getStringList(key + ".Pets");
         if(list.contains(id))
             return;
@@ -112,8 +103,7 @@ public class PetFoodConfig extends AbstractConfig {
         reload();
     }
 
-    public void removePet(String key, String id)
-    {
+    public void removePet(String key, String id) {
         ArrayList<String> list = (ArrayList<String>) getConfig().getStringList(key + ".Pets");
         if(!list.contains(id))
             return;
@@ -126,8 +116,7 @@ public class PetFoodConfig extends AbstractConfig {
     /**
      * Register a new pet food with default values in entry
      */
-    public String registerCleanPetfood()
-    {
+    public String registerCleanPetfood() {
         String key = UUID.randomUUID().toString();
         getConfig().set(key + ".ItemId", "None set");
         save();
@@ -137,11 +126,8 @@ public class PetFoodConfig extends AbstractConfig {
 
     /**
      * Swap the petfood to a new key in the config
-     * @param food
-     * @param key
      */
-    public void changePetFoodKey(PetFood food, String key)
-    {
+    public void changePetFoodKey(PetFood food, String key) {
         getConfig().set(food.getId(), null);
 
         getConfig().set(key + ".ItemId", food.getItemId());
@@ -164,8 +150,7 @@ public class PetFoodConfig extends AbstractConfig {
     /**
      * Remove a pet food
      */
-    public void removePetFood(String key)
-    {
+    public void removePetFood(String key) {
         getConfig().set(key, null);
         save();
         reload();
@@ -173,10 +158,8 @@ public class PetFoodConfig extends AbstractConfig {
 
     /**
      * Load a petfood directly from the config (only for editor)
-     * @return
      */
-    public static PetFood loadConfigPetFood(String id)
-    {
+    public static PetFood loadConfigPetFood(String id) {
         PetFoodConfig config = new PetFoodConfig();
         config.init();
         return config.getPetFood(id);

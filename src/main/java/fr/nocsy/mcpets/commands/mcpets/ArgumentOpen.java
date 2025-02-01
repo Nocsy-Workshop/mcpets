@@ -11,16 +11,13 @@ import org.bukkit.entity.Player;
 
 public class ArgumentOpen extends AArgument {
 
-    public ArgumentOpen(CommandSender sender, String[] args)
-    {
+    public ArgumentOpen(CommandSender sender, String[] args) {
         super("open", new int[]{2}, sender, args);
     }
 
     @Override
-    public boolean additionalConditions()
-    {
-        return sender instanceof Player &&
-                sender.hasPermission(PPermission.ADMIN.getPermission());
+    public boolean additionalConditions() {
+        return sender instanceof Player && sender.hasPermission(PPermission.ADMIN.getPermission());
     }
 
     @Override
@@ -34,7 +31,5 @@ public class ArgumentOpen extends AArgument {
 
         PetMenu menu = new PetMenu(playerToOpen, 0);
         menu.open((Player) sender);
-        return;
     }
-
 }

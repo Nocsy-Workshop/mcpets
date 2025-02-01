@@ -13,7 +13,6 @@ public class LanguageConfig extends AbstractConfig {
     private final HashMap<String, String> map = new HashMap<>();
 
     public static LanguageConfig getInstance() {
-
         if (instance == null)
             instance = new LanguageConfig();
 
@@ -39,9 +38,7 @@ public class LanguageConfig extends AbstractConfig {
 
     @Override
     public void reload() {
-
         loadConfig();
-
         map.clear();
 
         for (Language lang : Language.values()) {
@@ -51,8 +48,7 @@ public class LanguageConfig extends AbstractConfig {
             lang.reload();
         }
 
-        if(Language.PET_INVENTORY_TITLE.getMessage().equals(Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage()))
-        {
+        if (Language.PET_INVENTORY_TITLE.getMessage().equals(Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage())) {
             MCPets.getLog().severe(MCPets.getLogName() + "Interaction menu and prime menu have the same name, which might lead to unexpected behaviors. Please consider having different names for both menus.");
         }
 

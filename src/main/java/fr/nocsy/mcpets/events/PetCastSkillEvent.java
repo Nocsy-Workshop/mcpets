@@ -5,11 +5,13 @@ import lombok.Getter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class PetCastSkillEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean isCancelled = false;
+
     @Getter
     private final Pet pet;
     @Getter
@@ -34,6 +36,7 @@ public class PetCastSkillEvent extends Event implements Cancellable {
         isCancelled = b;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;

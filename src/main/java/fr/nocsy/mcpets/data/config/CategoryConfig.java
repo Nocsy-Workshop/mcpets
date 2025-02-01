@@ -5,7 +5,6 @@ import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.editor.EditorEditing;
-import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,17 +26,14 @@ public class CategoryConfig extends AbstractConfig {
     @Getter
     private Category category;
 
-    public CategoryConfig(String id)
-    {
+    public CategoryConfig(String id) {
         super();
-        if(id != null && !id.isEmpty())
+        if (id != null && !id.isEmpty())
             this.id = id;
     }
     /**
      * Base constructor of a pet configuration (one to one)
      * It will initialize the variables while loading the data
-     *
-     * @param fileName
      */
     public CategoryConfig(String folderName, String fileName) {
         init(folderName, fileName);
@@ -50,7 +46,7 @@ public class CategoryConfig extends AbstractConfig {
 
         this.id = fileName.replace(".yml", "");
         this.category = new Category(id);
-        if(getConfig().get("Id") == null)
+        if (getConfig().get("Id") == null)
             getConfig().set("Id", this.id);
         if (getConfig().get("DisplayName") == null)
             getConfig().set("DisplayName", "Category title");
@@ -76,19 +72,16 @@ public class CategoryConfig extends AbstractConfig {
 
     @Override
     public void reload() {
-
         loadConfig();
 
         category.getPets().clear();
 
         // Handle the title of the category
-        if (getConfig().get("DisplayName") != null)
-        {
+        if (getConfig().get("DisplayName") != null) {
             category.setDisplayName(getConfig().getString("DisplayName"));
         }
         // Handle the name of the category
-        if (getConfig().get("IconName") != null)
-        {
+        if (getConfig().get("IconName") != null) {
             category.setIconName(getConfig().getString("IconName"));
         }
 
@@ -96,43 +89,36 @@ public class CategoryConfig extends AbstractConfig {
         List<String> excludedIds = getConfig().getStringList("ExcludedCategories");
         category.setExcludedCategoriesId(excludedIds);
         List<Category> excludedCategories = Category.getCategories().stream()
-                                                                    .filter(cat -> excludedIds.contains(cat.getId()))
-                                                                    .collect(Collectors.toList());
+                .filter(cat -> excludedIds.contains(cat.getId()))
+                .collect(Collectors.toList());
 
         // Handle the pets within that category
         // if it's a default category, all pets will be added
-        if(getConfig().getBoolean("DefaultCategory"))
-        {
-            for(Pet pet : Pet.getObjectPets())
-            {
+        if (getConfig().getBoolean("DefaultCategory")) {
+            for(Pet pet : Pet.getObjectPets()) {
                 // Exclude the pets that are present in the excluded categories
-                if(excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
+                if (excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
                     category.addPet(pet);
             }
             category.countMaxPages();
             category.setDefaultCategory(true);
         }
         // Else if it's not default category, look for the specified pets
-        else if (getConfig().get("Pets") != null)
-        {
-            for(String id : getConfig().getStringList("Pets"))
-            {
+        else if (getConfig().get("Pets") != null) {
+            for(String id : getConfig().getStringList("Pets")) {
                 Pet pet = Pet.getFromId(id);
-                if(pet != null &&
-                        excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
+                if (pet != null && excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
                     category.addPet(pet);
             }
             category.countMaxPages();
         }
-        if (getConfig().get("Icon") != null)
-        {
+
+        if (getConfig().get("Icon") != null) {
             category.setIcon((getConfig().getItemStack("Icon")));
         }
-
     }
 
-    private ItemStack setupUnkownIcon()
-    {
+    private ItemStack setupUnkownIcon() {
         ItemStack it = Items.UNKNOWN.getItem().clone();
         ItemMeta meta = it.getItemMeta();
         meta.setItemName("MCPets;" + id);
@@ -144,8 +130,8 @@ public class CategoryConfig extends AbstractConfig {
     /**
      * Load all the existing categories
      *
-     * @param folderPath : folder where to seek for the pets
-     * @param clear  : whether or not the loaded ones should be cleared (only first call should do that)
+     * @param folderPath folder where to seek for the pets
+     * @param clear whether the loaded ones should be cleared (only first call should do that)
      */
     public static void load(String folderPath, boolean clear) {
         if (clear) {
@@ -179,38 +165,27 @@ public class CategoryConfig extends AbstractConfig {
 
             CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
 
-            if (config.getCategory() != null)
-            {
+            if (config.getCategory() != null) {
                 Category.getCategories().removeAll(Category.getCategories().stream().filter(cat -> config.getCategory().getId().equals(cat.getId())).collect(Collectors.toList()));
                 Category.add(config.getCategory());
                 mapping.put(config.getCategory().getId(), config);
             }
         }
 
-
-        Category.getCategories().sort(new Comparator<Category>() {
-            @Override
-            public int compare(Category o1, Category o2) {
-                return o1.getId().compareTo(o2.getId());
-            }
-        });
+        Category.getCategories().sort(Comparator.comparing(Category::getId));
 
         if (clear)
             MCPets.getLog().info(MCPets.getLogName() + Category.getCategories().size() + " categories registered successfully !");
     }
 
-    public static void registerCleanCategory(Player creator)
-    {
-
+    public static void registerCleanCategory(Player creator) {
         String id = UUID.randomUUID().toString();
         String folder = AbstractConfig.getPath() + "Categories/";
         String fileName = id + ".yml";
 
         File file = new File(folder + fileName);
-        if(!file.exists())
-        {
-            try
-            {
+        if (!file.exists()) {
+            try {
                 file.createNewFile();
             } catch (IOException ignored) {}
         }
@@ -226,33 +201,27 @@ public class CategoryConfig extends AbstractConfig {
 
     /**
      * Loads a fresh config category and output a category object (for editor only)
-     * @param id
-     * @return
      */
-    public static Category loadConfigCategory(String id)
-    {
+    public static Category loadConfigCategory(String id) {
         CategoryConfig oldConfig = CategoryConfig.getMapping().get(id);
         CategoryConfig config = new CategoryConfig(oldConfig.getFolderName(), oldConfig.getFileName());
         return config.getCategory();
     }
 
-    public void addPet(Pet pet)
-    {
+    public void addPet(Pet pet) {
         List<String> pets = getConfig().getStringList("Pets");
-        if(!pets.contains(pet.getId()))
+        if (!pets.contains(pet.getId()))
             pets.add(pet.getId());
         getConfig().set("Pets", pets);
         save();
         reload();
     }
 
-    public void removePet(Pet pet)
-    {
+    public void removePet(Pet pet) {
         List<String> pets = getConfig().getStringList("Pets");
         pets.remove(pet.getId());
         getConfig().set("Pets", pets);
         save();
         reload();
     }
-
 }

@@ -18,11 +18,10 @@ import org.bukkit.entity.Entity;
 
 public class PetBuffMechanic implements ITargetedEntitySkill {
 
-    PlaceholderInt duration;
-    PlaceholderFloat power;
-    String operator;
-    String type;
-
+    private PlaceholderInt duration;
+    private PlaceholderFloat power;
+    private String operator;
+    private String type;
 
     public PetBuffMechanic(MythicLineConfig config) {
         this.duration = config.getPlaceholderInteger(new String[]{"duration"}, 0);
@@ -35,23 +34,18 @@ public class PetBuffMechanic implements ITargetedEntitySkill {
         Entity entity = BukkitAdapter.adapt(target);
 
         Pet pet = Pet.getFromEntity(entity);
-        if(pet != null && pet.getPetStats() != null)
-        {
+        if (pet != null && pet.getPetStats() != null) {
             // Call the experience gain on sync so it can trigger events
             final long durationValue = duration.get(data);
             final float powerValue = power.get(data);
             PetFoodType buffType = PetFoodType.get(type);
             PetMath mathOperator = PetMath.get(operator);
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    PetFoodBuff buff = new PetFoodBuff(pet, buffType, powerValue, mathOperator, durationValue);
-                    buff.apply();
-                }
+            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> {
+                PetFoodBuff buff = new PetFoodBuff(pet, buffType, powerValue, mathOperator, durationValue);
+                buff.apply();
             });
             return SkillResult.SUCCESS;
         }
         return SkillResult.CONDITION_FAILED;
-
     }
 }

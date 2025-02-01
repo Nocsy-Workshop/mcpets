@@ -13,40 +13,33 @@ import org.bukkit.command.CommandSender;
 
 public class ArgumentClearStats extends AArgument {
 
-    public ArgumentClearStats(CommandSender sender, String[] args)
-    {
+    public ArgumentClearStats(CommandSender sender, String[] args) {
         super("clearStats", new int[]{3, 2}, sender, args);
     }
 
     @Override
-    public boolean additionalConditions()
-    {
+    public boolean additionalConditions() {
         return sender.hasPermission(PPermission.ADMIN.getPermission());
     }
 
     @Override
     public void commandEffect() {
-        if(args.length == 2)
-        {
+        if (args.length == 2) {
             // Either it's a player clear
             String playerName = args[1];
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
-            if(player != null || !player.hasPlayedBefore())
-            {
+            if (player != null || !player.hasPlayedBefore()) {
                 PlayerData pd = PlayerData.get(player.getUniqueId());
 
                 PetStats.remove(player.getUniqueId());
                 Language.STATS_CLEARED.sendMessage(sender);
                 pd.save();
-                return;
             }
-            else
-            {
+            else {
                 // Or it's a pet clear
                 String petId = args[1];
                 Pet pet = Pet.getFromId(petId);
-                if(pet != null)
-                {
+                if (pet != null) {
                     PetStats.remove(petId);
                     Language.STATS_CLEARED_FOR_PET.sendMessageFormated(sender, new FormatArg("%petId%", petId));
                     PlayerData.saveDB();
@@ -55,36 +48,27 @@ public class ArgumentClearStats extends AArgument {
 
                 // In that case it's not a pet clear so he probably failed to give a player name
                 sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
-                return;
             }
         }
-
-        else if(args.length == 3)
-        {
+        else if (args.length == 3) {
             String petId = args[2];
             Pet pet = Pet.getFromId(petId);
-            if(pet != null)
-            {
+
+            if (pet != null) {
                 String playerName = args[1];
                 OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
-                if(player != null || !player.hasPlayedBefore())
-                {
-                    // Start by loading the player data
-                    PlayerData pd = PlayerData.get(player.getUniqueId());
 
+                if (player != null || !player.hasPlayedBefore()) {
+                    PlayerData pd = PlayerData.get(player.getUniqueId()); // Start by loading the player data
                     PetStats.remove(petId, player.getUniqueId());
                     Language.STATS_CLEARED_FOR_PET_FOR_PLAYER.sendMessageFormated(sender, new FormatArg("%petId%", petId),
                             new FormatArg("%player%", playerName));
-
                     pd.save();
                     return;
                 }
             }
 
             sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
-            return;
         }
-
     }
-
 }

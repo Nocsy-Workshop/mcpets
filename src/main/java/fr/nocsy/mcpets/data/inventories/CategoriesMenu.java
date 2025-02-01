@@ -14,8 +14,7 @@ public class CategoriesMenu {
     @Getter
     private static final String title = Language.CATEGORY_MENU_TITLE.getMessage();
 
-    public static void open(Player p)
-    {
+    public static void open(Player p) {
         int invSize = Category.getCategories().size();
         while(invSize == 0 || invSize%9 != 0)
             invSize++;
@@ -24,9 +23,8 @@ public class CategoriesMenu {
 
         Category.getCategories()
                 .forEach(category -> {
-                    for(Pet pet : category.getPets())
-                        if (pet.has(p))
-                        {
+                    for (Pet pet : category.getPets())
+                        if (pet.has(p)) {
                             inventory.addItem(category.getIcon());
                             break;
                         }
@@ -35,32 +33,28 @@ public class CategoriesMenu {
         p.openInventory(inventory);
     }
 
-    public static Category findCategory(ItemStack icon)
-    {
-        if(icon == null)
+    public static Category findCategory(ItemStack icon) {
+        if (icon == null)
             return null;
 
-        if(icon.hasItemMeta() &&
-            icon.getItemMeta().hasItemName() &&
-            icon.getItemMeta().getItemName().contains("MCPetsCategory"))
-        {
+        if (    icon.hasItemMeta() &&
+                icon.getItemMeta().hasItemName() &&
+                icon.getItemMeta().getItemName().contains("MCPetsCategory")) {
+
             String[] data = icon.getItemMeta().getItemName().split(";");
-            if(data.length == 2)
-            {
+            if (data.length == 2) {
                 String catId = data[1];
                 return Category.getFromId(catId);
             }
         }
+
         return null;
     }
 
-    public static void openSubCategory(Player p, ItemStack icon)
-    {
+    public static void openSubCategory(Player p, ItemStack icon) {
         Category category = findCategory(icon);
-        if(category != null)
-        {
+        if (category != null) {
             category.openInventory(p, 0);
         }
     }
-
 }

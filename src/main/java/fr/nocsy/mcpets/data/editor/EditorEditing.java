@@ -1,10 +1,5 @@
 package fr.nocsy.mcpets.data.editor;
 
-import fr.nocsy.mcpets.data.Category;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.PetSkin;
-import fr.nocsy.mcpets.data.livingpets.PetFood;
-import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -26,11 +21,9 @@ public class EditorEditing {
     @Getter
     private HashMap<Integer, String> editorMapping = new HashMap<>();
 
-    public static EditorEditing get(Player p)
-    {
-        if(!editing.containsKey(p.getUniqueId()))
+    public static EditorEditing get(Player p) {
+        if (!editing.containsKey(p.getUniqueId()))
             editing.put(p.getUniqueId(), new EditorEditing());
         return editing.get(p.getUniqueId());
     }
-
 }

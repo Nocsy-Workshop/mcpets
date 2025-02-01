@@ -6,11 +6,13 @@ import lombok.Setter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class PetDamagedEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean isCancelled = false;
+
     @Getter
     private final Pet pet;
     @Getter
@@ -35,27 +37,14 @@ public class PetDamagedEvent extends Event implements Cancellable {
     /**
      * Set the value of the original amount of damages
      * It also adapts the modified damages if the pet stats are enabled
-     * @param value
      */
-    public void setOriginalDamages(double value)
-    {
+    public void setOriginalDamages(double value) {
         originalDamageAmount = value;
         applyResistance();
     }
 
-    /**
-     * Set the amount of modified damages (the one the pet actually receives)
-     * @param value
-     */
-    public void setModifiedDamageAmount(double value)
-    {
-        modifiedDamageAmount = value;
-    }
-
-    private void applyResistance()
-    {
-        if(applyPetStats)
-        {
+    private void applyResistance() {
+        if (applyPetStats) {
             modifiedDamageAmount = pet.getPetStats().getModifiedResistanceDamages(originalDamageAmount);
         }
         else
@@ -72,6 +61,7 @@ public class PetDamagedEvent extends Event implements Cancellable {
         isCancelled = b;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;

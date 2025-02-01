@@ -13,13 +13,11 @@ public class CommandHandler implements CommandExecutor {
     public static ArrayList<CCommand> commands = new ArrayList<>();
 
     public static void init(JavaPlugin plugin) {
-
         commands.add(new MCPetsCommand());
         for (CCommand c : commands) {
             plugin.getCommand(c.getName()).setExecutor(new CommandHandler());
             plugin.getCommand(c.getName()).setTabCompleter(c.getCompleter());
         }
-
     }
 
     @Override
@@ -29,6 +27,7 @@ public class CommandHandler implements CommandExecutor {
                 cmd.execute(sender, command, label, args);
             }
         }
+
         return true;
     }
 }

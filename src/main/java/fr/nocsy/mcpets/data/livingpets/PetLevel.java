@@ -3,7 +3,6 @@ package fr.nocsy.mcpets.data.livingpets;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
-import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.sql.PlayerData;
@@ -115,8 +114,7 @@ public class PetLevel {
                     double expThreshold,
                     String announcement,
                     PetAnnouncement announcementType,
-                    String mythicSkill)
-    {
+                    String mythicSkill) {
         this.pet = pet;
 
         this.levelId = levelId;
@@ -147,13 +145,10 @@ public class PetLevel {
     /**
      * Throw the level up announcement if setup
      */
-    public void announce(UUID player)
-    {
-        if(announcement != null && !announcement.isEmpty() &&
-                player != null)
-        {
+    public void announce(UUID player) {
+        if (announcement != null && !announcement.isEmpty() && player != null) {
             Player p = Bukkit.getPlayer(player);
-            if(p != null)
+            if (p != null)
                 announcementType.announce(p, announcement);
         }
     }
@@ -164,8 +159,7 @@ public class PetLevel {
     public void playSkill(UUID owner)
     {
         Pet pet = Pet.fromOwner(owner);
-        if(mythicSkill != null && pet.isStillHere())
-        {
+        if (mythicSkill != null && pet.isStillHere()) {
             Optional<Skill> opt = MCPets.getMythicMobs().getSkillManager().getSkill(mythicSkill);
             opt.ifPresent(skill -> skill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, pet.getActiveMob(), pet.getActiveMob().getEntity())));
         }
@@ -177,12 +171,9 @@ public class PetLevel {
      * if the evolution is not null, then it tests whether the permission is satisfied or not
      * if the permission is satisfied, then it can't evolve : result is false
      * else it can evolve, so result is true
-     * @param player
-     * @return
      */
-    public boolean canEvolve(UUID player, Pet evolution)
-    {
-        if(player == null)
+    public boolean canEvolve(UUID player, Pet evolution) {
+        if (player == null)
             return false;
         // If there are no evolutions, then it technically can evolve, towards nothing
         if (evolution == null)
@@ -194,36 +185,30 @@ public class PetLevel {
     /**
      * Makes the pet evolves if it has an evolution
      * Gives the permission to the owner to access the new pet
-     * @param player
      */
-    public boolean evolve(UUID player, boolean forceEvolution)
-    {
+    public boolean evolve(UUID player, boolean forceEvolution) {
         return this.evolveTo(player, forceEvolution, Pet.getFromId(evolutionId));
     }
 
     /**
      * Makes the pet evolves if it has an evolution
      * Gives the permission to the owner to access the new pet
-     * @param player
      */
-    public boolean evolveTo(UUID player, boolean forceEvolution, Pet evolution)
-    {
+    public boolean evolveTo(UUID player, boolean forceEvolution, Pet evolution) {
         String evId = "null";
         if (evolution != null)
             evId = evolution.getId();
         Debugger.send("Pet §6" + this.getPet().getId() + "§7 is trying to evolve as §a" + evId);
         Debugger.send("Checking conditions: §6can evolve ? §a" + canEvolve(player, evolution) + " §7| §6forced ? §a" + forceEvolution);
-        if(canEvolve(player, evolution) || forceEvolution)
-        {
-            if(evolution == null)
+        if (canEvolve(player, evolution) || forceEvolution) {
+            if (evolution == null)
                 return false;
 
             // Give the permission to the owner
             Utils.givePermission(player, evolution.getPermission());
 
             // Remove the previous permission if it's an enabled feature
-            if(removePrevious)
-            {
+            if (removePrevious) {
                 Utils.removePermission(player, pet.getPermission());
             }
 
@@ -236,18 +221,16 @@ public class PetLevel {
             PlayerData pd = PlayerData.get(player);
             // Fetch the saved name
             String name = pd.getMapOfRegisteredNames().get(pet.getId());
-            if(name != null)
+            if (name != null)
                 evolution.setDisplayName(name, true);
 
             // Transfer the inventory to the evolution
             PetInventory petInventory = PetInventory.get(pet);
-            if(petInventory != null)
-            {
+            if (petInventory != null) {
                 evolution.setOwner(player);
                 PetInventory evolutionInventory = PetInventory.get(evolution);
                 // If we can not define an inventory in the evolution, then we lose the content so it doesn't make sense
-                if(evolutionInventory == null)
-                {
+                if (evolutionInventory == null) {
                     Bukkit.getLogger().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
                     return false;
                 }
@@ -259,7 +242,7 @@ public class PetLevel {
 
             // Fetch the owner of the pet, it has to be there to spawn the next pet right
             Player owner = Bukkit.getPlayer(player);
-            if(owner == null)
+            if (owner == null)
                 return false;
 
             // Spawn the evolution
@@ -268,7 +251,7 @@ public class PetLevel {
                 public void run() {
                     // Make sure the owner is still here
                     Player owner = Bukkit.getPlayer(player);
-                    if(owner != null)
+                    if (owner != null)
                     {
                         Pet activePet = Pet.fromOwner(player);
                         Location loc = activePet != null && activePet.isStillHere() ?
@@ -276,7 +259,7 @@ public class PetLevel {
                                         owner.getLocation();
 
                         // Despawn the previous pet
-                        if(activePet != null && activePet.isStillHere())
+                        if (activePet != null && activePet.isStillHere())
                             activePet.despawn(PetDespawnReason.EVOLUTION);
 
                         // Spawn the evolution
@@ -288,16 +271,14 @@ public class PetLevel {
         }
 
         Player p = Bukkit.getPlayer(player);
-        if(p != null)
-        {
+        if (p != null) {
             Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
             Debugger.send("§a" + pet.getId() + "§6 can not evolve into §a" + evolutionId
                     + "§6 because the §cplayer" + p.getName() + " already owns the evolution§6.");
             return false;
         }
 
-        if(evolutionId != null)
-        {
+        if (evolutionId != null) {
             Bukkit.getLogger().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
             return false;
         }
@@ -308,9 +289,8 @@ public class PetLevel {
      * Play all the skills, text, sound and everything for the level up animation
      * to the given player
      */
-    public void levelUp(UUID owner)
-    {
-        if(owner == null)
+    public void levelUp(UUID owner) {
+        if (owner == null)
             return;
 
         PetLevelUpEvent event = new PetLevelUpEvent(pet, this);
@@ -327,7 +307,7 @@ public class PetLevel {
 
     public double getFlatResistanceModifier() {
         double value = resistanceModifier;
-        if(value == 0)
+        if (value == 0)
             return value = 10E-5;
         return value;
     }

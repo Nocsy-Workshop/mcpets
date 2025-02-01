@@ -68,11 +68,9 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
         ArrayList<String> serializedInventoriesMap = new ArrayList<>();
         mapOfRegisteredInventories.clear();
-        if(PetInventory.getPetInventories().containsKey(uuid))
-        {
+        if (PetInventory.getPetInventories().containsKey(uuid)) {
             HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(uuid);
-            for(String petId : inventories.keySet())
-            {
+            for (String petId : inventories.keySet()) {
                 mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
                 String seriaInv = mapOfRegisteredInventories.get(petId);
                 String seria = petId + ";" + seriaInv;
@@ -85,8 +83,7 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
         ArrayList<String> serializedStatsMap = new ArrayList<>();
 
-        for(PetStats stats : PetStats.getPetStats(uuid))
-        {
+        for (PetStats stats : PetStats.getPetStats(uuid)) {
             serializedStatsMap.add(stats.serialize());
         }
 
@@ -97,13 +94,11 @@ public class PlayerDataNoDatabase extends AbstractConfig {
 
     @Override
     public void reload() {
-
         // Unserialize the pet stats first, coz it influences the inventories
         PetStats.remove(uuid);
-        for(String seria : getConfig().getStringList("PetStats"))
-        {
+        for (String seria : getConfig().getStringList("PetStats")) {
             PetStats stats = PetStats.unzerialize(seria);
-            if(stats == null)
+            if (stats == null)
                 continue;
             stats.launchTimers();
             PetStats.register(stats);
@@ -129,7 +124,5 @@ public class PlayerDataNoDatabase extends AbstractConfig {
             mapOfRegisteredInventories.put(id, seriaInventory);
             PetInventory.unserialize(seria, uuid);
         }
-
     }
 }
-

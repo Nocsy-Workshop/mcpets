@@ -11,14 +11,12 @@ import org.bukkit.entity.Player;
 
 public class ArgumentSpawn extends AArgument {
 
-    public ArgumentSpawn(CommandSender sender, String[] args)
-    {
+    public ArgumentSpawn(CommandSender sender, String[] args) {
         super("spawn", new int[]{4, 5}, sender, args);
     }
 
     @Override
-    public boolean additionalConditions()
-    {
+    public boolean additionalConditions() {
         return sender.hasPermission(PPermission.ADMIN.getPermission());
     }
 
@@ -51,6 +49,6 @@ public class ArgumentSpawn extends AArgument {
         if (silent)
             pet.spawn(target, target.getLocation());
         else
-            pet.spawnWithMessage(target, target.getLocation());
+            pet.spawnWithMessage(target);
     }
 }

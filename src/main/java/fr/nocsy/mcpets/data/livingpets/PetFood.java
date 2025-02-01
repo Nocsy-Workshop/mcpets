@@ -11,8 +11,6 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -83,9 +81,6 @@ public class PetFood {
 
     /**
      * Constructor
-     * @param itemId
-     * @param power
-     * @param operator
      */
     public PetFood(
             String id,
@@ -101,9 +96,7 @@ public class PetFood {
             String permission,
             String unlockedPet,
             List<String> petIds,
-            long duration
-    )
-    {
+            long duration) {
         this.id = id;
         this.itemId = itemId;
         this.power = power;
@@ -127,13 +120,10 @@ public class PetFood {
 
     /**
      * Get the item stack of the pet food
-     * @return
      */
-    public ItemStack getItemStack()
-    {
+    public ItemStack getItemStack() {
         // Setup the item stack
-        if(itemStack == null)
-        {
+        if (itemStack == null) {
             if (itemId.contains("itemsadder") && MCPets.getItemsAdder() != null) {
                 // Expected: itemsadder-namespace:item_name
                 String[] parts = itemId.split("-", 2);
@@ -151,7 +141,8 @@ public class PetFood {
                                 .invoke(customStack);
                             return itemStack;
                         }
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -161,12 +152,10 @@ public class PetFood {
             itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
 
             // If no item stack matches, then we'll see if it's a default MC material
-            if(itemStack == null)
-            {
+            if (itemStack == null) {
                 // Checking MC materials
                 Material material = Arrays.stream(Material.values()).filter(mat -> mat.name().equalsIgnoreCase(itemId)).findFirst().orElse(null);
-                if(material != null && !material.isAir())
-                {
+                if (material != null && !material.isAir()) {
                     itemStack = new ItemStack(material);
                     defaultMCItem = true;
                     // return the itemstack without adding localized information to it, coz it's a default item
@@ -187,14 +176,11 @@ public class PetFood {
     /**
      * Say whether this food is compatible with the given pet
      * If the food doesn't state any pet ids, then the food is compatible with any pet
-     * @param pet
-     * @return
      */
-    public boolean isCompatibleWithPet(Pet pet)
-    {
-        if(pet == null)
+    public boolean isCompatibleWithPet(Pet pet) {
+        if (pet == null)
             return false;
-        if(petIds == null || petIds.isEmpty())
+        if (petIds == null || petIds.isEmpty())
             return true;
         return petIds.contains(pet.getId());
     }
@@ -205,9 +191,8 @@ public class PetFood {
      * and loose it unintentionally
      */
     private ArrayList<UUID> waitingListApply = new ArrayList<>();
-    public void registerWaitingList(UUID owner, long delay)
-    {
-        if(waitingListApply.contains(owner))
+    public void registerWaitingList(UUID owner, long delay) {
+        if (waitingListApply.contains(owner))
             return;
         waitingListApply.add(owner);
         new BukkitRunnable() {
@@ -226,21 +211,19 @@ public class PetFood {
 
     /**
      * Give the food to the pet
-     * @param pet
      * @return value stating whether or not the food could be applied
      */
-    public boolean apply(Pet pet, Player p)
-    {
-        if(pet == null)
+    public boolean apply(Pet pet, Player p) {
+        if (pet == null)
             return false;
 
-        if(waitingListApply.contains(pet.getOwner()))
+        if (waitingListApply.contains(pet.getOwner()))
             return false;
 
-        if(type == null)
+        if (type == null)
             return false;
 
-        if(!isCompatibleWithPet(pet))
+        if (!isCompatibleWithPet(pet))
             return false;
 
         ItemStack mainHandItem = p.getInventory().getItemInMainHand();
@@ -266,80 +249,62 @@ public class PetFood {
         boolean triggered = false;
 
         Debugger.send("§7Applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 with type §a" + this.type.getType());
-        if (type.getType().equals(PetFoodType.HEALTH.getType()))
-        {
-            if(pet.getPetStats() != null && pet.getPetStats().getCurrentHealth() < pet.getPetStats().getCurrentLevel().getMaxHealth())
-            {
+        if (type.getType().equals(PetFoodType.HEALTH.getType())) {
+            if (pet.getPetStats() != null && pet.getPetStats().getCurrentHealth() < pet.getPetStats().getCurrentLevel().getMaxHealth()) {
                 pet.getPetStats().setHealth(operator.get(pet.getPetStats().getCurrentHealth(), power));
                 triggered = true;
             }
-            else
-            {
+            else {
                 Debugger.send("§cCould not give HEALTH to the pet because it is already at maximum value.");
             }
         }
-        else if(type.getType().toUpperCase().contains("BUFF"))
-        {
+        else if (type.getType().toUpperCase().contains("BUFF")) {
             PetFoodBuff buff = new PetFoodBuff(pet, this.type, (float)this.power, this.operator, duration);
             triggered = buff.apply();
         }
-        else if(type.getType().equals(PetFoodType.TAME.getType()))
-        {
-            if(pet.getTamingProgress() != 1)
-            {
+        else if (type.getType().equals(PetFoodType.TAME.getType())) {
+            if (pet.getTamingProgress() != 1) {
                 pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
                 triggered = true;
             }
-            else
-            {
+            else {
                 Debugger.send("§cCould not give TAMING PROGRESS to the pet because it has reached maximum value.");
             }
         }
-        else if(type.getType().equals(PetFoodType.EXP.getType()))
-        {
-            if(pet.getPetStats() != null)
-            {
+        else if (type.getType().equals(PetFoodType.EXP.getType())) {
+            if (pet.getPetStats() != null) {
                 triggered = pet.getPetStats().addExperience(power);
-                if(!triggered)
-                {
+                if (!triggered) {
                     Debugger.send("§cCould not give EXP to the pet because it has reached maximum value.");
                 }
             }
         }
-        else if(type.getType().equals(PetFoodType.EVOLUTION.getType()))
-        {
+        else if (type.getType().equals(PetFoodType.EVOLUTION.getType())) {
             Pet evolutionPet = Pet.getFromId(evolution);
-            if(pet.getPetStats() != null
+            if (pet.getPetStats() != null
                     && evolutionPet != null
-                    && pet.getPetStats().getExperience() >= experienceThreshold)
-            {
+                    && pet.getPetStats().getExperience() >= experienceThreshold) {
                 PetLevel level = pet.getPetStats().getCurrentLevel();
                 level.setDelayBeforeEvolution(delay);
                 triggered = level.evolveTo(pet.getOwner(), false, evolutionPet);
             }
-            else
-            {
+            else {
                 Debugger.send("§cCould not evolve pet has conditions are not met or the evolution doesn't exist.");
             }
         }
-        else if(type.getType().equals(PetFoodType.UNLOCK.getType()))
-        {
-            if(p != null)
-            {
-                if(permission != null && !p.hasPermission(permission))
-                {
+        else if (type.getType().equals(PetFoodType.UNLOCK.getType())) {
+            if (p != null) {
+                if (permission != null && !p.hasPermission(permission)) {
                     Language.PETUNLOCK_NOPERM.sendMessage(p);
                     return false;
                 }
 
                 Pet unlockedPetObject = Pet.getFromId(unlockedPet);
-                if(unlockedPetObject == null)
-                {
+                if (unlockedPetObject == null) {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but the pet §7"+ unlockedPet +"§7 does not exist.");
                     return false;
                 }
-                else if(p.hasPermission(unlockedPetObject.getPermission()))
-                {
+                else if (p.hasPermission(unlockedPetObject.getPermission())) {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but they already own the pet.");
                     Language.PETUNLOCKED_ALREADY.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
                     return false;
@@ -351,8 +316,7 @@ public class PetFood {
             }
         }
 
-        if(triggered)
-        {
+        if (triggered) {
             pet.sendSignal(signal);
             pet.applyFoodCooldown(id);
         }
@@ -364,7 +328,6 @@ public class PetFood {
 
     /**
      * Consume the pet food in the main hand of the player
-     * @param p
      */
     public void consume(Player p) {
         if (p == null) return;
@@ -375,15 +338,14 @@ public class PetFood {
         int currentAmount = mainHandItem.getAmount();
         if (currentAmount <= 1) {
             p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-        } else {
+        }
+        else {
             mainHandItem.setAmount(currentAmount - 1);
         }
     }
 
     /**
      * Get the pet food object from the item stack if it represents one
-     * @param it
-     * @return
      */
     public static PetFood getFromItem(ItemStack it) {
         if (it == null || it.getType() == Material.AIR) {
@@ -410,7 +372,8 @@ public class PetFood {
                                 return petFood;
                             }
                         }
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -444,7 +407,8 @@ public class PetFood {
                             if (petFoodLore != null && itemLore != null && petFoodLore.equals(itemLore)) {
                                 return petFood;
                             }
-                        } else if (!petFoodMeta.hasLore() && !itemMeta.hasLore()) {
+                        }
+                        else if (!petFoodMeta.hasLore() && !itemMeta.hasLore()) {
                             return petFood;
                         }
                     }
@@ -457,13 +421,8 @@ public class PetFood {
 
     /**
      * Get the PetFood from the id
-     * @param id
-     * @return
      */
-    public static PetFood getFromId(String id)
-    {
+    public static PetFood getFromId(String id) {
         return petFoodHashMap.get(id);
     }
-
-
 }

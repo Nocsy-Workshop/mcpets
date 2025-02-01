@@ -13,7 +13,6 @@ public class PetDespawnMechanic implements ITargetedEntitySkill {
     public PetDespawnMechanic(MythicLineConfig config) {}
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
-
         AbstractEntity ent = data.getCaster().getEntity();
 
         Pet pet = Pet.getFromEntity(ent.getBukkitEntity());

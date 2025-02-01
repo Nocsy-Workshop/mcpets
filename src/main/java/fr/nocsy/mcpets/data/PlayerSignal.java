@@ -13,9 +13,6 @@ public class PlayerSignal {
 
     /**
      * Set the active signal for the player
-     *
-     * @param owner
-     * @param signal
      */
     public static void setSignal(UUID owner, String signal) {
         Pet pet = Pet.fromOwner(owner);
@@ -37,9 +34,6 @@ public class PlayerSignal {
 
     /**
      * Get the active signal of the player
-     *
-     * @param owner
-     * @return
      */
     public static String getSignalTag(UUID owner) {
         if (orderMap.containsKey(owner)) {
@@ -50,10 +44,6 @@ public class PlayerSignal {
 
     /**
      * Says whether or not the signal is compatible with the pet of the player
-     *
-     * @param owner
-     * @param signal
-     * @return
      */
     public static boolean isCompatible(UUID owner, String signal) {
         Pet pet = Pet.fromOwner(owner);
@@ -66,10 +56,6 @@ public class PlayerSignal {
 
     /**
      * Get the index of the signal of the pet (-1 if doesn't exists)
-     *
-     * @param pet
-     * @param signal
-     * @return
      */
     public static int getSignalIndex(@NotNull Pet pet, String signal) {
         if (pet.getSignals().isEmpty())
@@ -86,8 +72,6 @@ public class PlayerSignal {
 
     /**
      * Set the default signal to cast for the pet summoned
-     *
-     * @param owner
      */
     public static void setDefaultSignal(UUID owner, @NotNull Pet pet) {
         if (pet.getSignals().isEmpty())
@@ -116,11 +100,9 @@ public class PlayerSignal {
 
         return null;
     }
-
 }
 
 class SignalWrapper {
-
     @Getter
     @Setter
     private String activeSignal;
@@ -132,5 +114,4 @@ class SignalWrapper {
     @Getter
     @Setter
     private Pet pet;
-
 }

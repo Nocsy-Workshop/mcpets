@@ -28,40 +28,34 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
         if (getFlag() == null) {
             MCPets.getLog().warning(MCPets.getLogName() + "Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
             return;
-        } else {
+        }
+        else {
             MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
         }
 
-        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), new Runnable() {
-            @Override
-            public void run() {
+        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
+            if (MCPets.getMythicMobs() == null)
+                return;
 
-                if(MCPets.getMythicMobs() == null)
-                    return;
+            for (UUID owner : Pet.getActivePets().keySet()) {
+                Pet pet = Pet.getActivePets().get(owner);
 
-                for (UUID owner : Pet.getActivePets().keySet()) {
-                    Pet pet = Pet.getActivePets().get(owner);
+                if (!pet.isMountable())
+                    continue;
 
-                    if (!pet.isMountable())
+                Player p = Bukkit.getPlayer(owner);
+
+                if (p != null) {
+                    if (!pet.hasMount(p))
                         continue;
 
-                    Player p = Bukkit.getPlayer(owner);
+                    boolean hasToBeEjected = testState(p.getLocation());
 
-                    if (p != null) {
-                        if (!pet.hasMount(p))
-                            continue;
-
-                        boolean hasToBeEjected = testState(p.getLocation());
-
-                        if (hasToBeEjected) {
-                            pet.dismount(p);
-                            Language.NOT_MOUNTABLE_HERE.sendMessage(p);
-                        }
-
+                    if (hasToBeEjected) {
+                        pet.dismount(p);
+                        Language.NOT_MOUNTABLE_HERE.sendMessage(p);
                     }
-
                 }
-
             }
         }, 0L, 20L);
     }
@@ -70,5 +64,4 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
     public void stop() {
         Bukkit.getServer().getScheduler().cancelTask(task);
     }
-
 }

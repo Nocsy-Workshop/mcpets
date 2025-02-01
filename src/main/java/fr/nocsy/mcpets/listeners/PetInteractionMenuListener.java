@@ -43,22 +43,20 @@ public class PetInteractionMenuListener implements Listener {
     public static void mount(Player p, Pet pet) {
         if (p.isInsideVehicle()) {
             Language.ALREADY_INSIDE_VEHICULE.sendMessage(p);
-        } else if (!pet.setMount(p)) {
+        }
+        else if (!pet.setMount(p)) {
             Language.NOT_MOUNTABLE.sendMessage(p);
         }
     }
 
-    public static void inventory(Player p, Pet pet)
-    {
+    public static void inventory(Player p, Pet pet) {
         PetInventory inventory = PetInventory.get(pet);
-        if(inventory != null)
-        {
+        if (inventory != null) {
             inventory.open(p);
         }
     }
 
-    public static void skins(Player p, Pet pet)
-    {
+    public static void skins(Player p, Pet pet) {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -104,28 +102,29 @@ public class PetInteractionMenuListener implements Listener {
                 if (localizedName.contains("AlmPetPage;"))
                     return;
 
-                if(localizedName.equals(Items.PETMENU.getLocalizedName()))
-                {
+                if (localizedName.equals(Items.PETMENU.getLocalizedName())) {
                     openBackPetMenu(p);
                     return;
                 }
 
                 if (localizedName.equals(Items.MOUNT.getLocalizedName())) {
                     mount(p, pet);
-                } else if (localizedName.equals(Items.RENAME.getLocalizedName())) {
+                }
+                else if (localizedName.equals(Items.RENAME.getLocalizedName())) {
                     changeName(p);
-                } else if (localizedName.equals(Items.INVENTORY.getLocalizedName())) {
+                }
+                else if (localizedName.equals(Items.INVENTORY.getLocalizedName())) {
                     inventory(p, pet);
-                } else if (pet.getSignalStick() != null && it.isSimilar(pet.getSignalStick())) {
+                }
+                else if (pet.getSignalStick() != null && it.isSimilar(pet.getSignalStick())) {
                     pet.giveStickSignals(p);
-                } else if(localizedName.equals(Items.SKINS.getLocalizedName())) {
+                }
+                else if (localizedName.equals(Items.SKINS.getLocalizedName())) {
                     skins(p, pet);
                 }
                 p.closeInventory();
             }
-
         }
-
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -152,18 +151,17 @@ public class PetInteractionMenuListener implements Listener {
                 if (!p.hasPermission(PPermission.COLOR.getPermission()))
                     name = ChatColor.stripColor(name);
 
-                if(name.isEmpty())
-                {
+                if (name.isEmpty()) {
                     Language.NICKNAME_NOT_CHANGED.sendMessage(p);
                     return;
                 }
                 pet.setDisplayName(name, true);
 
                 Language.NICKNAME_CHANGED_SUCCESSFULY.sendMessage(p);
-            } else {
+            }
+            else {
                 Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
             }
-
         }
     }
 
@@ -171,5 +169,4 @@ public class PetInteractionMenuListener implements Listener {
         PetMenu menu = new PetMenu(p, 0);
         menu.open(p);
     }
-
 }

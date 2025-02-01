@@ -6,11 +6,13 @@ import lombok.Setter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class PetTamingEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean isCancelled = false;
+
     @Getter
     private final Pet pet;
     @Getter
@@ -24,10 +26,8 @@ public class PetTamingEvent extends Event implements Cancellable {
 
     /**
      * Says whether or not the taming is completed
-     * @return
      */
-    public boolean isTamingComplete()
-    {
+    public boolean isTamingComplete() {
         return tamingProgress >= 1;
     }
 
@@ -45,6 +45,7 @@ public class PetTamingEvent extends Event implements Cancellable {
         isCancelled = b;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;

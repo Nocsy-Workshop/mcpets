@@ -1,6 +1,5 @@
 package fr.nocsy.mcpets.data.config;
 
-import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -46,8 +45,7 @@ public abstract class AbstractConfig {
         loadConfig();
     }
 
-    public String getFullPath()
-    {
+    public String getFullPath() {
         return (path + folderName + "/" + fileName).replace("//", "/");
     }
 
@@ -60,8 +58,7 @@ public abstract class AbstractConfig {
         }
     }
 
-    public boolean delete()
-    {
+    public boolean delete() {
         File file = new File(getFullPath());
         return file.delete();
     }
@@ -72,5 +69,4 @@ public abstract class AbstractConfig {
     }
 
     public abstract void reload();
-
 }

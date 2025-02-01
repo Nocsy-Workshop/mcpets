@@ -2,22 +2,17 @@ package fr.nocsy.mcpets.data.flags;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;
-import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.association.DelayedRegionOverlapAssociation;
 import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
-import com.sk89q.worldguard.protection.flags.registry.SimpleFlagRegistry;
-import com.sk89q.worldguard.protection.flags.registry.UnknownFlag;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import lombok.Getter;
-import org.bukkit.entity.Player;
 
 public abstract class AbstractFlag {
 
@@ -43,7 +38,6 @@ public abstract class AbstractFlag {
         FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
 
         try {
-
             // create a flag with the name "flagName", defaulting to defaultValue
             StateFlag flag = new StateFlag(flagName, defaultValue);
             registry.register(flag);
@@ -61,7 +55,8 @@ public abstract class AbstractFlag {
             if (existing instanceof StateFlag) {
                 this.flag = (StateFlag) existing;
                 MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " flag attached successfully !");
-            } else {
+            }
+            else {
                 // types don't match - this is bad news! some other plugin conflicts with you
                 // hopefully this never actually happens
                 MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " Flag couldn't be attached... Server restart will be necessary to fix the issue.");
@@ -75,19 +70,16 @@ public abstract class AbstractFlag {
 
     /**
      * Test if the state flag is allowed at player's location
-     *
-     * @return
      */
     public boolean testState(org.bukkit.Location location) {
-        if(!GlobalConfig.getInstance().isWorldguardsupport())
+        if (!GlobalConfig.getInstance().isWorldguardsupport())
             return true;
         Location loc = BukkitAdapter.adapt(location);
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
         RegionAssociable associable =  new DelayedRegionOverlapAssociation(query, loc, true);
-        if(query == null || loc == null || associable == null || getFlag() == null)
+        if (query == null || loc == null || associable == null || getFlag() == null)
             return false;
         return query.testState(loc, associable, getFlag());
     }
-
 }

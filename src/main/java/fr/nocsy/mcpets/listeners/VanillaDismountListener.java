@@ -1,23 +1,21 @@
 package fr.nocsy.mcpets.listeners;
 
-import java.util.UUID;
-
+import com.ticxo.modelengine.api.ModelEngineAPI;
+import com.ticxo.modelengine.api.model.ModeledEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDismountEvent;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.model.ModeledEntity;
+import java.util.UUID;
 
 public class VanillaDismountListener implements Listener {
 	
 	@EventHandler
 	public void onDismount(EntityDismountEvent e) {
 		var entity = e.getEntity();
-		if (!(entity instanceof Player)) {
+		if (!(entity instanceof Player))
 			return;
-		}
 
 		UUID petUUID = e.getDismounted().getUniqueId();
 
@@ -27,7 +25,7 @@ public class VanillaDismountListener implements Listener {
 		}
 
 		var mountManager = localModeledEntity.getMountData().getMainMountManager();
-		if(mountManager == null)
+		if (mountManager == null)
 			return;
 		var driver = mountManager.getDriver();
 		if (driver == null) {
@@ -35,10 +33,9 @@ public class VanillaDismountListener implements Listener {
 			return;
 		}
 
-		if (driver.getUniqueId().equals(entity.getUniqueId())) {
+		if (driver.getUniqueId().equals(entity.getUniqueId()))
 			mountManager.dismountAll();
-		} else {
+		else
 			mountManager.dismountRider(entity);
-		}
 	}
 }

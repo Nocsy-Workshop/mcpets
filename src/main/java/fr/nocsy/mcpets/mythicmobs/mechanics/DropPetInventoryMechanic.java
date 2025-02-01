@@ -26,30 +26,23 @@ public class DropPetInventoryMechanic implements ITargetedEntitySkill {
         if (pet == null)
             return SkillResult.CONDITION_FAILED;
 
-        try
-        {
+        try {
             PetInventory petInventory = PetInventory.get(pet);
-            if(petInventory != null)
-            {
+            if (petInventory != null) {
                 Inventory inv = petInventory.getInventory();
                 Location loc = BukkitAdapter.adapt(pet.getActiveMob().getLocation());
                 // Call the drop on sync so it can trigger events
-                Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {
-                    @Override
-                    public void run() {
-                        for(ItemStack it : inv.getContents())
-                        {
-                            if(it != null)
-                                loc.getWorld().dropItemNaturally(loc, it);
-                        }
+                Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> {
+                    for (ItemStack it : inv.getContents()) {
+                        if(it != null)
+                            loc.getWorld().dropItemNaturally(loc, it);
                     }
                 });
 
                 petInventory.setInventory(Bukkit.createInventory(null, inv.getSize()));
             }
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             ex.printStackTrace();
             return SkillResult.CONDITION_FAILED;
         }

@@ -30,40 +30,31 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
         if (getFlag() == null) {
             MCPets.getLog().warning(MCPets.getLogName() + "Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
             return;
-        } else {
+        }
+        else {
             MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
         }
 
-        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), new Runnable() {
-            @Override
-            public void run() {
+        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
+            if (MCPets.getMythicMobs() == null)
+                return;
 
-                if(MCPets.getMythicMobs() == null)
-                    return;
+            try {
+                for (UUID owner : Pet.getActivePets().keySet()) {
+                    Pet pet = Pet.getActivePets().get(owner);
+                    Player p = Bukkit.getPlayer(owner);
 
-                try
-                {
-                    for (UUID owner : Pet.getActivePets().keySet()) {
-                        Pet pet = Pet.getActivePets().get(owner);
-                        Player p = Bukkit.getPlayer(owner);
+                    if (p != null) {
+                        boolean hasToBeRemoved = testState(p.getLocation());
 
-                        if (p != null) {
-                            boolean hasToBeRemoved = testState(p.getLocation());
-
-                            if (hasToBeRemoved) {
-                                pet.despawn(PetDespawnReason.FLAG);
-                                Language.CANT_FOLLOW_HERE.sendMessage(p);
-                            }
-
+                        if (hasToBeRemoved) {
+                            pet.despawn(PetDespawnReason.FLAG);
+                            Language.CANT_FOLLOW_HERE.sendMessage(p);
                         }
-
                     }
                 }
-                catch (ConcurrentModificationException ignored)
-                {}
-
-
             }
+            catch (ConcurrentModificationException ignored) {}
         }, 0L, 20L);
     }
 

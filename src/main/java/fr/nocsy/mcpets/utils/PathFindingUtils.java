@@ -13,32 +13,25 @@ public class PathFindingUtils {
 
     /**
      * Move the entity to the specified location
-     * @param entity
-     * @param destination
      */
-    public static void moveTo(AbstractEntity entity, AbstractLocation destination)
-    {
+    public static void moveTo(AbstractEntity entity, AbstractLocation destination) {
         MCPets.getMythicMobs().getVolatileCodeHandler().getAIHandler().navigateToLocation(entity, destination, 1);
     }
 
     /**
      * Stop the entity at its location
-     * @param entity
      */
-    public static void stop(AbstractEntity entity, UUID owner)
-    {
-        if(registry.get(owner) != null)
-        {
+    public static void stop(AbstractEntity entity, UUID owner) {
+        if (registry.get(owner) != null) {
             AbstractLocation loc = registry.get(owner);
-            if(loc.getBlockX() == entity.getLocation().getBlockX() &&
+            if (loc.getBlockX() == entity.getLocation().getBlockX() &&
                     loc.getBlockY() == entity.getLocation().getBlockY() &&
-                    loc.getBlockZ() == entity.getLocation().getBlockZ())
-            {
+                    loc.getBlockZ() == entity.getLocation().getBlockZ()) {
                 return;
             }
         }
+
         moveTo(entity, entity.getLocation());
         registry.put(owner, entity.getLocation());
     }
-
 }

@@ -59,10 +59,8 @@ public class MCPetsCommand implements CCommand {
                     new ArgumentEditor(sender, args),
             };
 
-            for(AArgument argument : outcomes)
-            {
-                if(argument.conditionsVerified())
-                {
+            for(AArgument argument : outcomes) {
+                if(argument.conditionsVerified()) {
                     argument.commandEffect();
                     return;
                 }
@@ -70,8 +68,8 @@ public class MCPetsCommand implements CCommand {
 
             if (sender.hasPermission(getAdminPermission()))
                 Language.USAGE.sendMessage(sender);
-
-        } else {
+        }
+        else {
             Language.NO_PERM.sendMessage(sender);
         }
     }

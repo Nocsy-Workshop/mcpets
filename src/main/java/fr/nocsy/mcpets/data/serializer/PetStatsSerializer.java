@@ -4,13 +4,10 @@ import com.google.gson.Gson;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.utils.PetTimer;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Base64;
-import java.util.Optional;
 import java.util.UUID;
 
 public class PetStatsSerializer {
@@ -29,21 +26,12 @@ public class PetStatsSerializer {
     @Getter
     // Handles the levels
     private String levelId;
-
-    /**
-     * Constructor
-     * @param petId
-     * @param petOwner
-     * @param currentHealth
-     * @param experience
-     * @param levelId
-     */
+    
     private PetStatsSerializer(String petId,
                               UUID petOwner,
                               double currentHealth,
                               double experience,
-                              String levelId)
-    {
+                              String levelId) {
         this.petId = petId;
         this.petOwner = petOwner;
         this.currentHealth = currentHealth;
@@ -53,11 +41,8 @@ public class PetStatsSerializer {
 
     /**
      * Build the serializer from the pet stats instance
-     * @param stats
-     * @return
      */
-    public static PetStatsSerializer build(@NotNull PetStats stats)
-    {
+    public static PetStatsSerializer build(@NotNull PetStats stats) {
         return new PetStatsSerializer(stats.getPet().getId(),
                                     stats.getPet().getOwner(),
                                     stats.getCurrentHealth(),
@@ -67,21 +52,18 @@ public class PetStatsSerializer {
 
     /**
      * Rebuild the PetStats from the serialized
-     * @return
      */
-    public PetStats buildStats()
-    {
+    public PetStats buildStats() {
         Pet pet = Pet.getFromId(petId);
-        if(pet == null)
+        if (pet == null)
             return null;
-
         pet.setOwner(petOwner);
 
         PetLevel currentLevel = pet.getPetLevels().stream()
-                                                .filter(level -> level.getLevelId().equals(levelId))
-                                                .findFirst()
-                                                .orElse(null);
-        if(currentLevel == null)
+                .filter(level -> level.getLevelId().equals(levelId))
+                .findFirst()
+                .orElse(null);
+        if (currentLevel == null)
             return null;
 
         return new PetStats(pet, experience, currentHealth, currentLevel);
@@ -89,19 +71,15 @@ public class PetStatsSerializer {
 
     /**
      * Get the JSON representation of the pet stats
-     * @return
      */
-    public String JSONformatted()
-    {
+    public String JSONformatted() {
         return new Gson().toJson(this);
     }
 
     /**
      * Return a string representation of the object
-     * @return
      */
-    public String serialize()
-    {
+    public String serialize() {
         String jsonStr = JSONformatted();
         jsonStr = Base64.getEncoder().encodeToString(jsonStr.getBytes());
         return jsonStr;
@@ -109,14 +87,11 @@ public class PetStatsSerializer {
 
     /**
      * Returns the object unserialized from the given serialized string
-     * @return
      */
-    public static PetStatsSerializer unserialize(String serialized)
-    {
+    public static PetStatsSerializer unserialize(String serialized) {
         String decoded = new String(Base64.getDecoder().decode(serialized.getBytes()));
-        if(decoded == null || decoded.isEmpty())
+        if (decoded.isEmpty())
             return null;
         return new Gson().fromJson(decoded, PetStatsSerializer.class);
     }
-
 }

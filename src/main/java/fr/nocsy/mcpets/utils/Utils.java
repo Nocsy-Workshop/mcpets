@@ -15,7 +15,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
@@ -44,13 +43,16 @@ public class Utils {
 
             PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("4fbecd49-c7d4-4c18-8410-adf7a7348728"));
             PlayerTextures pt = pp.getTextures();
+
             URL urlObject = null;
             try {
                 urlObject = new URL(url);
-            } catch (MalformedURLException e) {
+            }
+            catch (MalformedURLException e) {
                 try {
                     urlObject = new URL("http://textures.minecraft.net/texture/8dcfabbbb4d7b0381135bf07b6af3de920ab4c366c06c37fa4c4e8b8f43bbb2b");
-                } catch (MalformedURLException malformedURLException) {
+                }
+                catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
             }
@@ -60,7 +62,8 @@ public class Utils {
             meta.setOwnerProfile(pp);
             item.setItemMeta(meta);
             return item;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             item.setItemMeta(meta);
             return item;
         }
@@ -78,14 +81,10 @@ public class Utils {
         double square = (Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) + Math.pow(z1 - z2, 2));
 
         return Math.sqrt(square);
-
     }
 
     /**
      * Location bruiser
-     *
-     * @param loc
-     * @return
      */
     public static Location bruised(Location loc, double distance) {
         Location origin = loc.clone();
@@ -114,9 +113,6 @@ public class Utils {
 
     /**
      * Translate hexadecimal colors
-     *
-     * @param message
-     * @return
      */
     public static String hex(String message) {
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
@@ -143,10 +139,7 @@ public class Utils {
     }
 
     /**
-     * Says whether or not the string is in the blacklist of words
-     *
-     * @param s
-     * @return
+     * Says whether the string is in the blacklist of words
      */
     public static String isInBlackList(String s) {
         String toMatch = ChatColor.stripColor(s).toLowerCase();
@@ -162,12 +155,9 @@ public class Utils {
     /**
      * Get the sign symbol of the value
      * Return an empty string if it's negative to prevent duplicating issue
-     * @param value
-     * @return
      */
-    public static String getSignSymbol(double value)
-    {
-        if(value < 0)
+    public static String getSignSymbol(double value) {
+        if (value < 0)
             return "";
         else
             return "+";
@@ -175,7 +165,6 @@ public class Utils {
 
     /**
      * Used to call any event
-     * @param e
      */
     public static void callEvent(Event e) {
         Bukkit.getPluginManager().callEvent(e);
@@ -183,12 +172,10 @@ public class Utils {
 
     /**
      * Private debugger for Nocsy
-     * @param msg
      */
-    public static void debug(String msg)
-    {
+    public static void debug(String msg) {
         Player p = Bukkit.getPlayer("Nocsy");
-        if(p != null) {
+        if (p != null) {
             p.sendMessage(msg);
         }
         Bukkit.getLogger().severe("[MCPets - DEBUG]: " + msg);
@@ -197,19 +184,13 @@ public class Utils {
     /**
      * Give permission to a player (based on LuckPerms)
      * Return false if we are unable to give the permission on a long term basis
-     * @param uuid
-     * @param permission
-     * @return
      */
-    public static boolean givePermission(UUID uuid, String permission)
-    {
-        if(MCPets.getLuckPerms() != null)
-        {
+    public static boolean givePermission(UUID uuid, String permission) {
+        if (MCPets.getLuckPerms() != null) {
             return PermsUtils.givePermission(uuid, permission);
         }
 
-        if(Bukkit.getPlayer(uuid) != null)
-        {
+        if (Bukkit.getPlayer(uuid) != null) {
             // This is not saved in any file, just in the MCPets instance so it's not a viable solution
             // Hence we return false
             Bukkit.getPlayer(uuid).addAttachment(MCPets.getInstance(), permission, true);
@@ -220,14 +201,9 @@ public class Utils {
 
     /**
      * Remove permission to the player
-     * @param uuid
-     * @param permission
-     * @return
      */
-    public static boolean removePermission(UUID uuid, String permission)
-    {
-        if(MCPets.getLuckPerms() != null)
-        {
+    public static boolean removePermission(UUID uuid, String permission) {
+        if (MCPets.getLuckPerms() != null) {
             PermsUtils.removePermission(uuid, permission);
             return true;
         }
@@ -237,20 +213,14 @@ public class Utils {
 
     /**
      * Check if the player has the permission
-     * @param uuid
-     * @param permission
-     * @return
      */
-    public static boolean hasPermission(@NotNull UUID uuid, String permission)
-    {
+    public static boolean hasPermission(@NotNull UUID uuid, String permission) {
         boolean hasPerm = false;
         Player p = Bukkit.getPlayer(uuid);
-        if(p != null)
-        {
+        if (p != null) {
             hasPerm = p.hasPermission(permission);
         }
-        if(!hasPerm && MCPets.getLuckPerms() != null)
-        {
+        if (!hasPerm && MCPets.getLuckPerms() != null) {
             return PermsUtils.hasPermission(uuid, permission);
         }
         return hasPerm;
@@ -258,19 +228,13 @@ public class Utils {
 
     /**
      * Translate the string to hex color code
-     * @param startTag
-     * @param endTag
-     * @param message
-     * @return
      */
-    public static String translateHexColorCodes(String startTag, String endTag, String message)
-    {
+    public static String translateHexColorCodes(String startTag, String endTag, String message) {
         char COLOR_CHAR = ChatColor.COLOR_CHAR;
         final Pattern hexPattern = Pattern.compile(startTag + "([A-Fa-f0-9]{6})" + endTag);
         Matcher matcher = hexPattern.matcher(message);
         StringBuffer buffer = new StringBuffer(message.length() + 4 * 8);
-        while (matcher.find())
-        {
+        while (matcher.find()) {
             String group = matcher.group(1);
             matcher.appendReplacement(buffer, COLOR_CHAR + "x"
                     + COLOR_CHAR + group.charAt(0) + COLOR_CHAR + group.charAt(1)
@@ -283,8 +247,6 @@ public class Utils {
 
     /**
      * Check if a string is a numerical expression
-     * @param strNum
-     * @return
      */
     public static boolean isNumeric(String strNum) {
         if (strNum == null) {
@@ -292,22 +254,23 @@ public class Utils {
         }
         try {
             double d = Double.parseDouble(strNum);
-        } catch (NumberFormatException nfe) {
+        }
+        catch (NumberFormatException nfe) {
             return false;
         }
         return true;
     }
 
-    public static String applyPlaceholders(UUID uuid, String msg)
-    {
-        if(MCPets.getPlaceholderAPI() == null) {
+    public static String applyPlaceholders(UUID uuid, String msg) {
+        if (MCPets.getPlaceholderAPI() == null) {
             return msg;
         }
-        if(uuid == null)
+        if (uuid == null)
             uuid = UUID.randomUUID();
         Player p = Bukkit.getPlayer(uuid);
-        if(p == null)
+        if (p == null)
             return PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(uuid), msg);
+
         return PlaceholderAPI.setPlaceholders(p, msg);
     }
 
@@ -315,5 +278,4 @@ public class Utils {
         Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(skillName);
         return optionalSkill.orElse(null);
     }
-
 }

@@ -13,5 +13,4 @@ public interface CCommand {
     TabCompleter getCompleter();
 
     void execute(CommandSender sender, Command command, String label, String[] args);
-
 }

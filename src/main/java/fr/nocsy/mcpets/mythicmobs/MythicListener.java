@@ -19,9 +19,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class MythicListener implements Listener {
 
     @EventHandler
-    public void onMythicReload(MythicReloadedEvent e)
-    {
-        // load the place holders
+    public void onMythicReload(MythicReloadedEvent e) {
+        // load the placeholders
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -31,15 +30,12 @@ public class MythicListener implements Listener {
     }
 
     @EventHandler
-    public void onMythicEventLoad(MythicConditionLoadEvent e)
-    {
-        if(e.getConditionName().equalsIgnoreCase("petExperience"))
-        {
+    public void onMythicEventLoad(MythicConditionLoadEvent e) {
+        if (e.getConditionName().equalsIgnoreCase("petExperience")) {
             PetExperienceCondition cond = new PetExperienceCondition(e.getConfig().getLine(), e.getConfig());
             e.register(cond);
         }
-        else if(e.getConditionName().equalsIgnoreCase("petTaming"))
-        {
+        else if (e.getConditionName().equalsIgnoreCase("petTaming")) {
             PetTamingCondition cond = new PetTamingCondition(e.getConfig().getLine(), e.getConfig());
             e.register(cond);
         }
@@ -56,72 +52,57 @@ public class MythicListener implements Listener {
         else if (str.equalsIgnoreCase("PETFROMOWNER")) {
             paramMythicTargeterLoadEvent.register(new TargeterPetFromOwner(paramMythicTargeterLoadEvent.getConfig()));
         }
-
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onMythicMechanicLoad(MythicMechanicLoadEvent event) {
-        if (event.getMechanicName().equalsIgnoreCase("GivePet"))
-        {
+        if (event.getMechanicName().equalsIgnoreCase("GivePet")) {
             GivePetMechanic mechanic = new GivePetMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("SetPet"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("SetPet")) {
             SetPetMechanic mechanic = new SetPetMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("PetFollow"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("PetFollow")) {
             PetFollowMechanic mechanic = new PetFollowMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("PetName"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("PetName")) {
             PetNameMechanic mechanic = new PetNameMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("PetExperience"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("PetExperience")) {
             PetExperienceMechanic mechanic = new PetExperienceMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("PetDamage"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("PetDamage")) {
             PetDamageMechanic mechanic = new PetDamageMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("PetBuff"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("PetBuff")) {
             PetBuffMechanic mechanic = new PetBuffMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("SetLivingPet"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("SetLivingPet")) {
             SetLivingPetMechanic mechanic = new SetLivingPetMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("PetDespawn"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("PetDespawn")) {
             PetDespawnMechanic mechanic = new PetDespawnMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("EvolvePet"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("EvolvePet")) {
             EvolvePetMechanic mechanic = new EvolvePetMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("DropPetInventory"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("DropPetInventory")) {
             DropPetInventoryMechanic mechanic = new DropPetInventoryMechanic(event.getConfig());
             event.register(mechanic);
         }
-        else if (event.getMechanicName().equalsIgnoreCase("DropPetItem"))
-        {
+        else if (event.getMechanicName().equalsIgnoreCase("DropPetItem")) {
             DropPetItemMechanic mechanic = new DropPetItemMechanic(event.getConfig());
             event.register(mechanic);
         }
-
     }
-
 }

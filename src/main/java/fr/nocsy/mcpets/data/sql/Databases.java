@@ -6,11 +6,9 @@ import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,8 +23,7 @@ public class Databases {
     private static ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
 
     public static boolean init() {
-        if(GlobalConfig.getInstance().isDisableMySQL())
-        {
+        if (GlobalConfig.getInstance().isDisableMySQL()) {
             MCPets.getInstance().getLogger().info("MySQL is disabled. Flat support will be used.");
             return false;
         }
@@ -94,7 +91,8 @@ public class Databases {
                     PlayerData.getRegisteredData().put(uuid, pd);
                 }
             }
-        } catch (SQLException e1) {
+        }
+        catch (SQLException e1) {
             e1.printStackTrace();
             return false;
         }
@@ -147,7 +145,8 @@ public class Databases {
                     PlayerData.getRegisteredData().put(uuid, pd);
                 }
             }
-        } catch (SQLException e1) {
+        }
+        catch (SQLException e1) {
             e1.printStackTrace();
             return false;
         }
@@ -186,7 +185,7 @@ public class Databases {
     public static void savePlayerData(UUID playerUUID) {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
-        if(!PlayerData.isRegistered(playerUUID))
+        if (!PlayerData.isRegistered(playerUUID))
             return;
 
         synchronized (getLockForPlayer(playerUUID)) {
@@ -214,14 +213,19 @@ public class Databases {
         }
     }
 
-    private static String buildStringSerialized(Map<String,String> map)
-    {
+    public static void closeConnection() {
+        if (!GlobalConfig.getInstance().isDatabaseSupport())
+            return;
+
+        mySQL.close();
+    }
+
+    private static String buildStringSerialized(Map<String,String> map) {
         String builder = "";
-        for(String id : map.keySet())
-        {
+        for (String id : map.keySet()) {
             String seria = map.get(id);
             String seriaId = id + ";;" + seria;
-            if(builder.isBlank())
+            if (builder.isBlank())
                 builder = seriaId;
             else
                 builder = builder + ";;;" + seriaId;
@@ -245,7 +249,8 @@ public class Databases {
                 String pet_id = seriaData[0];
                 String content = seriaData[1];
                 outputMap.put(pet_id, content);
-            } catch (IndexOutOfBoundsException ex) {
+            }
+            catch (IndexOutOfBoundsException ex) {
                 ex.printStackTrace();
                 MCPets.getInstance().getLogger().severe("[Database] Index out of bound for (147) : " + seriaContents);
             }

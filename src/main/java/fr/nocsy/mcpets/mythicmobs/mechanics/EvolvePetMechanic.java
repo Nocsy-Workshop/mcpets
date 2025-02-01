@@ -27,24 +27,18 @@ public class EvolvePetMechanic implements ITargetedEntitySkill {
 
         Pet pet = Pet.getFromEntity(entity);
         Pet evolution = Pet.getFromId(evolutionId);
+
         Debugger.send("§6[Evolution Mechanic]:");
-        if(pet != null)
+        if (pet != null)
             Debugger.send("§7- pet: §a" + pet.getId() + "§7 has pet stats ? §a" + (pet.getPetStats() != null));
         Debugger.send("§7- evolution: §a" + evolutionId + " exists ? §a" + (evolution != null));
-        if(evolution != null
-                && pet != null
-                && pet.getPetStats() != null)
-        {
+
+        if (evolution != null && pet != null && pet.getPetStats() != null) {
             // Call the experience gain on sync so it can trigger events
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    pet.getPetStats().getCurrentLevel().evolveTo(pet.getOwner(), forceEvolution, evolution);
-                }
-            });
+            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> pet.getPetStats().getCurrentLevel().evolveTo(pet.getOwner(), forceEvolution, evolution));
             return SkillResult.SUCCESS;
         }
-        return SkillResult.CONDITION_FAILED;
 
+        return SkillResult.CONDITION_FAILED;
     }
 }

@@ -45,7 +45,7 @@ public class PetMenu {
         if (GlobalConfig.getInstance().getAdaptiveInventory() > 0) {
             pageSize = GlobalConfig.getInstance().getAdaptiveInventory() - 1;
         }
-        for(int i = pageSize * page; i < availablePets.size(); i++)
+        for (int i = pageSize * page; i < availablePets.size(); i++)
         {
             // We can not have more than 53 pets selected at a given page
             if(selectedPets.size() >= 53)
@@ -77,16 +77,13 @@ public class PetMenu {
         if (addPager) {
             inventory.setItem(invSize - 1, Items.page(page, p));
         }
-
     }
 
     public void open(Player p) {
-        if(p.getUniqueId().equals(owner) && Category.getCategories().size() > 0)
-        {
+        if (p.getUniqueId().equals(owner) && Category.getCategories().size() > 0) {
             CategoriesMenu.open(p);
             return;
         }
         p.openInventory(inventory);
     }
-
 }

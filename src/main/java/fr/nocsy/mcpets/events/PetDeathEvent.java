@@ -4,7 +4,7 @@ import fr.nocsy.mcpets.data.Pet;
 import lombok.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class PetDeathEvent extends Event {
 
@@ -20,6 +20,7 @@ public class PetDeathEvent extends Event {
         return HANDLERS;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;

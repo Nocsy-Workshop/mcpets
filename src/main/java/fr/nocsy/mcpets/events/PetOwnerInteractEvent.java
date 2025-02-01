@@ -11,6 +11,7 @@ public class PetOwnerInteractEvent extends Event implements Cancellable {
 
 	private static final HandlerList HANDLERS = new HandlerList();
 	private boolean isCancelled = false;
+
 	@Getter
 	private final Pet pet;
 
@@ -32,8 +33,9 @@ public class PetOwnerInteractEvent extends Event implements Cancellable {
 		isCancelled = b;
 	}
 
+	@NotNull
 	@Override
-	public @NotNull HandlerList getHandlers() {
+	public HandlerList getHandlers() {
 		return HANDLERS;
 	}
 }

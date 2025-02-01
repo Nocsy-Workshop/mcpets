@@ -4,20 +4,16 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class MySQLDB {
 
     private Connection sqlCon;
-    private String user = null;
-    private String pass = null;
-    private String ip = null;
-    private String port = null;
-    private String db = null;
+    private String user;
+    private String pass;
+    private String ip;
+    private String port;
+    private String db;
 
     public MySQLDB(String user, String pass, String ip, String port, String db) {
         this.user = user;
@@ -41,7 +37,8 @@ public class MySQLDB {
             Class.forName("com.mysql.jdbc.Driver");
             String url = urlBuilder();
             this.sqlCon = DriverManager.getConnection(url, this.user, this.pass);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             MCPets.getInstance().getLogger().severe("Could not reach SQL database. Please configure your database parameters.");
             return false;
         }
@@ -53,7 +50,8 @@ public class MySQLDB {
             return;
         try {
             this.sqlCon.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

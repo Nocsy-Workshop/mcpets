@@ -1,7 +1,6 @@
 package fr.nocsy.mcpets.utils;
 
 import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.Language;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -13,28 +12,24 @@ public enum PetAnnouncement {
     CHAT("chat"),
     ACTIONBAR("actionbar");
 
-    private String announcementType;
+    private final String announcementType;
 
-    PetAnnouncement(String annoucementType)
-    {
+    PetAnnouncement(String annoucementType) {
         this.announcementType = annoucementType;
     }
 
-    public void announce(Player p, String message)
-    {
+    public void announce(Player p, String message) {
         message = ChatColor.translateAlternateColorCodes('&', message);
-        switch(announcementType)
-        {
+
+        switch(announcementType) {
             case "title":
                 String[] cut = message.split("\n");
-                if(cut.length == 2)
-                {
+                if (cut.length == 2) {
                     String title = cut[0];
                     String subtitle = cut[1];
                     p.sendTitle(title, subtitle, 10, 40, 10);
                 }
-                else
-                {
+                else {
                     p.sendTitle(message, "", 10, 40, 10);
                 }
                 break;
@@ -53,12 +48,8 @@ public enum PetAnnouncement {
     /**
      * Get the announcement corresponding to the string name
      * Default is CHAT
-     * @param name
-     * @return
      */
-    public static PetAnnouncement get(String name)
-    {
+    public static PetAnnouncement get(String name) {
         return Arrays.stream(PetAnnouncement.values()).filter(petAnnouncement -> petAnnouncement.name().equalsIgnoreCase(name)).findFirst().orElse(PetAnnouncement.CHAT);
     }
-
 }

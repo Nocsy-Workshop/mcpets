@@ -13,30 +13,24 @@ import org.bukkit.inventory.ItemStack;
 public class PetSkinsMenuListener implements Listener {
 
     @EventHandler
-    public void click(InventoryClickEvent e)
-    {
-
+    public void click(InventoryClickEvent e) {
         Player p = (Player)e.getWhoClicked();
 
-        if(PetSkin.hasMetadata(p))
-        {
+        if (PetSkin.hasMetadata(p)) {
             e.setCancelled(true);
 
             ItemStack it = e.getCurrentItem();
-            if(it != null && it.hasItemMeta())
-            {
+            if (it != null && it.hasItemMeta()) {
                 PetSkin petSkin = PetSkin.fromIcon(it);
-                if(petSkin != null)
-                {
+                if (petSkin != null) {
                     Pet pet = Pet.fromOwner(p.getUniqueId());
-                    if(pet == null)
-                    {
+                    if (pet == null) {
                         Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
                         p.closeInventory();
                         return;
                     }
 
-                    if(petSkin.apply(pet))
+                    if (petSkin.apply(pet))
                         Language.SKIN_APPLIED.sendMessage(p);
                     else
                         Language.SKIN_COULD_NOT_APPLY.sendMessage(p);
@@ -45,21 +39,14 @@ public class PetSkinsMenuListener implements Listener {
                     p.closeInventory();
                 }
             }
-
         }
-
     }
 
     @EventHandler
-    public void close(InventoryCloseEvent e)
-    {
-
+    public void close(InventoryCloseEvent e) {
         Player p = (Player) e.getPlayer();
-        if(PetSkin.hasMetadata(p))
-        {
+        if (PetSkin.hasMetadata(p)) {
             PetSkin.removeMetadata(p);
         }
-
     }
-
 }
