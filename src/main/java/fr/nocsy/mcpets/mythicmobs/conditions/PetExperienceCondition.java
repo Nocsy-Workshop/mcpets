@@ -29,6 +29,7 @@ public class PetExperienceCondition extends SkillCondition implements IEntityCon
         if (pet != null && pet.getPetStats() != null) {
             return experience.equals(pet.getPetStats().getExperience());
         }
+
         return false;
     }
 }

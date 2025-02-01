@@ -12,13 +12,12 @@ public class PetPlaceholdersManager {
     /**
      * Register the Placeholders of MCPets into MythicMobs
      */
-    public static void registerPlaceholders()
-    {
+    public static void registerPlaceholders() {
         // Power placeholder
         register("pet.power", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return "1";
             else
                 return Double.toString(pet.getPetStats().getPower());
@@ -28,7 +27,7 @@ public class PetPlaceholdersManager {
         register("pet.damagemodifier", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return "1";
             else
                 return Double.toString(pet.getPetStats().getDamageModifier());
@@ -38,7 +37,7 @@ public class PetPlaceholdersManager {
         register("pet.resistancemodifier", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return "1";
             else
                 return Double.toString(pet.getPetStats().getResistanceModifier());
@@ -48,7 +47,7 @@ public class PetPlaceholdersManager {
         register("pet.experience", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return "0";
             else
                 return Double.toString(pet.getPetStats().getExperience());
@@ -58,7 +57,7 @@ public class PetPlaceholdersManager {
         register("pet.tamingprogress", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null)
+            if (pet == null)
                 return "1";
             else
                 return  Double.toString(pet.getTamingProgress());
@@ -68,7 +67,7 @@ public class PetPlaceholdersManager {
         register("pet.id", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null)
+            if (pet == null)
                 return "null";
             else
                 return pet.getId();
@@ -78,7 +77,7 @@ public class PetPlaceholdersManager {
         register("pet.owner.uuid", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null)
+            if (pet == null)
                 return "null";
             else
                 return pet.getOwner().toString();
@@ -88,22 +87,20 @@ public class PetPlaceholdersManager {
         register("pet.owner.name", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null)
+            if (pet == null)
                 return "null";
-            else
-            {
-                if(pet.getOwner() == null)
+            else {
+                if (pet.getOwner() == null)
                     return "null";
                 return Bukkit.getOfflinePlayer(pet.getOwner()).getName();
             }
-
         }));
 
         // Level index placeholder
         register("pet.level.index", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return "0";
             else
                 return Integer.toString(pet.getPetStats().getCurrentLevelIndex());
@@ -113,7 +110,7 @@ public class PetPlaceholdersManager {
         register("pet.level.name", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return "null";
             else
                 return pet.getPetStats().getCurrentLevel().getLevelName();
@@ -122,7 +119,7 @@ public class PetPlaceholdersManager {
         register("pet.hp", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return Integer.toString((int)entity.getHealth());
             else
                 return Integer.toString((int)pet.getPetStats().getCurrentHealth());
@@ -131,16 +128,14 @@ public class PetPlaceholdersManager {
         register("pet.max.hp", Placeholder.meta((meta,arg) -> {
             AbstractEntity entity = meta.getCaster().getEntity();
             Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if(pet == null || pet.getPetStats() == null)
+            if (pet == null || pet.getPetStats() == null)
                 return Integer.toString((int)entity.getMaxHealth());
             else
                 return Integer.toString((int)pet.getPetStats().getCurrentLevel().getMaxHealth());
         }));
     }
 
-    private static void register(String placeholder, Placeholder function)
-    {
+    private static void register(String placeholder, Placeholder function) {
         MCPets.getMythicMobs().getPlaceholderManager().register(placeholder, function);
     }
-
 }

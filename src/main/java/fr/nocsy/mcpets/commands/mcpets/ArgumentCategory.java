@@ -11,8 +11,7 @@ import org.bukkit.entity.Player;
 
 public class ArgumentCategory extends AArgument {
 
-    public ArgumentCategory(CommandSender sender, String[] args)
-    {
+    public ArgumentCategory(CommandSender sender, String[] args) {
         super("category", new int[]{3, 2}, sender, args);
     }
 
@@ -23,21 +22,18 @@ public class ArgumentCategory extends AArgument {
 
     @Override
     public void commandEffect() {
-        if(args.length == 2 && sender instanceof Player && sender.hasPermission(PPermission.USE.getPermission()))
-        {
+        if (args.length == 2 && sender instanceof Player && sender.hasPermission(PPermission.USE.getPermission())) {
             String categoryId = args[1];
 
             Category category = Category.getFromId(categoryId);
-            if(category == null)
-            {
+            if (category == null) {
                 Language.CATEGORY_DOESNT_EXIST.sendMessage(sender);
                 return;
             }
 
             category.openInventory((Player)sender, 0);
         }
-        else if(args.length == 3 && sender.hasPermission(PPermission.ADMIN.getPermission()))
-        {
+        else if (args.length == 3 && sender.hasPermission(PPermission.ADMIN.getPermission())) {
             String categoryId = args[1];
 
             Category category = Category.getFromId(categoryId);
@@ -54,9 +50,6 @@ public class ArgumentCategory extends AArgument {
             }
 
             category.openInventory(player, 0);
-            return;
         }
-
     }
-
 }

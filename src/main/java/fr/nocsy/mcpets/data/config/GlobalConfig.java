@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class GlobalConfig extends AbstractConfig {
@@ -47,14 +46,14 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private int distanceTeleport;
     @Getter
-    private int maxNameLenght;
+    private int maxNameLength;
     @Getter
     private boolean activateBackMenuIcon;
 
     @Getter
     private double percentHealthOnRespawn;
     @Getter
-    private boolean autorespawn;
+    private boolean autoRespawn;
 
     @Getter
     private int autoSave;
@@ -209,7 +208,6 @@ public class GlobalConfig extends AbstractConfig {
 
     @Override
     public void reload() {
-
         loadConfig();
 
         prefix = getConfig().getString("Prefix");
@@ -225,12 +223,12 @@ public class GlobalConfig extends AbstractConfig {
         dismountOnDamaged = getConfig().getBoolean("DismountOnDamaged");
         spawnPetOnReconnect = getConfig().getBoolean("SpawnPetOnReconnect");
         distanceTeleport = getConfig().getInt("DistanceTeleport");
-        maxNameLenght = getConfig().getInt("MaxNameLenght");
+        maxNameLength = getConfig().getInt("MaxNameLenght");
         enableClickBackToMenu = getConfig().getBoolean("EnableClickBackToMenu");
         activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
         adaptiveInventory = getConfig().getInt("InventorySize");
         percentHealthOnRespawn = getConfig().getDouble("PercentHealthOnRespawn");
-        autorespawn = getConfig().getBoolean("AutoRespawn");
+        autoRespawn = getConfig().getBoolean("AutoRespawn");
         defaultRespawnCooldown = Math.max(0, getConfig().getInt("DefaultRespawnCooldown"));
         globalRespawnCooldown = getConfig().getBoolean("GlobalRespawnCooldown");
         // Says it'll be an adaptive inventory
@@ -266,19 +264,15 @@ public class GlobalConfig extends AbstractConfig {
         blackListedWorlds = getConfig().getStringList("BlackListedWorlds");
     }
 
-    public boolean hasBlackListedWorld(String worldName)
-    {
+    public boolean hasBlackListedWorld(String worldName) {
         return blackListedWorlds.contains(worldName);
     }
 
-    public boolean getBooleanField(String path)
-    {
+    public boolean getBooleanField(String path) {
         return getConfig().getBoolean(path);
     }
 
-    public String getStringField(String path)
-    {
+    public String getStringField(String path) {
         return getConfig().getString(path);
     }
-
 }

@@ -1,7 +1,6 @@
 package fr.nocsy.mcpets.mythicmobs.mechanics;
 
 import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
@@ -31,23 +30,14 @@ public class DropPetItemMechanic implements ITargetedEntitySkill {
         Entity entity = BukkitAdapter.adapt(target);
 
         ItemStack it = ItemsListConfig.getInstance().getItemStack(petItemId);
-        if(it != null)
-        {
+        if (it != null) {
             Random random = new Random();
-            if(random.nextFloat() <= percentage)
-            {
+            if (random.nextFloat() <= percentage) {
                 // Call the drop on sync so it can trigger events
-                Bukkit.getScheduler().runTask(MCPets.getInstance(), new Runnable() {
-                    @Override
-                    public void run() {
-                        entity.getLocation().getWorld().dropItemNaturally(entity.getLocation(), it);
-                    }
-                });
+                Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> entity.getLocation().getWorld().dropItemNaturally(entity.getLocation(), it));
             }
-
         }
 
         return SkillResult.SUCCESS;
-
     }
 }

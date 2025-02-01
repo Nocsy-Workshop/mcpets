@@ -18,14 +18,14 @@ public class TargeterPetFromOwner extends IEntitySelector {
     }
 
     public Collection<AbstractEntity> getEntities(SkillMetadata paramSkillMetadata) {
-        HashSet<AbstractEntity> hashSet = new HashSet();
+        HashSet<AbstractEntity> hashSet = new HashSet<>();
         AbstractEntity caster = paramSkillMetadata.getCaster().getEntity();
-        if(caster instanceof Player)
-        {
+        if (caster instanceof Player) {
             Pet pet = Pet.fromOwner(((Player)caster).getUniqueId());
-            if(pet != null)
+            if (pet != null)
                 hashSet.add(pet.getActiveMob().getEntity());
         }
+
         return hashSet;
     }
 }

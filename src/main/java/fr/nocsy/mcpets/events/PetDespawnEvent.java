@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.PetDespawnReason;
 import lombok.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class PetDespawnEvent extends Event {
 
@@ -24,9 +25,9 @@ public class PetDespawnEvent extends Event {
         return HANDLERS;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
     }
-
 }

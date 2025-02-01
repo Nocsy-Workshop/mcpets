@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data.editor;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -13,38 +14,29 @@ public class Editor {
 
     @Getter
     private Player player;
+    @Setter
     @Getter
     private EditorState state;
 
 
-    private Editor(Player p)
-    {
+    private Editor(Player p) {
         this.player = p;
         this.state = EditorState.GLOBAL_EDITOR;
 
         editors.put(p.getUniqueId(), this);
     }
 
-    public static Editor getEditor(Player p)
-    {
-        if(editors.containsKey(p.getUniqueId()))
+    public static Editor getEditor(Player p) {
+        if (editors.containsKey(p.getUniqueId()))
             return editors.get(p.getUniqueId());
         return new Editor(p);
     }
 
-    public static void refreshEditor(Player p)
-    {
+    public static void refreshEditor(Player p) {
         editors.remove(p.getUniqueId());
     }
 
-    public void setState(EditorState state)
-    {
-        this.state = state;
-    }
-
-    public void openEditor()
-    {
+    public void openEditor() {
         state.openView(player);
     }
-
 }

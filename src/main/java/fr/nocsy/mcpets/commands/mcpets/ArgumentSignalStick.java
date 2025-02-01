@@ -13,44 +13,35 @@ import org.bukkit.inventory.ItemStack;
 
 public class ArgumentSignalStick extends AArgument {
 
-    public ArgumentSignalStick(CommandSender sender, String[] args)
-    {
+    public ArgumentSignalStick(CommandSender sender, String[] args) {
         super("signalStick", new int[]{3, 2}, sender, args);
     }
 
     @Override
-    public boolean additionalConditions()
-    {
+    public boolean additionalConditions() {
         return sender.hasPermission(PPermission.ADMIN.getPermission());
     }
 
     @Override
     public void commandEffect() {
-        if(args.length == 2 && sender instanceof Player)
-        {
+        if (args.length == 2 && sender instanceof Player) {
             String petId = args[1];
             Pet pet = Pet.getFromId(petId);
-            if(pet == null)
-            {
+            if (pet == null) {
                 Language.PET_DOESNT_EXIST.sendMessage(sender);
                 return;
             }
 
             Player p = ((Player)sender);
             ItemStack it = p.getInventory().getItemInMainHand();
-            if(it == null ||
-                    it.getType().isAir())
-            {
+            if (it == null || it.getType().isAir()) {
                 Language.REQUIRES_ITEM_IN_HAND.sendMessage(p);
                 return;
             }
 
             ((Player)sender).getInventory().setItemInMainHand(Items.turnIntoSignalStick(it, pet));
-            return;
         }
-
-        else if(args.length == 3)
-        {
+        else if (args.length == 3) {
             String playerName = args[1];
             Player player = Bukkit.getPlayer(playerName);
             if (player == null) {
@@ -67,7 +58,5 @@ public class ArgumentSignalStick extends AArgument {
 
             player.getInventory().addItem(pet.getSignalStick());
         }
-
     }
-
 }

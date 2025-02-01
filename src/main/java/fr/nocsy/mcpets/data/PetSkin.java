@@ -34,8 +34,7 @@ public class PetSkin {
     @Getter
     private String pathId;
 
-    private PetSkin(String pathId, Pet objectPet, String mythicMobId, String permission)
-    {
+    private PetSkin(String pathId, Pet objectPet, String mythicMobId, String permission) {
         this.uuid = UUID.randomUUID().toString();
 
         this.pathId = pathId;
@@ -47,12 +46,8 @@ public class PetSkin {
 
     /**
      * Load the PetSkin object in the cache
-     * @param objectPet
-     * @param modelSkinId
-     * @param icon
      */
-    public static void load(String pathId, Pet objectPet, String modelSkinId, String permission, ItemStack icon)
-    {
+    public static void load(String pathId, Pet objectPet, String modelSkinId, String permission, ItemStack icon) {
         PetSkin petSkin = new PetSkin(pathId, objectPet, modelSkinId, permission);
         petSkin.setIcon(icon);
 
@@ -66,22 +61,16 @@ public class PetSkin {
 
     /**
      * Fetch the PetSkin from the icon
-     * @param it
-     * @return
      */
-    public static PetSkin fromIcon(ItemStack it)
-    {
-        if(it.hasItemMeta() &&
-            it.getItemMeta().hasItemName())
-        {
+    public static PetSkin fromIcon(ItemStack it) {
+        if (it.hasItemMeta() &&
+            it.getItemMeta().hasItemName()) {
             String[] code = it.getItemMeta().getItemName().split(";");
-            if(code.length > 0 && code[0].equals("MCPetsSkins"))
-            {
+            if (code.length > 0 && code[0].equals("MCPetsSkins")) {
                 String petId = code[1];
                 String skinUuid = code[2];
                 ArrayList<PetSkin> skins = petSkins.get(petId);
-                if(skins != null)
-                {
+                if (skins != null) {
                     Optional<PetSkin> opt = skins.stream().filter(petSkin -> petSkin.getUuid().equals(skinUuid)).findFirst();
                     return opt.orElse(null);
                 }
@@ -92,41 +81,33 @@ public class PetSkin {
 
     /**
      * Fetch all skins from the pet
-     * @param pet
-     * @return
      */
-    public static ArrayList<PetSkin> getSkins(Pet pet)
-    {
-        if(!petSkins.containsKey(pet.getId()))
+    public static ArrayList<PetSkin> getSkins(Pet pet) {
+        if (!petSkins.containsKey(pet.getId()))
             return new ArrayList<>();
         return petSkins.get(pet.getId());
     }
 
     /**
      * Open the pet skins to the player
-     * @param p
-     * @param pet
-     * @return
      */
-    public static boolean openInventory(Player p, Pet pet)
-    {
-        if(pet == null)
+    public static boolean openInventory(Player p, Pet pet) {
+        if (pet == null)
             return false;
 
         List<PetSkin> skins = petSkins.get(pet.getId());
-        if(skins == null || skins.size() == 0)
+        if (skins == null || skins.isEmpty())
             return false;
 
         skins = skins.stream().filter(petSkin -> p.hasPermission(petSkin.getPermission())).collect(Collectors.toList());
 
         int invSize = Math.min(skins.size(), 54);
-        while(invSize <= 0 || invSize%9 != 0)
+        while (invSize <= 0 || invSize%9 != 0)
             invSize++;
 
         Inventory inventory = Bukkit.createInventory(null, invSize, Language.PET_SKINS_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName())));
 
-        for(PetSkin petSkin : skins)
-        {
+        for (PetSkin petSkin : skins) {
             inventory.addItem(petSkin.getIcon());
         }
 
@@ -137,40 +118,31 @@ public class PetSkin {
 
     /**
      * Add metadata to handle GUI
-     * @param p
      */
-    private static void addMetada(Player p)
-    {
+    private static void addMetada(Player p) {
         p.setMetadata("MCPetsSkins", new FixedMetadataValue(MCPets.getInstance(), "opened"));
     }
 
     /**
      * Remove the metadata to handle GUI
-     * @param p
      */
-    public static void removeMetadata(Player p)
-    {
+    public static void removeMetadata(Player p) {
         p.setMetadata("MCPetsSkins", new FixedMetadataValue(MCPets.getInstance(), null));
     }
 
     /**
      * Clear previous entries
      */
-    public static void clearList(Pet pet)
-    {
-        if(pet.hasSkins())
-        {
+    public static void clearList(Pet pet) {
+        if (pet.hasSkins()) {
             petSkins.put(pet.getId(), new ArrayList<>());
         }
     }
 
     /**
      * Check if the player has the skins metadata
-     * @param p
-     * @return
      */
-    public static boolean hasMetadata(Player p)
-    {
+    public static boolean hasMetadata(Player p) {
         return !p.getMetadata("MCPetsSkins").isEmpty() &&
                 p.getMetadata("MCPetsSkins").get(0) != null &&
                 p.getMetadata("MCPetsSkins").get(0).value() != null;
@@ -178,12 +150,9 @@ public class PetSkin {
 
     /**
      * Set the petSkin icon
-     * @param icon
      */
-    private void setIcon(ItemStack icon)
-    {
-        if (icon != null)
-        {
+    private void setIcon(ItemStack icon) {
+        if (icon != null) {
             this.icon = icon;
             prepareIcon();
         }
@@ -191,8 +160,7 @@ public class PetSkin {
     /**
      * Initialize the icon
      */
-    private void initIcon()
-    {
+    private void initIcon() {
         icon = Items.UNKNOWN.getItem().clone();
         ItemMeta meta = icon.getItemMeta();
         meta.setDisplayName("§6Skin §7: " + mythicMobId);
@@ -206,8 +174,7 @@ public class PetSkin {
     /**
      * Add the required localized name to the icon so we can identify it later on
      */
-    private void prepareIcon()
-    {
+    private void prepareIcon() {
         ItemMeta meta = icon.getItemMeta();
         meta.setItemName("MCPetsSkins;" + objectPet.getId() + ";" + uuid);
         icon.setItemMeta(meta);
@@ -215,14 +182,12 @@ public class PetSkin {
 
     /**
      * Apply the skin to the pet
-     * @param instancePet
      */
-    public boolean apply(Pet instancePet)
-    {
-        if(!instancePet.isStillHere())
+    public boolean apply(Pet instancePet) {
+        if (!instancePet.isStillHere())
             return false;
 
-        if(!instancePet.getId().equals(objectPet.getId()))
+        if (!instancePet.getId().equals(objectPet.getId()))
             return false;
 
         Location loc = instancePet.getActiveMob().getEntity().getBukkitEntity().getLocation();
@@ -236,8 +201,7 @@ public class PetSkin {
             @Override
             public void run() {
                 instancePet.spawn(loc, false);
-                if(hasRider)
-                {
+                if (hasRider) {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -249,5 +213,4 @@ public class PetSkin {
         }.runTaskLater(MCPets.getInstance(), 2L);
         return true;
     }
-
 }

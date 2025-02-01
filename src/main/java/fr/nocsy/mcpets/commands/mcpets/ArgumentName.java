@@ -9,14 +9,12 @@ import org.bukkit.entity.Player;
 
 public class ArgumentName extends AArgument {
 
-    public ArgumentName(CommandSender sender, String[] args)
-    {
+    public ArgumentName(CommandSender sender, String[] args) {
         super("name", new int[]{1}, sender, args);
     }
 
     @Override
-    public boolean additionalConditions()
-    {
+    public boolean additionalConditions() {
         return sender instanceof Player;
     }
 
@@ -24,15 +22,11 @@ public class ArgumentName extends AArgument {
     public void commandEffect() {
         Player p = (Player) sender;
         Pet pet = Pet.fromOwner(p.getUniqueId());
-
         if (pet == null) {
             Language.NO_ACTIVE_PET.sendMessage(p);
             return;
         }
 
         PetInteractionMenuListener.changeName(p);
-
     }
-
-
 }

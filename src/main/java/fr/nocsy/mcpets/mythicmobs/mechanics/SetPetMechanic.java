@@ -9,14 +9,9 @@ import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.bukkit.BukkitAdapter;
-import io.lumine.mythic.core.mobs.ActiveMob;
-import lombok.Getter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 public class SetPetMechanic implements ITargetedEntitySkill {
 
@@ -32,8 +27,8 @@ public class SetPetMechanic implements ITargetedEntitySkill {
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
         Entity player = BukkitAdapter.adapt(target);
-        if (player instanceof Player) {
 
+        if (player instanceof Player) {
             Pet pet = Pet.getFromId(petId);
             if (pet == null)
                 return SkillResult.CONDITION_FAILED;
@@ -41,12 +36,12 @@ public class SetPetMechanic implements ITargetedEntitySkill {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId());
-                    opt.ifPresent(activeMob -> pet.changeActiveMobTo(activeMob,
-                                                                    ((Player)player).getUniqueId(),
-                                                                    followOwner,
-                                                                    PetDespawnReason.SETPET_REPLACED));
-
+                    MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId())
+                            .ifPresent(activeMob -> pet.changeActiveMobTo(
+                                    activeMob,
+                                    ((Player)player).getUniqueId(),
+                                    followOwner,
+                                    PetDespawnReason.SETPET_REPLACED));
                 }
             }.runTaskLater(MCPets.getInstance(), 1L);
             return SkillResult.SUCCESS;

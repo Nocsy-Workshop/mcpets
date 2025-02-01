@@ -11,8 +11,8 @@ import org.bukkit.entity.Entity;
 
 public class PetNameMechanic implements ITargetedEntitySkill {
 
-    String petName;
-    boolean save;
+    private String petName;
+    private boolean save;
 
     public PetNameMechanic(MythicLineConfig config) {
         this.petName = config.getString(new String[]{"name"}, "No name");
@@ -27,5 +27,4 @@ public class PetNameMechanic implements ITargetedEntitySkill {
         }
         return SkillResult.CONDITION_FAILED;
     }
-
 }

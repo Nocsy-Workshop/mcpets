@@ -28,8 +28,7 @@ public class PetFoodBuff {
     @Getter
     private long duration;
 
-    public PetFoodBuff(@NotNull Pet pet, @NotNull PetFoodType type, float power, PetMath operator, long duration)
-    {
+    public PetFoodBuff(@NotNull Pet pet, @NotNull PetFoodType type, float power, PetMath operator, long duration) {
         this.pet = pet;
         this.type = type;
         this.power = power;
@@ -37,27 +36,22 @@ public class PetFoodBuff {
         this.operator = operator;
     }
 
-    public boolean apply()
-    {
+    public boolean apply() {
 
         PetStats stats = pet.getPetStats();
-        if(stats == null)
-        {
+        if (stats == null) {
             Debugger.send("§cBuff could not be triggered on that pet as it has no statistics of a living pet.");
             return false;
         }
 
         List<PetFoodBuff> buffs = getBuffs(pet);
         ArrayList<PetFoodBuff> toRemove = new ArrayList<>();
-        for(PetFoodBuff buff : buffs)
-        {
-            if(buff.getType() == this.getType())
-            {
+        for (PetFoodBuff buff : buffs) {
+            if (buff.getType() == this.getType()) {
                 toRemove.add(buff);
             }
         }
-        for (PetFoodBuff buff : toRemove)
-        {
+        for (PetFoodBuff buff : toRemove) {
             buff.stop();
         }
 
@@ -65,8 +59,7 @@ public class PetFoodBuff {
         return true;
     }
 
-    private void runTask()
-    {
+    private void runTask() {
         ArrayList<PetFoodBuff> buffs = (ArrayList<PetFoodBuff>) getBuffs(pet);
         buffs.add(this);
         runningBuffs.put(pet, buffs);
@@ -89,21 +82,18 @@ public class PetFoodBuff {
         }.runTaskLater(MCPets.getInstance(), duration);
     }
 
-    public void stop()
-    {
+    public void stop() {
         ArrayList<PetFoodBuff> buffs = runningBuffs.get(pet);
-        if(buffs == null)
+        if (buffs == null)
             return;
         buffs.remove(this);
         Debugger.send("§7Buff §a" + type.name() + "§7 applied to §6" + pet.getId() + "§7 has §cexpired§7 after §a" + duration + "§7 ticks.");
     }
 
-    public static List<PetFoodBuff> getBuffs(Pet pet)
-    {
+    public static List<PetFoodBuff> getBuffs(Pet pet) {
         ArrayList<PetFoodBuff> buffs = runningBuffs.get(pet);
-        if(buffs == null)
+        if (buffs == null)
             buffs = new ArrayList<>();
         return buffs;
     }
-
 }

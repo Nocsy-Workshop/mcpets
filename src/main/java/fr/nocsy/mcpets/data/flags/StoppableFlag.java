@@ -4,5 +4,4 @@ public interface StoppableFlag {
 
     void launch();
     void stop();
-
 }

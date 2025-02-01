@@ -149,16 +149,14 @@ public enum Language {
         }
     }
 
-    public String getMessage()
-    {
+    public String getMessage() {
         String m = Utils.hex(message);
 
         m = Utils.applyPlaceholders(null, m);
         return m;
     }
 
-    public String getMessagePAPI(Player p)
-    {
+    public String getMessagePAPI() {
         String m = Utils.hex(message);
 
         m = Utils.applyPlaceholders(null, m);
@@ -166,20 +164,21 @@ public enum Language {
     }
 
     public void sendMessage(Player p) {
-        if(message.isEmpty())
+        if (message.isEmpty())
             return;
-        p.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessagePAPI(p)));
+        p.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessagePAPI()));
     }
 
     public void sendMessage(CommandSender sender) {
-        if(message.isEmpty())
+        if (message.isEmpty())
             return;
         sender.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessage()));
     }
 
     public void sendMessageFormated(CommandSender sender, FormatArg... args) {
-        if(message.isEmpty())
+        if (message.isEmpty())
             return;
+        
         String toSend = getMessage();
         for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);
@@ -194,5 +193,4 @@ public enum Language {
         }
         return toSend;
     }
-
 }

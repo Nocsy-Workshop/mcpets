@@ -21,18 +21,17 @@ import java.util.stream.Collectors;
 
 public class EditorConversationListener implements Listener {
 
-    public void syncOpenEditor(Player p, EditorState newState)
-    {
+    public void syncOpenEditor(Player p, EditorState newState) {
         final UUID uuid = p.getUniqueId();
         // Run it sync otherwise it will not open
         new BukkitRunnable() {
             @Override
             public void run() {
                 Player player = Bukkit.getPlayer(uuid);
-                if(player == null)
+                if (player == null)
                     return;
                 Editor editor = Editor.getEditor(player);
-                if(newState != null)
+                if (newState != null)
                     editor.setState(newState);
                 editor.openEditor();
             }
@@ -40,12 +39,11 @@ public class EditorConversationListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void listen_conversation(AsyncPlayerChatEvent e)
-    {
+    public void listen_conversation(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
         EditorConversation conversation = EditorConversation.getConversation(p);
 
-        if(conversation == null)
+        if (conversation == null)
             return;
 
         e.setCancelled(true);
@@ -53,63 +51,51 @@ public class EditorConversationListener implements Listener {
         String entry = e.getMessage();
 
         // If they wanna abandon the process
-        if(entry.equalsIgnoreCase("quit"))
-        {
+        if (entry.equalsIgnoreCase("quit")) {
             conversation.quit();
             syncOpenEditor(p, null);
             return;
         }
 
         // If the output type isn't respected, ask for another one.
-        if(!conversation.entryMatch(entry))
-        {
-            if(conversation.getEditorItem().getType().equals(EditorExpectationType.MYTHICMOB))
-            {
+        if (!conversation.entryMatch(entry)) {
+            if (conversation.getEditorItem().getType().equals(EditorExpectationType.MYTHICMOB)) {
                 p.sendMessage("§cThe mythicmob §e" + entry + "§c does not exist. Check your MythicMob mob file to obtain the right ID.");
             }
-            else if(conversation.getEditorItem().getType().equals(EditorExpectationType.SKILL))
-            {
+            else if (conversation.getEditorItem().getType().equals(EditorExpectationType.SKILL)) {
                 p.sendMessage("§cThe skill §e" + entry + "§c does not exist. Check your MythicMob skills to obtain the right ID.");
             }
-            else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
-            {
+            else if (conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE)) {
                 p.sendMessage("§cThe pet §e" + entry + "§c already exists. Please use another ID.");
             }
-            else
-            {
+            else {
                 p.sendMessage("§cThe expected type for this parameter is §6" + conversation.getEditorItem().getType().getName().replace("_", " "));
                 p.sendMessage("§cPlease try again with the right type.");
-                if(conversation.getEditorItem().getType().equals(EditorExpectationType.ITEM_ID_OR_MATERIAL))
-                {
+                if (conversation.getEditorItem().getType().equals(EditorExpectationType.ITEM_ID_OR_MATERIAL)) {
                     p.sendMessage("§bPossible items id are:");
                     p.sendMessage("§7" + ItemsListConfig.getInstance().getItems().keySet());
                 }
-                else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_ID) ||
+                else if (conversation.getEditorItem().getType().equals(EditorExpectationType.PET_ID) ||
                         conversation.getEditorItem().getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD) ||
                         conversation.getEditorItem().getType().equals(EditorExpectationType.PETFOOD_PET_LIST_REMOVE) ||
                         conversation.getEditorItem().getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
-                        conversation.getEditorItem().getType().equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE))
-                {
+                        conversation.getEditorItem().getType().equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE)) {
                     p.sendMessage("§bPossible pet ids are:");
                     p.sendMessage("§7" + Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
                 }
-                else if(conversation.getEditorItem().getType().equals(EditorExpectationType.OPERATOR_TYPE) )
-                {
+                else if (conversation.getEditorItem().getType().equals(EditorExpectationType.OPERATOR_TYPE) ) {
                     p.sendMessage("§bPossible operators are:");
                     p.sendMessage("§7" + Arrays.toString(PetMath.values()));
                 }
-                else if(conversation.getEditorItem().getType().equals(EditorExpectationType.MOUNT_TYPE) )
-                {
+                else if (conversation.getEditorItem().getType().equals(EditorExpectationType.MOUNT_TYPE) ) {
                     p.sendMessage("§bPossible mount types are:");
                     p.sendMessage("§7[walking, flying]");
                 }
-                else if(conversation.getEditorItem().getType().equals(EditorExpectationType.ANNOUNCEMENT_TYPE))
-                {
+                else if (conversation.getEditorItem().getType().equals(EditorExpectationType.ANNOUNCEMENT_TYPE)) {
                     p.sendMessage("§bPossible announcement types are:");
                     p.sendMessage("§7" + Arrays.toString(PetAnnouncement.values()));
                 }
-                else if(conversation.getEditorItem().getType().equals(EditorExpectationType.PETFOOD_TYPE))
-                {
+                else if (conversation.getEditorItem().getType().equals(EditorExpectationType.PETFOOD_TYPE)) {
                     p.sendMessage("§bPossible pet food types are:");
                     p.sendMessage("§7" + Arrays.toString(PetFoodType.values()));
                 }
@@ -128,10 +114,9 @@ public class EditorConversationListener implements Listener {
         conversation.end();
 
         // If we just created a pet, we reload MCPets
-        if(conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE))
-        {
+        if (conversation.getEditorItem().getType().equals(EditorExpectationType.PET_CREATE)) {
             Pet pet = Pet.getFromId(value.toString());
-            if(pet == null)
+            if (pet == null)
                 return;
             EditorEditing editing = EditorEditing.get(p);
             editing.setPetId(pet.getId());
@@ -142,5 +127,4 @@ public class EditorConversationListener implements Listener {
         // Open back the editor
         syncOpenEditor(p, null);
     }
-
 }

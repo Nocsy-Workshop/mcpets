@@ -29,6 +29,7 @@ public class PetTamingCondition extends SkillCondition implements IEntityConditi
         if (pet != null && pet.getPetStats() != null) {
             return taming.equals(pet.getTamingProgress());
         }
+
         return false;
     }
 }

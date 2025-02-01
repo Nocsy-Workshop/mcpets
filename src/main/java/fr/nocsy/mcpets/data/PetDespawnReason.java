@@ -42,6 +42,4 @@ public enum PetDespawnReason {
     public boolean equals(PetDespawnReason reason) {
         return this.getReason().equals(reason.getReason());
     }
-
-
 }

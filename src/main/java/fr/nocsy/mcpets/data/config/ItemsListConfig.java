@@ -1,7 +1,6 @@
 package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.data.Items;
-import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,8 +14,7 @@ public class ItemsListConfig extends AbstractConfig {
     @Getter
     private HashMap<String, ItemStack> items;
 
-    private ItemsListConfig()
-    {
+    private ItemsListConfig() {
         items = new HashMap<>();
     }
 
@@ -26,8 +24,7 @@ public class ItemsListConfig extends AbstractConfig {
         return instance;
     }
 
-    public static void reloadInstance()
-    {
+    public static void reloadInstance() {
         instance = new ItemsListConfig();
         instance.init();
     }
@@ -61,52 +58,41 @@ public class ItemsListConfig extends AbstractConfig {
 
     @Override
     public void reload() {
-
         loadConfig();
 
-        for(String key : getConfig().getKeys(false))
-        {
+        for (String key : getConfig().getKeys(false)) {
             if(getConfig().getItemStack(key) != null)
                 items.put(key, getConfig().getItemStack(key));
         }
-
     }
 
     /**
      * Return the item with the said key
      * null if it doesn't exist
-     * @param key
-     * @return
      */
-    public ItemStack getItemStack(String key)
-    {
+    public ItemStack getItemStack(String key) {
         return items.get(key);
     }
 
-    public void setItemStack(String key, ItemStack itemStack)
-    {
+    public void setItemStack(String key, ItemStack itemStack) {
         items.put(key, itemStack);
         getConfig().set(key, itemStack);
         save();
     }
 
-    public void removeItemStack(String key)
-    {
+    public void removeItemStack(String key) {
         items.remove(key);
         getConfig().set(key, null);
         save();
     }
 
-    public static ItemStack loadConfigItem(String itemId)
-    {
+    public static ItemStack loadConfigItem(String itemId) {
         ItemsListConfig config = new ItemsListConfig();
         config.init();
         return config.getItems().get(itemId);
     }
 
-    public Set<String> listKeys()
-    {
+    public Set<String> listKeys() {
         return items.keySet();
     }
-
 }

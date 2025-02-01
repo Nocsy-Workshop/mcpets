@@ -14,11 +14,9 @@ import java.util.UUID;
 public class DatabaseRefreshListener implements Listener {
 
     @EventHandler
-    public void refresh_DB_onjoin(PlayerJoinEvent e)
-    {
+    public void refresh_DB_onjoin(PlayerJoinEvent e) {
         // We only do that in the case of the Database support
-        if(GlobalConfig.getInstance().isDatabaseSupport())
-        {
+        if (GlobalConfig.getInstance().isDatabaseSupport()) {
             // TODO: that is quite a heavy trick, I'm not really sure how it is going to impact the performances
             // Any feedback on it would be highly appreciated
             Databases.loadData(e.getPlayer().getUniqueId());
@@ -32,41 +30,34 @@ public class DatabaseRefreshListener implements Listener {
              - levelup / evolution
              - player quit
     @EventHandler
-    public void saveExperienceDB(PetGainExperienceEvent e)
-    {
+    public void saveExperienceDB(PetGainExperienceEvent e) {
         // Adding a layer of saving for MySQL users, that saves the DB for each experience gain
         // since there seems to be recurrent saving issues
-        if(GlobalConfig.getInstance().isDatabaseSupport()) {
+        if (GlobalConfig.getInstance().isDatabaseSupport()) {
             UUID owner = e.getPet().getOwner();
-            if(owner != null)
-            {
+            if (owner != null) {
                 Databases.savePlayerData(owner);
             }
         }
-
     }
-     */
+    */
 
     @EventHandler
-    public void saveDB(PetLevelUpEvent e)
-    {
-        if(GlobalConfig.getInstance().isDatabaseSupport()) {
+    public void saveDB(PetLevelUpEvent e) {
+        if (GlobalConfig.getInstance().isDatabaseSupport()) {
             UUID owner = e.getPet().getOwner();
-            if(owner != null)
-            {
+            if (owner != null) {
                 Databases.savePlayerData(owner);
             }
         }
     }
 
     @EventHandler
-    public void saveDB(PlayerQuitEvent e)
-    {
-        if(GlobalConfig.getInstance().isDatabaseSupport()) {
+    public void saveDB(PlayerQuitEvent e) {
+        if (GlobalConfig.getInstance().isDatabaseSupport()) {
             UUID owner = e.getPlayer().getUniqueId();
-            if(PlayerData.isRegistered(owner))
+            if (PlayerData.isRegistered(owner))
                 Databases.savePlayerData(owner);
         }
     }
-
 }

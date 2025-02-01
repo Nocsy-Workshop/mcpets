@@ -18,9 +18,6 @@ public class FormatArg {
 
     /**
      * Apply the format to the specified string
-     *
-     * @param toApply
-     * @return
      */
     public String applyToString(String toApply) {
         return toApply.replace(toReplace, replaceWith);

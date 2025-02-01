@@ -13,7 +13,6 @@ public class BlacklistConfig extends AbstractConfig {
     private final ArrayList<String> blackListedWords = new ArrayList<>();
 
     public static BlacklistConfig getInstance() {
-
         if (instance == null)
             instance = new BlacklistConfig();
 
@@ -33,7 +32,6 @@ public class BlacklistConfig extends AbstractConfig {
 
     @Override
     public void reload() {
-
         loadConfig();
 
         blackListedWords.clear();
@@ -41,5 +39,4 @@ public class BlacklistConfig extends AbstractConfig {
 
         MCPets.getLog().info(MCPets.getLogName() + "Blacklist file reloaded.");
     }
-
 }

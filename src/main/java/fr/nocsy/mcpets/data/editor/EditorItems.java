@@ -1,10 +1,12 @@
 package fr.nocsy.mcpets.data.editor;
 
-import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
-import fr.nocsy.mcpets.data.config.*;
+import fr.nocsy.mcpets.data.config.CategoryConfig;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
+import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.config.PetFoodConfig;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.Utils;
@@ -165,8 +167,7 @@ public enum EditorItems {
     PETFOOD_EDITOR_EDIT_DELAY(PETFOOD_EDITOR_EDIT_DELAY(), "%path%.DelayBeforeEvolution", "petfoods", EditorExpectationType.POSITIVE_INT, null, true),
 
     PETFOOD_EDITOR_EDIT_PERMISSION(PETFOOD_EDITOR_EDIT_PERMISSION(), "%path%.Permission", "petfoods", EditorExpectationType.STRING, null, true),
-    PETFOOD_EDITOR_EDIT_UNLOCKED_PET(PETFOOD_EDITOR_EDIT_UNLOCKED_PET(), "%path%.UnlockPet", "petfoods", EditorExpectationType.PET_ID, null, true),
-    ;
+    PETFOOD_EDITOR_EDIT_UNLOCKED_PET(PETFOOD_EDITOR_EDIT_UNLOCKED_PET(), "%path%.UnlockPet", "petfoods", EditorExpectationType.PET_ID, null, true);
 
     private final static String editorTag = "MCPets:Editor:";
     @Getter
@@ -194,8 +195,7 @@ public enum EditorItems {
     @Getter
     private boolean resetable;
 
-    EditorItems(ItemStack item, String variablePath, String filePath, EditorExpectationType type, EditorState nextState, boolean resetable)
-    {
+    EditorItems(ItemStack item, String variablePath, String filePath, EditorExpectationType type, EditorState nextState, boolean resetable) {
         this.id = this.name().toUpperCase();
         this.item = item;
         this.inputFilePath = filePath;
@@ -209,45 +209,37 @@ public enum EditorItems {
         refreshData();
     }
 
-    public void refreshData()
-    {
-        if(filePath != null && variablePath != null)
-        {
+    public void refreshData() {
+        if (filePath != null && variablePath != null) {
             File file = new File(this.filePath);
             FileConfiguration config = YamlConfiguration.loadConfiguration(file);
             this.value = config.get(variablePath.replace("%path%", variablePathPlaceholder));
         }
     }
 
-    public boolean is(EditorItems other)
-    {
+    public boolean is(EditorItems other) {
         return other.getId().equals(this.getId());
     }
 
-    public EditorItems setFilePath(String path)
-    {
+    public EditorItems setFilePath(String path) {
         this.filePath = path;
         refreshData();
         return this;
     }
 
-    public EditorItems replaceVariablePath(String pathPlaceholder)
-    {
+    public EditorItems replaceVariablePath(String pathPlaceholder) {
         this.variablePathPlaceholder = pathPlaceholder;
         refreshData();
         return this;
     }
 
-    public boolean save(Player creator)
-    {
-        if(this.value == null)
+    public boolean save(Player creator) {
+        if (this.value == null)
             return false;
 
-        if(this.getType().equals(EditorExpectationType.PET_CREATE))
-        {
+        if (this.getType().equals(EditorExpectationType.PET_CREATE)) {
             String illegalCharacters = "#%<>&*{}?/\\$§+!`|'\"=:@.";
-            for(char character : illegalCharacters.toCharArray())
-            {
+            for (char character : illegalCharacters.toCharArray()) {
                 this.value = this.value.toString().replace(""+character, "");
             }
             this.value = this.value.toString().replace(" ", "_");
@@ -256,41 +248,35 @@ public enum EditorItems {
             Pet.getObjectPets().add(petConfig.getPet());
             return true;
         }
-        else if(this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
-                this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE))
-        {
+        else if (this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
+                this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE)) {
             Pet pet = Pet.getFromId(this.value + "");
-            if(pet == null)
+            if (pet == null)
                 return false;
 
             EditorEditing editing = EditorEditing.get(creator);
             CategoryConfig config = CategoryConfig.getMapping().get(editing.getMappedId());
-            if(this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD))
-            {
+            if (this.getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD)) {
                 config.addPet(pet);
             }
-            else
-            {
+            else {
                 config.removePet(pet);
             }
             return true;
         }
-        else if(this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD) ||
-                this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_REMOVE))
-        {
+        else if (this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD) ||
+                this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_REMOVE)) {
             Pet pet = Pet.getFromId(this.value + "");
-            if(pet == null)
+            if (pet == null)
                 return false;
 
             EditorEditing editing = EditorEditing.get(creator);
             String key = editing.getMappedId();
             PetFoodConfig config = PetFoodConfig.getInstance();
-            if(this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD))
-            {
+            if (this.getType().equals(EditorExpectationType.PETFOOD_PET_LIST_ADD)) {
                 config.addPet(key, pet.getId());
             }
-            else
-            {
+            else {
                 config.removePet(key, pet.getId());
             }
             return true;
@@ -300,8 +286,7 @@ public enum EditorItems {
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
 
-        if(this.getType().equals(EditorExpectationType.ITEM_SECTION_ID))
-        {
+        if (this.getType().equals(EditorExpectationType.ITEM_SECTION_ID)) {
             EditorEditing editing = EditorEditing.get(creator);
             String itemId = editing.getMappedId();
 
@@ -310,21 +295,18 @@ public enum EditorItems {
             config.set(itemId, null);
             config.set(this.value.toString(), item);
 
-            try
-            {
+            try {
                 config.save(file);
 
                 editing.setMappedId(this.value.toString());
                 ItemsListConfig.reloadInstance();
                 return true;
             }
-            catch (IOException ex)
-            {
+            catch (IOException ex) {
                 return false;
             }
         }
-        else if(this.getType().equals(EditorExpectationType.PETFOOD_ID))
-        {
+        else if (this.getType().equals(EditorExpectationType.PETFOOD_ID)) {
             EditorEditing editing = EditorEditing.get(creator);
             PetFood petFood = PetFood.getFromId(editing.getMappedId());
 
@@ -332,84 +314,71 @@ public enum EditorItems {
             editing.setMappedId(this.value.toString());
             return true;
         }
-        else
-        {
-            if(this.value.equals(RESET_VALUE_TAG) && resetable)
+        else {
+            if (this.value.equals(RESET_VALUE_TAG) && resetable)
                 this.value = null;
             config.set(variablePath.replace("%path%", variablePathPlaceholder), this.value);
         }
 
-        try
-        {
+        try {
             config.save(file);
-        } catch (IOException ignored) {
+        }
+        catch (IOException ignored) {
             return false;
         }
         return true;
     }
 
 
-    public void toggleBooleanValue()
-    {
-        if(this.type == null)
+    public void toggleBooleanValue() {
+        if (this.type == null)
             return;
-        if(value == null && this.type.equals(EditorExpectationType.BOOLEAN))
-        {
+        if (value == null && this.type.equals(EditorExpectationType.BOOLEAN)) {
             value = true;
         }
-        else if(value != null && this.type.equals(EditorExpectationType.BOOLEAN))
-        {
+        else if (value != null && this.type.equals(EditorExpectationType.BOOLEAN)) {
             value = !(Boolean) value;
         }
     }
 
-    public ItemStack getItem()
-    {
+    public ItemStack getItem() {
         ItemStack it = item.clone();
         ItemMeta meta = it.getItemMeta();
-        if(it.getType().equals(Material.FILLED_MAP))
+        if (it.getType().equals(Material.FILLED_MAP))
             it.setType(Material.MAP);
         meta.setItemName(editorTag + getId());
 
         // Basically, we are replacing the placeholder for the value within the lores
         List<String> lores = meta.getLore();
         ArrayList<String> newLores = new ArrayList<>();
-        if(lores != null)
-        {
-            for(String lore : lores)
-            {
-
-                if(lore.contains("%value%")
-                        && value != null && value instanceof List)
-                {
+        if (lores != null) {
+            for (String lore : lores) {
+                if (lore.contains("%value%") && value != null && value instanceof List) {
                     newLores.add(lore.replace("%value%", ""));
-                    if(((List<String>) value).size() > 0)
-                    {
-                        for(String entry : (List<String>) value)
-                        {
+                    List<String> valueAsList = (List<String>) value;
+                    if (valueAsList.size() > 0) {
+                        for (String entry : valueAsList) {
                             newLores.add("§7 - §e" + entry);
                         }
                     }
-                    else
-                    {
+                    else {
                         newLores.add("§cempty");
                     }
 
                 }
-                else
-                {
+                else {
                     String valueStr = value == null ? "§6default (not set)" : value.toString();
 
-                    if(value == null && this.type == EditorExpectationType.BOOLEAN)
+                    if (value == null && this.type == EditorExpectationType.BOOLEAN)
                         valueStr = "false";
 
                     // Just some cute formatting for lores
-                    if(valueStr.equalsIgnoreCase("true"))
+                    if (valueStr.equalsIgnoreCase("true"))
                         valueStr = "§a" + value;
-                    else if(valueStr.equalsIgnoreCase("false"))
+                    else if (valueStr.equalsIgnoreCase("false"))
                         valueStr = "§c" + false;
 
-                    if(Utils.isNumeric(valueStr))
+                    if (Utils.isNumeric(valueStr))
                         valueStr = "§b" + valueStr;
 
                     newLores.add(lore.replace("%value%", valueStr));
@@ -417,8 +386,7 @@ public enum EditorItems {
             }
         }
 
-        if(resetable)
-        {
+        if (resetable) {
             newLores.add(" ");
             newLores.add("§cSHIFT + click§7 to §creset§7 the value.");
         }
@@ -433,14 +401,13 @@ public enum EditorItems {
         return it;
     }
 
-    public static EditorItems getFromItemstack(ItemStack it)
-    {
-        if(it == null || !it.hasItemMeta())
+    public static EditorItems getFromItemstack(ItemStack it) {
+        if (it == null || !it.hasItemMeta())
             return null;
 
         String localName = it.getItemMeta().getItemName();
         // Item does not have the editor tag, so it's not an editor item
-        if(!localName.contains(editorTag))
+        if (!localName.contains(editorTag))
             return null;
 
         String id = localName.replace(editorTag, "");
@@ -448,18 +415,15 @@ public enum EditorItems {
         return Arrays.stream(EditorItems.values()).filter(editorItems -> editorItems.getId().equals(id)).findFirst().orElse(null);
     }
 
-    public EditorItems setValue(Object any)
-    {
+    public EditorItems setValue(Object any) {
         this.value = any;
         return this;
     }
 
-    /*
+    /**
      * Items builder methods
      */
-
-    private static ItemStack UNKNOWN()
-    {
+    private static ItemStack UNKNOWN() {
         ItemStack it = new ItemStack(Material.BARRIER);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§cUnknown item");
@@ -467,8 +431,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack FILLER()
-    {
+    private static ItemStack FILLER() {
         ItemStack it = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§0");
@@ -476,8 +439,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack BACK_TO_ITEM(String where)
-    {
+    private static ItemStack BACK_TO_ITEM(String where) {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§cBack to " + where);
@@ -491,11 +453,10 @@ public enum EditorItems {
         return it;
     }
 
-    /*
+    /**
      * MENU SELECTOR ICONS
      */
-    private static ItemStack CONFIG_EDITOR()
-    {
+    private static ItemStack CONFIG_EDITOR() {
         ItemStack it = new ItemStack(Material.MOJANG_BANNER_PATTERN);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Edit configuration");
@@ -509,8 +470,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR()
-    {
+    private static ItemStack PET_EDITOR() {
         ItemStack it = new ItemStack(Material.MAGMA_CUBE_SPAWN_EGG);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Edit pets");
@@ -524,8 +484,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CATEGORY_EDITOR()
-    {
+    private static ItemStack CATEGORY_EDITOR() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Edit categories");
@@ -539,8 +498,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack ITEM_EDITOR()
-    {
+    private static ItemStack ITEM_EDITOR() {
         ItemStack it = new ItemStack(Material.EMERALD);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Edit items");
@@ -554,8 +512,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR()
-    {
+    private static ItemStack PETFOOD_EDITOR() {
         ItemStack it = new ItemStack(Material.COOKED_CHICKEN);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Edit pet food");
@@ -569,12 +526,10 @@ public enum EditorItems {
         return it;
     }
 
-    /*
+    /**
      * CONFIG EDIT ICONS
      */
-
-    private static ItemStack CONFIG_EDITOR_PREFIX()
-    {
+    private static ItemStack CONFIG_EDITOR_PREFIX() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Prefix");
@@ -590,8 +545,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_DEFAULT_NAME()
-    {
+    private static ItemStack CONFIG_EDITOR_DEFAULT_NAME() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Default pet name");
@@ -608,8 +562,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_USE_DEFAULT_MYTHICMOBS_NAMES()
-    {
+    private static ItemStack CONFIG_EDITOR_USE_DEFAULT_MYTHICMOBS_NAMES() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Use default MythicMobs name");
@@ -626,8 +579,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_OVERRIDE_DEFAULT_NAME()
-    {
+    private static ItemStack CONFIG_EDITOR_OVERRIDE_DEFAULT_NAME() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Override default name");
@@ -644,8 +596,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_RIGHT_CLICK_TO_OPEN_MENU()
-    {
+    private static ItemStack CONFIG_EDITOR_RIGHT_CLICK_TO_OPEN_MENU() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Right click to open menu");
@@ -661,8 +612,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_LEFT_CLICK_TO_OPEN_MENU()
-    {
+    private static ItemStack CONFIG_EDITOR_LEFT_CLICK_TO_OPEN_MENU() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Left click to open menu");
@@ -678,8 +628,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_SNEAKMODE()
-    {
+    private static ItemStack CONFIG_EDITOR_SNEAKMODE() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Sneak mode to open menu");
@@ -696,8 +645,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_NAMEABLE()
-    {
+    private static ItemStack CONFIG_EDITOR_NAMEABLE() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Nameable");
@@ -713,8 +661,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_MOUNTABLE()
-    {
+    private static ItemStack CONFIG_EDITOR_MOUNTABLE() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Override default name");
@@ -732,8 +679,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_DISTANCE_TELEPORT()
-    {
+    private static ItemStack CONFIG_EDITOR_DISTANCE_TELEPORT() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Distance before teleport");
@@ -750,8 +696,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_MAX_NAME_LENGTH()
-    {
+    private static ItemStack CONFIG_EDITOR_MAX_NAME_LENGTH() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Max name length");
@@ -768,8 +713,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_INVENTORY_SIZE()
-    {
+    private static ItemStack CONFIG_EDITOR_INVENTORY_SIZE() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Summoning Inventory size");
@@ -786,8 +730,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_ENABLE_CLICK_BACK_TO_MENU()
-    {
+    private static ItemStack CONFIG_EDITOR_ENABLE_CLICK_BACK_TO_MENU() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Enable click back to menu (category)");
@@ -804,8 +747,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_ACTIVATE_BACK_MENU_ICON()
-    {
+    private static ItemStack CONFIG_EDITOR_ACTIVATE_BACK_MENU_ICON() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Activate back menu icon");
@@ -822,8 +764,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_DISMOUNT_ON_DAMAGED()
-    {
+    private static ItemStack CONFIG_EDITOR_DISMOUNT_ON_DAMAGED() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Dismount on damaged");
@@ -840,8 +781,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_PERCENT_HEALTH_ON_RESPAWN()
-    {
+    private static ItemStack CONFIG_EDITOR_PERCENT_HEALTH_ON_RESPAWN() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Percent health on respawn");
@@ -858,8 +798,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_AUTO_SAVE_DELAY()
-    {
+    private static ItemStack CONFIG_EDITOR_AUTO_SAVE_DELAY() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Auto-save database delay");
@@ -876,8 +815,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_DEFAULT_RESPAWN_COOLDOWN()
-    {
+    private static ItemStack CONFIG_EDITOR_DEFAULT_RESPAWN_COOLDOWN() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Default respawn cooldown");
@@ -894,8 +832,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN()
-    {
+    private static ItemStack CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Global respawn cooldown");
@@ -912,8 +849,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_GLOBAL_AUTORESPAWN()
-    {
+    private static ItemStack CONFIG_EDITOR_GLOBAL_AUTORESPAWN() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Autorespawn");
@@ -930,8 +866,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CONFIG_EDITOR_DISABLE_INVENTORY_WHILE_SIGNAL_STICK()
-    {
+    private static ItemStack CONFIG_EDITOR_DISABLE_INVENTORY_WHILE_SIGNAL_STICK() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Disable inventory while signal stick");
@@ -948,23 +883,20 @@ public enum EditorItems {
         return it;
     }
 
-    /*
+    /**
      * PET EDITOR icons
-      */
-
-    public EditorItems setupPetIcon(String petId)
-    {
+     */
+    public EditorItems setupPetIcon(String petId) {
         Pet pet = PetConfig.loadConfigPet(petId);
 
         ItemStack it = pet.getIcon().clone();
-        if(value != null && value instanceof ItemStack)
-        {
-            it = (ItemStack) ((ItemStack) value).clone();
+        if (value != null && value instanceof ItemStack) {
+            it = ((ItemStack) value).clone();
         }
         ItemMeta meta = it.getItemMeta();
 
         List<String> og_lores = it.getItemMeta().getLore();
-        if(og_lores == null)
+        if (og_lores == null)
             og_lores = new ArrayList<>();
 
         ArrayList<String> lores = (ArrayList<String>) og_lores;
@@ -979,21 +911,19 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupPetIconEdit(String petId)
-    {
+    public EditorItems setupPetIconEdit(String petId) {
         Pet pet = PetConfig.loadConfigPet(petId);
         ItemStack it = pet.getIcon().clone();
-        if(value != null && value instanceof ItemStack)
-        {
+        if (value != null && value instanceof ItemStack) {
             it = (ItemStack) ((ItemStack) value).clone();
         }
         ItemMeta meta = it.getItemMeta();
 
         List<String> og_lores = it.getItemMeta().getLore();
-        if(og_lores == null)
+        if (og_lores == null)
             og_lores = new ArrayList<>();
 
-        if(og_lores.contains("§eClick with an item on that icon"))
+        if (og_lores.contains("§eClick with an item on that icon"))
             return this;
 
         ArrayList<String> lores = (ArrayList<String>) og_lores;
@@ -1009,20 +939,18 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupSignalStickItem(String petId)
-    {
+    public EditorItems setupSignalStickItem(String petId) {
         Pet pet = PetConfig.loadConfigPet(petId);
         ItemStack it = pet.getSignalStick().clone();
-        if(value != null && value instanceof ItemStack)
-        {
+        if (value != null && value instanceof ItemStack) {
             it = (ItemStack) ((ItemStack) value).clone();
         }
         ItemMeta meta = it.getItemMeta();
-        if(meta.getDisplayName().equals("§cUndefined"))
+        if (meta.getDisplayName().equals("§cUndefined"))
             meta.setDisplayName("§6Signal stick");
 
         List<String> og_lores = it.getItemMeta().getLore();
-        if(og_lores == null)
+        if (og_lores == null)
             og_lores = new ArrayList<>();
 
         ArrayList<String> lores = (ArrayList<String>) og_lores;
@@ -1038,8 +966,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack PAGE_SELECTOR()
-    {
+    private static ItemStack PAGE_SELECTOR() {
         ItemStack it = new ItemStack(Material.ARROW);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§aPage selector");
@@ -1054,8 +981,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CREATE_NEW_ITEM(String what, Material type)
-    {
+    private static ItemStack CREATE_NEW_ITEM(String what, Material type) {
         ItemStack it = new ItemStack(type);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§aCreate a new " + what);
@@ -1069,8 +995,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack DELETE(String what)
-    {
+    private static ItemStack DELETE(String what) {
         ItemStack it = new ItemStack(Material.BARRIER);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§cDelete the " + what);
@@ -1086,8 +1011,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_MYTHICMOB()
-    {
+    private static ItemStack PET_EDITOR_MYTHICMOB() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6MythicMob");
@@ -1103,8 +1027,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_PERMISSION()
-    {
+    private static ItemStack PET_EDITOR_PERMISSION() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Permission");
@@ -1121,8 +1044,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_MOUNTABLE()
-    {
+    private static ItemStack PET_EDITOR_MOUNTABLE() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Mountable");
@@ -1140,8 +1062,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_MOUNT_TYPE()
-    {
+    private static ItemStack PET_EDITOR_MOUNT_TYPE() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Mount type");
@@ -1158,8 +1079,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_DESPAWN_ON_DISMOUNT()
-    {
+    private static ItemStack PET_EDITOR_DESPAWN_ON_DISMOUNT() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Despawn on Dismount");
@@ -1176,8 +1096,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_AUTORIDE()
-    {
+    private static ItemStack PET_EDITOR_AUTORIDE() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Auto-ride");
@@ -1194,8 +1113,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_MOUNT_PERMISSION()
-    {
+    private static ItemStack PET_EDITOR_MOUNT_PERMISSION() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Mount permission");
@@ -1212,8 +1130,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_DESPAWN_SKILL()
-    {
+    private static ItemStack PET_EDITOR_DESPAWN_SKILL() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Despawn skill");
@@ -1229,8 +1146,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_DISTANCE()
-    {
+    private static ItemStack PET_EDITOR_DISTANCE() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Come back distance");
@@ -1247,8 +1163,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_SPAWN_RANGE()
-    {
+    private static ItemStack PET_EDITOR_SPAWN_RANGE() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Spawn range");
@@ -1265,8 +1180,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_COMING_BACK_RANGE()
-    {
+    private static ItemStack PET_EDITOR_COMING_BACK_RANGE() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Close up come back distance");
@@ -1283,8 +1197,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_INVENTORY_SIZE()
-    {
+    private static ItemStack PET_EDITOR_INVENTORY_SIZE() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Inventory size");
@@ -1300,8 +1213,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_TAMING_PROGRESS_SKILL()
-    {
+    private static ItemStack PET_EDITOR_TAMING_PROGRESS_SKILL() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Taming - Progress skill");
@@ -1318,8 +1230,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_TAMING_FINISHED_SKILL()
-    {
+    private static ItemStack PET_EDITOR_TAMING_FINISHED_SKILL() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Taming - Finished skill");
@@ -1336,8 +1247,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_ICON()
-    {
+    private static ItemStack PET_EDITOR_ICON() {
         ItemStack it = new ItemStack(Material.END_CRYSTAL);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6MythicMob");
@@ -1354,8 +1264,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_SIGNALS()
-    {
+    private static ItemStack PET_EDITOR_SIGNALS() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Signals");
@@ -1372,8 +1281,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_SIGNAL_STICK()
-    {
+    private static ItemStack PET_EDITOR_SIGNAL_STICK() {
         ItemStack it = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Signal stick");
@@ -1390,8 +1298,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU()
-    {
+    private static ItemStack PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Signal stick from menu");
@@ -1408,8 +1315,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_SKINS()
-    {
+    private static ItemStack PET_EDITOR_SKINS() {
         ItemStack it = new ItemStack(Material.LEATHER);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Skins");
@@ -1423,8 +1329,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVELS()
-    {
+    private static ItemStack PET_EDITOR_LEVELS() {
         ItemStack it = new ItemStack(Material.EXPERIENCE_BOTTLE);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Living pet features");
@@ -1438,12 +1343,10 @@ public enum EditorItems {
         return it;
     }
 
-    /*
+    /**
      * PET EDITOR LEVEL icon
      */
-
-    public EditorItems setupPetLevelIcon(String petId, String levelId)
-    {
+    public EditorItems setupPetLevelIcon(String petId, String levelId) {
         Pet pet = PetConfig.loadConfigPet(petId);
         PetLevel level = pet.getPetLevels().stream().filter(petLevel -> petLevel.getLevelId().equals(levelId)).findFirst().orElse(null);
 
@@ -1467,8 +1370,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_NAME()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_NAME() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Level name");
@@ -1484,8 +1386,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_EXP_THRESHOLD()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_EXP_THRESHOLD() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Experience threshold");
@@ -1503,8 +1404,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_MAX_HEALTH()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_MAX_HEALTH() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Maximum health");
@@ -1520,8 +1420,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_REGENERATION()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_REGENERATION() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Regeneration");
@@ -1538,8 +1437,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_RESISTANCE_MODIFIER()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_RESISTANCE_MODIFIER() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Resistance modifier");
@@ -1556,8 +1454,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_DAMAGE_MODIFIER()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_DAMAGE_MODIFIER() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Damage modifier");
@@ -1576,8 +1473,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_POWER()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_POWER() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Power modifier");
@@ -1596,8 +1492,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_COOLDOWN_RESPAWN()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_COOLDOWN_RESPAWN() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Cooldown - Respawn");
@@ -1614,8 +1509,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_COOLDOWN_REVOKE()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_COOLDOWN_REVOKE() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Cooldown - Revoke");
@@ -1632,8 +1526,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_INVENTORY_EXTENSION()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_INVENTORY_EXTENSION() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Inventory extension");
@@ -1650,8 +1543,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_TEXT()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_TEXT() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Announcement - Text");
@@ -1668,8 +1560,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_TYPE()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_TYPE() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Announcement - Type");
@@ -1685,8 +1576,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_SKILL()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_ANNOUNCEMENT_SKILL() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Announcement - Skill");
@@ -1703,8 +1593,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_PET_ID()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_PET_ID() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Evolution - Pet ID");
@@ -1720,8 +1609,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_DELAY()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_DELAY() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Evolution - Delay");
@@ -1738,8 +1626,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_REMOVE_ACCESS()
-    {
+    private static ItemStack PET_EDITOR_LEVEL_EVOLUTION_REMOVE_ACCESS() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Evolution - Remove old access");
@@ -1756,18 +1643,16 @@ public enum EditorItems {
         return it;
     }
 
-    /*
+    /**
      * PET EDITOR SKIN icon
      */
-
-    public EditorItems setupSkinIcon(String petId, String skinId)
-    {
+    public EditorItems setupSkinIcon(String petId, String skinId) {
 
         Pet pet = PetConfig.loadConfigPet(petId);
         PetSkin skin = PetSkin.getSkins(pet).stream().filter(petSkin -> petSkin.getPathId().equals(skinId)).findFirst().orElse(null);
 
         ItemStack it = new ItemStack(Material.LEATHER);
-        if(skin.getIcon() != null)
+        if (skin.getIcon() != null)
             it = skin.getIcon().clone();
 
         ItemMeta meta = it.getItemMeta();
@@ -1788,14 +1673,13 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupEditSkinIcon(String petId, String skinId)
-    {
+    public EditorItems setupEditSkinIcon(String petId, String skinId) {
 
         Pet pet = PetConfig.loadConfigPet(petId);
         PetSkin skin = PetSkin.getSkins(pet).stream().filter(petSkin -> petSkin.getPathId().equals(skinId)).findFirst().orElse(null);
 
         ItemStack it = new ItemStack(Material.LEATHER);
-        if(skin.getIcon() != null)
+        if (skin.getIcon() != null)
             it = skin.getIcon().clone();
 
         ItemMeta meta = it.getItemMeta();
@@ -1816,8 +1700,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack PET_EDITOR_SKIN_MYTHICMOB()
-    {
+    private static ItemStack PET_EDITOR_SKIN_MYTHICMOB() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Skin - MythicMob");
@@ -1833,8 +1716,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PET_EDITOR_SKIN_PERMISSION()
-    {
+    private static ItemStack PET_EDITOR_SKIN_PERMISSION() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Skin - Permission");
@@ -1852,15 +1734,13 @@ public enum EditorItems {
     }
 
 
-    /*
+    /**
      * Category icons
      */
-
-    public EditorItems setupCategoryIcon(String categoryId)
-    {
+    public EditorItems setupCategoryIcon(String categoryId) {
         Category category = CategoryConfig.loadConfigCategory(categoryId);
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
-        if(category.getIcon() != null)
+        if (category.getIcon() != null)
             it = category.getIcon().clone();
 
         ItemMeta meta = it.getItemMeta();
@@ -1881,11 +1761,10 @@ public enum EditorItems {
     }
 
 
-    public EditorItems setupEditCategoryIcon(String categoryId)
-    {
+    public EditorItems setupEditCategoryIcon(String categoryId) {
         Category category = CategoryConfig.loadConfigCategory(categoryId);
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
-        if(category.getIcon() != null)
+        if (category.getIcon() != null)
             it = category.getIcon().clone();
 
         ItemMeta meta = it.getItemMeta();
@@ -1894,21 +1773,19 @@ public enum EditorItems {
         ArrayList<String> lores = new ArrayList<>();
 
         lores.add("§aExcluded categories:");
-        if(category.getExcludedCategoriesId().size() == 0)
+        if (category.getExcludedCategoriesId().size() == 0)
             lores.add("§7- §6None");
         for(String excludedCategoryId : category.getExcludedCategoriesId())
             lores.add("§7- " + excludedCategoryId);
 
         lores.add(" ");
 
-        if(category.isDefaultCategory())
-        {
+        if (category.isDefaultCategory()) {
             lores.add("§aIncludes all pets §7(default category)");
         }
-        else
-        {
+        else {
             lores.add("§aIncluded Pets:");
-            if(category.getPets().size() == 0)
+            if (category.getPets().size() == 0)
                 lores.add("§7- §6None");
             for(Pet pet : category.getPets())
                 lores.add(" §7 - " + pet.getId());
@@ -1929,8 +1806,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_ID()
-    {
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_ID() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Category ID");
@@ -1946,8 +1822,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY()
-    {
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_DEFAULT_CATEGORY() {
         ItemStack it = new ItemStack(Material.KNOWLEDGE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Default category");
@@ -1965,8 +1840,7 @@ public enum EditorItems {
     }
 
 
-    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES()
-    {
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_EXCLUDED_CATEGORIES() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Excluded categories");
@@ -1983,8 +1857,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD()
-    {
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_PET_ADD() {
         ItemStack it = new ItemStack(Material.GOLD_INGOT);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§aAdd§6 a pets");
@@ -1998,8 +1871,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE()
-    {
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE() {
         ItemStack it = new ItemStack(Material.NETHER_BRICK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§cRemove§6 a pet");
@@ -2013,8 +1885,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME()
-    {
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_TITLE_NAME() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Category Inventory title");
@@ -2031,8 +1902,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_ICON_NAME()
-    {
+    private static ItemStack CATEGORY_EDITOR_CATEGORY_EDIT_ICON_NAME() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Category icon name");
@@ -2049,15 +1919,13 @@ public enum EditorItems {
         return it;
     }
 
-    /*
+    /**
      * Items editor
      */
-
-    public EditorItems setupItemIcon(String itemId)
-    {
+    public EditorItems setupItemIcon(String itemId) {
         ItemStack it = new ItemStack(Material.BEDROCK);
         ItemStack loadedIt = ItemsListConfig.loadConfigItem(itemId);
-        if(loadedIt != null)
+        if (loadedIt != null)
             it = loadedIt.clone();
 
         ItemMeta meta = it.getItemMeta();
@@ -2079,17 +1947,16 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupEditItemIcon(String itemId)
-    {
+    public EditorItems setupEditItemIcon(String itemId) {
         ItemStack it = new ItemStack(Material.BEDROCK);
         ItemStack loadedIt = ItemsListConfig.loadConfigItem(itemId);
-        if(loadedIt != null)
+        if (loadedIt != null)
             it = loadedIt.clone();
 
         ItemMeta meta = it.getItemMeta();
 
         ArrayList<String> lores = new ArrayList<>();
-        if(it.getItemMeta().hasLore() && it.getItemMeta().getLore() != null)
+        if (it.getItemMeta().hasLore() && it.getItemMeta().getLore() != null)
         {
             lores = (ArrayList<String>) it.getItemMeta().getLore();
         }
@@ -2107,8 +1974,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack ITEMS_EDIT_ID()
-    {
+    private static ItemStack ITEMS_EDIT_ID() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Item ID");
@@ -2127,12 +1993,10 @@ public enum EditorItems {
     /**
      * Pet food editor
      */
-
-    public EditorItems setupPetfoodIcon(String petFoodId)
-    {
+    public EditorItems setupPetfoodIcon(String petFoodId) {
         ItemStack it = new ItemStack(Material.BEDROCK);
         PetFood petFood = PetFoodConfig.loadConfigPetFood(petFoodId);
-        if(petFood.getItemStack() != null)
+        if (petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();
 
         ItemMeta meta = it.getItemMeta();
@@ -2154,17 +2018,16 @@ public enum EditorItems {
         return this;
     }
 
-    public EditorItems setupEditPetFoodIcon(String petFoodId)
-    {
+    public EditorItems setupEditPetFoodIcon(String petFoodId) {
         ItemStack it = new ItemStack(Material.BEDROCK);
         PetFood petFood = PetFoodConfig.loadConfigPetFood(petFoodId);
-        if(petFood.getItemStack() != null)
+        if (petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();
 
         ItemMeta meta = it.getItemMeta();
 
         ArrayList<String> lores = new ArrayList<>();
-        if(it.getItemMeta().hasLore() && it.getItemMeta().getLore() != null)
+        if (it.getItemMeta().hasLore() && it.getItemMeta().getLore() != null)
         {
             lores = (ArrayList<String>) it.getItemMeta().getLore();
         }
@@ -2182,8 +2045,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_ID()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_ID() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Petfood ID");
@@ -2199,11 +2061,10 @@ public enum EditorItems {
         return it;
     }
 
-    public EditorItems setupPetFoodEditorEditItem(String petFoodId)
-    {
+    public EditorItems setupPetFoodEditorEditItem(String petFoodId) {
         PetFood petFood = PetFoodConfig.loadConfigPetFood(petFoodId);
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
-        if(petFood.getItemStack() != null)
+        if (petFood.getItemStack() != null)
             it = petFood.getItemStack().clone();
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Food item");
@@ -2223,8 +2084,7 @@ public enum EditorItems {
         return this;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_TYPE()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_TYPE() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Pet food type");
@@ -2240,8 +2100,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_POWER()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_POWER() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Power value");
@@ -2257,8 +2116,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_DURATION()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_DURATION() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Duration of the buff");
@@ -2275,8 +2133,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_OPERATOR()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_OPERATOR() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Operator");
@@ -2293,8 +2150,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_SIGNAL()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_SIGNAL() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Signal");
@@ -2311,8 +2167,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_PETS_ADD()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_PETS_ADD() {
         ItemStack it = new ItemStack(Material.GOLD_INGOT);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§aAdd§6 pet");
@@ -2328,8 +2183,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_PETS_REMOVE()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_PETS_REMOVE() {
         ItemStack it = new ItemStack(Material.NETHER_BRICK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§cRemove§6 pet");
@@ -2345,8 +2199,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_EVOLUTION()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_EVOLUTION() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Evolution");
@@ -2363,8 +2216,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_EXP_THRESHOLD()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_EXP_THRESHOLD() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Experience threshold");
@@ -2381,8 +2233,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_DELAY()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_DELAY() {
         ItemStack it = new ItemStack(Material.ENCHANTED_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Delay before evolution");
@@ -2399,8 +2250,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_PERMISSION()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_PERMISSION() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Permission");
@@ -2416,8 +2266,7 @@ public enum EditorItems {
         return it;
     }
 
-    private static ItemStack PETFOOD_EDITOR_EDIT_UNLOCKED_PET()
-    {
+    private static ItemStack PETFOOD_EDITOR_EDIT_UNLOCKED_PET() {
         ItemStack it = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta meta = it.getItemMeta();
         meta.setDisplayName("§6Unlocked pet");
@@ -2433,6 +2282,4 @@ public enum EditorItems {
         it.setItemMeta(meta);
         return it;
     }
-
-
 }

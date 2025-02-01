@@ -10,10 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -25,8 +23,7 @@ public class SignalStickListener implements Listener {
 
     @EventHandler
     public void switchSignal(PlayerInteractEvent e) {
-        if (e.getAction() == Action.LEFT_CLICK_AIR ||
-                e.getAction() == Action.LEFT_CLICK_BLOCK) {
+        if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
             Player p = e.getPlayer();
             ItemStack stick = p.getInventory().getItemInMainHand();
 
@@ -52,8 +49,7 @@ public class SignalStickListener implements Listener {
 
     @EventHandler
     public void castSkill(PlayerInteractEvent e) {
-        if (e.getAction() == Action.RIGHT_CLICK_AIR ||
-                e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (checkSkillCast(e.getPlayer()))
                 e.setCancelled(true);
         }
@@ -96,31 +92,27 @@ public class SignalStickListener implements Listener {
     }
 
     @EventHandler
-    public void antiCraft(InventoryClickEvent e)
-    {
-        if(e.getView() == null || e.getView().getTopInventory() == null)
+    public void antiCraft(InventoryClickEvent e) {
+        if (e.getView() == null || e.getView().getTopInventory() == null)
             return;
 
-        if(e.getView().getTopInventory().getType().equals(InventoryType.ANVIL) ||
+        if (e.getView().getTopInventory().getType().equals(InventoryType.ANVIL) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.WORKBENCH) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.ENCHANTING) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.GRINDSTONE) ||
                 e.getView().getTopInventory().getType().equals(InventoryType.MERCHANT) ||
-                e.getView().getTopInventory().getType().equals(InventoryType.LOOM))
-        {
+                e.getView().getTopInventory().getType().equals(InventoryType.LOOM)) {
             ItemStack it = e.getCurrentItem();
-            if(Items.isSignalStick(it))
+            if (Items.isSignalStick(it))
                 e.setCancelled(true);
         }
 
 
-        if(e.getView().getTopInventory().getType().equals(InventoryType.CRAFTING) &&
-                e.getSlot() <= 83 && e.getSlot() >= 80)
-        {
+        if (e.getView().getTopInventory().getType().equals(InventoryType.CRAFTING) &&
+                e.getSlot() <= 83 && e.getSlot() >= 80) {
             ItemStack it = e.getCurrentItem();
-            if(Items.isSignalStick(it))
+            if (Items.isSignalStick(it))
                 e.setCancelled(true);
         }
     }
-
 }

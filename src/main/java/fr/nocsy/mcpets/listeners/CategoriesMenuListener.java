@@ -11,18 +11,13 @@ import org.bukkit.inventory.ItemStack;
 public class CategoriesMenuListener implements Listener {
 
     @EventHandler
-    public void invClick(InventoryClickEvent e)
-    {
-        if(e.getView().getTitle().equalsIgnoreCase(Language.CATEGORY_MENU_TITLE.getMessage()))
-        {
+    public void invClick(InventoryClickEvent e) {
+        if (e.getView().getTitle().equalsIgnoreCase(Language.CATEGORY_MENU_TITLE.getMessage())) {
             ItemStack icon = e.getCurrentItem();
-            if(icon != null)
-            {
+            if (icon != null) {
                 CategoriesMenu.openSubCategory((Player) e.getWhoClicked(), icon);
             }
             e.setCancelled(true);
         }
-
     }
-
 }

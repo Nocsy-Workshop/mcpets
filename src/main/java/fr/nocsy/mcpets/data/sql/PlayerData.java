@@ -35,8 +35,7 @@ public class PlayerData {
     private PlayerData() {
     }
 
-    public static boolean isRegistered(UUID player)
-    {
+    public static boolean isRegistered(UUID player) {
         return registeredData.containsKey(player);
     }
 
@@ -44,7 +43,8 @@ public class PlayerData {
 
         if (registeredData.containsKey(owner)) {
             return registeredData.get(owner);
-        } else {
+        }
+        else {
             if (!GlobalConfig.getInstance().isDatabaseSupport()) {
                 PlayerData data = new PlayerData();
                 data.setUuid(owner);
@@ -68,15 +68,10 @@ public class PlayerData {
         return data;
     }
 
-    public static void initializeAllPlayerData() {
-        reloadAllPlayerData();
-    }
-
     public static void saveDB() {
         if(GlobalConfig.getInstance().isDatabaseSupport())
             Databases.saveData();
-        else
-        {
+        else {
             PlayerDataNoDatabase.getCacheMap().values().forEach(PlayerDataNoDatabase::save);
         }
     }
@@ -87,10 +82,8 @@ public class PlayerData {
 
     /**
      * Register the Pet inventory for future save
-     * @param petInventory
      */
-    public void setPetInventory(PetInventory petInventory)
-    {
+    public void setPetInventory(PetInventory petInventory) {
         mapOfRegisteredInventories.put(petInventory.getPetId(), petInventory.serialize());
     }
 
@@ -103,10 +96,8 @@ public class PlayerData {
 
             mapOfRegisteredInventories.clear();
             HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(this.getUuid());
-            if(inventories != null)
-            {
-                for(String petId : inventories.keySet())
-                {
+            if (inventories != null) {
+                for (String petId : inventories.keySet()) {
                     mapOfRegisteredInventories.put(petId, inventories.get(petId).serialize());
                 }
             }
@@ -119,7 +110,8 @@ public class PlayerData {
     public static void initAll() {
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             Databases.loadData();
-        } else {
+        }
+        else {
             PlayerDataNoDatabase.getCacheMap().values().forEach(PlayerDataNoDatabase::reload);
         }
     }
@@ -127,7 +119,8 @@ public class PlayerData {
     public static void reloadAll(UUID uuid) {
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             Databases.loadData(uuid);
-        } else {
+        }
+        else {
             PlayerDataNoDatabase.get(uuid).reload();
         }
     }

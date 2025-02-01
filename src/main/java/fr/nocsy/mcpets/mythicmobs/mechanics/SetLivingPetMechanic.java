@@ -25,10 +25,9 @@ public class SetLivingPetMechanic implements ITargetedEntitySkill {
     }
 
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
-
         AbstractEntity ent = data.getCaster().getEntity();
 
-        if(Pet.getFromEntity(ent.getBukkitEntity()) != null)
+        if (Pet.getFromEntity(ent.getBukkitEntity()) != null)
             return SkillResult.CONDITION_FAILED;
 
         Pet pet = Pet.getFromId(petId);
@@ -46,6 +45,7 @@ public class SetLivingPetMechanic implements ITargetedEntitySkill {
                 pet.setFollowOwner(followOnTame);
             }
         }.runTaskLater(MCPets.getInstance(), 1L);
+
         return SkillResult.SUCCESS;
     }
 }
