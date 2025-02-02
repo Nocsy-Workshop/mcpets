@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.livingpets;
 
+import dev.lone.itemsadder.api.CustomStack;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
@@ -124,29 +125,6 @@ public class PetFood {
     public ItemStack getItemStack() {
         // Setup the item stack
         if (itemStack == null) {
-            if (itemId.contains("itemsadder") && MCPets.getItemsAdder() != null) {
-                // Expected: itemsadder-namespace:item_name
-                String[] parts = itemId.split("-", 2);
-            
-                if (parts.length == 2 && parts[0].equalsIgnoreCase("itemsadder")) {
-                    try {
-                        Class<?> customStackClass = (Class<?>) MCPets.getItemsAdder();
-                        Object customStack = customStackClass
-                            .getMethod("getInstance", String.class)
-                            .invoke(null, parts[1]);
-            
-                        if (customStack != null) {
-                            itemStack = (ItemStack) customStackClass
-                                .getMethod("getItemStack")
-                                .invoke(customStack);
-                            return itemStack;
-                        }
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
 
             // Fetch the item stack within the registered ones
             itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
@@ -161,8 +139,15 @@ public class PetFood {
                     // return the itemstack without adding localized information to it, coz it's a default item
                     return itemStack;
                 }
-                // We found no match, so we set the item to unknown
-                itemStack = Items.UNKNOWN.getItem().clone();
+                // We found no match.
+                // so, trying to find items from ItemsAdder if ItemsAdder is enabled.
+                // if ItemsAdder is not enabled or found no match in ItemsAdder, set the item to unknown.
+                if (MCPets.isItemsAdderLoaded()) {
+                    CustomStack customStack = CustomStack.getInstance(itemId);
+                    itemStack = (customStack == null) ? Items.UNKNOWN.getItem().clone() : customStack.getItemStack();
+                } else {
+                    itemStack = Items.UNKNOWN.getItem().clone();
+                }
             }
             ItemMeta meta = itemStack.getItemMeta();
             meta.setItemName("MCPets;Food;" + itemId);
@@ -225,18 +210,6 @@ public class PetFood {
 
         if (!isCompatibleWithPet(pet))
             return false;
-
-        ItemStack mainHandItem = p.getInventory().getItemInMainHand();
-        if (mainHandItem != null && mainHandItem.hasItemMeta()) {
-            String itemName = mainHandItem.getItemMeta().getDisplayName();
-            String expectedItemName = itemStack.getItemMeta().getDisplayName();
-
-            if (itemId.startsWith("itemsadder:")) {
-                if (!itemName.equals(expectedItemName)) {
-                    return false;
-                }
-            }
-        }
 
         int foodCooldown = getRemainingCooldownInSeconds(pet);
         if (foodCooldown > 0) {
@@ -347,77 +320,41 @@ public class PetFood {
     /**
      * Get the pet food object from the item stack if it represents one
      */
-    public static PetFood getFromItem(ItemStack it) {
-        if (it == null || it.getType() == Material.AIR) {
-            return null;
-        }
-    
-        // find itemsadder item for pet food, expected "itemsadder-namespace:itemname"
-        for (PetFood petFood : PetFoodConfig.getInstance().list()) {
-            if (petFood.getItemId().startsWith("itemsadder-")) {
-                String[] parts = petFood.getItemId().split("-", 2);
-                if (parts.length == 2 && MCPets.getItemsAdder() != null) {
-                    try {
-                        Class<?> itemsAdderClass = (Class<?>) MCPets.getItemsAdder();
-                        Object customStack = itemsAdderClass
-                            .getMethod("getInstance", String.class)
-                            .invoke(null, parts[1]);
-    
-                        if (customStack != null) {
-                            ItemStack itemsAdderStack = (ItemStack) itemsAdderClass
-                                .getMethod("getItemStack")
-                                .invoke(customStack);
-    
-                            if (itemsAdderStack != null && it.isSimilar(itemsAdderStack)) {
-                                return petFood;
-                            }
-                        }
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
+    public static PetFood getFromItem(ItemStack handItem) {
+        if (handItem == null || handItem.getItemMeta() == null) return null;
+
+        PetFood resultFood = null;
+        for (PetFood petFoods : PetFoodConfig.getInstance().list()) {
+
+            if (petFoods == null || petFoods.getItemStack() == null || petFoods.getItemStack().getItemMeta() == null)
+                continue;
+
+            if (petFoods.getItemStack().isSimilar(handItem)) {
+                resultFood = petFoods;
+                break;
+            }
+
+            // find ItemsAdder Items
+            if (MCPets.isItemsAdderLoaded()) {
+                CustomStack handCustomStack = CustomStack.byItemStack(handItem);
+                CustomStack foodCustomStack = CustomStack.byItemStack(petFoods.getItemStack());
+
+                if (handCustomStack == null || foodCustomStack == null) continue;
+
+                // get <namespace>:<id>
+                String handId = handCustomStack.getNamespacedID();
+                String foodId = foodCustomStack.getNamespacedID();
+
+                // check their id is same
+                if (handId.equals(foodId)) {
+                    resultFood = petFoods;
+                    break;
                 }
             }
         }
-    
-        // if the item is a default MC item, then look for possible matches
-        for (PetFood petFood : PetFoodConfig.getInstance().list()) {
-            if (!petFood.getItemId().startsWith("itemsadder-")) {
-                ItemStack petFoodItem = petFood.getItemStack();
-                if (petFoodItem != null && it.getType() == petFoodItem.getType() && petFood.isDefaultMCItem()) {
-                    return petFood;
-                }
-            }
-        }
-    
-        // if the item isn't a default MCItem, go through the localized informations
-        if (it.hasItemMeta()) {
-            ItemMeta itemMeta = it.getItemMeta();
-            for (PetFood petFood : PetFoodConfig.getInstance().list()) {
-                ItemStack petFoodItem = petFood.getItemStack();
-                if (petFoodItem != null && petFoodItem.hasItemMeta()) {
-                    ItemMeta petFoodMeta = petFoodItem.getItemMeta();
-    
-                    if (petFoodMeta.hasDisplayName() && itemMeta.hasDisplayName() &&
-                        ChatColor.stripColor(petFoodMeta.getDisplayName()).equals(ChatColor.stripColor(itemMeta.getDisplayName()))) {
-                        if (petFoodMeta.hasLore() && itemMeta.hasLore()) {
-                            List<String> petFoodLore = petFoodMeta.getLore();
-                            List<String> itemLore = itemMeta.getLore();
-    
-                            if (petFoodLore != null && itemLore != null && petFoodLore.equals(itemLore)) {
-                                return petFood;
-                            }
-                        }
-                        else if (!petFoodMeta.hasLore() && !itemMeta.hasLore()) {
-                            return petFood;
-                        }
-                    }
-                }
-            }
-        }
-    
-        return null;
-    }    
+
+        return resultFood;
+    }
 
     /**
      * Get the PetFood from the id

@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.config;
 
+import dev.lone.itemsadder.api.CustomStack;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.Items;
@@ -219,6 +220,7 @@ public class PetConfig extends AbstractConfig {
                 name = defaultName;
             }
             String mat = getConfig().getString(path + ".Material");
+            String itemsAdder = getConfig().getString(path + ".ItemsAdder", "");
             int data = getConfig().getInt(path + ".CustomModelData");
             String textureBase = getConfig().getString(path + ".TextureBase64");
             List<String> description = getConfig().getStringList(path + ".Description");
@@ -226,6 +228,23 @@ public class PetConfig extends AbstractConfig {
                     item, showStats, localName,
                     name, description, mat, data, textureBase
             );
+            // ItemsAdder compat
+            if (MCPets.isItemsAdderLoaded() && !itemsAdder.isEmpty()) {
+                CustomStack customStack = CustomStack.getInstance(itemsAdder);
+                if (customStack != null) {
+                    ItemStack iaItem = customStack.getItemStack();
+                    itemStack = pet.buildItem(
+                            iaItem,
+                            showStats,
+                            localName,
+                            name,
+                            description,
+                            iaItem.getType().toString(),
+                            iaItem.getItemMeta().getCustomModelData(),
+                            textureBase
+                    );
+                }
+            }
         }
         return itemStack;
     }
