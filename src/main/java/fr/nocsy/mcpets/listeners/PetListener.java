@@ -398,4 +398,43 @@ public class PetListener implements Listener {
                 pet.despawn(PetDespawnReason.FLAG);
         }
     }
+
+
+    @EventHandler
+    public void fastMount(PlayerInteractEntityEvent e){
+        // Check if inventories should be opening instead of fast mounting
+        if (GlobalConfig.getInstance().isRightClickToOpen())
+            return;
+        Player p = e.getPlayer();
+        if (GlobalConfig.getInstance().isSneakMode() && p.isSneaking())
+            return;
+
+        // Do not mount if the player has a signal stick
+        if (GlobalConfig.getInstance().isDisableFastMountWhileHoldingSignalStick()) {
+            ItemStack it = p.getInventory().getItemInMainHand();
+            if (Items.isSignalStick(it))
+                return;
+        }
+        //If it's pet food in the main hand then do not mount
+        if (PetFood.getFromItem(p.getInventory().getItemInMainHand()) != null) {
+            return;
+        }
+
+        if (!GlobalConfig.getInstance().isFastMount())
+            return;
+
+        Entity ent = e.getRightClicked();
+        Pet pet = Pet.getFromEntity(ent);
+        if (pet != null && pet.getOwner() != null &&
+                pet.getOwner().equals(p.getUniqueId())) {
+            PetOwnerInteractEvent event = new PetOwnerInteractEvent(pet);
+            Utils.callEvent(event);
+            if (event.isCancelled()) return;
+
+            PetInteractionMenuListener.mount(p, pet);
+
+        }
+
+    }
+
 }
