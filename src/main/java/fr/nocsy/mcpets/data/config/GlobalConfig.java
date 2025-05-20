@@ -100,6 +100,10 @@ public class GlobalConfig extends AbstractConfig {
     private String MySQL_DB;
     @Getter
     private List<String> blackListedWorlds;
+    @Getter
+    private boolean fastMount;
+    @Getter
+    private boolean disableFastMountWhileHoldingSignalStick;
 
     @Getter
     @Setter
@@ -196,6 +200,10 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("BlackListedWorlds", new ArrayList<String>());
         if (getConfig().get("DisableMySQL") == null)
             getConfig().set("DisableMySQL", false);
+        if  (getConfig().get("FastMount") == null)
+            getConfig().set("FastMount", false);
+        if  (getConfig().get("DisableFastMountWhileHoldingSignalStick") == null)
+            getConfig().set("DisableFastMountWhileHoldingSignalStick", false);
 
         save();
         reload();
@@ -262,6 +270,9 @@ public class GlobalConfig extends AbstractConfig {
         MySQL_PORT = getConfig().getString("MySQL.Port");
         MySQL_DB = getConfig().getString("MySQL.Database");
         blackListedWorlds = getConfig().getStringList("BlackListedWorlds");
+
+        fastMount = getConfig().getBoolean("FastMount");
+        disableFastMountWhileHoldingSignalStick = getConfig().getBoolean("DisableFastMountWhileHoldingSignalStick");
     }
 
     public boolean hasBlackListedWorld(String worldName) {
