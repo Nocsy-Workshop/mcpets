@@ -137,6 +137,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("DisableInventoryWhileHoldingSignalStick", true);
         if (getConfig().get("DismountOnDamaged") == null)
             getConfig().set("DismountOnDamaged", true);
+        if (getConfig().get("DismountOnDamagedExcludePlayers") == null)
+            getConfig().set("DismountOnDamagedExcludePlayers", false);
         if (getConfig().get("SpawnPetOnReconnect") == null)
             getConfig().set("SpawnPetOnReconnect", true);
         if (getConfig().get("SneakMode") == null)
