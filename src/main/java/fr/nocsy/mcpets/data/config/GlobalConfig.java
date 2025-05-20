@@ -38,7 +38,9 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean sneakMode;
     @Getter
-    private boolean dismountOnDamaged;
+    private boolean dismountOnDamaged;    
+    @Getter
+    private boolean dismountOnDamagedExcludePlayers;
     @Getter
     private boolean spawnPetOnReconnect;
     @Getter
