@@ -186,6 +186,16 @@ public class PetListener implements Listener {
             return;
 
         if (e.getEntity() instanceof Player) {
+            if (e instanceof EntityDamageByEntityEvent) {
+                EntityDamageByEntityEvent edbe = (EntityDamageByEntityEvent) e;
+                if (edbe.getDamager() instanceof Player) {
+                    return;
+                }
+            }
+            
+            if (GlobalConfig.getInstance().isDismountOnDamagedExcludePlayers())
+                return;
+                
             Player p = (Player) e.getEntity();
             Pet pet = Pet.fromOwner(p.getUniqueId());
             if (pet != null && pet.hasMount(p)) {
