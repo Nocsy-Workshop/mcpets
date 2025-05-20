@@ -28,7 +28,7 @@ public class MCPets extends JavaPlugin {
 
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
-    private static Object itemsAdder;
+    private static boolean itemsAdderFound = false;
     private static boolean luckPermsNotFound = false;
 
     @Getter
@@ -132,23 +132,14 @@ public class MCPets extends JavaPlugin {
         }
     }
 
-    private static boolean checkItemsAdder() {
-        if (itemsAdder != null) {
-            return true;
+    private static void checkItemsAdder() {
+        try {
+            Class.forName("dev.lone.itemsadder.api.CustomStack");
+            itemsAdderFound = true;
+        } catch (ClassNotFoundException e) {
+            itemsAdderFound = false;
+            Bukkit.getLogger().warning("[MCPets] : ItemsAdder could not be found. custom items features won't be available.");
         }
-    
-        if (Bukkit.getPluginManager().getPlugin("ItemsAdder") != null) {
-            try {
-                Class<?> customStackClass = Class.forName("dev.lone.itemsadder.api.CustomStack");
-                itemsAdder = customStackClass;
-                return true;
-            }
-            catch (ClassNotFoundException e) {
-                Bukkit.getLogger().info("[MCPets] : ItemsAdder API not found. Itemsadder custom items won't be available for pet foods.");
-            }
-        }
-    
-        return false;
     }
 
     /**
@@ -223,12 +214,9 @@ public class MCPets extends JavaPlugin {
     }
 
     /**
-     * Return ItemsAdder instance
+     * Check ItemsAdder is loaded or not
      */
-    public static Object getItemsAdder() {
-        if (itemsAdder == null)
-            checkItemsAdder();
-
-        return itemsAdder;
+    public static boolean isItemsAdderLoaded() {
+        return itemsAdderFound;
     }
 }
