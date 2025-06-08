@@ -715,7 +715,7 @@ public class Pet {
 
         // Set the owner
         this.owner = owner;
-        activeMob.setOwner(owner);
+        activeMob.setOwnerUUID(owner);
 
         // Follow up the owner ?
         this.followOwner = followOwner;
