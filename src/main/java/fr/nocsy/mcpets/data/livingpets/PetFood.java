@@ -22,8 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
-import java.util.logging.Logger;
-
 public class PetFood {
 
     private static final HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
