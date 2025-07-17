@@ -30,6 +30,7 @@ public class MCPets extends JavaPlugin {
     private static LuckPerms luckPerms;
     private static boolean itemsAdderFound = false;
     private static boolean luckPermsNotFound = false;
+    private static boolean nexoFound = false;
 
     @Getter
     private static PlaceholderAPICompat placeholderAPI;
@@ -132,13 +133,29 @@ public class MCPets extends JavaPlugin {
         }
     }
 
+    public static boolean checkNexo() {
+        if (nexoFound) return true;
+
+        try {
+            Class.forName("com.nexomc.nexo.api.NexoItems");
+            Bukkit.getLogger().info("[MCPets] : Nexo found. Nexo Custom items features are available.");
+            nexoFound = true;
+        } catch (ClassNotFoundException e) {
+            nexoFound = false;
+            Bukkit.getLogger().warning("[MCPets] : Nexo could not be found. Nexo Custom items features won't be available.");
+        }
+
+        return nexoFound;
+    }
+
     private static void checkItemsAdder() {
+
         try {
             Class.forName("dev.lone.itemsadder.api.CustomStack");
             itemsAdderFound = true;
         } catch (ClassNotFoundException e) {
             itemsAdderFound = false;
-            Bukkit.getLogger().warning("[MCPets] : ItemsAdder could not be found. custom items features won't be available.");
+            Bukkit.getLogger().warning("[MCPets] : ItemsAdder could not be found. IA Custom items features won't be available.");
         }
     }
 
@@ -201,7 +218,6 @@ public class MCPets extends JavaPlugin {
 
         return mythicMobs;
     }
-
 
     /**
      * Return LuckPerms instance

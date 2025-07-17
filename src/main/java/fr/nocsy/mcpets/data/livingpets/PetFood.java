@@ -1,5 +1,7 @@
 package fr.nocsy.mcpets.data.livingpets;
 
+import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
 import dev.lone.itemsadder.api.CustomStack;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Items;
@@ -20,7 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
-
 public class PetFood {
 
     private static final HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
@@ -145,9 +146,19 @@ public class PetFood {
                 if (MCPets.isItemsAdderLoaded()) {
                     CustomStack customStack = CustomStack.getInstance(itemId);
                     itemStack = (customStack == null) ? Items.UNKNOWN.getItem().clone() : customStack.getItemStack();
-                } else {
+                }
+
+                if (itemStack == null && MCPets.checkNexo()) {
+                    ItemBuilder builder = NexoItems.itemFromId(itemId);
+                    if (builder != null) {
+                        itemStack = builder.build(); // Output the Nexo Item.
+                    }
+                }
+
+                if (itemStack == null) {
                     itemStack = Items.UNKNOWN.getItem().clone();
                 }
+
             }
             ItemMeta meta = itemStack.getItemMeta();
             meta.setItemName("MCPets;Food;" + itemId);
@@ -347,6 +358,21 @@ public class PetFood {
 
                 // check their id is same
                 if (handId.equals(foodId)) {
+                    resultFood = petFoods;
+                    break;
+                }
+            }
+
+            if (MCPets.checkNexo()) {
+                ItemBuilder handBuilder = NexoItems.builderFromItem(handItem);
+                ItemBuilder foodBuilder = NexoItems.builderFromItem(petFoods.getItemStack());
+
+                if (handBuilder == null || foodBuilder == null) continue;
+
+                ItemStack builtHand = handBuilder.build();
+                ItemStack builtFood = foodBuilder.build();
+
+                if (builtHand.isSimilar(builtFood)) {
                     resultFood = petFoods;
                     break;
                 }
