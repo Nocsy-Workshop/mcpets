@@ -1,5 +1,7 @@
 package fr.nocsy.mcpets.data.config;
 
+import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
 import dev.lone.itemsadder.api.CustomStack;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
@@ -10,6 +12,7 @@ import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -243,6 +246,34 @@ public class PetConfig extends AbstractConfig {
                             iaItem.getItemMeta().getCustomModelData(),
                             textureBase
                     );
+                }
+            }
+
+            // Nexo integration
+            if (MCPets.checkNexo()) {
+                String itemId = getConfig().getString(path + ".NexoId");
+                if (itemId != null && !itemId.isEmpty()) {
+                    ItemBuilder builder = NexoItems.itemFromId(itemId);
+                    if (builder != null) {
+                        ItemStack nexoItem = builder.build();
+                        Material nexoMat = nexoItem.getType();
+                        ItemMeta nexoMeta = nexoItem.getItemMeta();
+                        int nexoModelData = (nexoMeta != null && nexoMeta.hasCustomModelData())
+                                ? nexoMeta.getCustomModelData()
+                                : 0;
+
+                        itemStack = pet.buildItem(
+                                nexoItem,
+                                showStats,
+                                localName,
+                                name,
+                                description,
+                                nexoMat != null ? nexoMat.toString() : null,
+                                nexoModelData,
+                                textureBase
+                        );
+                        return itemStack;
+                    }
                 }
             }
         }
