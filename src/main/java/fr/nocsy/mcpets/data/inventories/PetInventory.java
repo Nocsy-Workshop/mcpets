@@ -9,7 +9,6 @@ import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.sql.PlayerDataNoDatabase;
 import fr.nocsy.mcpets.utils.BukkitSerialization;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
