@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.data;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -105,7 +106,7 @@ public class PetSkin {
         while (invSize <= 0 || invSize%9 != 0)
             invSize++;
 
-        Inventory inventory = Bukkit.createInventory(null, invSize, Language.PET_SKINS_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName())));
+        Inventory inventory = new PetInventoryHolder(invSize, Language.PET_SKINS_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName()))).getInventory();
 
         for (PetSkin petSkin : skins) {
             inventory.addItem(petSkin.getIcon());

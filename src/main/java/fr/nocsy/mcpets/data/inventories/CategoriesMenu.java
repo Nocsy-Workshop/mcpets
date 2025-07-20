@@ -19,7 +19,7 @@ public class CategoriesMenu {
         while(invSize == 0 || invSize%9 != 0)
             invSize++;
 
-        Inventory inventory = Bukkit.createInventory(null, invSize, title);
+        Inventory inventory = new PetInventoryHolder(invSize, title).getInventory();
 
         Category.getCategories()
                 .forEach(category -> {

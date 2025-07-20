@@ -68,7 +68,7 @@ public class PetMenu {
         }
 
         // Let's fill tbe view with the selected pets
-        inventory = Bukkit.createInventory(null, invSize, title);
+        inventory = new PetInventoryHolder(invSize, title).getInventory();
         for (Pet pet : selectedPets) {
             inventory.addItem(pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }

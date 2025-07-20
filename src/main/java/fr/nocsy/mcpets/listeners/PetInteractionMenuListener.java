@@ -72,7 +72,7 @@ public class PetInteractionMenuListener implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent e) {
-        if (e.getView().getTitle().equalsIgnoreCase(PetInteractionMenu.getTitle())) {
+        if (e.getInventory() instanceof PetInventory) {
             e.setCancelled(true);
 
             Player p = (Player) e.getWhoClicked();

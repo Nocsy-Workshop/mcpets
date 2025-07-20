@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,7 +13,7 @@ public class CategoriesMenuListener implements Listener {
 
     @EventHandler
     public void invClick(InventoryClickEvent e) {
-        if (e.getView().getTitle().equalsIgnoreCase(Language.CATEGORY_MENU_TITLE.getMessage())) {
+        if (e.getInventory() instanceof PetInventory) {
             ItemStack icon = e.getCurrentItem();
             if (icon != null) {
                 CategoriesMenu.openSubCategory((Player) e.getWhoClicked(), icon);

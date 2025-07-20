@@ -7,10 +7,10 @@ import fr.nocsy.mcpets.data.config.CategoryConfig;
 import fr.nocsy.mcpets.data.config.ItemsListConfig;
 import fr.nocsy.mcpets.data.config.PetConfig;
 import fr.nocsy.mcpets.data.config.PetFoodConfig;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -73,7 +73,7 @@ public enum EditorState {
     private void buildInventory(Player p) {
 
         if (this.equals(EditorState.GLOBAL_EDITOR)) {
-            currentView = Bukkit.createInventory(null, InventoryType.HOPPER, this.getMenuTitle());
+            currentView = new PetInventoryHolder(InventoryType.HOPPER, this.getMenuTitle()).getInventory();
 
             EditorItems[] icons = {
                     EditorItems.CONFIG_EDITOR,
@@ -91,7 +91,7 @@ public enum EditorState {
 
 
         else if (this.equals(EditorState.CONFIG_EDITOR)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             HashMap<EditorItems, Integer> icons = new HashMap<>();
 
@@ -127,7 +127,7 @@ public enum EditorState {
 
 
         else if (this.equals(EditorState.PET_EDITOR)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             for(int i = 45; i < 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -160,7 +160,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_EDIT)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             Pet pet = PetConfig.loadConfigPet(EditorEditing.get(p).getPetId());
             String filePath = PetConfig.getFilePath(pet.getId());
@@ -196,7 +196,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_LEVELS)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             for(int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -223,7 +223,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_LEVEL_EDIT)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
 
             EditorEditing editorPet = EditorEditing.get(p);
@@ -266,7 +266,7 @@ public enum EditorState {
         }
         else if (this.equals(EditorState.PET_EDITOR_SKINS)) {
 
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             for(int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -292,7 +292,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_SKIN_EDIT)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             EditorEditing editorPet = EditorEditing.get(p);
             Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
@@ -318,7 +318,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.CATEGORY_EDITOR)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             for (int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -343,7 +343,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.CATEGORY_EDITOR_EDIT)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             EditorEditing editorEditing = EditorEditing.get(p);
             Category category = CategoryConfig.loadConfigCategory(editorEditing.getMappedId());
@@ -373,7 +373,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.ITEM_EDITOR)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             for (int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -402,7 +402,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.ITEM_EDITOR_EDIT)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             EditorEditing editorEditing = EditorEditing.get(p);
             String itemId = editorEditing.getMappedId();
@@ -424,7 +424,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PETFOOD_EDITOR)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             for (int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -454,7 +454,7 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PETFOOD_EDITOR_EDIT)) {
-            currentView = Bukkit.createInventory(null, 54, this.getMenuTitle());
+            currentView = new PetInventoryHolder(54, this.getMenuTitle()).getInventory();
 
             EditorEditing editorEditing = EditorEditing.get(p);
             PetFood petFood = PetFoodConfig.loadConfigPetFood(editorEditing.getMappedId());

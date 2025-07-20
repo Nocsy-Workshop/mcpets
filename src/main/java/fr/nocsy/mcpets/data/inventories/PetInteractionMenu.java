@@ -26,7 +26,7 @@ public class PetInteractionMenu {
             return;
         }
         pet.setOwner(owner);
-        inventory = Bukkit.createInventory(null, 9, title);
+        inventory = new PetInventoryHolder(9, title).getInventory();
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.PETMENU.getItem());

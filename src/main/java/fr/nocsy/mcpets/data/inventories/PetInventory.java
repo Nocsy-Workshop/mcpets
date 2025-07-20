@@ -44,7 +44,7 @@ public class PetInventory {
 
         String title = Language.PET_INVENTORY_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName()));
 
-        this.inventory = Bukkit.createInventory(null, pet.getInventorySize(), title);
+        this.inventory = new PetInventoryHolder(pet.getInventorySize(), title).getInventory();
         if (premadeInventory != null) {
             if (premadeInventory.getContents().length <= inventory.getContents().length)
                 inventory.setContents(premadeInventory.getContents());
