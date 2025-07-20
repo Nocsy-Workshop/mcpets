@@ -79,7 +79,7 @@ public class PetMenu {
     }
 
     public void open(Player p) {
-        if (p.getUniqueId().equals(owner) && Category.getCategories().size() > 0) {
+        if (p.getUniqueId().equals(owner) && !Category.getCategories().isEmpty()) {
             CategoriesMenu.open(p);
             return;
         }

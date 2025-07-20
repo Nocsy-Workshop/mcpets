@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,7 +24,7 @@ public class CategoryMenuListener implements Listener {
         Player p = (Player) e.getWhoClicked();
         Category category = Category.getCategoryView(p);
 
-        if (category != null && e.getInventory() instanceof PetInventory) {
+        if (category != null && e.getInventory().getHolder() instanceof PetInventoryHolder) {
             e.setCancelled(true);
 
             if (e.getClickedInventory() == null && GlobalConfig.getInstance().isEnableClickBackToMenu()) {

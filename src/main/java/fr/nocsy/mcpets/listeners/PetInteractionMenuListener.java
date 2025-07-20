@@ -11,6 +11,7 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
@@ -72,7 +73,7 @@ public class PetInteractionMenuListener implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent e) {
-        if (e.getInventory() instanceof PetInventory) {
+        if (e.getInventory().getHolder() instanceof PetInventoryHolder) {
             e.setCancelled(true);
 
             Player p = (Player) e.getWhoClicked();
