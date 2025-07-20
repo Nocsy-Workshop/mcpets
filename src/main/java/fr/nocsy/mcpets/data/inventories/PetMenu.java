@@ -35,7 +35,7 @@ public class PetMenu {
 
         // Count the amount of pets that are being selected at that page
         // One page is up to 53 pets, so the page P has already seen 53 * P pets
-        // 53 pets because we gotta leave one spot available for the pager everytime
+        // 53 pets because we have to leave one spot available for the pager everytime
         ArrayList<Pet> selectedPets = new ArrayList<>();
         // Let's see if we need to add a pager to the inventory
         // Either we have more than 53 pets or we are at a page greater than 0
