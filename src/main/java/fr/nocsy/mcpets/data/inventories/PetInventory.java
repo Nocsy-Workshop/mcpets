@@ -178,11 +178,11 @@ public class PetInventory {
      */
     public static PetInventory fromCurrentView(Player p) {
         if (p.hasMetadata("MCPets;petInventory")) {
-            if (p.getMetadata("MCPets;petInventory").size() > 0 &&
-                p.getMetadata("MCPets;petInventory").get(0) != null &&
-                p.getMetadata("MCPets;petInventory").get(0).value() instanceof String)
+            if (!p.getMetadata("MCPets;petInventory").isEmpty() &&
+                p.getMetadata("MCPets;petInventory").getFirst() != null &&
+                p.getMetadata("MCPets;petInventory").getFirst().value() instanceof String)
             {
-                String petId = (String)p.getMetadata("MCPets;petInventory").get(0).value();
+                String petId = (String)p.getMetadata("MCPets;petInventory").getFirst().value();
                 UUID owner = p.getUniqueId();
                 HashMap<String, PetInventory> map = petInventories.get(owner);
                 if (map != null) {
