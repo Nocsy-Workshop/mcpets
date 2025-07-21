@@ -54,14 +54,11 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
 
                 else if (args.length == 2) {
                     switch (args[0].toLowerCase()) {
-                        case "spawn":
-                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
+                        case "spawn", "signalstick":
+                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).toList());
                             break;
-                        case "open": case "inventory":
-                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
-                            break;
-                        case "signalstick":
-                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
+                        case "open": case "inventory", "revoke":
+                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
                             break;
                         case "item":
                             completed.addAll(ItemsListConfig.getInstance().listKeys());
@@ -71,17 +68,14 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                             completed.add("list");
                             break;
                         case "clearstats":
-                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
-                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
+                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
+                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).toList());
                             break;
                         case "petfood":
-                            completed.addAll(PetFoodConfig.getInstance().list().stream().map(PetFood::getId).collect(Collectors.toList()));
+                            completed.addAll(PetFoodConfig.getInstance().list().stream().map(PetFood::getId).toList());
                             break;
                         case "category":
-                            completed.addAll(Category.getCategories().stream().map(Category::getId).collect(Collectors.toList()));
-                            break;
-                        case "revoke":
-                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
+                            completed.addAll(Category.getCategories().stream().map(Category::getId).toList());
                             break;
                         default: {}
                     }
@@ -89,27 +83,21 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
 
                 else if (args.length == 3) {
                     switch (args[0].toLowerCase()) {
-                        case "spawn":
-                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
+                        case "spawn", "category":
+                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
                             break;
-                        case "signalstick":
-                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
+                        case "signalstick", "clearstats":
+                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).toList());
                             break;
                         case "inventory":
                             completed.addAll(Pet.getObjectPets().stream()
                                     .filter(pet -> pet.getInventorySize() > 0)
                                     .map(Pet::getId)
-                                    .collect(Collectors.toList()));
+                                    .toList());
                             break;
                         case "item":
                             if (args[1].equalsIgnoreCase("give") || args[1].equalsIgnoreCase("remove"))
                                 completed.addAll(ItemsListConfig.getInstance().listKeys());
-                            break;
-                        case "clearstats":
-                            completed.addAll(Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
-                            break;
-                        case "category":
-                            completed.addAll(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
                             break;
                         default: {}
                     }
@@ -131,6 +119,8 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
         }
 
         Collections.sort(completed);
-        return completed;
+        return completed.stream()
+                .filter(s -> s.toLowerCase().startsWith(args[args.length-1].toLowerCase()))
+                .toList();
     }
 }

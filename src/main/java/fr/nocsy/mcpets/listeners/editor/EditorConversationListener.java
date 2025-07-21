@@ -81,7 +81,7 @@ public class EditorConversationListener implements Listener {
                         conversation.getEditorItem().getType().equals(EditorExpectationType.CATEGORY_PET_LIST_ADD) ||
                         conversation.getEditorItem().getType().equals(EditorExpectationType.CATEGORY_PET_LIST_REMOVE)) {
                     p.sendMessage("§bPossible pet ids are:");
-                    p.sendMessage("§7" + Pet.getObjectPets().stream().map(Pet::getId).collect(Collectors.toList()));
+                    p.sendMessage("§7" + Pet.getObjectPets().stream().map(Pet::getId).toList());
                 }
                 else if (conversation.getEditorItem().getType().equals(EditorExpectationType.OPERATOR_TYPE) ) {
                     p.sendMessage("§bPossible operators are:");

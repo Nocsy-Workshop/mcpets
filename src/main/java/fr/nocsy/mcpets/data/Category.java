@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -90,7 +91,7 @@ public class Category {
                 invSize++;
         }
 
-        Inventory inventory = Bukkit.createInventory(null,  invSize, displayName);
+        Inventory inventory = new PetInventoryHolder(invSize, displayName).getInventory();
 
         if (maxPages > 1)
             inventory.setItem(invSize-1, Items.page(this, page));

@@ -77,7 +77,7 @@ public class PlayerSignal {
         if (pet.getSignals().isEmpty())
             return;
 
-        String signal = pet.getSignals().get(0);
+        String signal = pet.getSignals().getFirst();
         setSignal(owner, signal);
     }
 

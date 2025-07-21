@@ -144,7 +144,7 @@ public class EditorGlobalListener implements Listener {
                 }
                 PetConfig config = PetConfig.getConfig(pet.getId());
                 config.registerCleanPetLevel(null);
-                PetLevel level = pet.getPetLevels().get(pet.getPetLevels().size() - 1);
+                PetLevel level = pet.getPetLevels().getLast();
 
                 editorPet.setMappedId(level.getLevelId());
                 editor.setState(EditorState.PET_EDITOR_LEVEL_EDIT);
@@ -199,7 +199,7 @@ public class EditorGlobalListener implements Listener {
                 PetConfig config = PetConfig.getConfig(pet.getId());
                 config.registerCleanPetSkin();
                 List<PetSkin> skins = PetSkin.getSkins(pet);
-                PetSkin skin = skins.get(skins.size()-1);
+                PetSkin skin = skins.getLast();
 
                 editorPet.setMappedId(skin.getPathId());
                 editor.setState(EditorState.PET_EDITOR_SKIN_EDIT);

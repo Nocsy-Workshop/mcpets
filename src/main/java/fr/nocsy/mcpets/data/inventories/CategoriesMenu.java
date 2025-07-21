@@ -4,7 +4,6 @@ import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,10 +15,10 @@ public class CategoriesMenu {
 
     public static void open(Player p) {
         int invSize = Category.getCategories().size();
-        while(invSize == 0 || invSize%9 != 0)
+        while (invSize == 0 || invSize % 9 != 0)
             invSize++;
 
-        Inventory inventory = Bukkit.createInventory(null, invSize, title);
+        Inventory inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.CATEGORIES_MENU).getInventory();
 
         Category.getCategories()
                 .forEach(category -> {
@@ -34,10 +33,9 @@ public class CategoriesMenu {
     }
 
     public static Category findCategory(ItemStack icon) {
-        if (icon == null)
-            return null;
+        if (icon == null) return null;
 
-        if (    icon.hasItemMeta() &&
+        if (icon.hasItemMeta() &&
                 icon.getItemMeta().hasItemName() &&
                 icon.getItemMeta().getItemName().contains("MCPetsCategory")) {
 

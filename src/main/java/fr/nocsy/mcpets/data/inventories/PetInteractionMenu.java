@@ -5,7 +5,6 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -26,7 +25,7 @@ public class PetInteractionMenu {
             return;
         }
         pet.setOwner(owner);
-        inventory = Bukkit.createInventory(null, 9, title);
+        inventory = new PetInventoryHolder(9, title, PetInventoryHolder.Type.PET_INTERACTION_MENU).getInventory();
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.PETMENU.getItem());

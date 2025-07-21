@@ -7,7 +7,6 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -36,7 +35,7 @@ public class PetMenu {
 
         // Count the amount of pets that are being selected at that page
         // One page is up to 53 pets, so the page P has already seen 53 * P pets
-        // 53 pets because we gotta leave one spot available for the pager everytime
+        // 53 pets because we have to leave one spot available for the pager everytime
         ArrayList<Pet> selectedPets = new ArrayList<>();
         // Let's see if we need to add a pager to the inventory
         // Either we have more than 53 pets or we are at a page greater than 0
@@ -68,7 +67,7 @@ public class PetMenu {
         }
 
         // Let's fill tbe view with the selected pets
-        inventory = Bukkit.createInventory(null, invSize, title);
+        inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.PET_MENU).getInventory();
         for (Pet pet : selectedPets) {
             inventory.addItem(pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }
@@ -80,7 +79,7 @@ public class PetMenu {
     }
 
     public void open(Player p) {
-        if (p.getUniqueId().equals(owner) && Category.getCategories().size() > 0) {
+        if (p.getUniqueId().equals(owner) && !Category.getCategories().isEmpty()) {
             CategoriesMenu.open(p);
             return;
         }

@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.data;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,12 +14,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class PetSkin {
 
-    private static HashMap<String, ArrayList<PetSkin>> petSkins = new HashMap<>();
+    private static final HashMap<String, ArrayList<PetSkin>> petSkins = new HashMap<>();
 
     @Getter
     private String uuid;
@@ -52,7 +56,7 @@ public class PetSkin {
         petSkin.setIcon(icon);
 
         ArrayList<PetSkin> listSkins = petSkins.get(objectPet.getId());
-        if(listSkins == null)
+        if (listSkins == null)
             listSkins = new ArrayList<>();
 
         listSkins.add(petSkin);
@@ -63,8 +67,7 @@ public class PetSkin {
      * Fetch the PetSkin from the icon
      */
     public static PetSkin fromIcon(ItemStack it) {
-        if (it.hasItemMeta() &&
-            it.getItemMeta().hasItemName()) {
+        if (it.hasItemMeta() && it.getItemMeta().hasItemName()) {
             String[] code = it.getItemMeta().getItemName().split(";");
             if (code.length > 0 && code[0].equals("MCPetsSkins")) {
                 String petId = code[1];
@@ -99,13 +102,16 @@ public class PetSkin {
         if (skins == null || skins.isEmpty())
             return false;
 
-        skins = skins.stream().filter(petSkin -> p.hasPermission(petSkin.getPermission())).collect(Collectors.toList());
+        skins = skins.stream().filter(petSkin -> p.hasPermission(petSkin.getPermission())).toList();
 
         int invSize = Math.min(skins.size(), 54);
-        while (invSize <= 0 || invSize%9 != 0)
+        while (invSize <= 0 || invSize % 9 != 0)
             invSize++;
 
-        Inventory inventory = Bukkit.createInventory(null, invSize, Language.PET_SKINS_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName())));
+        Inventory inventory = new PetInventoryHolder(invSize,
+                Language.PET_SKINS_TITLE.getMessageFormatted(
+                        new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName())),
+                PetInventoryHolder.Type.PET_SKINS_MENU).getInventory();
 
         for (PetSkin petSkin : skins) {
             inventory.addItem(petSkin.getIcon());
@@ -144,8 +150,8 @@ public class PetSkin {
      */
     public static boolean hasMetadata(Player p) {
         return !p.getMetadata("MCPetsSkins").isEmpty() &&
-                p.getMetadata("MCPetsSkins").get(0) != null &&
-                p.getMetadata("MCPetsSkins").get(0).value() != null;
+                p.getMetadata("MCPetsSkins").getFirst() != null &&
+                p.getMetadata("MCPetsSkins").getFirst().value() != null;
     }
 
     /**
@@ -157,6 +163,7 @@ public class PetSkin {
             prepareIcon();
         }
     }
+
     /**
      * Initialize the icon
      */
