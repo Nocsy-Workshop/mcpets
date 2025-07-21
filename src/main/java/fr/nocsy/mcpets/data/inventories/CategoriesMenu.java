@@ -18,7 +18,7 @@ public class CategoriesMenu {
         while(invSize == 0 || invSize%9 != 0)
             invSize++;
 
-        Inventory inventory = new PetInventoryHolder(invSize, title).getInventory();
+        Inventory inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.CATEGORIES_MENU).getInventory();
 
         Category.getCategories()
                 .forEach(category -> {

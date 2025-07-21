@@ -25,7 +25,7 @@ public class PetInteractionMenu {
             return;
         }
         pet.setOwner(owner);
-        inventory = new PetInventoryHolder(9, title).getInventory();
+        inventory = new PetInventoryHolder(9, title, PetInventoryHolder.Type.PET_INTERACTION_MENU).getInventory();
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.PETMENU.getItem());

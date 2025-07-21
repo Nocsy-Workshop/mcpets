@@ -43,7 +43,7 @@ public class PetInventory {
 
         String title = Language.PET_INVENTORY_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName()));
 
-        this.inventory = new PetInventoryHolder(pet.getInventorySize(), title).getInventory();
+        this.inventory = new PetInventoryHolder(pet.getInventorySize(), title, PetInventoryHolder.Type.PET_INVENTORY_MENU).getInventory();
         if (premadeInventory != null) {
             if (premadeInventory.getContents().length <= inventory.getContents().length)
                 inventory.setContents(premadeInventory.getContents());
