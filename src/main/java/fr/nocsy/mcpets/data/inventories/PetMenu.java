@@ -67,7 +67,7 @@ public class PetMenu {
         }
 
         // Let's fill tbe view with the selected pets
-        inventory = new PetInventoryHolder(invSize, title).getInventory();
+        inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.PET_MENU).getInventory();
         for (Pet pet : selectedPets) {
             inventory.addItem(pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }

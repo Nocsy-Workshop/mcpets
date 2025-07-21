@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.listeners;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
+import fr.nocsy.mcpets.data.inventories.PetInventoryType;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,7 +16,9 @@ public class PetMenuListener implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent e) {
-        if (e.getInventory().getHolder() instanceof PetInventoryHolder && Category.getCategories().isEmpty()) {
+        if (e.getInventory().getHolder() instanceof PetInventoryHolder holder
+                && holder.getType() == PetInventoryHolder.Type.PET_MENU
+                && Category.getCategories().isEmpty()) {
             e.setCancelled(true);
             Player p = (Player) e.getWhoClicked();
             ItemStack it = e.getCurrentItem();
