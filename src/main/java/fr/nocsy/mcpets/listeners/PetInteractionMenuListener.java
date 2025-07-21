@@ -9,7 +9,6 @@ import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
@@ -44,8 +43,7 @@ public class PetInteractionMenuListener implements Listener {
     public static void mount(Player p, Pet pet) {
         if (p.isInsideVehicle()) {
             Language.ALREADY_INSIDE_VEHICULE.sendMessage(p);
-        }
-        else if (!pet.setMount(p)) {
+        } else if (!pet.setMount(p)) {
             Language.NOT_MOUNTABLE.sendMessage(p);
         }
     }
@@ -73,59 +71,58 @@ public class PetInteractionMenuListener implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent e) {
-        if (e.getInventory().getHolder() instanceof PetInventoryHolder holder
-        && holder.getType() == PetInventoryHolder.Type.PET_INTERACTION_MENU) {
-            e.setCancelled(true);
+        if (!(e.getInventory().getHolder() instanceof PetInventoryHolder holder)) return;
 
-            Player p = (Player) e.getWhoClicked();
+        if (holder.getType() != PetInventoryHolder.Type.PET_MENU) return;
 
-            if (e.getClickedInventory() == null && GlobalConfig.getInstance().isActivateBackMenuIcon()) {
+        if (!(e.getWhoClicked() instanceof Player p)) return;
+
+        e.setCancelled(true);
+
+        if (e.getClickedInventory() == null && GlobalConfig.getInstance().isActivateBackMenuIcon()) {
+            openBackPetMenu(p);
+            return;
+        }
+
+        Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
+        if (pet == null || !pet.isStillHere()) {
+            p.closeInventory();
+            Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
+            return;
+        }
+
+        if (e.getSlot() == 4) {
+            revoke(p, pet);
+            p.closeInventory();
+            return;
+        }
+
+        ItemStack it = e.getCurrentItem();
+        if (it == null || it.getType().isAir() ||!it.hasItemMeta()) return;
+
+        if (it.getItemMeta().hasDisplayName() && it.getItemMeta().hasItemName()) {
+
+            String localizedName = it.getItemMeta().getItemName();
+            if (localizedName.contains("AlmPetPage;"))
+                return;
+
+            if (localizedName.equals(Items.PETMENU.getLocalizedName())) {
                 openBackPetMenu(p);
                 return;
             }
 
-            Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
-            if (pet == null || !pet.isStillHere()) {
-                p.closeInventory();
-                Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
-                return;
+            if (localizedName.equals(Items.MOUNT.getLocalizedName())) {
+                mount(p, pet);
+            } else if (localizedName.equals(Items.RENAME.getLocalizedName())) {
+                changeName(p);
+            } else if (localizedName.equals(Items.INVENTORY.getLocalizedName())) {
+                inventory(p, pet);
+            } else if (pet.getSignalStick() != null && it.isSimilar(pet.getSignalStick())) {
+                pet.giveStickSignals(p);
+            } else if (localizedName.equals(Items.SKINS.getLocalizedName())) {
+                skins(p, pet);
             }
-
-            if (e.getSlot() == 4) {
-                revoke(p, pet);
-                p.closeInventory();
-                return;
-            }
-
-            ItemStack it = e.getCurrentItem();
-            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName() && it.getItemMeta().hasItemName()) {
-
-                String localizedName = it.getItemMeta().getItemName();
-                if (localizedName.contains("AlmPetPage;"))
-                    return;
-
-                if (localizedName.equals(Items.PETMENU.getLocalizedName())) {
-                    openBackPetMenu(p);
-                    return;
-                }
-
-                if (localizedName.equals(Items.MOUNT.getLocalizedName())) {
-                    mount(p, pet);
-                }
-                else if (localizedName.equals(Items.RENAME.getLocalizedName())) {
-                    changeName(p);
-                }
-                else if (localizedName.equals(Items.INVENTORY.getLocalizedName())) {
-                    inventory(p, pet);
-                }
-                else if (pet.getSignalStick() != null && it.isSimilar(pet.getSignalStick())) {
-                    pet.giveStickSignals(p);
-                }
-                else if (localizedName.equals(Items.SKINS.getLocalizedName())) {
-                    skins(p, pet);
-                }
-                p.closeInventory();
-            }
+            p.closeInventory();
         }
     }
 
@@ -160,8 +157,7 @@ public class PetInteractionMenuListener implements Listener {
                 pet.setDisplayName(name, true);
 
                 Language.NICKNAME_CHANGED_SUCCESSFULY.sendMessage(p);
-            }
-            else {
+            } else {
                 Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
             }
         }

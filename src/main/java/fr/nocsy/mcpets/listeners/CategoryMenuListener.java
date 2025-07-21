@@ -17,42 +17,43 @@ public class CategoryMenuListener implements Listener {
     @EventHandler
     public void click(InventoryClickEvent e) {
 
-        if (Category.getCategories().isEmpty())
-            return;
+        if (Category.getCategories().isEmpty()) return;
 
-        Player p = (Player) e.getWhoClicked();
+        if (!(e.getWhoClicked() instanceof Player p)) return;
+
         Category category = Category.getCategoryView(p);
 
-        if (category != null && e.getInventory().getHolder() instanceof PetInventoryHolder holder
-                && holder.getType() == PetInventoryHolder.Type.CATEGORIES_MENU) {
-            e.setCancelled(true);
+        if (category == null) return;
 
-            if (e.getClickedInventory() == null && GlobalConfig.getInstance().isEnableClickBackToMenu()) {
-                CategoriesMenu.open(p);
-                return;
+        if (!(e.getInventory().getHolder() instanceof PetInventoryHolder holder)) return;
+
+        if (holder.getType() != PetInventoryHolder.Type.CATEGORIES_MENU) return;
+
+        e.setCancelled(true);
+
+        if (e.getClickedInventory() == null && GlobalConfig.getInstance().isEnableClickBackToMenu()) {
+            CategoriesMenu.open(p);
+            return;
+        }
+
+        ItemStack it = e.getCurrentItem();
+        if (it == null || it.getType().isAir() || !it.hasItemMeta()) return;
+        if (it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("MCPetsPage;")) {
+            int currentPage = category.getCurrentPage(e.getClickedInventory());
+            if (e.getClick() == ClickType.LEFT) {
+                category.openInventory(p, currentPage - 1);
+            } else {
+                category.openInventory(p, currentPage + 1);
             }
+            return;
+        }
 
-            ItemStack it = e.getCurrentItem();
-            if (it != null) {
-                if (it.hasItemMeta() && it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("MCPetsPage;")) {
-                    int currentPage = category.getCurrentPage(e.getClickedInventory());
-                    if (e.getClick() == ClickType.LEFT) {
-                        category.openInventory(p, currentPage - 1);
-                    }
-                    else {
-                        category.openInventory(p, currentPage + 1);
-                    }
-                    return;
-                }
-
-                Pet petObject = Pet.getFromIcon(it);
-                if (petObject != null) {
-                    p.closeInventory();
-                    Pet pet = petObject.copy();
-                    pet.spawnWithMessage(p);
-                    Category.unregisterPlayerView(p);
-                }
-            }
+        Pet petObject = Pet.getFromIcon(it);
+        if (petObject != null) {
+            p.closeInventory();
+            Pet pet = petObject.copy();
+            pet.spawnWithMessage(p);
+            Category.unregisterPlayerView(p);
         }
     }
 }
