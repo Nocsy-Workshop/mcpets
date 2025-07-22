@@ -7,6 +7,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 public class PetLevelUpEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
@@ -15,10 +17,16 @@ public class PetLevelUpEvent extends Event {
     private final Pet pet;
     @Getter
     private final PetLevel petLevel;
+    @Getter
+    private final PetLevel oldLevel;
+    @Getter
+    private final UUID owner;
 
-    public PetLevelUpEvent(Pet pet, PetLevel petLevel) {
+    public PetLevelUpEvent(Pet pet, PetLevel petLevel, PetLevel oldLevel, UUID owner) {
         this.pet = pet;
         this.petLevel = petLevel;
+        this.oldLevel = oldLevel;
+        this.owner = owner;
     }
 
     public static HandlerList getHandlerList() {

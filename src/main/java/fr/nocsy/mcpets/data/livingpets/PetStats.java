@@ -298,10 +298,10 @@ public class PetStats {
             Debugger.send("§aPet §7" + pet.getId() + "§a is leveling up to §6" + nextLevel.getLevelName());
             // note that's there's been a levelup
             levelUp = true;
+            // Play the level up skills, animations, etc...
+            nextLevel.levelUp(pet.getOwner(), currentLevel);
             // Set the current level to the next one
             currentLevel = nextLevel;
-            // Play the level up skills, animations, etc...
-            currentLevel.levelUp(pet.getOwner());
             // Move on the loop
             nextLevel = getNextLevel();
         }
