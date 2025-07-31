@@ -40,7 +40,7 @@ public class DropPetInventoryMechanic implements ITargetedEntitySkill {
                     }
                 });
 
-                petInventory.setInventory(new PetInventoryHolder(inv.getSize()).getInventory());
+                petInventory.setInventory(new PetInventoryHolder(inv.getSize(), PetInventoryHolder.Type.PET_INVENTORY_MENU).getInventory());
             }
         }
         catch (Exception ex) {

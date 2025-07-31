@@ -91,7 +91,7 @@ public class Category {
                 invSize++;
         }
 
-        Inventory inventory = new PetInventoryHolder(invSize, displayName).getInventory();
+        Inventory inventory = new PetInventoryHolder(invSize, displayName, PetInventoryHolder.Type.CATEGORIES_MENU).getInventory();
 
         if (maxPages > 1)
             inventory.setItem(invSize-1, Items.page(this, page));
