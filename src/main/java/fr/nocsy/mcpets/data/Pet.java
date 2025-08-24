@@ -808,6 +808,13 @@ public class Pet {
                     return;
                 }
 
+                if (!p.hasPermission(getInstance().getPermission())) {
+                    Debugger.send("§6[AiManager] : §cPet " + getId() + " despawned because the owner doesn't have permission");
+                    getInstance().despawn(PetDespawnReason.DONT_HAVE_PERM);
+                    stopAI();
+                    return;
+                }
+
                 final Location petLocation = p.getLocation();
                 Location ownerLoc = petLocation;
                 Location petLoc = getInstance().getActiveMob().getEntity().getBukkitEntity().getLocation();
