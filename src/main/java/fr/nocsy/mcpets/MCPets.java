@@ -74,6 +74,7 @@ public class MCPets extends JavaPlugin {
         checkPlaceholderApi();
         checkCraftEngine();
         checkItemsAdder();
+        checkNexo();
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport()) {
@@ -135,9 +136,7 @@ public class MCPets extends JavaPlugin {
         }
     }
 
-    public static boolean checkNexo() {
-        if (nexoFound) return true;
-
+    public static void checkNexo() {
         try {
             Class.forName("com.nexomc.nexo.api.NexoItems");
             Bukkit.getLogger().info("[MCPets] : Nexo found. Nexo Custom items features are available.");
@@ -146,8 +145,6 @@ public class MCPets extends JavaPlugin {
             nexoFound = false;
             Bukkit.getLogger().warning("[MCPets] : Nexo could not be found. Nexo Custom items features won't be available.");
         }
-
-        return nexoFound;
     }
 
     private static void checkItemsAdder() {
@@ -254,5 +251,12 @@ public class MCPets extends JavaPlugin {
      */
     public static boolean isCraftEngineLoaded() {
         return craftEngineFound;
+    }
+
+    /**
+     * Check Nexo is loaded or not
+     */
+    public static boolean isNexoLoaded() {
+        return nexoFound;
     }
 }

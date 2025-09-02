@@ -12,8 +12,13 @@ import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import lombok.Getter;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import net.momirealms.craftengine.bukkit.plugin.BukkitCraftEngine;
 import net.momirealms.craftengine.core.item.CustomItem;
+import net.momirealms.craftengine.core.item.Item;
+import net.momirealms.craftengine.core.item.ItemBuildContext;
 import net.momirealms.craftengine.core.item.modifier.CustomModelDataModifier;
+import net.momirealms.craftengine.core.item.modifier.ItemDataModifier;
+import net.momirealms.craftengine.core.item.modifier.ItemModelModifier;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -259,28 +264,33 @@ public class PetConfig extends AbstractConfig {
                 CustomItem<ItemStack> craftEngineItem = CraftEngineItems.byId(Key.of(craftEngine));
                 if (craftEngineItem != null) {
                     ItemStack ceItem = craftEngineItem.buildItemStack();
-                    String materialType = craftEngineItem.material().value();
-                    int customModelData = Arrays.stream(craftEngineItem.dataModifiers())
-                            .filter(CustomModelDataModifier.class::isInstance)
-                            .map(CustomModelDataModifier.class::cast)
-                            .findFirst()
-                            .map(CustomModelDataModifier::customModelData)
-                            .orElse(0);
                     itemStack = pet.buildItem(
                             ceItem,
                             showStats,
                             localName,
                             name,
                             description,
-                            materialType,
-                            customModelData,
+                            ceItem.getType().toString(),
+                            Optional.ofNullable(ceItem.getItemMeta())
+                                    .filter(ItemMeta::hasCustomModelData)
+                                    .map(ItemMeta::getCustomModelData)
+                                    .orElse(0),
                             textureBase
                     );
+                    Item<ItemStack> stackItem = BukkitCraftEngine.instance().itemManager().wrap(itemStack);
+                    // fix item_model not apply
+                    for (ItemDataModifier<ItemStack> dataModifier : craftEngineItem.dataModifiers()) {
+                        if (dataModifier instanceof ItemModelModifier) {
+                            stackItem = dataModifier.apply(stackItem, ItemBuildContext.EMPTY);
+                            break;
+                        }
+                    }
+                    return stackItem.getItem();
                 }
             }
 
             // Nexo integration
-            if (MCPets.checkNexo()) {
+            if (MCPets.isNexoLoaded()) {
                 String itemId = getConfig().getString(path + ".NexoId");
                 if (itemId != null && !itemId.isEmpty()) {
                     ItemBuilder builder = NexoItems.itemFromId(itemId);

@@ -157,7 +157,7 @@ public class PetFood {
                             .orElseGet(() -> Items.UNKNOWN.getItem().clone());
                 }
 
-                if (itemStack == null && MCPets.checkNexo()) {
+                if (itemStack == null && MCPets.isNexoLoaded()) {
                     ItemBuilder builder = NexoItems.itemFromId(itemId);
                     if (builder != null) {
                         itemStack = builder.build(); // Output the Nexo Item.
@@ -384,7 +384,7 @@ public class PetFood {
                 }
             }
 
-            if (MCPets.checkNexo()) {
+            if (MCPets.isNexoLoaded()) {
                 ItemBuilder handBuilder = NexoItems.builderFromItem(handItem);
                 ItemBuilder foodBuilder = NexoItems.builderFromItem(petFoods.getItemStack());
 
