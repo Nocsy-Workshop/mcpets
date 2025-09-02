@@ -17,6 +17,7 @@ import net.momirealms.craftengine.core.item.CustomItem;
 import net.momirealms.craftengine.core.item.Item;
 import net.momirealms.craftengine.core.item.ItemBuildContext;
 import net.momirealms.craftengine.core.item.modifier.CustomModelDataModifier;
+import net.momirealms.craftengine.core.item.modifier.IdModifier;
 import net.momirealms.craftengine.core.item.modifier.ItemDataModifier;
 import net.momirealms.craftengine.core.item.modifier.ItemModelModifier;
 import net.momirealms.craftengine.core.util.Key;
@@ -266,12 +267,16 @@ public class PetConfig extends AbstractConfig {
                     ItemStack ceItem = craftEngineItem.buildItemStack();
                     int customModelData = 0;
                     ItemModelModifier<ItemStack> itemModelModifier = null;
+                    IdModifier<ItemStack> idModifier = null;
                     for (ItemDataModifier<ItemStack> dataModifier : craftEngineItem.dataModifiers()) {
                         if (dataModifier instanceof ItemModelModifier) {
                             itemModelModifier = (ItemModelModifier<ItemStack>) dataModifier;
                         }
                         if (dataModifier instanceof CustomModelDataModifier) {
                             customModelData = ((CustomModelDataModifier<ItemStack>) dataModifier).customModelData();
+                        }
+                        if (dataModifier instanceof IdModifier) {
+                            idModifier = (IdModifier<ItemStack>) dataModifier;
                         }
                     }
                     itemStack = pet.buildItem(
@@ -284,12 +289,16 @@ public class PetConfig extends AbstractConfig {
                             customModelData,
                             textureBase
                     );
+                    Item<ItemStack> itemStackItem = BukkitItemManager.instance().wrap(itemStack);
                     // fix item_model not apply
                     if (itemModelModifier != null) {
-                        Item<ItemStack> itemStackItem = BukkitItemManager.instance().wrap(itemStack);
-                        itemStack = itemModelModifier.apply(itemStackItem, ItemBuildContext.EMPTY).getItem();
+                        itemStackItem = itemModelModifier.apply(itemStackItem, ItemBuildContext.EMPTY);
                     }
-                    return itemStack;
+                    // fix craftengine item id not apply
+                    if (idModifier != null) {
+                        itemStackItem = idModifier.apply(itemStackItem, ItemBuildContext.EMPTY);
+                    }
+                    return itemStackItem.getItem();
                 }
             }
 
