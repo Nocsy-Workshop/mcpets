@@ -12,7 +12,7 @@ import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import lombok.Getter;
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
-import net.momirealms.craftengine.bukkit.plugin.BukkitCraftEngine;
+import net.momirealms.craftengine.bukkit.item.BukkitItemManager;
 import net.momirealms.craftengine.core.item.CustomItem;
 import net.momirealms.craftengine.core.item.Item;
 import net.momirealms.craftengine.core.item.ItemBuildContext;
@@ -264,6 +264,16 @@ public class PetConfig extends AbstractConfig {
                 CustomItem<ItemStack> craftEngineItem = CraftEngineItems.byId(Key.of(craftEngine));
                 if (craftEngineItem != null) {
                     ItemStack ceItem = craftEngineItem.buildItemStack();
+                    int customModelData = 0;
+                    ItemModelModifier<ItemStack> itemModelModifier = null;
+                    for (ItemDataModifier<ItemStack> dataModifier : craftEngineItem.dataModifiers()) {
+                        if (dataModifier instanceof ItemModelModifier) {
+                            itemModelModifier = (ItemModelModifier<ItemStack>) dataModifier;
+                        }
+                        if (dataModifier instanceof CustomModelDataModifier) {
+                            customModelData = ((CustomModelDataModifier<ItemStack>) dataModifier).customModelData();
+                        }
+                    }
                     itemStack = pet.buildItem(
                             ceItem,
                             showStats,
@@ -271,21 +281,15 @@ public class PetConfig extends AbstractConfig {
                             name,
                             description,
                             ceItem.getType().toString(),
-                            Optional.ofNullable(ceItem.getItemMeta())
-                                    .filter(ItemMeta::hasCustomModelData)
-                                    .map(ItemMeta::getCustomModelData)
-                                    .orElse(0),
+                            customModelData,
                             textureBase
                     );
-                    Item<ItemStack> stackItem = BukkitCraftEngine.instance().itemManager().wrap(itemStack);
                     // fix item_model not apply
-                    for (ItemDataModifier<ItemStack> dataModifier : craftEngineItem.dataModifiers()) {
-                        if (dataModifier instanceof ItemModelModifier) {
-                            stackItem = dataModifier.apply(stackItem, ItemBuildContext.EMPTY);
-                            break;
-                        }
+                    if (itemModelModifier != null) {
+                        Item<ItemStack> itemStackItem = BukkitItemManager.instance().wrap(itemStack);
+                        itemStack = itemModelModifier.apply(itemStackItem, ItemBuildContext.EMPTY).getItem();
                     }
-                    return stackItem.getItem();
+                    return itemStack;
                 }
             }
 
