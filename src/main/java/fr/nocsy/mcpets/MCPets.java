@@ -29,6 +29,7 @@ public class MCPets extends JavaPlugin {
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
     private static boolean itemsAdderFound = false;
+    private static boolean craftEngineFound = false;
     private static boolean luckPermsNotFound = false;
     private static boolean nexoFound = false;
 
@@ -71,6 +72,7 @@ public class MCPets extends JavaPlugin {
         checkWorldGuard();
         checkLuckPerms();
         checkPlaceholderApi();
+        checkCraftEngine();
         checkItemsAdder();
 
         try {
@@ -159,6 +161,17 @@ public class MCPets extends JavaPlugin {
         }
     }
 
+    private static void checkCraftEngine() {
+        try {
+            Class.forName("net.momirealms.craftengine.bukkit.api.CraftEngineItems");
+            Bukkit.getLogger().info("[MCPets] : CraftEngine found. CraftEngine Custom items features are available.");
+            craftEngineFound = true;
+        } catch (ClassNotFoundException e) {
+            craftEngineFound = false;
+            Bukkit.getLogger().warning("[MCPets] : CraftEngine could not be found. CraftEngine Custom items features won't be available.");
+        }
+    }
+
     /**
      * Check and initialize WorldGuard instance
      */
@@ -234,5 +247,12 @@ public class MCPets extends JavaPlugin {
      */
     public static boolean isItemsAdderLoaded() {
         return itemsAdderFound;
+    }
+
+    /**
+     * Check CraftEngine is loaded or not
+     */
+    public static boolean isCraftEngineLoaded() {
+        return craftEngineFound;
     }
 }

@@ -11,6 +11,10 @@ import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import lombok.Getter;
+import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import net.momirealms.craftengine.core.item.CustomItem;
+import net.momirealms.craftengine.core.item.modifier.CustomModelDataModifier;
+import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -224,6 +228,7 @@ public class PetConfig extends AbstractConfig {
             }
             String mat = getConfig().getString(path + ".Material");
             String itemsAdder = getConfig().getString(path + ".ItemsAdder", "");
+            String craftEngine = getConfig().getString(path + ".CraftEngine", "");
             int data = getConfig().getInt(path + ".CustomModelData");
             String textureBase = getConfig().getString(path + ".TextureBase64");
             List<String> description = getConfig().getStringList(path + ".Description");
@@ -244,6 +249,31 @@ public class PetConfig extends AbstractConfig {
                             description,
                             iaItem.getType().toString(),
                             iaItem.getItemMeta().getCustomModelData(),
+                            textureBase
+                    );
+                }
+            }
+
+            // CraftEngine compat
+            if (MCPets.isCraftEngineLoaded() && !craftEngine.isEmpty()) {
+                CustomItem<ItemStack> craftEngineItem = CraftEngineItems.byId(Key.of(craftEngine));
+                if (craftEngineItem != null) {
+                    ItemStack ceItem = craftEngineItem.buildItemStack();
+                    String materialType = craftEngineItem.material().value();
+                    int customModelData = Arrays.stream(craftEngineItem.dataModifiers())
+                            .filter(CustomModelDataModifier.class::isInstance)
+                            .map(CustomModelDataModifier.class::cast)
+                            .findFirst()
+                            .map(CustomModelDataModifier::customModelData)
+                            .orElse(0);
+                    itemStack = pet.buildItem(
+                            ceItem,
+                            showStats,
+                            localName,
+                            name,
+                            description,
+                            materialType,
+                            customModelData,
                             textureBase
                     );
                 }
