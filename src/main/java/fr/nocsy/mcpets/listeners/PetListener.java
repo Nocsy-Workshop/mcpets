@@ -125,7 +125,9 @@ public class PetListener implements Listener {
         Pet pet = Pet.getActivePets().get(p.getUniqueId());
         if (pet != null) {
             pet.despawn(PetDespawnReason.DISCONNECTION);
-            reconnectionPets.put(p.getUniqueId(), pet.getId());
+            if (p.hasPermission(pet.getPermission())) {
+                reconnectionPets.put(p.getUniqueId(), pet.getId());
+            }
         }
     }
 
@@ -145,6 +147,12 @@ public class PetListener implements Listener {
                 Pet pet = Pet.getFromId(reconnectionPets.get(p.getUniqueId()));
                 if (pet == null)
                     return;
+
+                if (!p.hasPermission(pet.getPermission())) {
+                    reconnectionPets.remove(p.getUniqueId());
+                    return;
+                }
+
                 pet = pet.copy();
                 pet.setCheckPermission(false);
                 pet.setOwner(p.getUniqueId());
@@ -192,10 +200,10 @@ public class PetListener implements Listener {
                     return;
                 }
             }
-            
+
             if (GlobalConfig.getInstance().isDismountOnDamagedExcludePlayers())
                 return;
-                
+
             Player p = (Player) e.getEntity();
             Pet pet = Pet.fromOwner(p.getUniqueId());
             if (pet != null && pet.hasMount(p)) {
