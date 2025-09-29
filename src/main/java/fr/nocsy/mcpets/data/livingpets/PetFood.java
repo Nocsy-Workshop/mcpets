@@ -378,7 +378,7 @@ public class PetFood {
 
                 if (handCustomItem == null || foodCustomItem == null) continue;
 
-                if (handCustomItem.id().equals(handCustomItem.id())) {
+                if (handCustomItem.id().equals(foodCustomItem.id())) {
                     resultFood = petFoods;
                     break;
                 }
