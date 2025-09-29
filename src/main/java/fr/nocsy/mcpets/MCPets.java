@@ -29,6 +29,7 @@ public class MCPets extends JavaPlugin {
     private static MythicBukkit mythicMobs;
     private static LuckPerms luckPerms;
     private static boolean itemsAdderFound = false;
+    private static boolean craftEngineFound = false;
     private static boolean luckPermsNotFound = false;
     private static boolean nexoFound = false;
 
@@ -71,7 +72,9 @@ public class MCPets extends JavaPlugin {
         checkWorldGuard();
         checkLuckPerms();
         checkPlaceholderApi();
+        checkCraftEngine();
         checkItemsAdder();
+        checkNexo();
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport()) {
@@ -133,9 +136,7 @@ public class MCPets extends JavaPlugin {
         }
     }
 
-    public static boolean checkNexo() {
-        if (nexoFound) return true;
-
+    public static void checkNexo() {
         try {
             Class.forName("com.nexomc.nexo.api.NexoItems");
             Bukkit.getLogger().info("[MCPets] : Nexo found. Nexo Custom items features are available.");
@@ -144,8 +145,6 @@ public class MCPets extends JavaPlugin {
             nexoFound = false;
             Bukkit.getLogger().warning("[MCPets] : Nexo could not be found. Nexo Custom items features won't be available.");
         }
-
-        return nexoFound;
     }
 
     private static void checkItemsAdder() {
@@ -156,6 +155,17 @@ public class MCPets extends JavaPlugin {
         } catch (ClassNotFoundException e) {
             itemsAdderFound = false;
             Bukkit.getLogger().warning("[MCPets] : ItemsAdder could not be found. IA Custom items features won't be available.");
+        }
+    }
+
+    private static void checkCraftEngine() {
+        try {
+            Class.forName("net.momirealms.craftengine.bukkit.api.CraftEngineItems");
+            Bukkit.getLogger().info("[MCPets] : CraftEngine found. CraftEngine Custom items features are available.");
+            craftEngineFound = true;
+        } catch (ClassNotFoundException e) {
+            craftEngineFound = false;
+            Bukkit.getLogger().warning("[MCPets] : CraftEngine could not be found. CraftEngine Custom items features won't be available.");
         }
     }
 
@@ -234,5 +244,19 @@ public class MCPets extends JavaPlugin {
      */
     public static boolean isItemsAdderLoaded() {
         return itemsAdderFound;
+    }
+
+    /**
+     * Check CraftEngine is loaded or not
+     */
+    public static boolean isCraftEngineLoaded() {
+        return craftEngineFound;
+    }
+
+    /**
+     * Check Nexo is loaded or not
+     */
+    public static boolean isNexoLoaded() {
+        return nexoFound;
     }
 }

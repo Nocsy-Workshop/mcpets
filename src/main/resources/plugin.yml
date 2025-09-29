@@ -13,6 +13,7 @@ depend:
   - MythicMobs
   - ModelEngine
 softdepend:
+  - CraftEngine
   - Nexo
   - WorldGuard
   - LuckPerms

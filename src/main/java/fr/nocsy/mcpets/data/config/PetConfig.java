@@ -11,6 +11,16 @@ import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import lombok.Getter;
+import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import net.momirealms.craftengine.bukkit.item.BukkitItemManager;
+import net.momirealms.craftengine.core.item.CustomItem;
+import net.momirealms.craftengine.core.item.Item;
+import net.momirealms.craftengine.core.item.ItemBuildContext;
+import net.momirealms.craftengine.core.item.modifier.CustomModelDataModifier;
+import net.momirealms.craftengine.core.item.modifier.IdModifier;
+import net.momirealms.craftengine.core.item.modifier.ItemDataModifier;
+import net.momirealms.craftengine.core.item.modifier.ItemModelModifier;
+import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -224,6 +234,7 @@ public class PetConfig extends AbstractConfig {
             }
             String mat = getConfig().getString(path + ".Material");
             String itemsAdder = getConfig().getString(path + ".ItemsAdder", "");
+            String craftEngine = getConfig().getString(path + ".CraftEngine", "");
             int data = getConfig().getInt(path + ".CustomModelData");
             String textureBase = getConfig().getString(path + ".TextureBase64");
             List<String> description = getConfig().getStringList(path + ".Description");
@@ -249,8 +260,50 @@ public class PetConfig extends AbstractConfig {
                 }
             }
 
+            // CraftEngine compat
+            if (MCPets.isCraftEngineLoaded() && !craftEngine.isEmpty()) {
+                CustomItem<ItemStack> craftEngineItem = CraftEngineItems.byId(Key.of(craftEngine));
+                if (craftEngineItem != null) {
+                    ItemStack ceItem = craftEngineItem.buildItemStack();
+                    int customModelData = 0;
+                    ItemModelModifier<ItemStack> itemModelModifier = null;
+                    IdModifier<ItemStack> idModifier = null;
+                    for (ItemDataModifier<ItemStack> dataModifier : craftEngineItem.dataModifiers()) {
+                        if (dataModifier instanceof ItemModelModifier) {
+                            itemModelModifier = (ItemModelModifier<ItemStack>) dataModifier;
+                        }
+                        if (dataModifier instanceof CustomModelDataModifier) {
+                            customModelData = ((CustomModelDataModifier<ItemStack>) dataModifier).customModelData();
+                        }
+                        if (dataModifier instanceof IdModifier) {
+                            idModifier = (IdModifier<ItemStack>) dataModifier;
+                        }
+                    }
+                    itemStack = pet.buildItem(
+                            ceItem,
+                            showStats,
+                            localName,
+                            name,
+                            description,
+                            ceItem.getType().toString(),
+                            customModelData,
+                            textureBase
+                    );
+                    Item<ItemStack> itemStackItem = BukkitItemManager.instance().wrap(itemStack);
+                    // fix item_model not apply
+                    if (itemModelModifier != null) {
+                        itemStackItem = itemModelModifier.apply(itemStackItem, ItemBuildContext.EMPTY);
+                    }
+                    // fix craftengine item id not apply
+                    if (idModifier != null) {
+                        itemStackItem = idModifier.apply(itemStackItem, ItemBuildContext.EMPTY);
+                    }
+                    return itemStackItem.getItem();
+                }
+            }
+
             // Nexo integration
-            if (MCPets.checkNexo()) {
+            if (MCPets.isNexoLoaded()) {
                 String itemId = getConfig().getString(path + ".NexoId");
                 if (itemId != null && !itemId.isEmpty()) {
                     ItemBuilder builder = NexoItems.itemFromId(itemId);

@@ -14,6 +14,9 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
+import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
+import net.momirealms.craftengine.core.item.CustomItem;
+import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -148,7 +151,13 @@ public class PetFood {
                     itemStack = (customStack == null) ? Items.UNKNOWN.getItem().clone() : customStack.getItemStack();
                 }
 
-                if (itemStack == null && MCPets.checkNexo()) {
+                if (itemStack == null && MCPets.isCraftEngineLoaded()) {
+                    itemStack = Optional.ofNullable(CraftEngineItems.byId(Key.of(itemId)))
+                            .map(CustomItem::buildItemStack)
+                            .orElseGet(() -> Items.UNKNOWN.getItem().clone());
+                }
+
+                if (itemStack == null && MCPets.isNexoLoaded()) {
                     ItemBuilder builder = NexoItems.itemFromId(itemId);
                     if (builder != null) {
                         itemStack = builder.build(); // Output the Nexo Item.
@@ -363,7 +372,19 @@ public class PetFood {
                 }
             }
 
-            if (MCPets.checkNexo()) {
+            if (MCPets.isCraftEngineLoaded()) {
+                CustomItem<ItemStack> handCustomItem = CraftEngineItems.byItemStack(handItem);
+                CustomItem<ItemStack> foodCustomItem = CraftEngineItems.byItemStack(petFoods.getItemStack());
+
+                if (handCustomItem == null || foodCustomItem == null) continue;
+
+                if (handCustomItem.id().equals(foodCustomItem.id())) {
+                    resultFood = petFoods;
+                    break;
+                }
+            }
+
+            if (MCPets.isNexoLoaded()) {
                 ItemBuilder handBuilder = NexoItems.builderFromItem(handItem);
                 ItemBuilder foodBuilder = NexoItems.builderFromItem(petFoods.getItemStack());
 

@@ -1,5 +1,7 @@
 package fr.nocsy.mcpets.listeners;
 
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.compat.CraftEngineListener;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.listeners.editor.EditorConversationListener;
 import fr.nocsy.mcpets.listeners.editor.EditorGlobalListener;
@@ -40,5 +42,9 @@ public class EventListener implements Listener {
 
         if(GlobalConfig.getInstance().isWorldguardsupport())
             listeners.add(new PetDamageFlagListener());
+
+        if (MCPets.isCraftEngineLoaded()) {
+            listeners.add(new CraftEngineListener(plugin));
+        }
     }
 }
