@@ -23,6 +23,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -33,14 +34,14 @@ public class PetInteractionMenuListener implements Listener {
     @Getter
     private static final ArrayList<UUID> waitingForAnswer = new ArrayList<>();
 
-    public static void changeName(Player p) {
+    public static void changeName(@NotNull final Player p) {
         if (!waitingForAnswer.contains(p.getUniqueId()))
             waitingForAnswer.add(p.getUniqueId());
         Language.TYPE_NAME_IN_CHAT.sendMessage(p);
         Language.IF_WISH_TO_REMOVE_NAME.sendMessageFormated(p, new FormatArg("%tag%", Language.TAG_TO_REMOVE_NAME.getMessage()));
     }
 
-    public static void mount(Player p, Pet pet) {
+    public static void mount(@NotNull final Player p, final Pet pet) {
         if (p.isInsideVehicle()) {
             Language.ALREADY_INSIDE_VEHICULE.sendMessage(p);
         } else if (!pet.setMount(p)) {
@@ -48,14 +49,14 @@ public class PetInteractionMenuListener implements Listener {
         }
     }
 
-    public static void inventory(Player p, Pet pet) {
-        PetInventory inventory = PetInventory.get(pet);
+    public static void inventory(final Player p, final Pet pet) {
+        final PetInventory inventory = PetInventory.get(pet);
         if (inventory != null) {
             inventory.open(p);
         }
     }
 
-    public static void skins(Player p, Pet pet) {
+    public static void skins(final Player p, final Pet pet) {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -64,18 +65,18 @@ public class PetInteractionMenuListener implements Listener {
         }.runTaskLater(MCPets.getInstance(), 2L);
     }
 
-    public static void revoke(Player p, Pet pet) {
+    public static void revoke(final Player p, @NotNull final Pet pet) {
         pet.despawn(PetDespawnReason.REVOKE);
         Language.REVOKED.sendMessage(p);
     }
 
     @EventHandler
-    public void click(InventoryClickEvent e) {
-        if (!(e.getInventory().getHolder() instanceof PetInventoryHolder holder)) return;
+    public void click(@NotNull final InventoryClickEvent e) {
+        if (!(e.getInventory().getHolder() instanceof final PetInventoryHolder holder)) return;
 
-        if (holder.getType() != PetInventoryHolder.Type.PET_MENU) return;
+        if (holder.getType() != PetInventoryHolder.Type.PET_INTERACTION_MENU) return;
 
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!(e.getWhoClicked() instanceof final Player p)) return;
 
         e.setCancelled(true);
 
@@ -84,7 +85,7 @@ public class PetInteractionMenuListener implements Listener {
             return;
         }
 
-        Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
+        final Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
         if (pet == null || !pet.isStillHere()) {
             p.closeInventory();
             Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
@@ -97,14 +98,13 @@ public class PetInteractionMenuListener implements Listener {
             return;
         }
 
-        ItemStack it = e.getCurrentItem();
+        final ItemStack it = e.getCurrentItem();
         if (it == null || it.getType().isAir() ||!it.hasItemMeta()) return;
 
         if (it.getItemMeta().hasDisplayName() && it.getItemMeta().hasItemName()) {
 
-            String localizedName = it.getItemMeta().getItemName();
-            if (localizedName.contains("AlmPetPage;"))
-                return;
+            final String localizedName = it.getItemMeta().getItemName();
+            if (localizedName.contains("AlmPetPage;")) return;
 
             if (localizedName.equals(Items.PETMENU.getLocalizedName())) {
                 openBackPetMenu(p);
@@ -127,8 +127,8 @@ public class PetInteractionMenuListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void chat(AsyncPlayerChatEvent e) {
-        Player p = e.getPlayer();
+    public void chat(final AsyncPlayerChatEvent e) {
+        final Player p = e.getPlayer();
 
         if (waitingForAnswer.contains(p.getUniqueId())) {
             waitingForAnswer.remove(p.getUniqueId());
@@ -138,13 +138,13 @@ public class PetInteractionMenuListener implements Listener {
             name = name.replace(";;", ";").replace(";;;", ";");
             name = Utils.hex(name);
 
-            String blackListedWord = Utils.isInBlackList(name);
+            final String blackListedWord = Utils.isInBlackList(name);
             if (blackListedWord != null) {
                 Language.BLACKLISTED_WORD.sendMessageFormated(p, new FormatArg("%word%", blackListedWord));
                 return;
             }
 
-            Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
+            final Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
 
             if (pet != null && pet.isStillHere()) {
                 if (!p.hasPermission(PPermission.COLOR.getPermission()))
@@ -163,8 +163,8 @@ public class PetInteractionMenuListener implements Listener {
         }
     }
 
-    private void openBackPetMenu(Player p) {
-        PetMenu menu = new PetMenu(p, 0);
+    private void openBackPetMenu(final Player p) {
+        final PetMenu menu = new PetMenu(p, 0);
         menu.open(p);
     }
 }
