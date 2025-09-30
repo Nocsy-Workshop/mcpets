@@ -9,7 +9,6 @@ import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.sql.PlayerDataNoDatabase;
 import fr.nocsy.mcpets.utils.BukkitSerialization;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -44,7 +43,7 @@ public class PetInventory {
 
         String title = Language.PET_INVENTORY_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName()));
 
-        this.inventory = Bukkit.createInventory(null, pet.getInventorySize(), title);
+        this.inventory = new PetInventoryHolder(pet.getInventorySize(), title, PetInventoryHolder.Type.PET_INVENTORY_MENU).getInventory();
         if (premadeInventory != null) {
             if (premadeInventory.getContents().length <= inventory.getContents().length)
                 inventory.setContents(premadeInventory.getContents());
@@ -179,11 +178,11 @@ public class PetInventory {
      */
     public static PetInventory fromCurrentView(Player p) {
         if (p.hasMetadata("MCPets;petInventory")) {
-            if (p.getMetadata("MCPets;petInventory").size() > 0 &&
-                p.getMetadata("MCPets;petInventory").get(0) != null &&
-                p.getMetadata("MCPets;petInventory").get(0).value() instanceof String)
+            if (!p.getMetadata("MCPets;petInventory").isEmpty() &&
+                p.getMetadata("MCPets;petInventory").getFirst() != null &&
+                p.getMetadata("MCPets;petInventory").getFirst().value() instanceof String)
             {
-                String petId = (String)p.getMetadata("MCPets;petInventory").get(0).value();
+                String petId = (String)p.getMetadata("MCPets;petInventory").getFirst().value();
                 UUID owner = p.getUniqueId();
                 HashMap<String, PetInventory> map = petInventories.get(owner);
                 if (map != null) {

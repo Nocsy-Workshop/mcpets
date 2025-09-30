@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.mythicmobs.mechanics;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
@@ -39,7 +40,7 @@ public class DropPetInventoryMechanic implements ITargetedEntitySkill {
                     }
                 });
 
-                petInventory.setInventory(Bukkit.createInventory(null, inv.getSize()));
+                petInventory.setInventory(new PetInventoryHolder(inv.getSize(), PetInventoryHolder.Type.PET_INVENTORY_MENU).getInventory());
             }
         }
         catch (Exception ex) {

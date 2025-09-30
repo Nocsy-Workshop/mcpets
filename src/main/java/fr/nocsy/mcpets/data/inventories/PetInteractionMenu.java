@@ -5,9 +5,9 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -19,14 +19,14 @@ public class PetInteractionMenu {
     @Getter
     private final Inventory inventory;
 
-    public PetInteractionMenu(Pet pet, UUID owner) {
+    public PetInteractionMenu(@NotNull final Pet pet, final UUID owner) {
         // If the taming is incomplete then there is no pet menu available
         if (pet.getTamingProgress() < 1) {
             inventory = null;
             return;
         }
         pet.setOwner(owner);
-        inventory = Bukkit.createInventory(null, 9, title);
+        inventory = new PetInventoryHolder(9, title, PetInventoryHolder.Type.PET_INTERACTION_MENU).getInventory();
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.PETMENU.getItem());
@@ -43,7 +43,7 @@ public class PetInteractionMenu {
         inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null));
     }
 
-    public void open(Player p) {
+    public void open(final Player p) {
         if (inventory != null)
             p.openInventory(inventory);
     }

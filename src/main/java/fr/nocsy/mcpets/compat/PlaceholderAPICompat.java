@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class PlaceholderAPICompat extends PlaceholderExpansion {
 
     @Override
-    public String onPlaceholderRequest(Player player, String identifier){
+    public String onPlaceholderRequest(Player player, @NotNull String identifier){
         String defaultOutput = "";
         
         if (player == null)
