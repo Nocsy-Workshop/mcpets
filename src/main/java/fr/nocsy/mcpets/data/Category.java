@@ -46,7 +46,7 @@ public class Category {
     @Setter
     private List<String> excludedCategoriesId;
 
-    public Category(String id) {
+    public Category(final String id) {
         this.id = id;
         this.icon = null;
         this.pets = new ArrayList<>();
@@ -54,7 +54,7 @@ public class Category {
         this.iconName = "Unknown";
     }
 
-    public boolean openInventory(Player p, int page) {
+    public boolean openInventory(final Player p, final int page) {
         if (page >= maxPages || page < 0)
             return false;
 
@@ -70,11 +70,11 @@ public class Category {
             invSize++;
         }
 
-        ArrayList<Pet> showedPets = new ArrayList<>();
+        final ArrayList<Pet> showedPets = new ArrayList<>();
         for (int i = page*(invSize-1); i < pets.size(); i++) {
             if (showedPets.size() >= invSize-1)
                 break;
-            Pet pet = pets.get(i);
+            final Pet pet = pets.get(i);
             if (pet.has(p))
                 showedPets.add(pet);
         }
@@ -91,12 +91,12 @@ public class Category {
                 invSize++;
         }
 
-        Inventory inventory = new PetInventoryHolder(invSize, displayName, PetInventoryHolder.Type.CATEGORIES_MENU).getInventory();
+        final Inventory inventory = new PetInventoryHolder(invSize, displayName, PetInventoryHolder.Type.CATEGORY_MENU).getInventory();
 
         if (maxPages > 1)
             inventory.setItem(invSize-1, Items.page(this, page));
         for (int i = 0; i < showedPets.size(); i++) {
-            Pet pet = showedPets.get(i);
+            final Pet pet = showedPets.get(i);
             inventory.setItem(i,  pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }
         p.openInventory(inventory);
@@ -104,7 +104,7 @@ public class Category {
         return true;
     }
 
-    public void addPet(Pet pet) {
+    public void addPet(final Pet pet) {
         if (!pets.contains(pet))
             pets.add(pet);
     }
@@ -128,14 +128,14 @@ public class Category {
         }
     }
 
-    public void setIcon(ItemStack it) {
+    public void setIcon(final ItemStack it) {
         icon = it;
         setupData();
     }
 
 
     private void setupData() {
-        ItemMeta meta = icon.getItemMeta();
+        final ItemMeta meta = icon.getItemMeta();
         meta.setItemName("MCPetsCategory;" + this.getId());
         meta.setDisplayName(iconName);
 
@@ -146,31 +146,31 @@ public class Category {
      * Return the page associated to the said inventory
      * -1 if no category is found
      */
-    public int getCurrentPage(Inventory inventory) {
+    public int getCurrentPage(final Inventory inventory) {
         if (inventory == null)
             return -1;
 
-        ItemStack pager = inventory.getItem(inventory.getSize()-1);
+        final ItemStack pager = inventory.getItem(inventory.getSize()-1);
         if (pager != null
                 && !pager.getType().isAir()
                 && pager.hasItemMeta()
                 && pager.getItemMeta().hasItemName())
         {
-            String[] data = pager.getItemMeta().getItemName().split(";");
+            final String[] data = pager.getItemMeta().getItemName().split(";");
             if (data.length != 3)
                 return -1;
 
-            String tag = data[0];
+            final String tag = data[0];
             if (!tag.equalsIgnoreCase("MCPetsPage"))
                 return -1;
 
-            String page = data[2];
+            final String page = data[2];
             return Integer.parseInt(page);
         }
         return -1;
     }
 
-    public static void add(Category category) {
+    public static void add(final Category category) {
         categories.add(category);
     }
 
@@ -178,8 +178,8 @@ public class Category {
      * Return the category associated to the said id
      * null if none is found
      */
-    public static Category getFromId(String categoryId) {
-        Optional<Category> optional = categories.stream().filter(cat -> cat.getId().equals(categoryId)).findFirst();
+    public static Category getFromId(final String categoryId) {
+        final Optional<Category> optional = categories.stream().filter(cat -> cat.getId().equals(categoryId)).findFirst();
         return optional.orElse(null);
     }
 
@@ -187,21 +187,21 @@ public class Category {
      * Dynamically register the category viewed by the player
      * Recall to unregister the view when the inventory closes
      */
-    public static void registerPlayerView(Player p, Category category) {
+    public static void registerPlayerView(final Player p, final Category category) {
         categoryView.put(p.getUniqueId(), category);
     }
 
     /**
      * Unregister a dynamically saved player view of a category
      */
-    public static void unregisterPlayerView(Player p) {
+    public static void unregisterPlayerView(final Player p) {
         categoryView.remove(p.getUniqueId());
     }
 
     /**
      * Get the category currently viewed by the given player if dynamically registered
      */
-    public static Category getCategoryView(Player p) {
+    public static Category getCategoryView(final Player p) {
         return categoryView.get(p.getUniqueId());
     }
 
@@ -209,25 +209,25 @@ public class Category {
      * Return the category associated to the said inventory
      * null if none is found
      */
-    public static Category getFromInventory(Inventory inventory) {
+    public static Category getFromInventory(final Inventory inventory) {
         if (inventory == null)
             return null;
 
-        ItemStack pager = inventory.getItem(inventory.getSize()-1);
+        final ItemStack pager = inventory.getItem(inventory.getSize()-1);
         if (pager != null
                 && !pager.getType().isAir()
                 && pager.hasItemMeta()
                 && pager.getItemMeta().hasItemName()) {
-            String[] data = pager.getItemMeta().getItemName().split(";");
+            final String[] data = pager.getItemMeta().getItemName().split(";");
             if (data.length != 3)
                 return null;
 
-            String tag = data[0];
+            final String tag = data[0];
             if (!tag.equalsIgnoreCase("MCPetsPage"))
                 return null;
 
-            String categoryId = data[1];
-            String page = data[2];
+            final String categoryId = data[1];
+            final String page = data[2];
 
             return getFromId(categoryId);
         }

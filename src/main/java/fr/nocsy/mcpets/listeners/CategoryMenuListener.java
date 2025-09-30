@@ -15,19 +15,19 @@ import org.bukkit.inventory.ItemStack;
 public class CategoryMenuListener implements Listener {
 
     @EventHandler
-    public void click(InventoryClickEvent e) {
+    public void click(final InventoryClickEvent e) {
 
         if (Category.getCategories().isEmpty()) return;
 
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!(e.getWhoClicked() instanceof final Player p)) return;
 
-        Category category = Category.getCategoryView(p);
+        final Category category = Category.getCategoryView(p);
 
         if (category == null) return;
 
-        if (!(e.getInventory().getHolder() instanceof PetInventoryHolder holder)) return;
+        if (!(e.getInventory().getHolder() instanceof final PetInventoryHolder holder)) return;
 
-        if (holder.getType() != PetInventoryHolder.Type.CATEGORIES_MENU) return;
+        if (holder.getType() != PetInventoryHolder.Type.CATEGORY_MENU) return;
 
         e.setCancelled(true);
 
@@ -36,10 +36,10 @@ public class CategoryMenuListener implements Listener {
             return;
         }
 
-        ItemStack it = e.getCurrentItem();
+        final ItemStack it = e.getCurrentItem();
         if (it == null || it.getType().isAir() || !it.hasItemMeta()) return;
         if (it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("MCPetsPage;")) {
-            int currentPage = category.getCurrentPage(e.getClickedInventory());
+            final int currentPage = category.getCurrentPage(e.getClickedInventory());
             if (e.getClick() == ClickType.LEFT) {
                 category.openInventory(p, currentPage - 1);
             } else {
@@ -48,10 +48,10 @@ public class CategoryMenuListener implements Listener {
             return;
         }
 
-        Pet petObject = Pet.getFromIcon(it);
+        final Pet petObject = Pet.getFromIcon(it);
         if (petObject != null) {
             p.closeInventory();
-            Pet pet = petObject.copy();
+            final Pet pet = petObject.copy();
             pet.spawnWithMessage(p);
             Category.unregisterPlayerView(p);
         }

@@ -12,17 +12,17 @@ public class PetInventoryHolder implements InventoryHolder {
     @Getter
     private final Type type;
 
-    public PetInventoryHolder(int size, @NotNull Type type) {
+    public PetInventoryHolder(final int size, @NotNull final Type type) {
         this.inventory = Bukkit.createInventory(this, size);
         this.type = type;
     }
 
-    public PetInventoryHolder(int size, @NotNull String title, @NotNull Type type) {
+    public PetInventoryHolder(final int size, @NotNull final String title, @NotNull final Type type) {
         this.inventory = Bukkit.createInventory(this, size, title);
         this.type = type;
     }
 
-    public PetInventoryHolder(InventoryType inventoryType, @NotNull String title, @NotNull Type type) {
+    public PetInventoryHolder(final InventoryType inventoryType, @NotNull final String title, @NotNull final Type type) {
         this.inventory = Bukkit.createInventory(this, inventoryType, title);
         this.type = type;
     }
@@ -35,6 +35,7 @@ public class PetInventoryHolder implements InventoryHolder {
 
     public enum Type {
         CATEGORIES_MENU,
+        CATEGORY_MENU,
         EDITOR_MENU,
         PET_INTERACTION_MENU,
         PET_INVENTORY_MENU,
