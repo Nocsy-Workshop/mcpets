@@ -30,7 +30,6 @@ public class PetSkinsMenuListener implements Listener {
         PetSkin petSkin = PetSkin.fromIcon(it);
         if (petSkin == null) return;
 
-
         Pet pet = Pet.fromOwner(p.getUniqueId());
         if (pet == null) {
             Language.REVOKED_BEFORE_CHANGES.sendMessage(p);

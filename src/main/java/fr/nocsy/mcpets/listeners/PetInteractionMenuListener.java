@@ -99,7 +99,7 @@ public class PetInteractionMenuListener implements Listener {
         }
 
         final ItemStack it = e.getCurrentItem();
-        if (it == null || it.getType().isAir() ||!it.hasItemMeta()) return;
+        if (it == null || it.getType().isAir() || !it.hasItemMeta()) return;
 
         if (it.getItemMeta().hasDisplayName() && it.getItemMeta().hasItemName()) {
 
