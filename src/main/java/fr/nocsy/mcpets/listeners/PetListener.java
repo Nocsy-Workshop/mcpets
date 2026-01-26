@@ -11,6 +11,7 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.flags.DismountPetFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
+import fr.nocsy.mcpets.data.inventories.MountInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.sql.PlayerData;
@@ -36,6 +37,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class PetListener implements Listener {
@@ -74,14 +76,30 @@ public class PetListener implements Listener {
             Utils.callEvent(event);
             if (event.isCancelled()) return;
 
-            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
-            pet.setLastInteractedWith(p);
-            menu.open(p);
+            // Check if this is a mount and open the appropriate menu
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            }
         }
         if (pet != null && p.isOp()) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
-            pet.setLastOpInteracted(p);
-            menu.open(p);
+            // Check if this is a mount and open the appropriate menu
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            }
         }
     }
 
@@ -104,16 +122,31 @@ public class PetListener implements Listener {
 
         if (pet != null && pet.getOwner() != null &&
                 pet.getOwner().equals(p.getUniqueId())) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
-            pet.setLastInteractedWith(p);
-            menu.open(p);
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            }
             e.setCancelled(true);
             e.setDamage(0);
         }
         if (pet != null && p.isOp()) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
-            pet.setLastOpInteracted(p);
-            menu.open(p);
+            // Check if this is a mount and open the appropriate menu
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            }
             e.setCancelled(true);
             e.setDamage(0);
         }
@@ -122,8 +155,9 @@ public class PetListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        Pet pet = Pet.getActivePets().get(p.getUniqueId());
-        if (pet != null) {
+        List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
+        // Create a copy to avoid ConcurrentModificationException when despawning modifies the list
+        for (Pet pet : List.copyOf(pets)) {
             pet.despawn(PetDespawnReason.DISCONNECTION);
             reconnectionPets.put(p.getUniqueId(), pet.getId());
         }
@@ -134,9 +168,7 @@ public class PetListener implements Listener {
     public void reconnectionPlayer(PlayerJoinEvent e) {
         Player p = e.getPlayer();
 
-        // delay before loading the player data from the database
         Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-            // Load the player data from the database for bungee support
             if (GlobalConfig.getInstance().isDatabaseSupport()) {
                 PlayerData.reloadAll(p.getUniqueId());
             }
@@ -157,10 +189,10 @@ public class PetListener implements Listener {
     @EventHandler
     public void teleport(PlayerChangedWorldEvent e) {
         Player p = e.getPlayer();
-        if (Pet.getActivePets().containsKey(p.getUniqueId())) {
-            Pet pet = Pet.getActivePets().get(p.getUniqueId());
+        List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
+        for (Pet pet : pets) {
             if (pet.getTamingProgress() < 1)
-                return;
+                continue;
             pet.despawn(PetDespawnReason.TELEPORT);
             new BukkitRunnable() {
                 @Override
@@ -174,8 +206,8 @@ public class PetListener implements Listener {
     @EventHandler
     public void teleport(PlayerTeleportEvent e) {
         Player p = e.getPlayer();
-        if (Pet.getActivePets().containsKey(p.getUniqueId())) {
-            Pet pet = Pet.getActivePets().get(p.getUniqueId());
+        List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
+        for (Pet pet : pets) {
             pet.dismount(p);
         }
     }
@@ -219,9 +251,11 @@ public class PetListener implements Listener {
     @EventHandler
     public void gamemode(PlayerGameModeChangeEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
-        if (Pet.getActivePets().containsKey(uuid) && e.getNewGameMode() == GameMode.SPECTATOR) {
-            Pet pet = Pet.getActivePets().get(uuid);
-            pet.despawn(PetDespawnReason.GAMEMODE);
+        if (e.getNewGameMode() == GameMode.SPECTATOR) {
+            List<Pet> pets = Pet.getActivePetsForOwner(uuid);
+            for (Pet pet : pets) {
+                pet.despawn(PetDespawnReason.GAMEMODE);
+            }
         }
     }
 

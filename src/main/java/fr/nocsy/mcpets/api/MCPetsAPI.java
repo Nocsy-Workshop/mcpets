@@ -26,17 +26,29 @@ public class MCPetsAPI {
     }
 
     /**
-     * Returns the pet associated to the player if it has one.
+     * Returns the first active pet for the player if they have one.
      * Returns null if no pet is attached to the player.
+     * @deprecated Use getActivePetsForPlayer() for multiple pets support
      */
+    @Deprecated
     public static Pet getActivePet(UUID playerUUID) {
-        return Pet.getActivePets().get(playerUUID);
+        List<Pet> pets = Pet.getActivePets().get(playerUUID);
+        return (pets != null && !pets.isEmpty()) ? pets.get(0) : null;
     }
 
     /**
-     * Returns the map where Key=UuidPlayer | Value=Pet
+     * Returns all active pets for the player.
      */
-    public static HashMap<UUID, Pet> getActivePets() {
+    public static List<Pet> getActivePetsForPlayer(UUID playerUUID) {
+        return Pet.getActivePetsForOwner(playerUUID);
+    }
+
+    /**
+     * Returns the map where Key=UuidPlayer | Value=List<Pet>
+     * @deprecated API signature changed - returns HashMap<UUID, List<Pet>> now
+     */
+    @Deprecated
+    public static HashMap<UUID, List<Pet>> getActivePets() {
         return Pet.getActivePets();
     }
 

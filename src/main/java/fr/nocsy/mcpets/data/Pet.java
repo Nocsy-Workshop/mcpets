@@ -57,16 +57,20 @@ public class Pet {
     public static final int MYTHIC_MOB_NULL = -2;
     public static final int NO_MOB_MATCH = -3;
     public static final int NOT_ALLOWED = -4;
+    public static final int MAX_ACTIVE_PETS_REACHED = -5;
     //---------------------------------------------------------------------
 
     //********** Static values **********
 
     @Getter
-    private static HashMap<UUID, Pet> activePets = new HashMap<UUID, Pet>();
+    private static HashMap<UUID, List<Pet>> activePets = new HashMap<>();
     @Getter
     private static ArrayList<Pet> objectPets = new ArrayList<Pet>();
     @Getter
     private static HashMap<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
+
+    // Prevent race conditions during spawn
+    private static Set<String> spawningPets = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     //********** Global Pet **********
 
@@ -247,6 +251,29 @@ public class Pet {
     }
 
     /**
+     * Determine if this pet is a mount based on its category type
+     */
+    public boolean isMount() {
+        Debugger.send("§6Checking if pet " + this.id + " is a mount...");
+        // Find the category that contains this pet
+        for (Category cat : Category.getCategories()) {
+            Debugger.send("§7Checking category: " + cat.getId() + " (type: " + cat.getCategoryType() + ")");
+            // Check if any pet in this category has the same ID as this pet
+            for (Pet pet : cat.getPets()) {
+                if (pet.getId().equals(this.id)) {
+                    CategoryType type = cat.getCategoryType();
+                    boolean result = type == CategoryType.MOUNT;
+                    Debugger.send("§aFound pet in category! Type: " + type + " -> isMount: " + result);
+                    return result;
+                }
+            }
+        }
+        // If no category found or category is DEFAULT/PET, return false
+        Debugger.send("§cPet not found in any category, defaulting to PET");
+        return false;
+    }
+
+    /**
      * Remove the stick signal from inventory
      */
     public static void clearStickSignals(Player p, String petId) {
@@ -311,9 +338,39 @@ public class Pet {
 
     /**
      * Get the pet of the specified owner if it exists
+     * @deprecated Use getActivePetsForOwner() instead. Returns first pet only for backward compatibility.
      */
+    @Deprecated
     public static Pet fromOwner(UUID owner) {
-        return Pet.getActivePets().get(owner);
+        List<Pet> pets = Pet.getActivePets().get(owner);
+        return (pets != null && !pets.isEmpty()) ? pets.get(0) : null;
+    }
+
+    /**
+     * Get all active pets for a player
+     */
+    public static List<Pet> getActivePetsForOwner(UUID owner) {
+        return Pet.getActivePets().getOrDefault(owner, new ArrayList<>());
+    }
+
+    /**
+     * Add a pet to a player's active pets list
+     */
+    public static void addActivePet(UUID owner, Pet pet) {
+        activePets.computeIfAbsent(owner, k -> new ArrayList<>()).add(pet);
+    }
+
+    /**
+     * Remove a pet from a player's active pets list
+     */
+    public static void removeActivePet(UUID owner, Pet pet) {
+        List<Pet> pets = activePets.get(owner);
+        if (pets != null) {
+            pets.remove(pet);
+            if (pets.isEmpty()) {
+                activePets.remove(owner);
+            }
+        }
     }
 
     /**
@@ -397,8 +454,10 @@ public class Pet {
      * Clear the list of pets
      */
     public static void clearPets() {
-        for (Pet pet : Pet.getActivePets().values()) {
-            pet.despawn(PetDespawnReason.RELOAD);
+        for (List<Pet> petList : Pet.getActivePets().values()) {
+            for (Pet pet : petList) {
+                pet.despawn(PetDespawnReason.RELOAD);
+            }
         }
     }
 
@@ -544,125 +603,161 @@ public class Pet {
             return NOT_ALLOWED;
         }
 
-        // Get the active skin (which is also a MythicMobs)
-        // Adapt the mythicMob to despawn depending on the skin
-        if (getActiveSkin() != null)
-            mythicMobName = getActiveSkin().getMythicMobId();
-
-        // Any issue with the mythicmobs definition ?
-        // Any issue with the owner definition ?
-        if (mythicMobName == null) {
-            Debugger.send("§cMythicMob name is null, check out your pet config.");
-            return MYTHIC_MOB_NULL;
-        }
-        else if (owner == null) {
-            Debugger.send("§cOwner was not found.");
-            return OWNER_NULL;
-        }
-
-        if (MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).isEmpty()) {
-            Debugger.send("§cThe MythicMob §6" + mythicMobName + "§c doesn't exist in MythicMobs. §7Check your pet config to make sure the MythicMob you chose actually exists.");
-            return MYTHIC_MOB_NULL;
+        // Check if this exact pet ID is already active for this player
+        // (excluding this instance if it's somehow already in the list)
+        // Check if this exact pet ID is already active for this player
+        // (excluding this instance if it's somehow already in the list)
+        String spawnKey = null;
+        if (owner != null) {
+            spawnKey = owner.toString() + ":" + this.id;
+            if (spawningPets.contains(spawnKey)) {
+                Debugger.send("§cPet spawn already in progress for: " + this.id);
+                return BLOCKED;
+            }
+            
+            List<Pet> activePets = Pet.getActivePetsForOwner(owner);
+            for (Pet activePet : activePets) {
+                // Skip if it's the same instance (same object reference)
+                if (activePet == this) continue;
+                
+                if (activePet.getId().equals(this.id)) {
+                    Debugger.send("§cPlayer already has this pet active: " + this.id);
+                    // Don't spawn, just return blocked
+                    return BLOCKED;
+                }
+            }
+            // Add to spawning set
+            spawningPets.add(spawnKey);
         }
 
         try {
-            // Initialize the entity
-            Entity ent;
+            // Max limit check is now done in changeActiveMobTo() after the pet is added to active list
+            // This prevents race conditions when alternating between mounts and pets
+    
+            // Get the active skin (which is also a MythicMobs)
+            // Adapt the mythicMob to despawn depending on the skin
+            if (getActiveSkin() != null)
+                mythicMobName = getActiveSkin().getMythicMobId();
+    
+            // Any issue with the mythicmobs definition ?
+            // Any issue with the owner definition ?
+            if (mythicMobName == null) {
+                Debugger.send("§cMythicMob name is null, check out your pet config.");
+                return MYTHIC_MOB_NULL;
+            }
+            else if (owner == null) {
+                Debugger.send("§cOwner was not found.");
+                return OWNER_NULL;
+            }
+    
+            if (MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).isEmpty()) {
+                Debugger.send("§cThe MythicMob §6" + mythicMobName + "§c doesn't exist in MythicMobs. §7Check your pet config to make sure the MythicMob you chose actually exists.");
+                return MYTHIC_MOB_NULL;
+            }
+    
             try {
-                // Spawn the mythicMobs
-                // if it's autoride then we spawn it at the player's location so he can climb on it directly
-                // Otherwise we spawn the pet around according to the noise
-                if (autoRide) {
-                    ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, loc);
-                }
-                else {
-                    Location spawnLoc = loc;
-                    if (bruise)
-                        spawnLoc = Utils.bruised(loc, getSpawnRange());
-                    ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, spawnLoc);
-                }
-            }
-            catch (NullPointerException | NoSuchElementException ex) {
-                // if there's been a problem, trigger a despawn
-                Debugger.send("§cMythicMob " + mythicMobName + " was not found.");
-                despawn(PetDespawnReason.SPAWN_ISSUE);
-                return MYTHIC_MOB_NULL;
-            }
-
-            // If the pet is not here, trigger a despawn
-            if (ent == null) {
-                Debugger.send("§cMythicMob was found but the entity was not able to spawn.");
-                despawn(PetDespawnReason.SPAWN_ISSUE);
-                return MYTHIC_MOB_NULL;
-            }
-
-            // We try to fetch the mob within the MythicMobs registry
-            Optional<ActiveMob> maybeHere = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
-            maybeHere.ifPresent(this::setActiveMob);
-
-            // Sometimes it can happen that the mob isn't registered, so we try to register it manually
-            if (activeMob == null) {
-                Debugger.send("§6Warn: §7MythicMobs didn't have the mob in the registry, let's try to register it manually.");
-                ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(
-                        BukkitAdapter.adapt(ent),
-                        MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).get(),
-                        0
-                    );
-                if (mob != null)
-                    setActiveMob(mob);
-            }
-
-            // If any weird thing happened and the activeMob couldn't be registered, then we cancel everything
-            if (activeMob == null) {
-                Debugger.send("§cMythicMob was spawned but MCPets couldn't link it to an active mob. Trying again in 0.5s automatically...");
-                // We remove the entity coz that'll not be done by the despawn since the activeMob is null
-                ent.remove();
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        spawn(loc, bruise);
+                // Initialize the entity
+                Entity ent;
+                try {
+                    // Spawn the mythicMobs
+                    // if it's autoride then we spawn it at the player's location so he can climb on it directly
+                    // Otherwise we spawn the pet around according to the noise
+                    if (autoRide) {
+                        ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, loc);
                     }
-                }.runTaskLater(MCPets.getInstance(), 10L);
-                return MYTHIC_MOB_NULL;
-            }
-
-            boolean returnDespawned = changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
-
-            // Handles the first spawn situation
-            if (firstSpawn) {
-                // It won't be a first spawn anymore
-                firstSpawn = false;
-                // Handles the mount on pet on first spawn
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Player p = Bukkit.getPlayer(owner);
-                        if (p != null && autoRide) {
-                            boolean mounted = setMount(p);
-                            if (!mounted)
-                                Language.NOT_MOUNTABLE.sendMessage(p);
+                    else {
+                        Location spawnLoc = loc;
+                        if (bruise)
+                            spawnLoc = Utils.bruised(loc, getSpawnRange());
+                        ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, spawnLoc);
+                    }
+                }
+                catch (NullPointerException | NoSuchElementException ex) {
+                    // if there's been a problem, trigger a despawn
+                    Debugger.send("§cMythicMob " + mythicMobName + " was not found.");
+                    despawn(PetDespawnReason.SPAWN_ISSUE);
+                    return MYTHIC_MOB_NULL;
+                }
+    
+                // If the pet is not here, trigger a despawn
+                if (ent == null) {
+                    Debugger.send("§cMythicMob was found but the entity was not able to spawn.");
+                    despawn(PetDespawnReason.SPAWN_ISSUE);
+                    return MYTHIC_MOB_NULL;
+                }
+    
+                // We try to fetch the mob within the MythicMobs registry
+                Optional<ActiveMob> maybeHere = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
+                maybeHere.ifPresent(this::setActiveMob);
+    
+                // Sometimes it can happen that the mob isn't registered, so we try to register it manually
+                if (activeMob == null) {
+                    Debugger.send("§6Warn: §7MythicMobs didn't have the mob in the registry, let's try to register it manually.");
+                    ActiveMob mob = MCPets.getMythicMobs().getMobManager().registerActiveMob(
+                            BukkitAdapter.adapt(ent),
+                            MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).get(),
+                            0
+                        );
+                    if (mob != null)
+                        setActiveMob(mob);
+                }
+    
+                // If any weird thing happened and the activeMob couldn't be registered, then we cancel everything
+                if (activeMob == null) {
+                    Debugger.send("§cMythicMob was spawned but MCPets couldn't link it to an active mob. Trying again in 0.5s automatically...");
+                    // We remove the entity coz that'll not be done by the despawn since the activeMob is null
+                    ent.remove();
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            spawn(loc, bruise);
                         }
-                    }
-                }.runTaskLater(MCPets.getInstance(), 5L);
+                    }.runTaskLater(MCPets.getInstance(), 10L);
+                    return MYTHIC_MOB_NULL;
+                }
+    
+                boolean returnDespawned = changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
+    
+                // Handles the first spawn situation
+                if (firstSpawn) {
+                    // It won't be a first spawn anymore
+                    firstSpawn = false;
+                    // Handles the mount on pet on first spawn
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Player p = Bukkit.getPlayer(owner);
+                            if (p != null && autoRide) {
+                                boolean mounted = setMount(p);
+                                if (!mounted)
+                                    Language.NOT_MOUNTABLE.sendMessage(p);
+                            }
+                        }
+                    }.runTaskLater(MCPets.getInstance(), 5L);
+                }
+    
+                // Call the spawned event
+                PetSpawnedEvent petSpawnedEvent = new PetSpawnedEvent(this);
+                Utils.callEvent(petSpawnedEvent);
+    
+                // Either we despawned a previous pet or not
+                if (returnDespawned) {
+                    Debugger.send("§aSpawn successfuly happened. Previous pet is going to be despawned.");
+                    return DESPAWNED_PREVIOUS;
+                }
+                return MOB_SPAWN;
+    
             }
-
-            // Call the spawned event
-            PetSpawnedEvent petSpawnedEvent = new PetSpawnedEvent(this);
-            Utils.callEvent(petSpawnedEvent);
-
-            // Either we despawned a previous pet or not
-            if (returnDespawned) {
-                Debugger.send("§aSpawn successfuly happened. Previous pet is going to be despawned.");
-                return DESPAWNED_PREVIOUS;
+            catch (InvalidMobTypeException e) {
+                // If there's a mob bug, despawn the current pet
+                Debugger.send("§cImpossible to spawn the pet: MythicMob was not found.");
+                despawn(PetDespawnReason.SPAWN_ISSUE);
+                return NO_MOB_MATCH;
             }
-            return MOB_SPAWN;
-
-        }
-        catch (InvalidMobTypeException e) {
-            // If there's a mob bug, despawn the current pet
-            Debugger.send("§cImpossible to spawn the pet: MythicMob was not found.");
-            despawn(PetDespawnReason.SPAWN_ISSUE);
-            return NO_MOB_MATCH;
+        } finally {
+            if (spawnKey != null) {
+                spawningPets.remove(spawnKey);
+            }
         }
     }
 
@@ -691,6 +786,10 @@ public class Pet {
                 case Pet.OWNER_NULL:
                     Language.OWNER_NOT_FOUND.sendMessage(p);
                     break;
+                case Pet.MAX_ACTIVE_PETS_REACHED:
+                    Language.MAX_ACTIVE_PETS_REACHED.sendMessageFormated(p, 
+                        new FormatArg("%max%", String.valueOf(GlobalConfig.getInstance().getMaxActivePets())));
+                    break;
             }
     }
 
@@ -700,12 +799,8 @@ public class Pet {
      */
     public boolean changeActiveMobTo(ActiveMob mob, UUID owner, boolean followOwner, PetDespawnReason reason) {
         boolean replaced = false;
-        // First we remove the previous pet if there was one
-        Pet currentPet = Pet.fromOwner(owner);
-        if (currentPet != null) {
-            currentPet.despawn(reason);
-            replaced = true;
-        }
+        // No longer auto-despawn previous pets - allow multiple pets
+        // The max limit check in spawn() will handle this
 
         // Then we set the active mob to the new active mob
         // And we setup the default pet parameters
@@ -722,7 +817,65 @@ public class Pet {
         this.AI();
 
         // Add the pet to the active list of pets for the given owner
-        activePets.put(owner, this);
+        Pet.addActivePet(owner, this);
+        Debugger.send("§b[LIMIT CHECK] Pet " + this.id + " added to active list for owner " + owner);
+
+        // Check max active pets/mounts limit AFTER adding this pet to the list
+        // This ensures accurate counting and prevents race conditions
+        boolean isMount = this.isMount();
+        Debugger.send("§b[LIMIT CHECK] Pet " + this.id + " isMount: " + isMount);
+        
+        int maxAllowed = isMount ? 
+            GlobalConfig.getInstance().getMaxActiveMounts() : 
+            GlobalConfig.getInstance().getMaxActivePets();
+        Debugger.send("§b[LIMIT CHECK] Max allowed for " + (isMount ? "mounts" : "pets") + ": " + maxAllowed);
+        
+        if (maxAllowed > 0) {
+            // Get all active pets/mounts of the same type for this owner
+            // Get all active pets/mounts of the same type for this owner
+            List<Pet> sameLevelTypePets = Pet.getActivePetsForOwner(owner).stream()
+                    .filter(p -> p.isMount() == isMount)  // Filter by same type
+                    .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+            
+            long currentCount = sameLevelTypePets.size();
+            Debugger.send("§b[LIMIT CHECK] Current count of " + (isMount ? "mounts" : "pets") + ": " + currentCount);
+            Debugger.send("§b[LIMIT CHECK] List of same type pets: " + sameLevelTypePets.stream().map(Pet::getId).collect(java.util.stream.Collectors.joining(", ")));
+            
+            // If we// If we exceeded the limit, despawn oldest ones (that are not this one) until back under the limit
+            if (currentCount > maxAllowed) {
+                String type = isMount ? "mount" : "pet";
+                Debugger.send("§eMax " + type + " limit exceeded (" + currentCount + "/" + maxAllowed + "), despawning oldest...");
+
+                // Continue despawning until the count no longer exceeds the limit
+                while (currentCount > maxAllowed) {
+                    Pet petToDespawn = null;
+
+                    // Find the oldest pet/mount (not this one)
+                    for (Pet pet : sameLevelTypePets) {
+                        if (pet != this) {
+                            petToDespawn = pet;
+                            break;
+                        }
+                    }
+
+                    // Safety check to avoid infinite loops if no eligible pet is found
+                    if (petToDespawn == null) {
+                        Debugger.send("§c[LIMIT CHECK] No eligible " + type + " found to despawn while enforcing limit for " + this.id + ". Breaking out to avoid infinite loop.");
+                        break;
+                    }
+
+                    Debugger.send("§eDespawning " + petToDespawn.getId() + " to enforce limit for " + this.id);
+                    petToDespawn.despawn(PetDespawnReason.REPLACED);
+                    sameLevelTypePets.remove(petToDespawn);
+                    currentCount--;
+                    replaced = true;
+                }
+            } else {
+                Debugger.send("§b[LIMIT CHECK] No despawn needed. Count (" + currentCount + ") <= max (" + maxAllowed + ")");
+            }
+        } else {
+            Debugger.send("§b[LIMIT CHECK] No limit configured (maxAllowed = 0)");
+        }
 
         // Load the player data for the pet
         PlayerData pd = PlayerData.get(owner);
@@ -935,12 +1088,14 @@ public class Pet {
                 }
             }
 
-            activePets.remove(owner);
+            Pet.removeActivePet(owner, this);
+            Debugger.send("§b[DESPAWN] Removed pet " + id + " from active list");
             return true;
         }
 
         Debugger.send("§cActive mob was not found, so it could not be despawned.");
-        activePets.remove(owner);
+        Pet.removeActivePet(owner, this);
+        Debugger.send("§b[DESPAWN] Removed pet " + id + " from active list (no active mob)");
         return false;
     }
 
@@ -1285,6 +1440,21 @@ public class Pet {
         if (this.isStillHere()) {
             ActiveMob mob = this.getActiveMob();
             try {
+                String evolutionId = null;
+                if (petStats != null && petStats.getNextLevel() != null)
+                    evolutionId = petStats.getNextLevel().getEvolutionId();
+
+                if (evolutionId != null) {
+                    // Iterate through all active pets
+                    for (List<Pet> petList : Pet.getActivePets().values()) {
+                        for (Pet pet : petList) {
+                             if (pet.getId().equals(evolutionId) && pet.getOwner() != null && pet.getOwner().equals(owner)) {
+                                 Language.PET_COULD_NOT_EVOLVE.sendMessage(Bukkit.getPlayer(owner));
+                                 return false;
+                             }
+                        }
+                    }
+                }
                 Debugger.send("§aSending signal §6" + signal + "§a to pet " + id);
                 mob.signalMob(mob.getEntity(), signal);
                 return true;

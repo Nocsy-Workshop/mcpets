@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.commands;
 
 import fr.nocsy.mcpets.commands.mcpets.MCPetsCommand;
+import fr.nocsy.mcpets.commands.mounts.MountsCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,7 +14,9 @@ public class CommandHandler implements CommandExecutor {
     public static ArrayList<CCommand> commands = new ArrayList<>();
 
     public static void init(JavaPlugin plugin) {
+        commands.clear();
         commands.add(new MCPetsCommand());
+        commands.add(new MountsCommand());
         for (CCommand c : commands) {
             plugin.getCommand(c.getName()).setExecutor(new CommandHandler());
             plugin.getCommand(c.getName()).setTabCompleter(c.getCompleter());

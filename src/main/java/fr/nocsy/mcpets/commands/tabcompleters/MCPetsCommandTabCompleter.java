@@ -131,6 +131,11 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
         }
 
         Collections.sort(completed);
-        return completed;
+        
+        // Filter results based on what the player has typed so far
+        String partial = args[args.length - 1].toLowerCase();
+        return completed.stream()
+                .filter(s -> s.toLowerCase().startsWith(partial))
+                .collect(Collectors.toList());
     }
 }
