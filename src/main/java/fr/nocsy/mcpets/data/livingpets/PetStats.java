@@ -79,9 +79,11 @@ public class PetStats {
      * Update the pet's health for the stats
      */
     public void updateHealth() {
-        if (pet.isStillHere()) {
-            this.currentHealth = pet.getActiveMob().getEntity().getHealth();
-        }
+        MCPets.getScheduler().runAtEntity(pet.getActiveMob().getEntity().getBukkitEntity(), (task) -> {
+            if (pet.isStillHere()) {
+                this.currentHealth = pet.getActiveMob().getEntity().getHealth();
+            }
+        });
     }
 
     /**
@@ -131,14 +133,16 @@ public class PetStats {
             return;
         regenerationTimer = new PetTimer(Integer.MAX_VALUE, 20, null);
         regenerationTimer.launch(() -> {
-            if (pet.isStillHere()) {
-                double value = Math.min(currentHealth + currentLevel.getRegeneration(), currentLevel.getMaxHealth());
-                pet.getActiveMob().getEntity().setHealth(value);
-                updateHealth();
-            }
-            else {
-                regenerationTimer.stop(null);
-            }
+            MCPets.getScheduler().runAtEntity(pet.getActiveMob().getEntity().getBukkitEntity(), (task) -> {
+                if (pet.isStillHere()) {
+                    double value = Math.min(currentHealth + currentLevel.getRegeneration(), currentLevel.getMaxHealth());
+                    pet.getActiveMob().getEntity().setHealth(value);
+                    updateHealth();
+                }
+                else {
+                    regenerationTimer.stop(null);
+                }
+            });
         });
     }
 
@@ -452,14 +456,14 @@ public class PetStats {
         // Runs ASync if it's a SQL, sync if not coz YAML doesn't support ASync
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             // TODO: For now, we make the AutoSave only saving the connected players for MySQL users
-            Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), () -> {
+            MCPets.getScheduler().runTimerAsync(() -> {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     Databases.savePlayerData(p.getUniqueId());
                 }
             }, delay, delay);
         }
         else {
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), () -> petStatsList.forEach(PetStats::save), delay, delay);
+            MCPets.getScheduler().runTimerAsync(() -> petStatsList.forEach(PetStats::save), delay, delay);
         }
     }
 

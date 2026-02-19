@@ -1,15 +1,15 @@
 package fr.nocsy.mcpets.utils;
 
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import fr.nocsy.mcpets.MCPets;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 
 public class PetTimer {
 
     @Getter
-    private static HashMap<PetTimer, Integer> runningTimers = new HashMap<>();
+    private static HashMap<PetTimer, WrappedTask> runningTimers = new HashMap<>();
 
     @Getter
     private int cooldown;
@@ -17,7 +17,7 @@ public class PetTimer {
     private int remainingTime;
     private long frequency;
 
-    private int task;
+    private WrappedTask task;
 
     private final Runnable endingRunnable;
 
@@ -37,7 +37,7 @@ public class PetTimer {
         if (isRunning())
             stop(null);
         remainingTime = cooldown;
-        task = Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), () -> {
+        task = MCPets.getScheduler().runTimerAsync(() -> {
             if (cooldown != Integer.MAX_VALUE)
                 remainingTime--;
             if (remainingTime <= 0)
@@ -50,7 +50,7 @@ public class PetTimer {
     }
 
     public void stop(Runnable runnable) {
-        Bukkit.getScheduler().cancelTask(task);
+        task.cancel();
         runningTimers.remove(this);
         remainingTime = 0;
         if (runnable != null)

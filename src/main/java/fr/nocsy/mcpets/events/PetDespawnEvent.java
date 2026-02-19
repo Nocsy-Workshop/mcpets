@@ -3,6 +3,7 @@ package fr.nocsy.mcpets.events;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ public class PetDespawnEvent extends Event {
     private final PetDespawnReason reason;
 
     public PetDespawnEvent(Pet pet, PetDespawnReason reason) {
+        super(!Bukkit.isPrimaryThread());
         this.pet = pet;
         this.reason = reason;
     }

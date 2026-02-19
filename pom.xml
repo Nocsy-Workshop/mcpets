@@ -52,6 +52,10 @@
                                     <pattern>net.kyori</pattern>
                                     <shadedPattern>fr.nocsy.mcpets.libs.kyori</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.tcoded.folialib</pattern>
+                                    <shadedPattern>fr.nocsy.mcpets.libs.folialib</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
@@ -115,6 +119,10 @@
             <id>nexo-repo</id>
             <url>https://repo.nexomc.com/releases</url>
         </repository>
+        <repository>
+            <id>tcoded-repo</id>
+            <url>https://repo.tcoded.com/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -154,6 +162,12 @@
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
             <version>4.18.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tcoded</groupId>
+            <artifactId>FoliaLib</artifactId>
+            <version>0.5.1</version>
             <scope>compile</scope>
         </dependency>
 

@@ -1,6 +1,9 @@
 package fr.nocsy.mcpets;
 
 import com.sk89q.worldguard.WorldGuard;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.PlatformScheduler;
+import com.tcoded.folialib.util.FoliaLibOptions;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
@@ -41,6 +44,8 @@ public class MCPets extends JavaPlugin {
     @Getter
     private static AbstractModeler modeler;
 
+    private static FoliaLib foliaLib;
+
     @Getter
     private static final Logger log = Bukkit.getLogger();
 
@@ -79,11 +84,9 @@ public class MCPets extends JavaPlugin {
         checkPlaceholderApi();
         checkItemsAdder();
 
-        if (!checkModeler()) {
-            getLog().severe(Language.REQUIRES_MODELENGINE.getMessage());
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
+        FoliaLibOptions options = new FoliaLibOptions();
+        options.disableNotifications();
+        foliaLib = new FoliaLib(this, options);
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport()) {
@@ -100,6 +103,12 @@ public class MCPets extends JavaPlugin {
     public void onEnable() {
         CommandHandler.init(this);
         EventListener.init(this);
+
+        if (!checkModeler()) {
+            getLog().severe(Language.REQUIRES_MODELENGINE.getMessage());
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         loadConfigs();
         PetStats.saveStats();
@@ -269,5 +278,10 @@ public class MCPets extends JavaPlugin {
      */
     public static boolean isItemsAdderLoaded() {
         return itemsAdderFound;
+    }
+
+
+    public static PlatformScheduler getScheduler() {
+        return foliaLib.getScheduler();
     }
 }

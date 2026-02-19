@@ -32,10 +32,11 @@ public class DropPetInventoryMechanic implements ITargetedEntitySkill {
                 Inventory inv = petInventory.getInventory();
                 Location loc = BukkitAdapter.adapt(pet.getActiveMob().getLocation());
                 // Call the drop on sync so it can trigger events
-                Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> {
+                MCPets.getScheduler().runAtLocation(loc, (task) -> {
                     for (ItemStack it : inv.getContents()) {
-                        if(it != null)
+                        if (it != null) {
                             loc.getWorld().dropItemNaturally(loc, it);
+                        }
                     }
                 });
 

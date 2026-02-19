@@ -22,7 +22,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -57,12 +56,9 @@ public class PetInteractionMenuListener implements Listener {
     }
 
     public static void skins(Player p, Pet pet) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                PetSkin.openInventory(p, pet);
-            }
-        }.runTaskLater(MCPets.getInstance(), 2L);
+        MCPets.getScheduler().runAtEntityLater(p, () -> {
+            PetSkin.openInventory(p, pet);
+        }, 2L);
     }
 
     public static void revoke(Player p, Pet pet) {

@@ -67,7 +67,7 @@ public class BetterModelListeners implements ModelListener {
         this.dismountListener = BetterModel.eventBus().subscribe(platform, DismountModelEvent.class, event -> {
             Entity baseEntity = ((BukkitEntity) event.tracker().sourceEntity()).source();
 
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> {
+            MCPets.getScheduler().runAtEntity(baseEntity, (task) -> {
                 Pet pet = Pet.getFromEntity(baseEntity);
                 if (pet != null && pet.isDespawnOnDismount()) {
                     pet.despawn(PetDespawnReason.DISMOUNT);

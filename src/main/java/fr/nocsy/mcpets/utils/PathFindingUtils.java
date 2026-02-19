@@ -15,23 +15,27 @@ public class PathFindingUtils {
      * Move the entity to the specified location
      */
     public static void moveTo(AbstractEntity entity, AbstractLocation destination) {
-        MCPets.getMythicMobs().getVolatileCodeHandler().getAIHandler().navigateToLocation(entity, destination, 1);
+        MCPets.getScheduler().runAtEntity(entity.getBukkitEntity(), (task) -> {
+            MCPets.getMythicMobs().getVolatileCodeHandler().getAIHandler().navigateToLocation(entity, destination, 1);
+        });
     }
 
     /**
      * Stop the entity at its location
      */
     public static void stop(AbstractEntity entity, UUID owner) {
-        if (registry.get(owner) != null) {
-            AbstractLocation loc = registry.get(owner);
-            if (loc.getBlockX() == entity.getLocation().getBlockX() &&
-                    loc.getBlockY() == entity.getLocation().getBlockY() &&
-                    loc.getBlockZ() == entity.getLocation().getBlockZ()) {
-                return;
+        MCPets.getScheduler().runAtEntity(entity.getBukkitEntity(), (task) -> {
+            if (registry.get(owner) != null) {
+                AbstractLocation loc = registry.get(owner);
+                if (loc.getBlockX() == entity.getLocation().getBlockX() &&
+                        loc.getBlockY() == entity.getLocation().getBlockY() &&
+                        loc.getBlockZ() == entity.getLocation().getBlockZ()) {
+                    return;
+                }
             }
-        }
 
-        moveTo(entity, entity.getLocation());
-        registry.put(owner, entity.getLocation());
+            moveTo(entity, entity.getLocation());
+            registry.put(owner, entity.getLocation());
+        });
     }
 }

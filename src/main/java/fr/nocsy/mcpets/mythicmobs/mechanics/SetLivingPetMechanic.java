@@ -8,7 +8,6 @@ import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.core.mobs.ActiveMob;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Optional;
 
@@ -34,17 +33,14 @@ public class SetLivingPetMechanic implements ITargetedEntitySkill {
         if (pet == null)
             return SkillResult.CONDITION_FAILED;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                // Set the active mob
-                Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
-                opt.ifPresent(pet::setActiveMob);
-                // The taming progress should be set at the given value
-                pet.setDefaultTamingValue(tamingProgress);
-                pet.setFollowOwner(followOnTame);
-            }
-        }.runTaskLater(MCPets.getInstance(), 1L);
+        MCPets.getScheduler().runAtEntityLater(pet.getActiveMob().getEntity().getBukkitEntity(), () -> {
+            // Set the active mob
+            Optional<ActiveMob> opt = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
+            opt.ifPresent(pet::setActiveMob);
+            // The taming progress should be set at the given value
+            pet.setDefaultTamingValue(tamingProgress);
+            pet.setFollowOwner(followOnTame);
+        }, 1L);
 
         return SkillResult.SUCCESS;
     }

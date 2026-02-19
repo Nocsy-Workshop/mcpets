@@ -14,12 +14,10 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 public class PetFood {
@@ -191,12 +189,10 @@ public class PetFood {
         if (waitingListApply.contains(owner))
             return;
         waitingListApply.add(owner);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                waitingListApply.remove(owner);
-            }
-        }.runTaskLater(MCPets.getInstance(), delay);
+
+        MCPets.getScheduler().runLater(() -> {
+            waitingListApply.remove(owner);
+        }, delay);
     }
 
     private int getRemainingCooldownInSeconds(Pet pet) {

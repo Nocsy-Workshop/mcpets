@@ -12,11 +12,11 @@ import fr.nocsy.mcpets.data.flags.DismountPetFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class ModelEngineListeners implements Listener, ModelListener {
 
@@ -80,15 +80,13 @@ public class ModelEngineListeners implements Listener, ModelListener {
             return;
 
         // Running this as sync coz we fetch an entity
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID()));
-                if (pet != null && pet.isDespawnOnDismount()) {
-                    pet.despawn(PetDespawnReason.DISMOUNT);
-                }
+        Location loc = e.getVehicle().getModeledEntity().getBase().getLocation();
+        MCPets.getScheduler().runAtLocation(loc, (task) -> {
+            Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID()));
+            if (pet != null && pet.isDespawnOnDismount()) {
+                pet.despawn(PetDespawnReason.DISMOUNT);
             }
-        }.runTask(MCPets.getInstance());
+        });
     }
 
     @Override

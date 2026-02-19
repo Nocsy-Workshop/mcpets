@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.flags;
 
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
 
-    private int task;
+    private WrappedTask task;
 
     public static String NAME = "mcpets-dismount";
 
@@ -33,7 +34,7 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
             MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
         }
 
-        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
+        task = MCPets.getScheduler().runTimer(() -> {
             if (MCPets.getMythicMobs() == null)
                 return;
 
@@ -46,15 +47,17 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
                 Player p = Bukkit.getPlayer(owner);
 
                 if (p != null) {
-                    if (!pet.hasMount(p))
-                        continue;
+                    MCPets.getScheduler().runAtEntity(p, (t) -> {
+                        if (!pet.hasMount(p))
+                            return;
 
-                    boolean hasToBeEjected = testState(p.getLocation());
+                        boolean hasToBeEjected = testState(p.getLocation());
 
-                    if (hasToBeEjected) {
-                        pet.dismount(p);
-                        Language.NOT_MOUNTABLE_HERE.sendMessage(p);
-                    }
+                        if (hasToBeEjected) {
+                            pet.dismount(p);
+                            Language.NOT_MOUNTABLE_HERE.sendMessage(p);
+                        }
+                    });
                 }
             }
         }, 0L, 20L);
@@ -62,6 +65,6 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
 
     @Override
     public void stop() {
-        Bukkit.getServer().getScheduler().cancelTask(task);
+        task.cancel();
     }
 }

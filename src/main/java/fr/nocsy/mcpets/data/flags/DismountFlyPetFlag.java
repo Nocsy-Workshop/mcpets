@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.flags;
 
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.modeler.AbstractModeler;
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
 
-    private int task;
+    private WrappedTask task;
 
     public static String NAME = "mcpets-dismount-flying";
 
@@ -32,24 +33,25 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
             MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
         }
 
-        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
+        task = MCPets.getScheduler().runTimer(() -> {
             if (MCPets.getMythicMobs() == null)
                 return;
 
             for (UUID owner : Pet.getActivePets().keySet()) {
                 Pet pet = Pet.getActivePets().get(owner);
+                MCPets.getScheduler().runAtEntity(pet.getActiveMob().getEntity().getBukkitEntity(), (t) -> {
+                    if (!pet.isMountable())
+                        return;
 
-                if (!pet.isMountable())
-                    continue;
-
-                AbstractModeler modeler = MCPets.getModeler();
-                modeler.dismountFlying(pet, owner, this::testState);
+                    AbstractModeler modeler = MCPets.getModeler();
+                    modeler.dismountFlying(pet, owner, this::testState);
+                });
             }
         }, 0L, 20L);
     }
 
     @Override
     public void stop() {
-        Bukkit.getServer().getScheduler().cancelTask(task);
+        task.cancel();
     }
 }

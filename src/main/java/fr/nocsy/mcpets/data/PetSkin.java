@@ -11,9 +11,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class PetSkin {
@@ -91,29 +91,37 @@ public class PetSkin {
     /**
      * Open the pet skins to the player
      */
-    public static boolean openInventory(Player p, Pet pet) {
-        if (pet == null)
-            return false;
+    public static CompletableFuture<Boolean> openInventory(Player p, Pet pet) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        MCPets.getScheduler().runAtEntity(p, (task) -> {
+            if (pet == null){
+                future.complete(false);
+                return;
+            }
 
-        List<PetSkin> skins = petSkins.get(pet.getId());
-        if (skins == null || skins.isEmpty())
-            return false;
+            List<PetSkin> skins = petSkins.get(pet.getId());
+            if (skins == null || skins.isEmpty()){
+                future.complete(false);
+                return;
+            }
 
-        skins = skins.stream().filter(petSkin -> p.hasPermission(petSkin.getPermission())).collect(Collectors.toList());
+            skins = skins.stream().filter(petSkin -> p.hasPermission(petSkin.getPermission())).collect(Collectors.toList());
 
-        int invSize = Math.min(skins.size(), 54);
-        while (invSize <= 0 || invSize%9 != 0)
-            invSize++;
+            int invSize = Math.min(skins.size(), 54);
+            while (invSize <= 0 || invSize%9 != 0)
+                invSize++;
 
-        Inventory inventory = Bukkit.createInventory(null, invSize, Language.PET_SKINS_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName())));
+            Inventory inventory = Bukkit.createInventory(null, invSize, Language.PET_SKINS_TITLE.getMessageFormatted(new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName())));
 
-        for (PetSkin petSkin : skins) {
-            inventory.addItem(petSkin.getIcon());
-        }
+            for (PetSkin petSkin : skins) {
+                inventory.addItem(petSkin.getIcon());
+            }
 
-        p.openInventory(inventory);
-        addMetada(p);
-        return true;
+            p.openInventory(inventory);
+            addMetada(p);
+            future.complete(true);
+        });
+        return future;
     }
 
     /**
@@ -197,20 +205,14 @@ public class PetSkin {
 
         instancePet.despawn(PetDespawnReason.SKIN);
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                instancePet.spawn(loc, false);
-                if (hasRider) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            instancePet.setMount(Bukkit.getPlayer(instancePet.getOwner()));
-                        }
-                    }.runTaskLater(MCPets.getInstance(), 2L);
-                }
+        MCPets.getScheduler().runAtLocationLater(loc, () -> {
+            instancePet.spawn(loc, false);
+            if (hasRider) {
+                MCPets.getScheduler().runAtLocationLater(loc, () -> {
+                    instancePet.setMount(Bukkit.getPlayer(instancePet.getOwner()));
+                }, 2L);
             }
-        }.runTaskLater(MCPets.getInstance(), 2L);
+        }, 2L);
         return true;
     }
 }

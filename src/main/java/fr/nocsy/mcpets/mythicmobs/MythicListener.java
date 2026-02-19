@@ -14,19 +14,15 @@ import io.lumine.mythic.bukkit.events.MythicTargeterLoadEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class MythicListener implements Listener {
 
     @EventHandler
     public void onMythicReload(MythicReloadedEvent e) {
         // load the placeholders
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                PetPlaceholdersManager.registerPlaceholders();
-            }
-        }.runTaskLater(MCPets.getInstance(), 1L);
+        MCPets.getScheduler().runLater(() -> {
+            PetPlaceholdersManager.registerPlaceholders();
+        }, 1L);
     }
 
     @EventHandler

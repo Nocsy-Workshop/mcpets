@@ -31,7 +31,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -133,7 +132,7 @@ public class PetListener implements Listener {
         Player p = e.getPlayer();
 
         // delay before loading the player data from the database
-        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+        MCPets.getScheduler().runAtEntityLater(p, () -> {
             // Load the player data from the database for bungee support
             if (GlobalConfig.getInstance().isDatabaseSupport()) {
                 PlayerData.reloadAll(p.getUniqueId());
@@ -149,7 +148,7 @@ public class PetListener implements Listener {
                 pet.spawn(p.getLocation(), true);
                 reconnectionPets.remove(p.getUniqueId());
             }
-        }, 20L);
+        }, 20);
     }
 
     @EventHandler
@@ -160,16 +159,13 @@ public class PetListener implements Listener {
             if (pet.getTamingProgress() < 1)
                 return;
             pet.despawn(PetDespawnReason.TELEPORT);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    pet.spawn(p, p.getLocation());
-                }
-            }.runTaskLater(MCPets.getInstance(), 20L);
+            MCPets.getScheduler().runAtEntityLater(p, () -> {
+                pet.spawn(p, p.getLocation());
+            }, 20L);
         }
     }
 
-    @EventHandler
+    @EventHandler // TODO: Doesn't exist on Folia -> add Canvas listeners maybe?
     public void teleport(PlayerTeleportEvent e) {
         Player p = e.getPlayer();
         if (Pet.getActivePets().containsKey(p.getUniqueId())) {
@@ -250,12 +246,9 @@ public class PetListener implements Listener {
                         pet.spawn(owner, owner.getLocation());
                         pet.setRecurrent_spawn(false);
                         repeatRespawn.put(owner.getUniqueId(), value + 1);
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                repeatRespawn.remove(owner.getUniqueId());
-                            }
-                        }.runTaskLater(MCPets.getInstance(), 10L);
+                        MCPets.getScheduler().runAtEntityLater(owner, () -> {
+                            repeatRespawn.remove(owner.getUniqueId());
+                        }, 10L);
                     }
                 }
             }

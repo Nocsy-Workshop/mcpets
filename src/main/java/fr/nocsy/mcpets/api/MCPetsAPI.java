@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.api;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.SpawnResult;
 import fr.nocsy.mcpets.data.Pet;
 import org.bukkit.entity.Player;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class MCPetsAPI {
 
@@ -58,7 +60,7 @@ public class MCPetsAPI {
      * Set the active pet of the player
      * Returns a value giving what happened after calling the method
      */
-    public static int setActivePet(Pet pet, Player p, boolean checkPermission) {
+    public static CompletableFuture<SpawnResult> setActivePet(Pet pet, Player p, boolean checkPermission) {
         pet.setCheckPermission(checkPermission);
         return pet.spawn(p.getLocation(), true);
     }

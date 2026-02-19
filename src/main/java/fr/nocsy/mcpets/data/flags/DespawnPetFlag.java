@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.flags;
 
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
 
-    int task;
+    WrappedTask task;
 
     public static String NAME = "mcpets-despawn";
 
@@ -35,7 +36,7 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
             MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
         }
 
-        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
+        task = MCPets.getScheduler().runTimer(() -> {
             if (MCPets.getMythicMobs() == null)
                 return;
 
@@ -45,12 +46,14 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
                     Player p = Bukkit.getPlayer(owner);
 
                     if (p != null) {
-                        boolean hasToBeRemoved = testState(p.getLocation());
+                        MCPets.getScheduler().runAtEntity(p, (t) -> {
+                            boolean hasToBeRemoved = testState(p.getLocation());
 
-                        if (hasToBeRemoved) {
-                            pet.despawn(PetDespawnReason.FLAG);
-                            Language.CANT_FOLLOW_HERE.sendMessage(p);
-                        }
+                            if (hasToBeRemoved) {
+                                pet.despawn(PetDespawnReason.FLAG);
+                                Language.CANT_FOLLOW_HERE.sendMessage(p);
+                            }
+                        });
                     }
                 }
             }
@@ -60,6 +63,6 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
 
     @Override
     public void stop() {
-        Bukkit.getServer().getScheduler().cancelTask(task);
+        task.cancel();
     }
 }
