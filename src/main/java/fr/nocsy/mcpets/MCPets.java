@@ -11,6 +11,9 @@ import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.listeners.EventListener;
+import fr.nocsy.mcpets.modeler.AbstractModeler;
+import fr.nocsy.mcpets.modeler.BetterModelModeler;
+import fr.nocsy.mcpets.modeler.ModelEngineModeler;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
@@ -34,6 +37,9 @@ public class MCPets extends JavaPlugin {
 
     @Getter
     private static PlaceholderAPICompat placeholderAPI;
+
+    @Getter
+    private static AbstractModeler modeler;
 
     @Getter
     private static final Logger log = Bukkit.getLogger();
@@ -73,6 +79,12 @@ public class MCPets extends JavaPlugin {
         checkPlaceholderApi();
         checkItemsAdder();
 
+        if (!checkModeler()) {
+            getLog().severe(Language.REQUIRES_MODELENGINE.getMessage());
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport()) {
                 FlagsManager.init(this);
@@ -107,6 +119,10 @@ public class MCPets extends JavaPlugin {
         getLog().info("-=-=-=-= MCPets disabled =-=-=-=-");
         getLog().info("          See you soon           ");
         getLog().info("-=-=-=-= -=-=-=-=-=-=-=- =-=-=-=-");
+
+        if (modeler != null) {
+            modeler.getListener().unsubscribe();
+        }
 
         PetStats.saveAll();
         Pet.clearPets();
@@ -203,6 +219,25 @@ public class MCPets extends JavaPlugin {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             placeholderAPI = new PlaceholderAPICompat();
             placeholderAPI.register();
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean checkModeler() {
+        if (modeler != null) {
+            return true;
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
+            modeler = new ModelEngineModeler();
+        } else if (Bukkit.getPluginManager().getPlugin("BetterModel") != null) {
+            modeler = new BetterModelModeler();
+        }
+
+        if (modeler != null) {
+            modeler.getListener().subscribe();
             return true;
         }
 

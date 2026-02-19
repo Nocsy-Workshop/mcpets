@@ -1,6 +1,5 @@
 package fr.nocsy.mcpets.data.editor;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.Pet;
@@ -179,7 +178,7 @@ public enum EditorExpectationType {
             return optional.isPresent();
         }
         else if (this.equals(EditorExpectationType.MOUNT_TYPE)){
-            return ModelEngineAPI.getMountControllerTypeRegistry().get(any + "") != null;
+            return MCPets.getModeler().supportsMount(String.valueOf(any));
         }
         else if (this.equals(EditorExpectationType.CATEGORY_ID)) {
             Category cat = Category.getFromId(any + "");
