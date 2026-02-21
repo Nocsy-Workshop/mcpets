@@ -50,6 +50,10 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private int maxNameLength;
     @Getter
+    private int maxActivePets;
+    @Getter
+    private int maxActiveMounts;
+    @Getter
     private boolean activateBackMenuIcon;
 
     @Getter
@@ -208,6 +212,10 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("FastMount", false);
         if  (getConfig().get("DisableFastMountWhileHoldingSignalStick") == null)
             getConfig().set("DisableFastMountWhileHoldingSignalStick", false);
+        if (getConfig().get("MaxActivePets") == null)
+            getConfig().set("MaxActivePets", 1);
+        if (getConfig().get("MaxActiveMounts") == null)
+            getConfig().set("MaxActiveMounts", 1);
 
         save();
         reload();
@@ -277,6 +285,8 @@ public class GlobalConfig extends AbstractConfig {
 
         fastMount = getConfig().getBoolean("FastMount");
         disableFastMountWhileHoldingSignalStick = getConfig().getBoolean("DisableFastMountWhileHoldingSignalStick");
+        maxActivePets = getConfig().getInt("MaxActivePets");
+        maxActiveMounts = getConfig().getInt("MaxActiveMounts");
     }
 
     public boolean hasBlackListedWorld(String worldName) {

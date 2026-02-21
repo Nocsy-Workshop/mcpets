@@ -63,6 +63,11 @@ public class MCPets extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
+        // Reset static flags for PlugMan reload support
+        itemsAdderFound = false;
+        nexoFound = false;
+        luckPermsNotFound = false;
+
         if (!checkMythicMobs()) {
             getLog().severe("MCPets could not be loaded : MythicMobs could not be found or this version is not compatible with the plugin.");
             return;
@@ -143,6 +148,10 @@ public class MCPets extends JavaPlugin {
         } catch (ClassNotFoundException e) {
             nexoFound = false;
             Bukkit.getLogger().warning("[MCPets] : Nexo could not be found. Nexo Custom items features won't be available.");
+        } catch (Exception e) {
+            // Handle cases like zip file closed during plugin reload
+            nexoFound = false;
+            Bukkit.getLogger().warning("[MCPets] : Could not check for Nexo (" + e.getClass().getSimpleName() + "). Nexo Custom items features won't be available.");
         }
 
         return nexoFound;

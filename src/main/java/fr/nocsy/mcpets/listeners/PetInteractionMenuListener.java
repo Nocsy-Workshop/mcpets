@@ -72,7 +72,11 @@ public class PetInteractionMenuListener implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent e) {
-        if (e.getView().getTitle().equalsIgnoreCase(PetInteractionMenu.getTitle())) {
+        String viewTitle = e.getView().getTitle();
+        boolean isPetMenu = viewTitle.equalsIgnoreCase(PetInteractionMenu.getTitle());
+        boolean isMountMenu = viewTitle.equalsIgnoreCase(fr.nocsy.mcpets.data.inventories.MountInteractionMenu.getTitle());
+        
+        if (isPetMenu || isMountMenu) {
             e.setCancelled(true);
 
             Player p = (Player) e.getWhoClicked();
@@ -104,6 +108,11 @@ public class PetInteractionMenuListener implements Listener {
 
                 if (localizedName.equals(Items.PETMENU.getLocalizedName())) {
                     openBackPetMenu(p);
+                    return;
+                }
+                
+                if (localizedName.equals(Items.MOUNTMENU.getLocalizedName())) {
+                    openBackMountMenu(p);
                     return;
                 }
 
@@ -167,6 +176,11 @@ public class PetInteractionMenuListener implements Listener {
 
     private void openBackPetMenu(Player p) {
         PetMenu menu = new PetMenu(p, 0);
+        menu.open(p);
+    }
+    
+    private void openBackMountMenu(Player p) {
+        fr.nocsy.mcpets.data.inventories.MountMenu menu = new fr.nocsy.mcpets.data.inventories.MountMenu(p, 0);
         menu.open(p);
     }
 }

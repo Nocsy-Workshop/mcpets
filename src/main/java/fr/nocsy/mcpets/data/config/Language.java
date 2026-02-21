@@ -9,6 +9,9 @@ public enum Language {
     INVENTORY_PETS_MENU("§0☀ §4Pets §0☀"),
     INVENTORY_PETS_MENU_INTERACTIONS("§0☀ §4Pet §0☀"),
 
+    INVENTORY_MOUNTS_MENU("§0☀ §4Mounts §0☀"),
+    INVENTORY_MOUNTS_MENU_INTERACTIONS("§0☀ §4Mount §0☀"),
+
     MOUNT_ITEM_NAME("§6Mount"),
     MOUNT_ITEM_DESCRIPTION("§7Click to mount your pet"),
 
@@ -134,6 +137,8 @@ public enum Language {
 
     PET_STATS_EVOLUTION_ALREADY_OWNED("§cEvolution already owned."),
     PET_STATS_MAX_LEVEL("§7Maximum level reached."),
+    MAX_ACTIVE_PETS_REACHED("§cYou have reached the maximum number of active pets!"),
+    PET_REPLACED_BY_NEW("§e%oldpet% has been replaced by %newpet%!"),
     DEBUGGER_JOINING("§aDebugger is enabled. You are now listening to it."),
     DEBUGGER_LEAVE("§aDebugger is §7disabled§a. You will not be listening to it anymore.");
 

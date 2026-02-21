@@ -26,6 +26,11 @@ commands:
     Usage: /mcpets
     permission: mcpets.use
     aliases: [pets]
+  mounts:
+    description: Command to view your mounts
+    Usage: /mounts
+    permission: mcpets.use
+    aliases: [mount]
 
 permissions:
   mcpets.use:

@@ -21,6 +21,7 @@ public enum Items {
     MOUNT("mount"),
     RENAME("rename"),
     PETMENU("petmenu"),
+    MOUNTMENU("mountmenu"),
     INVENTORY("inventory"),
     SKINS("skins"),
     EQUIPMENT("equipment"),
@@ -50,6 +51,9 @@ public enum Items {
                 break;
             case "petmenu":
                 item = petmenu();
+                break;
+            case "mountmenu":
+                item = mountmenu();
                 break;
             case "inventory":
                 item = inventory();
@@ -126,6 +130,20 @@ public enum Items {
         meta.setDisplayName(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage());
         meta.setLore(lore);
         meta.setItemName("AlmPet;BackToPetMenu");
+
+        it.setItemMeta(meta);
+
+        return it;
+    }
+
+    private static ItemStack mountmenu() {
+        ArrayList<String> lore = new ArrayList<>(Arrays.asList(Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage().split("\n")));
+
+        ItemStack it = new ItemStack(Material.PAPER);
+        ItemMeta meta = it.getItemMeta();
+        meta.setDisplayName(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage());
+        meta.setLore(lore);
+        meta.setItemName("AlmPet;BackToMountMenu");
 
         it.setItemMeta(meta);
 

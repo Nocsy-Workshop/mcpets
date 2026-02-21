@@ -40,6 +40,8 @@ public class ItemsListConfig extends AbstractConfig {
             getConfig().set("inventory", Items.INVENTORY.getItem());
         if (getConfig().get("petmenu") == null)
             getConfig().set("petmenu", Items.PETMENU.getItem());
+        if (getConfig().get("mountmenu") == null)
+            getConfig().set("mountmenu", Items.MOUNTMENU.getItem());
         if (getConfig().get("skins") == null)
             getConfig().set("skins", Items.SKINS.getItem());
         if (getConfig().get("equipment") == null)
