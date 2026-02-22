@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
+import fr.nocsy.mcpets.data.editor.EditorConversation;
 import fr.nocsy.mcpets.data.editor.EditorItems;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
@@ -112,6 +113,10 @@ public class MCPets extends JavaPlugin {
         getLog().info("-=-=-=-= MCPets disabled =-=-=-=-");
         getLog().info("          See you soon           ");
         getLog().info("-=-=-=-= -=-=-=-=-=-=-=- =-=-=-=-");
+
+        // Cancel pending editor conversations before the JAR is unloaded to avoid
+        // IllegalStateException (zip file closed) if a listener fires after disable.
+        EditorConversation.clearAll();
 
         PetStats.saveAll();
         Pet.clearPets();

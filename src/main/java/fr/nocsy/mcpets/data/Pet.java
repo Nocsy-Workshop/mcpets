@@ -274,7 +274,8 @@ public class Pet {
     }
 
     /**
-     * Remove the stick signal from inventory
+     * Remove all signal sticks belonging to the given pet from the player's inventory.
+     * Used on despawn to ensure the item does not persist in the player's hands.
      */
     public static void clearStickSignals(Player p, String petId) {
         if (p == null)
@@ -1408,7 +1409,8 @@ public class Pet {
     }
 
     /**
-     * Give a stick signal to the player refering to his pet
+     * Give a signal stick to the player linked to this pet.
+     * Does nothing if the signal stick feature is disabled globally or per-pet configuration.
      */
     public void giveStickSignals(Player p) {
         if (getOwner() == null || getSignalStick() == null)
@@ -1417,8 +1419,11 @@ public class Pet {
         if (p == null)
             return;
 
-        if (enableSignalStickFromMenu)
-            clearStickSignals(p, this.id);
+        // Respect per-pet configuration flag
+        if (!enableSignalStickFromMenu)
+            return;
+
+        clearStickSignals(p, this.id);
 
         if (!p.getInventory().contains(signalStick))
             p.getInventory().addItem(signalStick);

@@ -53,4 +53,18 @@ public class EditorConversation {
         player.sendMessage("§aThe value for \"§e" + editorItem.getId().replace("_", " ").toLowerCase() + "§a\" was changed successfully!");
         player.sendMessage("§aDon't forget to §nreload§a MCPets for the changes to take effect.");
     }
+
+    /**
+     * Clear all active editor conversations.
+     * Called on plugin disable to prevent {@link IllegalStateException} (zip file closed)
+     * that occurs when a listener tries to load a class from an already unloaded JAR.
+     */
+    public static void clearAll() {
+        for (EditorConversation conversation : conversations.values()) {
+            if (conversation.getPlayer() != null && conversation.getPlayer().isOnline()) {
+                conversation.getPlayer().sendMessage("§cThe editor conversation was interrupted because the plugin was reloaded.");
+            }
+        }
+        conversations.clear();
+    }
 }
