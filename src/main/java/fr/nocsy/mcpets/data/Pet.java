@@ -425,7 +425,7 @@ public class Pet {
                 // Activate the pet in MCPets, coz so far it was just following the owner
                 changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED).thenAccept(r -> {
                     // Set the health at the top after taming
-                    MCPets.getScheduler().runAtEntityLater(activeMob.getLastAggroCause().getBukkitEntity(), () -> {
+                    MCPets.getScheduler().runAtEntityLater(activeMob.getEntity().getBukkitEntity(), () -> {
                         petStats.refreshMaxHealth();
                         petStats.setHealth(petStats.getCurrentLevel().getMaxHealth());
                     }, 2L);
@@ -959,7 +959,7 @@ public class Pet {
      * Teleport the pet to the specific location
      */
     public void teleport(Location loc) {
-        MCPets.getScheduler().runAtEntity(activeMob.getLastAggroCause().getBukkitEntity(), (task) -> {
+        MCPets.getScheduler().runAtEntity(activeMob.getEntity().getBukkitEntity(), (task) -> {
             if (isStillHere()) {
                 this.activeMob.remove();
                 this.despawn(PetDespawnReason.TELEPORT);
@@ -1053,7 +1053,7 @@ public class Pet {
 
                     activeMob.getEntity().getBukkitEntity().setCustomName(currentName);
 
-                    MCPets.getScheduler().runAtEntityLater(activeMob.getLastAggroCause().getBukkitEntity(), () -> {
+                    MCPets.getScheduler().runAtEntityLater(activeMob.getEntity().getBukkitEntity(), () -> {
                         setNameTag(currentName, true);
                     }, 10L);
 
