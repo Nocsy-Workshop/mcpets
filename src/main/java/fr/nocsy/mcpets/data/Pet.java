@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Pet {
 
@@ -51,11 +52,11 @@ public class Pet {
     //********** Static values **********
 
     @Getter
-    private static HashMap<UUID, Pet> activePets = new HashMap<UUID, Pet>();
+    private static Map<UUID, Pet> activePets = new ConcurrentHashMap<>();
     @Getter
-    private static ArrayList<Pet> objectPets = new ArrayList<Pet>();
+    private static List<Pet> objectPets = Collections.synchronizedList(new ArrayList<>());
     @Getter
-    private static HashMap<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
+    private static Map<UUID, HashMap<String, PetSkin>> activeSkinsMap = new ConcurrentHashMap<>();
 
     //********** Global Pet **********
 
@@ -422,19 +423,19 @@ public class Pet {
                 // Give the access
                 Utils.givePermission(owner, permission);
                 // Activate the pet in MCPets, coz so far it was just following the owner
-                changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
-
-                // Set the health at the top after taming
-                MCPets.getScheduler().runAtEntityLater(activeMob.getLastAggroCause().getBukkitEntity(), () -> {
-                    petStats.refreshMaxHealth();
-                    petStats.setHealth(petStats.getCurrentLevel().getMaxHealth());
-                }, 2L);
-                Skill tamingOverSkillMM = Utils.getSkill(tamingOverSkill);
-                if (tamingOverSkillMM != null) {
-                    try {
-                        tamingOverSkillMM.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
-                    } catch (Exception ignored) {}
-                }
+                changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED).thenAccept(r -> {
+                    // Set the health at the top after taming
+                    MCPets.getScheduler().runAtEntityLater(activeMob.getLastAggroCause().getBukkitEntity(), () -> {
+                        petStats.refreshMaxHealth();
+                        petStats.setHealth(petStats.getCurrentLevel().getMaxHealth());
+                    }, 2L);
+                    Skill tamingOverSkillMM = Utils.getSkill(tamingOverSkill);
+                    if (tamingOverSkillMM != null) {
+                        try {
+                            tamingOverSkillMM.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, activeMob, activeMob.getEntity()));
+                        } catch (Exception ignored) {}
+                    }
+                });
             }
             else {
                 Skill tamingProgressSkillMM = Utils.getSkill(tamingProgressSkill);
@@ -595,7 +596,9 @@ public class Pet {
 
                 // We try to fetch the mob within the MythicMobs registry
                 Optional<ActiveMob> maybeHere = MCPets.getMythicMobs().getMobManager().getActiveMob(ent.getUniqueId());
-                maybeHere.ifPresent(this::setActiveMob);
+                maybeHere.ifPresentOrElse(this::setActiveMob, () -> {
+                    Debugger.send("§6Warn: §7MythicMobs didn't have the mob in the registry.");
+                });
 
                 // Sometimes it can happen that the mob isn't registered, so we try to register it manually
                 if (activeMob == null) {
@@ -621,37 +624,36 @@ public class Pet {
                     return;
                 }
 
-                boolean returnDespawned = changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED);
+                changeActiveMobTo(activeMob, owner, true, PetDespawnReason.REPLACED).thenAccept(returnDespawned -> {
+                    // Handles the first spawn situation
+                    if (firstSpawn) {
+                        // It won't be a first spawn anymore
+                        firstSpawn = false;
+                        // Handles the mount on pet on first spawn
+                        MCPets.getScheduler().runAtLocationLater(loc, () -> {
+                            Player p = Bukkit.getPlayer(owner);
+                            if (p != null && autoRide) {
+                                boolean mounted = setMount(p);
+                                if (!mounted)
+                                    Language.NOT_MOUNTABLE.sendMessage(p);
+                            }
+                        }, 5L);
+                    }
 
-                // Handles the first spawn situation
-                if (firstSpawn) {
-                    // It won't be a first spawn anymore
-                    firstSpawn = false;
-                    // Handles the mount on pet on first spawn
-                    MCPets.getScheduler().runAtLocationLater(loc, () -> {
-                        Player p = Bukkit.getPlayer(owner);
-                        if (p != null && autoRide) {
-                            boolean mounted = setMount(p);
-                            if (!mounted)
-                                Language.NOT_MOUNTABLE.sendMessage(p);
-                        }
-                    }, 5L);
-                }
+                    // Call the spawned event
+                    PetSpawnedEvent petSpawnedEvent = new PetSpawnedEvent(this);
+                    Utils.callEvent(petSpawnedEvent);
 
-                // Call the spawned event
-                PetSpawnedEvent petSpawnedEvent = new PetSpawnedEvent(this);
-                Utils.callEvent(petSpawnedEvent);
-
-                // Either we despawned a previous pet or not
-                if (returnDespawned) {
-                    Debugger.send("§aSpawn successfuly happened. Previous pet is going to be despawned.");
-                    future.complete(SpawnResult.DESPAWNED_PREVIOUS);
+                    // Either we despawned a previous pet or not
+                    if (returnDespawned) {
+                        Debugger.send("§aSpawn successfuly happened. Previous pet is going to be despawned.");
+                        future.complete(SpawnResult.DESPAWNED_PREVIOUS);
+                        return;
+                    }
+                    future.complete(SpawnResult.MOB_SPAWN);
                     return;
-                }
-                future.complete(SpawnResult.MOB_SPAWN);
-                return;
-            }
-            catch (InvalidMobTypeException e) {
+                });
+            } catch (InvalidMobTypeException e) {
                 // If there's a mob bug, despawn the current pet
                 Debugger.send("§cImpossible to spawn the pet: MythicMob was not found.");
                 despawn(PetDespawnReason.SPAWN_ISSUE);
@@ -698,14 +700,25 @@ public class Pet {
      * Set the pet's instance active mob to the given new ActiveMob
      * Returns the value if the mob has revoked a previous one
      */
-    public boolean changeActiveMobTo(ActiveMob mob, UUID owner, boolean followOwner, PetDespawnReason reason) {
-        boolean replaced = false;
+    public CompletableFuture<Boolean> changeActiveMobTo(ActiveMob mob, UUID owner, boolean followOwner, PetDespawnReason reason) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
         // First we remove the previous pet if there was one
         Pet currentPet = Pet.fromOwner(owner);
         if (currentPet != null) {
-            currentPet.despawn(reason);
-            replaced = true;
+            currentPet.despawn(reason).thenAccept(executed -> {
+                doChangeActiveMobTo(mob, owner, followOwner);
+                future.complete(true);
+            });
+        } else {
+            doChangeActiveMobTo(mob, owner, followOwner);
+            future.complete(false);
         }
+
+        return future;
+    }
+
+    // helper
+    private void doChangeActiveMobTo(ActiveMob mob, UUID owner, boolean followOwner) {
 
         // Then we set the active mob to the new active mob
         // And we setup the default pet parameters
@@ -742,8 +755,6 @@ public class Pet {
 
         // If we change the mob, then we're going to consider it to be fully tamed as well
         tamingProgress = 1;
-
-        return replaced;
     }
 
     /**
@@ -878,8 +889,8 @@ public class Pet {
     /**
      * Despawn the pet
      */
-    public boolean despawn(PetDespawnReason reason) {
-
+    public CompletableFuture<Boolean> despawn(PetDespawnReason reason) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
         PetDespawnEvent event = new PetDespawnEvent(this, reason);
         Utils.callEvent(event);
 
@@ -933,13 +944,15 @@ public class Pet {
                 }
 
                 activePets.remove(owner);
+                future.complete(true);
             });
-            return true;
+            return future;
         }
 
         Debugger.send("§cActive mob was not found, so it could not be despawned.");
         activePets.remove(owner);
-        return false;
+        future.complete(false);
+        return future;
     }
 
     /**

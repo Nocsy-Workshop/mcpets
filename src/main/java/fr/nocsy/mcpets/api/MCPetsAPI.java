@@ -5,9 +5,8 @@ import fr.nocsy.mcpets.data.SpawnResult;
 import fr.nocsy.mcpets.data.Pet;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -38,14 +37,14 @@ public class MCPetsAPI {
     /**
      * Returns the map where Key=UuidPlayer | Value=Pet
      */
-    public static HashMap<UUID, Pet> getActivePets() {
+    public static Map<UUID, Pet> getActivePets() {
         return Pet.getActivePets();
     }
 
     /**
      * Returns a list of object pet instance | not active pets
      */
-    public static ArrayList<Pet> getObjectPets() {
+    public static List<Pet> getObjectPets() {
         return Pet.getObjectPets();
     }
 
