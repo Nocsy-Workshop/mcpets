@@ -34,7 +34,7 @@ public class DropPetItemMechanic implements ITargetedEntitySkill {
             Random random = new Random();
             if (random.nextFloat() <= percentage) {
                 // Call the drop on sync so it can trigger events
-                Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> entity.getLocation().getWorld().dropItemNaturally(entity.getLocation(), it));
+                MCPets.getScheduler().runAtEntity(entity, (task) -> entity.getWorld().dropItemNaturally(entity.getLocation(), it));
             }
         }
 

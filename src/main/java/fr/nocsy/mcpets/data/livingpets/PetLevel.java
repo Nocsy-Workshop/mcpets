@@ -18,7 +18,6 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -246,27 +245,25 @@ public class PetLevel {
                 return false;
 
             // Spawn the evolution
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    // Make sure the owner is still here
-                    Player owner = Bukkit.getPlayer(player);
-                    if (owner != null)
-                    {
-                        Pet activePet = Pet.fromOwner(player);
-                        Location loc = activePet != null && activePet.isStillHere() ?
-                                        activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
-                                        owner.getLocation();
-
-                        // Despawn the previous pet
-                        if (activePet != null && activePet.isStillHere())
-                            activePet.despawn(PetDespawnReason.EVOLUTION);
-
-                        // Spawn the evolution
-                        evolution.spawn(loc, false);
-                    }
+            MCPets.getScheduler().runAtEntityLater(owner, () -> {
+                if (!owner.isOnline()) {
+                    return; // Make sure the owner is still here
                 }
-            }.runTaskLater(MCPets.getInstance(), delayBeforeEvolution);
+
+                Pet activePet = Pet.fromOwner(player);
+                Location loc = activePet != null && activePet.isStillHere() ?
+                        activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
+                        owner.getLocation();
+
+                MCPets.getScheduler().runAtLocation(loc, (task) -> {
+                    // Despawn the previous pet
+                    if (activePet != null && activePet.isStillHere())
+                        activePet.despawn(PetDespawnReason.EVOLUTION);
+
+                    // Spawn the evolution
+                    evolution.spawn(loc, false);
+                });
+            }, delayBeforeEvolution);
             return true;
         }
 

@@ -137,7 +137,7 @@ public enum EditorState {
             currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
 
             int page = EditorPageSelection.get(p);
-            ArrayList<Pet> pets = Pet.getObjectPets();
+            List<Pet> pets = Pet.getObjectPets();
 
             int currentIndex = 0;
             int inventoryPosition = 0;

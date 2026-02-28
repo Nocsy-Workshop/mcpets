@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -145,18 +144,12 @@ public class PetInventory {
      * and add the tracing metadata
      */
     public void open(Player p) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                p.openInventory(inventory);
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), pet.getId()));
-                    }
-                }.runTaskLater(MCPets.getInstance(), 2L);
-            }
-        }.runTaskLater(MCPets.getInstance(), 2L);
+        MCPets.getScheduler().runAtEntityLater(p, () -> {
+            p.openInventory(inventory);
+            MCPets.getScheduler().runAtEntityLater(p, () -> {
+                p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), pet.getId()));
+            }, 2L);
+        }, 2L);
     }
 
     /**

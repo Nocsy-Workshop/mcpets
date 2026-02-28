@@ -3,16 +3,18 @@ version: '${project.version}'
 description: MCModels affiliate plugin. Join the workshop! https://discord.gg/p7QTm2gUyf
 load: POSTWORLD
 author: Nocsy
+contributors: [Jsinco]
 website: 'https://mcpets.gitbook.io/mcpets'
-
+folia-supported: true
 main: fr.nocsy.mcpets.MCPets
 api-version: 1.17
 database: false
 prefix: '${project.name}'
 depend:
   - MythicMobs
-  - ModelEngine
 softdepend:
+  - ModelEngine
+  - BetterModel
   - Nexo
   - WorldGuard
   - LuckPerms

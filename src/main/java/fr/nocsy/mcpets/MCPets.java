@@ -1,6 +1,9 @@
 package fr.nocsy.mcpets;
 
 import com.sk89q.worldguard.WorldGuard;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.PlatformScheduler;
+import com.tcoded.folialib.util.FoliaLibOptions;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
@@ -11,6 +14,9 @@ import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.listeners.EventListener;
+import fr.nocsy.mcpets.modeler.AbstractModeler;
+import fr.nocsy.mcpets.modeler.BetterModelModeler;
+import fr.nocsy.mcpets.modeler.ModelEngineModeler;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
@@ -34,6 +40,11 @@ public class MCPets extends JavaPlugin {
 
     @Getter
     private static PlaceholderAPICompat placeholderAPI;
+
+    @Getter
+    private static AbstractModeler modeler;
+
+    private static FoliaLib foliaLib;
 
     @Getter
     private static final Logger log = Bukkit.getLogger();
@@ -73,6 +84,10 @@ public class MCPets extends JavaPlugin {
         checkPlaceholderApi();
         checkItemsAdder();
 
+        FoliaLibOptions options = new FoliaLibOptions();
+        options.disableNotifications();
+        foliaLib = new FoliaLib(this, options);
+
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport()) {
                 FlagsManager.init(this);
@@ -88,6 +103,12 @@ public class MCPets extends JavaPlugin {
     public void onEnable() {
         CommandHandler.init(this);
         EventListener.init(this);
+
+        if (!checkModeler()) {
+            getLog().severe(Language.REQUIRES_MODELENGINE.getMessage());
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         loadConfigs();
         PetStats.saveStats();
@@ -107,6 +128,10 @@ public class MCPets extends JavaPlugin {
         getLog().info("-=-=-=-= MCPets disabled =-=-=-=-");
         getLog().info("          See you soon           ");
         getLog().info("-=-=-=-= -=-=-=-=-=-=-=- =-=-=-=-");
+
+        if (modeler != null) {
+            modeler.getListener().unsubscribe();
+        }
 
         PetStats.saveAll();
         Pet.clearPets();
@@ -209,6 +234,25 @@ public class MCPets extends JavaPlugin {
         return false;
     }
 
+    private static boolean checkModeler() {
+        if (modeler != null) {
+            return true;
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
+            modeler = new ModelEngineModeler();
+        } else if (Bukkit.getPluginManager().getPlugin("BetterModel") != null) {
+            modeler = new BetterModelModeler();
+        }
+
+        if (modeler != null) {
+            modeler.getListener().subscribe();
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Return MythicMobs instance
      */
@@ -234,5 +278,10 @@ public class MCPets extends JavaPlugin {
      */
     public static boolean isItemsAdderLoaded() {
         return itemsAdderFound;
+    }
+
+
+    public static PlatformScheduler getScheduler() {
+        return foliaLib.getScheduler();
     }
 }

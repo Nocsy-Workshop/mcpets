@@ -77,7 +77,7 @@ public enum Language {
     RELOAD_SUCCESS("§aReloaded successfully."),
     HOW_MANY_PETS_LOADED("§a%numberofpets% were registered successfully"),
 
-    REQUIRES_MODELENGINE("§cThis plugin requires ModelEngine r2.3.1. It seems that this requirement is not satisfied."),
+    REQUIRES_MODELENGINE("§cThis plugin requires ModelEngine R2.3.1 or BetterModel v2.0.1. It seems that this requirement is not satisfied."),
 
     USAGE("§cThis command doesn't exist. \n§7Check out the wiki: §nhttps://mcpets.gitbook.io/mcpets/tutorials/plugin-features/commands"),
     NO_PERM("§cYou're not allowed to use this command."),

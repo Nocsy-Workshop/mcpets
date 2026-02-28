@@ -2,7 +2,6 @@ package fr.nocsy.mcpets.data.sql;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
 
@@ -39,7 +38,7 @@ public class MySQLDB {
             this.sqlCon = DriverManager.getConnection(url, this.user, this.pass);
         }
         catch (Exception e) {
-            MCPets.getInstance().getLogger().severe("Could not reach SQL database. Please configure your database parameters.");
+            MCPets.getInstance().getLogger().warning("Could not reach SQL database. Please configure your database parameters.");
             return false;
         }
         return true;
@@ -92,16 +91,13 @@ public class MySQLDB {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    stat.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.runTaskLater(MCPets.getInstance(), 5L);
 
+        MCPets.getScheduler().runLaterAsync(() -> {
+            try {
+                stat.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, 5L);
     }
 }

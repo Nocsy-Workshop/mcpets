@@ -35,7 +35,7 @@ public class EvolvePetMechanic implements ITargetedEntitySkill {
 
         if (evolution != null && pet != null && pet.getPetStats() != null) {
             // Call the experience gain on sync so it can trigger events
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> pet.getPetStats().getCurrentLevel().evolveTo(pet.getOwner(), forceEvolution, evolution));
+            MCPets.getScheduler().runAtEntity(entity, (task) -> pet.getPetStats().getCurrentLevel().evolveTo(pet.getOwner(), forceEvolution, evolution));
             return SkillResult.SUCCESS;
         }
 

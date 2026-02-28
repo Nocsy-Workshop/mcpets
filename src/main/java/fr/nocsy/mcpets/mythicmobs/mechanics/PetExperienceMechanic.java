@@ -27,7 +27,7 @@ public class PetExperienceMechanic implements ITargetedEntitySkill {
         if (pet != null && pet.getPetStats() != null) {
             // Call the experience gain on sync so it can trigger events
             final double expValue = experience.get(data);
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> pet.getPetStats().addExperience(expValue));
+            MCPets.getScheduler().runAtEntity(entity, (task) -> pet.getPetStats().addExperience(expValue));
             return SkillResult.SUCCESS;
         }
         return SkillResult.CONDITION_FAILED;

@@ -40,7 +40,7 @@ public class PetBuffMechanic implements ITargetedEntitySkill {
             final float powerValue = power.get(data);
             PetFoodType buffType = PetFoodType.get(type);
             PetMath mathOperator = PetMath.get(operator);
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> {
+            MCPets.getScheduler().runAtEntity(entity, (task) -> {
                 PetFoodBuff buff = new PetFoodBuff(pet, buffType, powerValue, mathOperator, durationValue);
                 buff.apply();
             });

@@ -5,7 +5,6 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -74,12 +73,9 @@ public class PetFoodBuff {
 
         PetFoodBuff instance = this;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                instance.stop();
-            }
-        }.runTaskLater(MCPets.getInstance(), duration);
+        MCPets.getScheduler().runLater(() -> {
+            instance.stop();
+        }, duration);
     }
 
     public void stop() {
