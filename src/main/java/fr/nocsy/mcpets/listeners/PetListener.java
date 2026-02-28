@@ -158,10 +158,7 @@ public class PetListener implements Listener {
             Pet pet = Pet.getActivePets().get(p.getUniqueId());
             if (pet.getTamingProgress() < 1)
                 return;
-            pet.despawn(PetDespawnReason.TELEPORT);
-            MCPets.getScheduler().runAtEntityLater(p, () -> {
-                pet.spawn(p, p.getLocation());
-            }, 20L);
+            pet.teleportToPlayer(p);
         }
     }
 

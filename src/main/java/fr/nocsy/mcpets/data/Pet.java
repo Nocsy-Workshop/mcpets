@@ -835,8 +835,10 @@ public class Pet {
                     // If the owner is not in the same world as the pet and that the pet is fully tamed, we move it
                     // to the owner
                     if (!ownerLoc.getWorld().getName().equals(petLoc.getWorld().getName()) && tamingProgress == 1) {
-                        getInstance().despawn(PetDespawnReason.TELEPORT);
-                        getInstance().spawn(p, petLocation);
+                        getInstance().teleportToPlayer(p);
+                        // TODO
+//                        getInstance().despawn(PetDespawnReason.TELEPORT);
+//                        getInstance().spawn(p, petLocation);
                         return;
                     }
 
@@ -959,15 +961,12 @@ public class Pet {
      * Teleport the pet to the specific location
      */
     public void teleport(Location loc) {
-        MCPets.getScheduler().runAtEntity(activeMob.getEntity().getBukkitEntity(), (task) -> {
-            if (isStillHere()) {
-                this.activeMob.remove();
-                this.despawn(PetDespawnReason.TELEPORT);
-                MCPets.getScheduler().runAtLocation(loc, (task1) -> {
-                    this.spawn(loc, true);
-                });
-            }
-        });
+        Entity ent = activeMob.getEntity().getBukkitEntity();
+        if (ent != null) {
+            MCPets.getScheduler().teleportAsync(ent, loc);
+        } else {
+            this.despawn(PetDespawnReason.ENTITY_EXPECTED_NOT_FOUND);
+        }
     }
 
     /**
