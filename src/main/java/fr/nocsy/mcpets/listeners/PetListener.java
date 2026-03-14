@@ -159,11 +159,13 @@ public class PetListener implements Listener {
         // Create a copy to avoid ConcurrentModificationException when despawning modifies the list
         for (Pet pet : List.copyOf(pets)) {
             pet.despawn(PetDespawnReason.DISCONNECTION);
-            reconnectionPets.put(p.getUniqueId(), pet.getId());
-            if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
-                PlayerData pd = PlayerData.get(p.getUniqueId());
-                pd.setLastActivePet(pet.getId());
-                pd.save();
+            if (p.hasPermission(pet.getPermission())) {
+                reconnectionPets.put(p.getUniqueId(), pet.getId());
+                if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
+                    PlayerData pd = PlayerData.get(p.getUniqueId());
+                    pd.setLastActivePet(pet.getId());
+                    pd.save();
+                }
             }
         }
         if (pets.isEmpty() && GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
@@ -187,6 +189,10 @@ public class PetListener implements Listener {
                 Pet pet = Pet.getFromId(reconnectionPets.get(p.getUniqueId()));
                 if (pet == null)
                     return;
+                if (!p.hasPermission(pet.getPermission())) {
+                    reconnectionPets.remove(p.getUniqueId());
+                    return;
+                }
                 pet = pet.copy();
                 pet.setCheckPermission(false);
                 pet.setOwner(p.getUniqueId());
