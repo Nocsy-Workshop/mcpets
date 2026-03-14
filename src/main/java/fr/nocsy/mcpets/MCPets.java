@@ -32,6 +32,7 @@ public class MCPets extends JavaPlugin {
     private static boolean itemsAdderFound = false;
     private static boolean luckPermsNotFound = false;
     private static boolean nexoFound = false;
+    private static boolean nexoChecked = false;
 
     @Getter
     private static PlaceholderAPICompat placeholderAPI;
@@ -67,6 +68,7 @@ public class MCPets extends JavaPlugin {
         // Reset static flags for PlugMan reload support
         itemsAdderFound = false;
         nexoFound = false;
+        nexoChecked = false;
         luckPermsNotFound = false;
 
         if (!checkMythicMobs()) {
@@ -145,7 +147,9 @@ public class MCPets extends JavaPlugin {
 
     public static boolean checkNexo() {
         if (nexoFound) return true;
+        if (nexoChecked) return false;
 
+        nexoChecked = true;
         try {
             Class.forName("com.nexomc.nexo.api.NexoItems");
             Bukkit.getLogger().info("[MCPets] : Nexo found. Nexo Custom items features are available.");
