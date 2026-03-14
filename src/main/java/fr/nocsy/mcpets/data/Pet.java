@@ -455,10 +455,12 @@ public class Pet {
      * Clear the list of pets
      */
     public static void clearPets() {
+        List<Pet> allPets = new ArrayList<>();
         for (List<Pet> petList : Pet.getActivePets().values()) {
-            for (Pet pet : petList) {
-                pet.despawn(PetDespawnReason.RELOAD);
-            }
+            allPets.addAll(petList);
+        }
+        for (Pet pet : allPets) {
+            pet.despawn(PetDespawnReason.RELOAD);
         }
     }
 
@@ -821,6 +823,12 @@ public class Pet {
         Pet.addActivePet(owner, this);
         Debugger.send("§b[LIMIT CHECK] Pet " + this.id + " added to active list for owner " + owner);
 
+        if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
+            PlayerData pd = PlayerData.get(owner);
+            pd.setLastActivePet(this.getId());
+            pd.save();
+        }
+
         // Check max active pets/mounts limit AFTER adding this pet to the list
         // This ensures accurate counting and prevents race conditions
         boolean isMount = this.isMount();
@@ -1091,12 +1099,26 @@ public class Pet {
 
             Pet.removeActivePet(owner, this);
             Debugger.send("§b[DESPAWN] Removed pet " + id + " from active list");
+            if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
+                if (reason == PetDespawnReason.REVOKE || reason == PetDespawnReason.DISMOUNT || reason == PetDespawnReason.UNKNOWN) {
+                    PlayerData pd = PlayerData.get(owner);
+                    pd.setLastActivePet("");
+                    pd.save();
+                }
+            }
             return true;
         }
 
         Debugger.send("§cActive mob was not found, so it could not be despawned.");
         Pet.removeActivePet(owner, this);
         Debugger.send("§b[DESPAWN] Removed pet " + id + " from active list (no active mob)");
+        if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
+            if (reason == PetDespawnReason.REVOKE || reason == PetDespawnReason.DISMOUNT || reason == PetDespawnReason.UNKNOWN) {
+                PlayerData pd = PlayerData.get(owner);
+                pd.setLastActivePet("");
+                pd.save();
+            }
+        }
         return false;
     }
 

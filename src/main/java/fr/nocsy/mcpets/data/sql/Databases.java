@@ -46,8 +46,16 @@ public class Databases {
     public static void createSQLTables() {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
-        getMySQL().query("CREATE TABLE IF NOT EXISTS " + table + " (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, inventories LONGTEXT, data LONGTEXT, primary key (id));");
+        getMySQL().query("CREATE TABLE IF NOT EXISTS " + table + " (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, inventories LONGTEXT, data LONGTEXT, lastActivePet TEXT, primary key (id));");
         getMySQL().query("ALTER TABLE " + table + " MODIFY inventories LONGTEXT, MODIFY data LONGTEXT;");
+        ResultSet rs = getMySQL().query("SELECT count(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + GlobalConfig.getInstance().getMySQL_DB() + "' AND TABLE_NAME = '" + table + "' AND COLUMN_NAME = 'lastActivePet'");
+        try {
+            if (rs != null && rs.next() && rs.getInt(1) == 0) {
+                 getMySQL().query("ALTER TABLE " + table + " ADD lastActivePet TEXT;");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean loadData() {
@@ -88,6 +96,11 @@ public class Databases {
                         PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
                     }
 
+                    try {
+                        pd.setLastActivePet(playerData.getString("lastActivePet"));
+                    } catch (SQLException e) {
+                        // Column might not exist yet
+                    }
                     PlayerData.getRegisteredData().put(uuid, pd);
                 }
             }
@@ -142,6 +155,11 @@ public class Databases {
                         PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
                     }
 
+                    try {
+                        pd.setLastActivePet(playerData.getString("lastActivePet"));
+                    } catch (SQLException e) {
+                        // Column might not exist yet
+                    }
                     PlayerData.getRegisteredData().put(uuid, pd);
                 }
             }
@@ -165,6 +183,8 @@ public class Databases {
 
                 String names = buildStringSerialized(pd.getMapOfRegisteredNames());
                 String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+                String lastActivePet = pd.getLastActivePet();
+                if (lastActivePet == null) lastActivePet = "";
 
                 StringBuilder data = new StringBuilder();
 
@@ -174,10 +194,11 @@ public class Databases {
                 if (data.length() > 0)
                     data = new StringBuilder(data.substring(0, data.length() - 3));
 
-                getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
+                getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data, lastActivePet) VALUES ('" + uuid.toString()
                         + "', '" + names
                         + "', '" + inventories
-                        + "', '" + data + "')");
+                        + "', '" + data
+                        + "', '" + lastActivePet + "')");
             }
         }
     }
@@ -193,6 +214,8 @@ public class Databases {
 
             String names = buildStringSerialized(pd.getMapOfRegisteredNames()).replace("'", "").replace("\"", "");
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+            String lastActivePet = pd.getLastActivePet();
+            if (lastActivePet == null) lastActivePet = "";
 
             StringBuilder data = new StringBuilder();
 
@@ -206,10 +229,11 @@ public class Databases {
             getMySQL().query("DELETE FROM " + table + " WHERE uuid='" + playerUUID.toString() + "'");
 
             // Then, insert the new data for the player
-            getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + playerUUID.toString()
+            getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data, lastActivePet) VALUES ('" + playerUUID.toString()
                     + "', '" + names
                     + "', '" + inventories
-                    + "', '" + data + "')");
+                    + "', '" + data
+                    + "', '" + lastActivePet + "')");
         }
     }
 

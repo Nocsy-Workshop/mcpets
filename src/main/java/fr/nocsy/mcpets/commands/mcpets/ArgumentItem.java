@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 public class ArgumentItem extends AArgument {
 
     public ArgumentItem(CommandSender sender, String[] args) {
-        super("item", new int[]{3, 2}, sender, args);
+        super("item", new int[]{3, 2}, sender, args, "/mcpets item <key|add|remove|give|list> [key]");
     }
 
     @Override

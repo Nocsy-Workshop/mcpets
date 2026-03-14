@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 public class ArgumentOpen extends AArgument {
 
     public ArgumentOpen(CommandSender sender, String[] args) {
-        super("open", new int[]{2}, sender, args);
+        super("open", new int[]{2}, sender, args, "/mcpets open <player>");
     }
 
     @Override
