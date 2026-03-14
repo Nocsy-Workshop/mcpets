@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
 public class ArgumentClearStats extends AArgument {
 
     public ArgumentClearStats(CommandSender sender, String[] args) {
-        super("clearStats", new int[]{3, 2}, sender, args);
+        super("clearStats", new int[]{3, 2}, sender, args, "/mcpets clearStats <player|petId> [petId]");
     }
 
     @Override

@@ -67,6 +67,18 @@ public class MCPetsCommand implements CCommand {
                 }
             }
 
+            // Check if the argument name matched but with wrong number of args
+            for(AArgument argument : outcomes) {
+                if(argument.nameMatchesButIncomplete()) {
+                    if (argument.getUsage() != null) {
+                        sender.sendMessage("§cMissing arguments. Usage: §e" + argument.getUsage());
+                    } else {
+                        Language.USAGE.sendMessage(sender);
+                    }
+                    return;
+                }
+            }
+
             if (sender.hasPermission(getAdminPermission()))
                 Language.USAGE.sendMessage(sender);
         }

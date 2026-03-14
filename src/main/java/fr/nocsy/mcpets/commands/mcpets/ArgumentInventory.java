@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 public class ArgumentInventory extends AArgument {
 
     public ArgumentInventory(CommandSender sender, String[] args) {
-        super("inventory", new int[]{3}, sender, args);
+        super("inventory", new int[]{3}, sender, args, "/mcpets inventory <player> <petId>");
     }
 
     @Override

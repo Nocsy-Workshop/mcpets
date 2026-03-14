@@ -17,7 +17,7 @@ public class MountsCommand implements CCommand {
 
     @Override
     public String getName() {
-        return "mounts";
+        return "mcmounts";
     }
 
     @Override
