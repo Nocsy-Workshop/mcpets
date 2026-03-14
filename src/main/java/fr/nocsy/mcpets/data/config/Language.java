@@ -1,6 +1,8 @@
 package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.utils.Utils;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -169,27 +171,31 @@ public enum Language {
         return m;
     }
 
+    public Component getComponent() {
+        return Utils.toComponent(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessage()));
+    }
+
     public void sendMessage(Player p) {
         if (message.isEmpty())
             return;
-        p.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessagePAPI()));
+        ((Audience) p).sendMessage(getComponent());
     }
 
     public void sendMessage(CommandSender sender) {
         if (message.isEmpty())
             return;
-        sender.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessage()));
+        ((Audience) sender).sendMessage(getComponent());
     }
 
     public void sendMessageFormated(CommandSender sender, FormatArg... args) {
         if (message.isEmpty())
             return;
-        
+
         String toSend = getMessage();
         for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);
         }
-        sender.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + toSend));
+        ((Audience) sender).sendMessage(Utils.toComponent(Utils.hex(GlobalConfig.getInstance().getPrefix() + toSend)));
     }
 
     public String getMessageFormatted(FormatArg... args) {

@@ -1238,8 +1238,7 @@ public class Pet {
 
         }
         catch (Exception ex) {
-            MCPets.getLog().warning("[MCPets] : Exception raised while naming the pet " + ex.getClass().getSimpleName() + " | setDisplayName(" + Language.TAG_TO_REMOVE_NAME.getMessage() + ") for the pet " + this.id);
-            ex.printStackTrace();
+            MCPets.getLog().log(java.util.logging.Level.SEVERE, "[MCPets] : Exception raised while naming the pet | setDisplayName(" + Language.TAG_TO_REMOVE_NAME.getMessage() + ") for the pet " + this.id, ex);
         }
     }
 

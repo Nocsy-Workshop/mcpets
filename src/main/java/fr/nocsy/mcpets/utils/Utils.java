@@ -6,8 +6,10 @@ import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.BlacklistConfig;
 import io.lumine.mythic.api.skills.Skill;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -23,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,7 +56,7 @@ public class Utils {
                     urlObject = new URL("http://textures.minecraft.net/texture/8dcfabbbb4d7b0381135bf07b6af3de920ab4c366c06c37fa4c4e8b8f43bbb2b");
                 }
                 catch (MalformedURLException malformedURLException) {
-                    malformedURLException.printStackTrace();
+                    Bukkit.getLogger().log(Level.SEVERE, "Failed to parse fallback texture URL", malformedURLException);
                 }
             }
 
@@ -133,16 +136,29 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
+    /**
+     * Convert a legacy color-coded string (§ codes) to an Adventure Component
+     */
+    public static Component toComponent(String legacyText) {
+        return LegacyComponentSerializer.legacySection().deserialize(legacyText);
+    }
+
+    /**
+     * Convert a string with § codes to plain text (no formatting)
+     */
+    public static String stripColors(String text) {
+        return PlainTextComponentSerializer.plainText().serialize(toComponent(text));
+    }
+
     public static void sendActionBar(Player p, String message) {
-        TextComponent text_component = new TextComponent(message);
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, text_component);
+        ((Audience) p).sendActionBar(toComponent(message));
     }
 
     /**
      * Says whether the string is in the blacklist of words
      */
     public static String isInBlackList(String s) {
-        String toMatch = ChatColor.stripColor(s).toLowerCase();
+        String toMatch = stripColors(s).toLowerCase();
 
         for (String blackListedWord : BlacklistConfig.getInstance().getBlackListedWords()) {
             if (toMatch.contains(blackListedWord.toLowerCase())) {

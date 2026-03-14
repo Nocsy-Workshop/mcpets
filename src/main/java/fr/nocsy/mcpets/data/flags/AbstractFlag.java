@@ -58,8 +58,7 @@ public abstract class AbstractFlag {
                 // types don't match - this is bad news! some other plugin conflicts with you
                 // hopefully this never actually happens
                 MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " Flag couldn't be attached... Server restart will be necessary to fix the issue.");
-                MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " has raised the following exception : " + e.getClass().getSimpleName());
-                e.printStackTrace();
+                MCPets.getLog().log(java.util.logging.Level.SEVERE, MCPets.getLogName() + getFlagName() + " flag attachment failed", e);
             }
 
         }

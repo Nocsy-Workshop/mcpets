@@ -165,12 +165,15 @@ public class PetInventory {
      */
     public void close(Player p) {
         p.setMetadata("MCPets;petInventory", new FixedMetadataValue(MCPets.getInstance(), null));
-        new Thread(() -> {
-            if (!GlobalConfig.getInstance().isDatabaseSupport())
-                PlayerDataNoDatabase.get(p.getUniqueId()).save();
-            else
-                PlayerData.saveDB();
-        }).start();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!GlobalConfig.getInstance().isDatabaseSupport())
+                    PlayerDataNoDatabase.get(p.getUniqueId()).save();
+                else
+                    PlayerData.saveDB();
+            }
+        }.runTaskAsynchronously(MCPets.getInstance());
     }
 
     /**

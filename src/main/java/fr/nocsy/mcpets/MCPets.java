@@ -87,8 +87,7 @@ public class MCPets extends JavaPlugin {
             }
         }
         catch (Exception ex) {
-            getLog().warning(getLogName() + "Flag manager has raised an exception " + ex.getClass().getSimpleName());
-            ex.printStackTrace();
+            getLog().log(java.util.logging.Level.SEVERE, getLogName() + "Flag manager has raised an exception", ex);
         }
     }
 
