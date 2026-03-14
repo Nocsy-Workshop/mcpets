@@ -65,6 +65,7 @@ public enum Language {
     PLAYER_NOT_CONNECTED("§cThe player §6%player%§c isn't connected."),
     BLACKLISTED_WORD("§cRename operation has been cancelled. The word %word% is not allowed in a pet name."),
     NO_ACTIVE_PET("§cYou have no active pet."),
+    SPECIFY_PET("§cYou have multiple active pets. Please specify which one: §e%pets%"),
     SIGNAL_STICK_GIVEN("§aYou've received an order stick. Right click to cast an order, left click to switch orders."),
     SIGNAL_STICK_SIGNAL("§6Active order : §e%signal%"),
     LOOP_SPAWN("§cYour pet was revoked because it seems to struggle with numerous teleportations."),
