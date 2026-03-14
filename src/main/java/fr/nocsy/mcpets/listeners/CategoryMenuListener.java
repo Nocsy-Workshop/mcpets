@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.data.CategoryType;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
@@ -26,7 +27,11 @@ public class CategoryMenuListener implements Listener {
             e.setCancelled(true);
 
             if (e.getClickedInventory() == null && GlobalConfig.getInstance().isEnableClickBackToMenu()) {
-                CategoriesMenu.open(p);
+                if (category.getCategoryType() == CategoryType.MOUNT) {
+                    CategoriesMenu.openFiltered(p, CategoryType.MOUNT);
+                } else {
+                    CategoriesMenu.open(p);
+                }
                 return;
             }
 
