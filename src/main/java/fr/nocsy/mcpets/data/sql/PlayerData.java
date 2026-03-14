@@ -94,7 +94,7 @@ public class PlayerData {
 
     public void save() {
         if (GlobalConfig.getInstance().isDatabaseSupport())
-            saveDB();
+            Databases.savePlayerData(uuid);
         else {
             PlayerDataNoDatabase pdn = PlayerDataNoDatabase.get(uuid);
             pdn.setMapOfRegisteredNames(mapOfRegisteredNames);
