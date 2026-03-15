@@ -11,6 +11,7 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.flags.DismountPetFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.inventories.MountInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
@@ -173,6 +174,9 @@ public class PetListener implements Listener {
             pd.setLastActivePet("");
             pd.save();
         }
+        // Clean up player caches from memory to prevent memory leak
+        PlayerData.remove(p.getUniqueId());
+        PetInventory.removePlayer(p.getUniqueId());
     }
 
 

@@ -68,6 +68,10 @@ public class PetInventory {
         }
     }
 
+    public static void removePlayer(UUID owner) {
+        petInventories.remove(owner);
+    }
+
     public static PetInventory get(UUID owner, String petId) {
         Pet pet = Pet.getFromId(petId);
         if (pet == null)

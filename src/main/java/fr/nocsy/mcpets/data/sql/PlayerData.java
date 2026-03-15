@@ -122,6 +122,11 @@ public class PlayerData {
         }
     }
 
+    public static void remove(UUID uuid) {
+        registeredData.remove(uuid);
+        PlayerDataNoDatabase.getCacheMap().remove(uuid);
+    }
+
     public static void reloadAll(UUID uuid) {
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             Databases.loadData(uuid);
