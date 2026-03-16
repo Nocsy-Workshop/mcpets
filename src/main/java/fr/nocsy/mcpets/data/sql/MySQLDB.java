@@ -16,6 +16,11 @@ public class MySQLDB {
     private String port;
     private String db;
 
+    /** Timestamp of the last successful connection validation. */
+    private long lastValidationTime = 0;
+    /** Minimum interval (ms) between connection validations. */
+    private static final long VALIDATION_INTERVAL_MS = 5000;
+
     public MySQLDB(String user, String pass, String ip, String port, String db) {
         this.user = user;
         this.pass = pass;
@@ -62,10 +67,15 @@ public class MySQLDB {
     }
 
     private void ensureConnection() throws SQLException {
-        if (!this.sqlCon.isValid(2)) {
+        long now = System.currentTimeMillis();
+        if (now - lastValidationTime < VALIDATION_INTERVAL_MS) {
+            return;
+        }
+        if (!this.sqlCon.isValid(1)) {
             this.sqlCon.close();
             this.init();
         }
+        lastValidationTime = now;
     }
 
     public ResultSet query(String s) {
