@@ -58,6 +58,8 @@ public class BetterModelListeners {
             mountEntity = ((BukkitEntity) event.tracker().sourceEntity()).source();
             playerEntity = ((BukkitEntity) event.entity()).source();
         } catch (ClassCastException e) {
+            MCPets.getLog().warning("[BetterModel] Unexpected entity type in MountModelEvent — permission checks skipped: " + e.getMessage());
+            Debugger.send("§c[BetterModel] ClassCastException in onMount: " + e.getMessage());
             return;
         }
 
@@ -110,6 +112,7 @@ public class BetterModelListeners {
         try {
             mountEntity = ((BukkitEntity) event.tracker().sourceEntity()).source();
         } catch (ClassCastException e) {
+            Debugger.send("§c[BetterModel] ClassCastException in onDismount: " + e.getMessage());
             return;
         }
 
