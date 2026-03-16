@@ -1,14 +1,7 @@
 package fr.nocsy.mcpets.data;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.bone.BoneBehaviorTypes;
-import com.ticxo.modelengine.api.model.bone.ModelBone;
-import com.ticxo.modelengine.api.model.bone.manager.MountManager;
-import com.ticxo.modelengine.api.model.bone.type.NameTag;
-import com.ticxo.modelengine.api.mount.controller.MountControllerType;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.modeler.bone.AbstractNameTag;
 import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
@@ -1061,13 +1054,7 @@ public class Pet {
 
         if (activeMob != null) {
 
-            ModeledEntity model = ModelEngineAPI.getModeledEntity(activeMob.getEntity().getUniqueId());
-            if (model != null && model.getMountData() != null) {
-                MountManager mountManager = model.getMountData().getMainMountManager();
-                if (mountManager != null) {
-                    mountManager.dismountAll();
-                }
-            }
+            MCPets.getModeler().dismountAll(activeMob.getEntity().getUniqueId());
 
             // If it's not a death, we don't let the death animation happen
             if (reason != PetDespawnReason.DEATH) {
@@ -1087,7 +1074,7 @@ public class Pet {
                     }
                 }
                 else {
-                    ModelEngineAPI.removeModeledEntity(activeMob.getEntity().getUniqueId());
+                    MCPets.getModeler().removeModel(activeMob.getEntity().getUniqueId());
                     activeMob.despawn();
                     activeMob.remove();
                     if (activeMob.getEntity() != null)
@@ -1290,39 +1277,14 @@ public class Pet {
             return true;
 
         if (isStillHere()) {
+            UUID petUUID = activeMob.getEntity().getUniqueId();
             try {
-                UUID petUUID = activeMob.getEntity().getUniqueId();
-                ModeledEntity model = ModelEngineAPI.getModeledEntity(petUUID);
-                if (model == null) {
+                if (!MCPets.getModeler().mountDriver(petUUID, ent, mountType)) {
                     activeMob.getEntity().getBukkitEntity().addPassenger(ent);
                     return false;
                 }
-
-                MountManager mountManager = model.getMountData().getMainMountManager();
-                if (mountManager == null)
-                    return false;
-
-                MountControllerType controllerType = (MountControllerType)ModelEngineAPI.getMountControllerTypeRegistry().get(mountType);
-
-                if (ent.getVehicle() != null)
-                    ent.getVehicle().eject();
-                if (mountManager.getDriver() != null)
-                    mountManager.dismountDriver();
-                try {
-                    mountManager.mountDriver(ent, controllerType);
-                    mountManager.mountDriver(ent, controllerType, mountController -> {
-                        mountController.setCanDamageMount(false);
-                        //mountController.setCanInteractMount(false);
-                    });
-                }
-                catch(IllegalStateException ex) {
-                    Language.ALREADY_MOUNTING.sendMessageFormated(ent);
-                }
-            }
-            catch (NoClassDefFoundError error) {
-                MCPets.getLog().warning(Language.REQUIRES_MODELENGINE.getMessage());
-                if (ent instanceof Player)
-                    ent.sendMessage(Language.REQUIRES_MODELENGINE.getMessage());
+            } catch (IllegalStateException ex) {
+                Language.ALREADY_MOUNTING.sendMessageFormated(ent);
             }
             return true;
         }
@@ -1335,15 +1297,7 @@ public class Pet {
     public boolean hasMount(Entity ent) {
         if (isStillHere()) {
             UUID petUUID = activeMob.getEntity().getUniqueId();
-            ModeledEntity model = ModelEngineAPI.getModeledEntity(petUUID);
-            if (model == null) {
-                return false;
-            }
-            MountManager mountManager = model.getMountData().getMainMountManager();
-            if (mountManager == null)
-                return false;
-
-            return mountManager.getDriver() != null && mountManager.getDriver().getUniqueId().equals(ent.getUniqueId());
+            return MCPets.getModeler().hasMount(petUUID, ent);
         }
         return false;
     }
@@ -1355,22 +1309,10 @@ public class Pet {
         if (ent == null)
             return;
 
-        // Try - catch to prevent onDisable no class def found print
-        try {
-            if (isStillHere()) {
-                UUID localUUID = activeMob.getEntity().getUniqueId();
-                ModeledEntity model = ModelEngineAPI.getModeledEntity(localUUID);
-                if (model == null) {
-                    return;
-                }
-                MountManager mountManager = model.getMountData().getMainMountManager();
-                if (mountManager == null)
-                    return;
-                mountManager.dismountRider(ent);
-            }
-
+        if (isStillHere()) {
+            UUID localUUID = activeMob.getEntity().getUniqueId();
+            MCPets.getModeler().dismountRider(localUUID, ent);
         }
-        catch (NoClassDefFoundError ignored) {}
     }
 
     /**
@@ -1384,7 +1326,7 @@ public class Pet {
                 Utils.hex(name);
             }
 
-            NameTag tag = getNameBone();
+            AbstractNameTag tag = getNameBone();
             if (tag == null)
                 return;
             tag.setString(name);
@@ -1396,35 +1338,10 @@ public class Pet {
      * Returns the name bone
      * Null if it's null or invisible
      */
-    public NameTag getNameBone() {
+    public AbstractNameTag getNameBone() {
         if (isStillHere()) {
-
             UUID localUUID = activeMob.getEntity().getUniqueId();
-            ModeledEntity model = ModelEngineAPI.getModeledEntity(localUUID);
-            if (model == null) {
-                return null;
-            }
-            if (model.getModels().size() == 0) {
-                return null;
-            }
-
-            Optional<ActiveModel> opt = model.getModels().values().stream().findFirst();
-            ActiveModel activeModel = null;
-            if(opt.isPresent())
-                activeModel = opt.get();
-            else
-                return null;
-
-            ModelBone bone = activeModel.getBone("name")
-                    .stream()
-                    .filter(modelBone -> modelBone.getBoneBehavior(BoneBehaviorTypes.NAMETAG).orElse(null) != null)
-                    .findFirst().orElse(null);
-
-            if (bone == null)
-                return null;
-
-            NameTag nameTag = bone.getBoneBehavior(BoneBehaviorTypes.NAMETAG).orElse(null);
-            return nameTag;
+            return MCPets.getModeler().getNameTag(localUUID);
         }
         return null;
     }

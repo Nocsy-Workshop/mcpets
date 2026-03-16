@@ -152,6 +152,13 @@
             <groupId>com.ticxo.modelengine</groupId>
             <artifactId>ModelEngine</artifactId>
             <version>R4.0.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>bettermodel-bukkit-api</artifactId>
+            <version>2.0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.LoneDev6</groupId>

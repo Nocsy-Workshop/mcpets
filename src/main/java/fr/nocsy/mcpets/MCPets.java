@@ -5,6 +5,9 @@ import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
+import fr.nocsy.mcpets.modeler.AbstractModeler;
+import fr.nocsy.mcpets.modeler.BetterModelModeler;
+import fr.nocsy.mcpets.modeler.ModelEngineModeler;
 import fr.nocsy.mcpets.data.editor.EditorConversation;
 import fr.nocsy.mcpets.data.editor.EditorItems;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
@@ -33,6 +36,9 @@ public class MCPets extends JavaPlugin {
     private static boolean luckPermsNotFound = false;
     private static boolean nexoFound = false;
     private static boolean nexoChecked = false;
+
+    @Getter
+    private static AbstractModeler modeler;
 
     @Getter
     private static PlaceholderAPICompat placeholderAPI;
@@ -70,9 +76,15 @@ public class MCPets extends JavaPlugin {
         nexoFound = false;
         nexoChecked = false;
         luckPermsNotFound = false;
+        modeler = null;
 
         if (!checkMythicMobs()) {
             getLog().severe("MCPets could not be loaded : MythicMobs could not be found or this version is not compatible with the plugin.");
+            return;
+        }
+
+        if (!checkModeler()) {
+            getLog().severe("MCPets could not be loaded : Neither ModelEngine nor BetterModel could be found.");
             return;
         }
 
@@ -95,6 +107,7 @@ public class MCPets extends JavaPlugin {
     public void onEnable() {
         CommandHandler.init(this);
         EventListener.init(this);
+        modeler.registerListeners(this);
 
         loadConfigs();
         PetStats.saveStats();
@@ -118,6 +131,10 @@ public class MCPets extends JavaPlugin {
         // Cancel pending editor conversations before the JAR is unloaded to avoid
         // IllegalStateException (zip file closed) if a listener fires after disable.
         EditorConversation.clearAll();
+
+        if (modeler != null) {
+            modeler.unregisterListeners();
+        }
 
         PetStats.saveAll();
         Pet.clearPets();
@@ -208,6 +225,32 @@ public class MCPets extends JavaPlugin {
         catch (NoClassDefFoundError error) {
             getLog().warning("[MCPets] : MythicMobs could not be found.");
         }
+
+        return false;
+    }
+
+    /**
+     * Check and initialize the modeler (BetterModel or ModelEngine)
+     */
+    private static boolean checkModeler() {
+        if (modeler != null)
+            return true;
+
+        // Try BetterModel first
+        try {
+            Class.forName("kr.toxicity.model.api.BetterModel");
+            modeler = new BetterModelModeler();
+            getLog().info("[MCPets] : BetterModel found. Using BetterModel as modeler.");
+            return true;
+        } catch (ClassNotFoundException ignored) {}
+
+        // Fallback to ModelEngine
+        try {
+            Class.forName("com.ticxo.modelengine.api.ModelEngineAPI");
+            modeler = new ModelEngineModeler();
+            getLog().info("[MCPets] : ModelEngine found. Using ModelEngine as modeler.");
+            return true;
+        } catch (ClassNotFoundException ignored) {}
 
         return false;
     }

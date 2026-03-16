@@ -1,8 +1,5 @@
 package fr.nocsy.mcpets.data.flags;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.bone.manager.MountManager;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
@@ -46,28 +43,8 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
                     if (!pet.isMountable())
                         continue;
 
-                    UUID uuid = pet.getActiveMob().getUniqueId();
-                    ModeledEntity model = ModelEngineAPI.getModeledEntity(uuid);
-                    if (model == null)
+                    if (!MCPets.getModeler().isFlyingMount(pet, owner))
                         continue;
-                    MountManager mountManager = model.getMountData().getMainMountManager();
-                    if (model.getMountData() == null ||
-                            model.getMountData().getMainMountManager() ==  null ||
-                            model.getMountData().getMainMountManager().getType() == null)
-                        continue;
-                    if (!mountManager.hasRiders())
-                        continue;
-
-                    try {
-                        String controllerClass = ModelEngineAPI.getMountPairManager().getController(owner).getClass().getSimpleName();
-                        String petMountType = pet.getMountType();
-                        String type = petMountType + " " + model.getMountData().getMainMountManager().getType().getId() + " " + controllerClass;
-                        if(!type.toUpperCase().contains("FLY"))
-                            continue;
-                    }
-                    catch (Exception e) {
-                        continue;
-                    }
 
                     Player p = Bukkit.getPlayer(owner);
                     if (p != null) {

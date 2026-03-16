@@ -11,8 +11,9 @@ database: false
 prefix: '${project.name}'
 depend:
   - MythicMobs
-  - ModelEngine
 softdepend:
+  - ModelEngine
+  - BetterModel
   - Nexo
   - WorldGuard
   - LuckPerms
