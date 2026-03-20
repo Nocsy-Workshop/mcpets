@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -225,6 +226,20 @@ public class Utils {
         }
 
         return false;
+    }
+
+    /**
+     * Give permission async, returning a future that completes once LuckPerms has applied the change.
+     */
+    public static CompletableFuture<Void> givePermissionAsync(UUID uuid, String permission) {
+        return PermsUtils.givePermissionAsync(uuid, permission);
+    }
+
+    /**
+     * Remove permission async, returning a future that completes once LuckPerms has applied the change.
+     */
+    public static CompletableFuture<Void> removePermissionAsync(UUID uuid, String permission) {
+        return PermsUtils.removePermissionAsync(uuid, permission);
     }
 
     /**

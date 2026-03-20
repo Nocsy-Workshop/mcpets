@@ -23,6 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class PetLevel {
 
@@ -204,14 +205,6 @@ public class PetLevel {
             if (evolution == null)
                 return false;
 
-            // Give the permission to the owner
-            Utils.givePermission(player, evolution.getPermission());
-
-            // Remove the previous permission if it's an enabled feature
-            if (removePrevious) {
-                Utils.removePermission(player, pet.getPermission());
-            }
-
             // We disable the perm check on that one so it doesn't run into a weird synchronisation issue
             evolution.setCheckPermission(false);
             // Set the owner as the current player
@@ -245,28 +238,32 @@ public class PetLevel {
             if (owner == null)
                 return false;
 
-            // Spawn the evolution
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    // Make sure the owner is still here
-                    Player owner = Bukkit.getPlayer(player);
-                    if (owner != null)
-                    {
-                        Pet activePet = Pet.fromOwner(player);
-                        Location loc = activePet != null && activePet.isStillHere() ?
-                                        activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
-                                        owner.getLocation();
+            // Give the permission async and wait for LuckPerms to apply before spawning
+            CompletableFuture<Void> permFuture = Utils.givePermissionAsync(player, evolution.getPermission());
+            if (removePrevious) {
+                permFuture = permFuture.thenCompose(v -> Utils.removePermissionAsync(player, pet.getPermission()));
+            }
 
-                        // Despawn the previous pet
-                        if (activePet != null && activePet.isStillHere())
-                            activePet.despawn(PetDespawnReason.EVOLUTION);
+            // Once permissions are applied, spawn the evolution on the main thread
+            permFuture.thenRun(() -> Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                // Make sure the owner is still here
+                Player o = Bukkit.getPlayer(player);
+                if (o != null) {
+                    Pet activePet = Pet.fromOwner(player);
+                    Location loc = activePet != null && activePet.isStillHere() ?
+                                    activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
+                                    o.getLocation();
 
-                        // Spawn the evolution
-                        evolution.spawn(loc, false);
-                    }
+                    // Despawn the previous pet
+                    if (activePet != null && activePet.isStillHere())
+                        activePet.despawn(PetDespawnReason.EVOLUTION);
+
+                    // Spawn the evolution
+                    evolution.spawn(loc, false);
+                    // Re-enable permission checking now that LuckPerms has propagated
+                    evolution.setCheckPermission(true);
                 }
-            }.runTaskLater(MCPets.getInstance(), delayBeforeEvolution);
+            }, delayBeforeEvolution));
             return true;
         }
 
