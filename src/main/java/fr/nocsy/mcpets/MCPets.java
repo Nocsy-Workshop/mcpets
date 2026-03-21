@@ -12,6 +12,7 @@ import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.listeners.EventListener;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
+import fr.nocsy.mcpets.velocity.VelocitySyncManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
@@ -91,6 +92,12 @@ public class MCPets extends JavaPlugin {
 
         loadConfigs();
         PetStats.saveStats();
+
+        if (GlobalConfig.getInstance().isVelocityEnabled()) {
+            VelocitySyncManager.init();
+            getLog().info(getLogName() + "Velocity sync enabled.");
+        }
+
         // Register the placeholders
         PetPlaceholdersManager.registerPlaceholders();
 
@@ -113,6 +120,7 @@ public class MCPets extends JavaPlugin {
         PlayerData.saveDB();
         FlagsManager.stopFlags();
         Databases.closeConnection();
+        VelocitySyncManager.shutdown();
     }
 
     /**

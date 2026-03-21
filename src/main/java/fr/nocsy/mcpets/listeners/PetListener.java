@@ -13,8 +13,10 @@ import fr.nocsy.mcpets.data.flags.DismountPetFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
+import fr.nocsy.mcpets.velocity.VelocitySyncManager;
 import fr.nocsy.mcpets.events.PetOwnerInteractEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import fr.nocsy.mcpets.utils.Utils;
@@ -122,10 +124,26 @@ public class PetListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        Pet pet = Pet.getActivePets().get(p.getUniqueId());
+        UUID uuid = p.getUniqueId();
+        Pet pet = Pet.getActivePets().get(uuid);
         if (pet != null) {
+            // Persist active pet to the dedicated DB table for cross-server restore.
+            // Done synchronously here (HIGHEST priority) so the record is committed
+            // before Velocity routes the player to the next server.
+            if (GlobalConfig.getInstance().isVelocityEnabled()
+                    && GlobalConfig.getInstance().isDatabaseSupport()) {
+                Databases.saveActivePet(uuid, pet.getId());
+            }
             pet.despawn(PetDespawnReason.DISCONNECTION);
-            reconnectionPets.put(p.getUniqueId(), pet.getId());
+            reconnectionPets.put(uuid, pet.getId());
+        } else {
+            // No active pet — clear any stale DB record so the destination server
+            // does not restore a pet the player deliberately revoked.
+            if (GlobalConfig.getInstance().isVelocityEnabled()
+                    && GlobalConfig.getInstance().isDatabaseSupport()) {
+                Databases.clearActivePet(uuid);
+            }
+            reconnectionPets.remove(uuid);
         }
     }
 
@@ -133,23 +151,62 @@ public class PetListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void reconnectionPlayer(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        UUID uuid = p.getUniqueId();
 
-        // delay before loading the player data from the database
         Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-            // Load the player data from the database for bungee support
+            if (!p.isOnline()) return;
+
             if (GlobalConfig.getInstance().isDatabaseSupport()) {
-                PlayerData.reloadAll(p.getUniqueId());
+                PlayerData.reloadAll(uuid);
             }
 
-            if (reconnectionPets.containsKey(p.getUniqueId())) {
-                Pet pet = Pet.getFromId(reconnectionPets.get(p.getUniqueId()));
-                if (pet == null)
-                    return;
+            if (GlobalConfig.getInstance().isVelocityEnabled()
+                    && GlobalConfig.getInstance().isDatabaseSupport()) {
+
+                // When Velocity is enabled the DB is the ONLY source of truth.
+                // reconnectionPets on any given server reflects the last time the player
+                // disconnected from THAT server's JVM — it goes stale the moment the player
+                // visits another server. Never fall through to it when Velocity is on.
+                boolean definiteSwitch = VelocitySyncManager.isPlayerSwitching(uuid);
+                VelocitySyncManager.clearSwitchingPlayer(uuid);
+                reconnectionPets.remove(uuid); // discard — DB owns the state
+
+                Databases.ActivePetRecord record = Databases.loadActivePet(uuid);
+                if (record != null) {
+                    long ageSecs = (System.currentTimeMillis() - record.getUpdatedAt()) / 1000L;
+                    boolean isFresh = definiteSwitch
+                            || ageSecs <= GlobalConfig.getInstance().getVelocitySwitchWindow();
+                    Databases.clearActivePet(uuid);
+
+                    if (isFresh) {
+                        Pet template = Pet.getFromId(record.getPetId());
+                        if (template == null) return;
+                        Pet pet = template.copy();
+                        pet.setCheckPermission(false);
+                        pet.setOwner(uuid);
+                        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                            if (p.isOnline()) pet.spawn(p.getLocation(), true);
+                        }, 2L);
+                    }
+                    // Stale record means player fully disconnected from the network —
+                    // no pet to restore, consistent with the revoke-then-reconnect case.
+                }
+                // No DB record = player had no active pet when they left — don't spawn.
+                return; // never fall through to reconnectionPets when Velocity is enabled
+            }
+
+            // Velocity disabled: use the local reconnection map (original behaviour).
+            if (reconnectionPets.containsKey(uuid)) {
+                String petId = reconnectionPets.remove(uuid);
+                Pet pet = Pet.getFromId(petId);
+                if (pet == null) return;
                 pet = pet.copy();
                 pet.setCheckPermission(false);
-                pet.setOwner(p.getUniqueId());
-                pet.spawn(p.getLocation(), true);
-                reconnectionPets.remove(p.getUniqueId());
+                pet.setOwner(uuid);
+                final Pet finalPet = pet;
+                Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                    if (p.isOnline()) finalPet.spawn(p.getLocation(), true);
+                }, 2L);
             }
         }, 20L);
     }

@@ -20,6 +20,10 @@ softdepend:
   - ItemsAdder
 loadbefore: []
 
+# Plugin messaging channel used for Velocity pet sync
+channels:
+  - mcpets:sync
+
 commands:
   mcpets:
     description: Command to manage your pets
