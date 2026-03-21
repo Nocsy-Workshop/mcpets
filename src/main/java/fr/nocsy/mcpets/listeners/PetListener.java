@@ -167,29 +167,20 @@ public class PetListener implements Listener {
                 // reconnectionPets on any given server reflects the last time the player
                 // disconnected from THAT server's JVM — it goes stale the moment the player
                 // visits another server. Never fall through to it when Velocity is on.
-                boolean definiteSwitch = VelocitySyncManager.isPlayerSwitching(uuid);
                 VelocitySyncManager.clearSwitchingPlayer(uuid);
                 reconnectionPets.remove(uuid); // discard — DB owns the state
 
                 Databases.ActivePetRecord record = Databases.loadActivePet(uuid);
                 if (record != null) {
-                    long ageSecs = (System.currentTimeMillis() - record.getUpdatedAt()) / 1000L;
-                    boolean isFresh = definiteSwitch
-                            || ageSecs <= GlobalConfig.getInstance().getVelocitySwitchWindow();
                     Databases.clearActivePet(uuid);
-
-                    if (isFresh) {
-                        Pet template = Pet.getFromId(record.getPetId());
-                        if (template == null) return;
-                        Pet pet = template.copy();
-                        pet.setCheckPermission(false);
-                        pet.setOwner(uuid);
-                        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-                            if (p.isOnline()) pet.spawn(p.getLocation(), true);
-                        }, 2L);
-                    }
-                    // Stale record means player fully disconnected from the network —
-                    // no pet to restore, consistent with the revoke-then-reconnect case.
+                    Pet template = Pet.getFromId(record.getPetId());
+                    if (template == null) return;
+                    Pet pet = template.copy();
+                    pet.setCheckPermission(false);
+                    pet.setOwner(uuid);
+                    Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                        if (p.isOnline()) pet.spawn(p.getLocation(), true);
+                    }, 2L);
                 }
                 // No DB record = player had no active pet when they left — don't spawn.
                 return; // never fall through to reconnectionPets when Velocity is enabled

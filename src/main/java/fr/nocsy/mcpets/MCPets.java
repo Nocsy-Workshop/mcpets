@@ -20,6 +20,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class MCPets extends JavaPlugin {
@@ -116,6 +118,16 @@ public class MCPets extends JavaPlugin {
         getLog().info("-=-=-=-= -=-=-=-=-=-=-=- =-=-=-=-");
 
         PetStats.saveAll();
+
+        // Save all active pets to DB before clearing them so that a server restart
+        // does not wipe the mcpets_active_pet records — players rejoin with their pet intact.
+        if (GlobalConfig.getInstance().isVelocityEnabled()
+                && GlobalConfig.getInstance().isDatabaseSupport()) {
+            for (Map.Entry<UUID, Pet> entry : Pet.getActivePets().entrySet()) {
+                Databases.saveActivePet(entry.getKey(), entry.getValue().getId());
+            }
+        }
+
         Pet.clearPets();
         PlayerData.saveDB();
         FlagsManager.stopFlags();
