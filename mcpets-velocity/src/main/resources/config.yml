@@ -1,0 +1,16 @@
+# MCPets-Velocity companion plugin configuration
+#
+# List every backend server name (as defined in velocity.toml) where pet sync should be active.
+# Players switching between any two servers in this list will have their active pet restored
+# automatically on the destination server.
+#
+# Leave the list empty to sync across ALL servers on the network.
+#
+# Example:
+#   synced-servers:
+#     - skyblock1
+#     - skyblock2
+#     - skyblock3
+
+synced-servers:
+  - skyblock

@@ -31,7 +31,30 @@ Looking for help ? Join the [Discord](https://discord.com/invite/p7QTm2gUyf) !
 
 ⭕ MySQL support
 
+⭕ **Velocity cross-server pet sync** — active pets follow players seamlessly between servers on a Velocity network *(see [mcpets-velocity/README.md](mcpets-velocity/README.md))*
+
 ✨ Need a demo pet to start with ? Check out [Sleepy the Otter](https://mcmodels.net/model/sleepy-the-otter/) !
+
+---
+
+## Velocity Cross-Server Sync
+
+This fork adds a companion Velocity proxy plugin (`mcpets-velocity/`) that keeps a player's active pet consistent across all synced servers in your network.
+
+**How it works:**
+- When a player switches to a synced server, their active pet is saved to the shared MySQL database and automatically spawned on the destination server
+- Revoking a pet on any server clears the record network-wide — no ghost spawns
+- Only servers listed under `synced-servers` in the Velocity config participate; all other servers are unaffected
+
+**Quick setup:**
+1. Enable MySQL in MCPets and point all synced servers at the same database
+2. Set `Velocity.Enabled: true` in MCPets `config.yml` on each synced server
+3. Drop `MCPets-Velocity-<version>.jar` into your Velocity proxy's `plugins/` folder
+4. Configure which servers to sync in `plugins/mcpets-velocity/config.yml` on the proxy
+
+See [mcpets-velocity/README.md](mcpets-velocity/README.md) for full setup instructions and configuration options.
+
+---
 
 <img src="https://i.ibb.co/Sn460M4/patreon-advantages.png" alt="Patreon advantages">
 
