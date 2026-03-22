@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 public class ArgumentSignalStick extends AArgument {
 
     public ArgumentSignalStick(CommandSender sender, String[] args) {
-        super("signalStick", new int[]{3, 2}, sender, args);
+        super("signalStick", new int[]{3, 2}, sender, args, "/mcpets signalStick <petId> [player]");
     }
 
     @Override

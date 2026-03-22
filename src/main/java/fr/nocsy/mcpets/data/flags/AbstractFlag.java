@@ -12,6 +12,7 @@ import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
 
 public abstract class AbstractFlag {
@@ -43,25 +44,21 @@ public abstract class AbstractFlag {
             registry.register(flag);
             this.flag = flag; // only set our field if there was no error
 
-            MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " flag registered successfully !");
+            Debugger.send(getFlagName() + " flag registered successfully !");
 
         } catch (Exception e) {
-            MCPets.getLog().warning(MCPets.getLogName() + "Exception raised " + e.getClass().getSimpleName());
-            MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " seems to be conflicting with a previously existing instance of the plugin. Trying to attach the flag to the previous version...");
             // some other plugin registered a flag by the same name already.
             // you can use the existing flag, but this may cause conflicts - be sure to check type
             Flag<?> existing = registry.get(flagName);
-            MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " has been considered as " + existing + " by Worldguard");
             if (existing instanceof StateFlag) {
                 this.flag = (StateFlag) existing;
-                MCPets.getLog().info(MCPets.getLogName() + getFlagName() + " flag attached successfully !");
+                Debugger.send(getFlagName() + " flag reattached successfully (was already registered).");
             }
             else {
                 // types don't match - this is bad news! some other plugin conflicts with you
                 // hopefully this never actually happens
                 MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " Flag couldn't be attached... Server restart will be necessary to fix the issue.");
-                MCPets.getLog().warning(MCPets.getLogName() + getFlagName() + " has raised the following exception : " + e.getClass().getSimpleName());
-                e.printStackTrace();
+                MCPets.getLog().log(java.util.logging.Level.SEVERE, MCPets.getLogName() + getFlagName() + " flag attachment failed", e);
             }
 
         }

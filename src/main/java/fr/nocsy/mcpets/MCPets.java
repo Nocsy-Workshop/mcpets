@@ -5,6 +5,10 @@ import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.*;
+import fr.nocsy.mcpets.modeler.AbstractModeler;
+import fr.nocsy.mcpets.modeler.BetterModelModeler;
+import fr.nocsy.mcpets.modeler.ModelEngineModeler;
+import fr.nocsy.mcpets.data.editor.EditorConversation;
 import fr.nocsy.mcpets.data.editor.EditorItems;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
@@ -31,6 +35,10 @@ public class MCPets extends JavaPlugin {
     private static boolean itemsAdderFound = false;
     private static boolean luckPermsNotFound = false;
     private static boolean nexoFound = false;
+    private static boolean nexoChecked = false;
+
+    @Getter
+    private static AbstractModeler modeler;
 
     @Getter
     private static PlaceholderAPICompat placeholderAPI;
@@ -63,8 +71,20 @@ public class MCPets extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
+        // Reset static flags for PlugMan reload support
+        itemsAdderFound = false;
+        nexoFound = false;
+        nexoChecked = false;
+        luckPermsNotFound = false;
+        modeler = null;
+
         if (!checkMythicMobs()) {
             getLog().severe("MCPets could not be loaded : MythicMobs could not be found or this version is not compatible with the plugin.");
+            return;
+        }
+
+        if (!checkModeler()) {
+            getLog().severe("MCPets could not be loaded : Neither ModelEngine nor BetterModel could be found.");
             return;
         }
 
@@ -79,8 +99,7 @@ public class MCPets extends JavaPlugin {
             }
         }
         catch (Exception ex) {
-            getLog().warning(getLogName() + "Flag manager has raised an exception " + ex.getClass().getSimpleName());
-            ex.printStackTrace();
+            getLog().log(java.util.logging.Level.SEVERE, getLogName() + "Flag manager has raised an exception", ex);
         }
     }
 
@@ -88,6 +107,7 @@ public class MCPets extends JavaPlugin {
     public void onEnable() {
         CommandHandler.init(this);
         EventListener.init(this);
+        modeler.registerListeners(this);
 
         loadConfigs();
         PetStats.saveStats();
@@ -107,6 +127,14 @@ public class MCPets extends JavaPlugin {
         getLog().info("-=-=-=-= MCPets disabled =-=-=-=-");
         getLog().info("          See you soon           ");
         getLog().info("-=-=-=-= -=-=-=-=-=-=-=- =-=-=-=-");
+
+        // Cancel pending editor conversations before the JAR is unloaded to avoid
+        // IllegalStateException (zip file closed) if a listener fires after disable.
+        EditorConversation.clearAll();
+
+        if (modeler != null) {
+            modeler.unregisterListeners();
+        }
 
         PetStats.saveAll();
         Pet.clearPets();
@@ -135,7 +163,9 @@ public class MCPets extends JavaPlugin {
 
     public static boolean checkNexo() {
         if (nexoFound) return true;
+        if (nexoChecked) return false;
 
+        nexoChecked = true;
         try {
             Class.forName("com.nexomc.nexo.api.NexoItems");
             Bukkit.getLogger().info("[MCPets] : Nexo found. Nexo Custom items features are available.");
@@ -143,6 +173,10 @@ public class MCPets extends JavaPlugin {
         } catch (ClassNotFoundException e) {
             nexoFound = false;
             Bukkit.getLogger().warning("[MCPets] : Nexo could not be found. Nexo Custom items features won't be available.");
+        } catch (Exception e) {
+            // Handle cases like zip file closed during plugin reload
+            nexoFound = false;
+            Bukkit.getLogger().warning("[MCPets] : Could not check for Nexo (" + e.getClass().getSimpleName() + "). Nexo Custom items features won't be available.");
         }
 
         return nexoFound;
@@ -191,6 +225,32 @@ public class MCPets extends JavaPlugin {
         catch (NoClassDefFoundError error) {
             getLog().warning("[MCPets] : MythicMobs could not be found.");
         }
+
+        return false;
+    }
+
+    /**
+     * Check and initialize the modeler (BetterModel or ModelEngine)
+     */
+    private static boolean checkModeler() {
+        if (modeler != null)
+            return true;
+
+        // Try BetterModel first
+        try {
+            Class.forName("kr.toxicity.model.api.BetterModel");
+            modeler = new BetterModelModeler();
+            getLog().info("[MCPets] : BetterModel found. Using BetterModel as modeler.");
+            return true;
+        } catch (ClassNotFoundException ignored) {}
+
+        // Fallback to ModelEngine
+        try {
+            Class.forName("com.ticxo.modelengine.api.ModelEngineAPI");
+            modeler = new ModelEngineModeler();
+            getLog().info("[MCPets] : ModelEngine found. Using ModelEngine as modeler.");
+            return true;
+        } catch (ClassNotFoundException ignored) {}
 
         return false;
     }

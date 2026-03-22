@@ -49,7 +49,8 @@ public class MCPetsCommand implements CCommand {
                     new ArgumentItem(sender, args),
                     new ArgumentInventory(sender, args),
                     new ArgumentMount(sender, args),
-                    new ArgumentName(sender, args),
+                    new ArgumentMounts(sender, args),
+                    new ArgumentMenu(sender, args),
                     new ArgumentOpen(sender, args),
                     new ArgumentPetFood(sender, args),
                     new ArgumentReload(sender, args),
@@ -62,6 +63,18 @@ public class MCPetsCommand implements CCommand {
             for(AArgument argument : outcomes) {
                 if(argument.conditionsVerified()) {
                     argument.commandEffect();
+                    return;
+                }
+            }
+
+            // Check if the argument name matched but with wrong number of args
+            for(AArgument argument : outcomes) {
+                if(argument.nameMatchesButIncomplete()) {
+                    if (argument.getUsage() != null) {
+                        sender.sendMessage("§cMissing arguments. Usage: §e" + argument.getUsage());
+                    } else {
+                        Language.USAGE.sendMessage(sender);
+                    }
                     return;
                 }
             }

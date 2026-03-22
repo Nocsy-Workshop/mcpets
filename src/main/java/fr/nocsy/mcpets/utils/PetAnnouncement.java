@@ -1,9 +1,13 @@
 package fr.nocsy.mcpets.utils;
 
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 public enum PetAnnouncement {
@@ -20,28 +24,30 @@ public enum PetAnnouncement {
 
     public void announce(Player p, String message) {
         message = ChatColor.translateAlternateColorCodes('&', message);
+        Audience audience = (Audience) p;
 
         switch(announcementType) {
             case "title":
+                Title.Times times = Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(2000), Duration.ofMillis(500));
                 String[] cut = message.split("\n");
                 if (cut.length == 2) {
-                    String title = cut[0];
-                    String subtitle = cut[1];
-                    p.sendTitle(title, subtitle, 10, 40, 10);
+                    Component title = Utils.toComponent(cut[0]);
+                    Component subtitle = Utils.toComponent(cut[1]);
+                    audience.showTitle(Title.title(title, subtitle, times));
                 }
                 else {
-                    p.sendTitle(message, "", 10, 40, 10);
+                    audience.showTitle(Title.title(Utils.toComponent(message), Component.empty(), times));
                 }
                 break;
 
             case "chat":
-                p.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
+                audience.sendMessage(Utils.toComponent(GlobalConfig.getInstance().getPrefix() + message));
                 break;
             case "actionbar":
                 Utils.sendActionBar(p, message);
                 break;
             default:
-                p.sendMessage(GlobalConfig.getInstance().getPrefix() + message);
+                audience.sendMessage(Utils.toComponent(GlobalConfig.getInstance().getPrefix() + message));
         }
     }
 

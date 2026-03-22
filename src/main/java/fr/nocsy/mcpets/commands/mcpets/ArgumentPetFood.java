@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 public class ArgumentPetFood extends AArgument {
 
     public ArgumentPetFood(CommandSender sender, String[] args) {
-        super("petFood", new int[]{3, 2}, sender, args);
+        super("petFood", new int[]{3, 2}, sender, args, "/mcpets petFood <id> [player]");
     }
 
     @Override

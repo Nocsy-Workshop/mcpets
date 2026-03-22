@@ -1,6 +1,8 @@
 package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.utils.Utils;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -8,6 +10,9 @@ public enum Language {
 
     INVENTORY_PETS_MENU("§0☀ §4Pets §0☀"),
     INVENTORY_PETS_MENU_INTERACTIONS("§0☀ §4Pet §0☀"),
+
+    INVENTORY_MOUNTS_MENU("§0☀ §4Mounts §0☀"),
+    INVENTORY_MOUNTS_MENU_INTERACTIONS("§0☀ §4Mount §0☀"),
 
     MOUNT_ITEM_NAME("§6Mount"),
     MOUNT_ITEM_DESCRIPTION("§7Click to mount your pet"),
@@ -62,6 +67,7 @@ public enum Language {
     PLAYER_NOT_CONNECTED("§cThe player §6%player%§c isn't connected."),
     BLACKLISTED_WORD("§cRename operation has been cancelled. The word %word% is not allowed in a pet name."),
     NO_ACTIVE_PET("§cYou have no active pet."),
+    SPECIFY_PET("§cYou have multiple active pets. Please specify which one: §e%pets%"),
     SIGNAL_STICK_GIVEN("§aYou've received an order stick. Right click to cast an order, left click to switch orders."),
     SIGNAL_STICK_SIGNAL("§6Active order : §e%signal%"),
     LOOP_SPAWN("§cYour pet was revoked because it seems to struggle with numerous teleportations."),
@@ -77,7 +83,7 @@ public enum Language {
     RELOAD_SUCCESS("§aReloaded successfully."),
     HOW_MANY_PETS_LOADED("§a%numberofpets% were registered successfully"),
 
-    REQUIRES_MODELENGINE("§cThis plugin requires ModelEngine r2.3.1. It seems that this requirement is not satisfied."),
+    REQUIRES_MODELENGINE("§cThis plugin requires ModelEngine R4.0.6 or BetterModel v2.0.1. It seems that this requirement is not satisfied."),
 
     USAGE("§cThis command doesn't exist. \n§7Check out the wiki: §nhttps://mcpets.gitbook.io/mcpets/tutorials/plugin-features/commands"),
     NO_PERM("§cYou're not allowed to use this command."),
@@ -134,6 +140,8 @@ public enum Language {
 
     PET_STATS_EVOLUTION_ALREADY_OWNED("§cEvolution already owned."),
     PET_STATS_MAX_LEVEL("§7Maximum level reached."),
+    MAX_ACTIVE_PETS_REACHED("§cYou have reached the maximum number of active pets!"),
+    PET_REPLACED_BY_NEW("§e%oldpet% has been replaced by %newpet%!"),
     DEBUGGER_JOINING("§aDebugger is enabled. You are now listening to it."),
     DEBUGGER_LEAVE("§aDebugger is §7disabled§a. You will not be listening to it anymore.");
 
@@ -163,27 +171,31 @@ public enum Language {
         return m;
     }
 
+    public Component getComponent() {
+        return Utils.toComponent(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessage()));
+    }
+
     public void sendMessage(Player p) {
         if (message.isEmpty())
             return;
-        p.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessagePAPI()));
+        ((Audience) p).sendMessage(getComponent());
     }
 
     public void sendMessage(CommandSender sender) {
         if (message.isEmpty())
             return;
-        sender.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + getMessage()));
+        ((Audience) sender).sendMessage(getComponent());
     }
 
     public void sendMessageFormated(CommandSender sender, FormatArg... args) {
         if (message.isEmpty())
             return;
-        
+
         String toSend = getMessage();
         for (FormatArg arg : args) {
             toSend = arg.applyToString(toSend);
         }
-        sender.sendMessage(Utils.hex(GlobalConfig.getInstance().getPrefix() + toSend));
+        ((Audience) sender).sendMessage(Utils.toComponent(Utils.hex(GlobalConfig.getInstance().getPrefix() + toSend)));
     }
 
     public String getMessageFormatted(FormatArg... args) {

@@ -46,12 +46,17 @@ public class Category {
     @Setter
     private List<String> excludedCategoriesId;
 
+    @Getter
+    @Setter
+    private CategoryType categoryType;
+
     public Category(final String id) {
         this.id = id;
         this.icon = null;
         this.pets = new ArrayList<>();
         this.displayName = "Unknown";
         this.iconName = "Unknown";
+        this.categoryType = CategoryType.DEFAULT;
     }
 
     public boolean openInventory(final Player p, final int page) {
@@ -181,6 +186,26 @@ public class Category {
     public static Category getFromId(final String categoryId) {
         final Optional<Category> optional = categories.stream().filter(cat -> cat.getId().equals(categoryId)).findFirst();
         return optional.orElse(null);
+    }
+
+    /**
+     * Return categories filtered by type
+     * For PET type, also includes DEFAULT categories for backward compatibility
+     * @param type the category type to filter by
+     * @return list of categories matching the type
+     */
+    public static ArrayList<Category> getCategories(CategoryType type) {
+        ArrayList<Category> filtered = new ArrayList<>();
+        for (Category cat : categories) {
+            if (cat.getCategoryType() == type) {
+                filtered.add(cat);
+            }
+            // For PET filter, also include DEFAULT categories
+            else if (type == CategoryType.PET && cat.getCategoryType() == CategoryType.DEFAULT) {
+                filtered.add(cat);
+            }
+        }
+        return filtered;
     }
 
     /**

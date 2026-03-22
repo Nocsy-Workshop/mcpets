@@ -1,7 +1,5 @@
 package fr.nocsy.mcpets.listeners;
 
-import com.ticxo.modelengine.api.events.ModelDismountEvent;
-import com.ticxo.modelengine.api.events.ModelMountEvent;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.data.Items;
@@ -11,6 +9,8 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.flags.DismountPetFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
+import fr.nocsy.mcpets.data.inventories.MountInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
 import fr.nocsy.mcpets.data.sql.PlayerData;
@@ -36,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class PetListener implements Listener {
@@ -74,14 +75,30 @@ public class PetListener implements Listener {
             Utils.callEvent(event);
             if (event.isCancelled()) return;
 
-            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
-            pet.setLastInteractedWith(p);
-            menu.open(p);
+            // Check if this is a mount and open the appropriate menu
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            }
         }
         if (pet != null && p.isOp()) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
-            pet.setLastOpInteracted(p);
-            menu.open(p);
+            // Check if this is a mount and open the appropriate menu
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            }
         }
     }
 
@@ -104,16 +121,31 @@ public class PetListener implements Listener {
 
         if (pet != null && pet.getOwner() != null &&
                 pet.getOwner().equals(p.getUniqueId())) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
-            pet.setLastInteractedWith(p);
-            menu.open(p);
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, p.getUniqueId());
+                pet.setLastInteractedWith(p);
+                menu.open(p);
+            }
             e.setCancelled(true);
             e.setDamage(0);
         }
         if (pet != null && p.isOp()) {
-            PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
-            pet.setLastOpInteracted(p);
-            menu.open(p);
+            // Check if this is a mount and open the appropriate menu
+            if (pet.isMount()) {
+                MountInteractionMenu menu = 
+                    new MountInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            } else {
+                PetInteractionMenu menu = new PetInteractionMenu(pet, pet.getOwner());
+                pet.setLastOpInteracted(p);
+                menu.open(p);
+            }
             e.setCancelled(true);
             e.setDamage(0);
         }
@@ -122,11 +154,27 @@ public class PetListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        Pet pet = Pet.getActivePets().get(p.getUniqueId());
-        if (pet != null) {
+        List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
+        // Create a copy to avoid ConcurrentModificationException when despawning modifies the list
+        for (Pet pet : List.copyOf(pets)) {
             pet.despawn(PetDespawnReason.DISCONNECTION);
-            reconnectionPets.put(p.getUniqueId(), pet.getId());
+            if (p.hasPermission(pet.getPermission())) {
+                reconnectionPets.put(p.getUniqueId(), pet.getId());
+                if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
+                    PlayerData pd = PlayerData.get(p.getUniqueId());
+                    pd.setLastActivePet(pet.getId());
+                    pd.save();
+                }
+            }
         }
+        if (pets.isEmpty() && GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
+            PlayerData pd = PlayerData.get(p.getUniqueId());
+            pd.setLastActivePet("");
+            pd.save();
+        }
+        // Clean up player caches from memory to prevent memory leak
+        PlayerData.remove(p.getUniqueId());
+        PetInventory.removePlayer(p.getUniqueId());
     }
 
 
@@ -134,9 +182,7 @@ public class PetListener implements Listener {
     public void reconnectionPlayer(PlayerJoinEvent e) {
         Player p = e.getPlayer();
 
-        // delay before loading the player data from the database
         Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-            // Load the player data from the database for bungee support
             if (GlobalConfig.getInstance().isDatabaseSupport()) {
                 PlayerData.reloadAll(p.getUniqueId());
             }
@@ -145,11 +191,27 @@ public class PetListener implements Listener {
                 Pet pet = Pet.getFromId(reconnectionPets.get(p.getUniqueId()));
                 if (pet == null)
                     return;
+                if (!p.hasPermission(pet.getPermission())) {
+                    reconnectionPets.remove(p.getUniqueId());
+                    return;
+                }
                 pet = pet.copy();
                 pet.setCheckPermission(false);
                 pet.setOwner(p.getUniqueId());
                 pet.spawn(p.getLocation(), true);
                 reconnectionPets.remove(p.getUniqueId());
+            } else if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
+                PlayerData pd = PlayerData.get(p.getUniqueId());
+                String lastPetId = pd.getLastActivePet();
+                if (lastPetId != null && !lastPetId.isEmpty()) {
+                    Pet pet = Pet.getFromId(lastPetId);
+                    if (pet != null) {
+                        pet = pet.copy();
+                        pet.setCheckPermission(false);
+                        pet.setOwner(p.getUniqueId());
+                        pet.spawn(p.getLocation(), true);
+                    }
+                }
             }
         }, 20L);
     }
@@ -157,10 +219,10 @@ public class PetListener implements Listener {
     @EventHandler
     public void teleport(PlayerChangedWorldEvent e) {
         Player p = e.getPlayer();
-        if (Pet.getActivePets().containsKey(p.getUniqueId())) {
-            Pet pet = Pet.getActivePets().get(p.getUniqueId());
+        List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
+        for (Pet pet : pets) {
             if (pet.getTamingProgress() < 1)
-                return;
+                continue;
             pet.despawn(PetDespawnReason.TELEPORT);
             new BukkitRunnable() {
                 @Override
@@ -174,8 +236,8 @@ public class PetListener implements Listener {
     @EventHandler
     public void teleport(PlayerTeleportEvent e) {
         Player p = e.getPlayer();
-        if (Pet.getActivePets().containsKey(p.getUniqueId())) {
-            Pet pet = Pet.getActivePets().get(p.getUniqueId());
+        List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
+        for (Pet pet : pets) {
             pet.dismount(p);
         }
     }
@@ -219,9 +281,11 @@ public class PetListener implements Listener {
     @EventHandler
     public void gamemode(PlayerGameModeChangeEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
-        if (Pet.getActivePets().containsKey(uuid) && e.getNewGameMode() == GameMode.SPECTATOR) {
-            Pet pet = Pet.getActivePets().get(uuid);
-            pet.despawn(PetDespawnReason.GAMEMODE);
+        if (e.getNewGameMode() == GameMode.SPECTATOR) {
+            List<Pet> pets = Pet.getActivePetsForOwner(uuid);
+            for (Pet pet : pets) {
+                pet.despawn(PetDespawnReason.GAMEMODE);
+            }
         }
     }
 
@@ -300,23 +364,6 @@ public class PetListener implements Listener {
     }
 
     @EventHandler
-    public void despawnOnDismount(ModelDismountEvent e) {
-        if (e.getVehicle() == null || e.getVehicle().getModeledEntity() == null || e.getVehicle().getModeledEntity().getBase() == null)
-            return;
-
-        // Running this as sync coz we fetch an entity
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID()));
-                if (pet != null && pet.isDespawnOnDismount()) {
-                    pet.despawn(PetDespawnReason.DISMOUNT);
-                }
-            }
-        }.runTask(MCPets.getInstance());
-    }
-
-    @EventHandler
     public void cancelDefaultTaming(EntityTameEvent e) {
         if (Pet.getFromEntity(e.getEntity()) != null) {
             // Cancel the event, so it doesn't give other type of item by default to the anchor
@@ -338,58 +385,6 @@ public class PetListener implements Listener {
         if (e.getPet().getMountPermission() != null && !e.getEntity().hasPermission(e.getPet().getMountPermission())) {
             e.setCancelled(true);
             Language.CANT_MOUNT_PET_YET.sendMessage(e.getEntity());
-        }
-    }
-
-    @EventHandler
-    public void mountingPet(ModelMountEvent e) {
-        if (e.getPassenger() == null)
-            return;
-
-        if (e.getVehicle() == null || e.getVehicle().getModeledEntity() == null || e.getVehicle().getModeledEntity().getBase() == null)
-            return;
-
-        Entity entity;
-        try {
-            entity = Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID());
-        }
-        catch (Exception ex) {
-            entity = null;
-        }
-
-        if (entity == null)
-            return;
-        Pet pet = Pet.getFromEntity(entity);
-        Entity player = e.getPassenger();
-
-        if (pet == null)
-            return;
-
-        // if it's not the owner or an admin mounting the pet, then we cancel it
-        if (e.getSeat().isDriver() &&
-                !pet.getOwner().equals(player.getUniqueId()) &&
-                !player.hasPermission(PPermission.ADMIN.getPermission())) {
-            e.setCancelled(true);
-            Debugger.send("[ModelMountEvent] §c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
-        }
-
-        if (GlobalConfig.getInstance().isWorldguardsupport() &&
-                FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
-                FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation())) {
-            e.setCancelled(true);
-            Debugger.send("§c" + player.getName() + " can not mount model of " + pet.getId() + " as a region is preventing mounting.");
-            Language.NOT_MOUNTABLE_HERE.sendMessage(player);
-            if (pet.isDespawnOnDismount())
-                pet.despawn(PetDespawnReason.FLAG);
-            return;
-        }
-
-        // If user doesn't have the perm to mount the pet, cancel the event
-        if (pet.getMountPermission() != null
-                && !player.hasPermission(pet.getMountPermission())
-                && e.getSeat().isDriver()) {
-            e.setCancelled(true);
-            Language.CANT_MOUNT_PET_YET.sendMessage(player);
         }
     }
 

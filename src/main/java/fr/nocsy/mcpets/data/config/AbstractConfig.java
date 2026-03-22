@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 public abstract class AbstractConfig {
 
@@ -38,7 +39,7 @@ public abstract class AbstractConfig {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                org.bukkit.Bukkit.getLogger().log(Level.SEVERE, "Failed to create config file: " + getFullPath(), e);
             }
         }
 
@@ -54,7 +55,7 @@ public abstract class AbstractConfig {
         try {
             config.save(file);
         } catch (IOException e) {
-            e.printStackTrace();
+            org.bukkit.Bukkit.getLogger().log(Level.SEVERE, "Failed to save config file: " + getFullPath(), e);
         }
     }
 

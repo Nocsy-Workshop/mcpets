@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data.config;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.data.CategoryType;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.editor.EditorEditing;
@@ -48,6 +49,8 @@ public class CategoryConfig extends AbstractConfig {
         this.category = new Category(id);
         if (getConfig().get("Id") == null)
             getConfig().set("Id", this.id);
+        if (getConfig().get("Type") == null)
+            getConfig().set("Type", "PET");
         if (getConfig().get("DisplayName") == null)
             getConfig().set("DisplayName", "Category title");
         if (getConfig().get("IconName") == null)
@@ -115,6 +118,19 @@ public class CategoryConfig extends AbstractConfig {
 
         if (getConfig().get("Icon") != null) {
             category.setIcon((getConfig().getItemStack("Icon")));
+        }
+
+        // Load the category type
+        if (getConfig().get("Type") != null) {
+            String typeStr = getConfig().getString("Type").toUpperCase();
+            try {
+                CategoryType type = CategoryType.valueOf(typeStr);
+                category.setCategoryType(type);
+            } catch (IllegalArgumentException e) {
+                // If invalid type, default to PET
+                MCPets.getLog().warning(MCPets.getLogName() + "Invalid category type '" + typeStr + "' for category " + id + ". Defaulting to PET.");
+                category.setCategoryType(CategoryType.PET);
+            }
         }
     }
 

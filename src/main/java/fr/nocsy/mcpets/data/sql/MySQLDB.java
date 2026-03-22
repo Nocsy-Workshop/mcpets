@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
+import java.util.logging.Level;
 
 public class MySQLDB {
 
@@ -14,6 +15,11 @@ public class MySQLDB {
     private String ip;
     private String port;
     private String db;
+
+    /** Timestamp of the last successful connection validation. */
+    private long lastValidationTime = 0;
+    /** Minimum interval (ms) between connection validations. */
+    private static final long VALIDATION_INTERVAL_MS = 5000;
 
     public MySQLDB(String user, String pass, String ip, String port, String db) {
         this.user = user;
@@ -34,7 +40,7 @@ public class MySQLDB {
             return false;
         }
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             String url = urlBuilder();
             this.sqlCon = DriverManager.getConnection(url, this.user, this.pass);
         }
@@ -52,7 +58,7 @@ public class MySQLDB {
             this.sqlCon.close();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to close SQL connection", e);
         }
     }
 
@@ -60,16 +66,25 @@ public class MySQLDB {
         return "jdbc:mysql://" + this.ip + ":" + this.port + "/" + this.db;
     }
 
+    private void ensureConnection() throws SQLException {
+        long now = System.currentTimeMillis();
+        if (now - lastValidationTime < VALIDATION_INTERVAL_MS) {
+            return;
+        }
+        if (!this.sqlCon.isValid(1)) {
+            this.sqlCon.close();
+            this.init();
+        }
+        lastValidationTime = now;
+    }
+
     public ResultSet query(String s) {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return null;
         try {
-            if (!this.sqlCon.isValid(2)) {
-                this.sqlCon.close();
-                this.init();
-            }
+            ensureConnection();
         } catch (SQLException e1) {
-            e1.printStackTrace();
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to validate SQL connection", e1);
         }
         ResultSet set = null;
         try {
@@ -83,7 +98,34 @@ public class MySQLDB {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "SQL query failed: " + s, e);
+        }
+        return set;
+    }
+
+    public ResultSet preparedQuery(String sql, Object... params) {
+        if (!GlobalConfig.getInstance().isDatabaseSupport())
+            return null;
+        try {
+            ensureConnection();
+        } catch (SQLException e1) {
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to validate SQL connection", e1);
+        }
+        ResultSet set = null;
+        try {
+            PreparedStatement pstmt = this.sqlCon.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+            if (sql.trim().toLowerCase().startsWith("select")) {
+                set = pstmt.executeQuery();
+                closeStat(pstmt);
+            } else {
+                pstmt.executeUpdate();
+                pstmt.close();
+            }
+        } catch (SQLException e) {
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "SQL prepared query failed: " + sql, e);
         }
         return set;
     }
@@ -98,7 +140,7 @@ public class MySQLDB {
                 try {
                     stat.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to close SQL statement", e);
                 }
             }
         }.runTaskLater(MCPets.getInstance(), 5L);
