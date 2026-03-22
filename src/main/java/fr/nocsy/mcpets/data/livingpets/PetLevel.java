@@ -286,11 +286,11 @@ public class PetLevel {
      * Play all the skills, text, sound and everything for the level up animation
      * to the given player
      */
-    public void levelUp(UUID owner) {
+    public void levelUp(UUID owner, PetLevel oldLevel) {
         if (owner == null)
             return;
 
-        PetLevelUpEvent event = new PetLevelUpEvent(pet, this);
+        PetLevelUpEvent event = new PetLevelUpEvent(pet, this, oldLevel);
         Utils.callEvent(event);
 
         announce(owner);

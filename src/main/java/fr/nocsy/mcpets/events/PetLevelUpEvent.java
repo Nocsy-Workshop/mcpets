@@ -15,10 +15,13 @@ public class PetLevelUpEvent extends Event {
     private final Pet pet;
     @Getter
     private final PetLevel petLevel;
+    @Getter
+    private final PetLevel oldLevel;
 
-    public PetLevelUpEvent(Pet pet, PetLevel petLevel) {
+    public PetLevelUpEvent(Pet pet, PetLevel petLevel, PetLevel oldLevel) {
         this.pet = pet;
         this.petLevel = petLevel;
+        this.oldLevel = oldLevel;
     }
 
     public static HandlerList getHandlerList() {
