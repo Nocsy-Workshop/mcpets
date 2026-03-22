@@ -12,7 +12,12 @@ public class CategoriesMenuListener implements Listener {
 
     @EventHandler
     public void invClick(InventoryClickEvent e) {
-        if (e.getView().getTitle().equalsIgnoreCase(Language.CATEGORY_MENU_TITLE.getMessage())) {
+        String viewTitle = e.getView().getTitle();
+        boolean isCategoryMenu = viewTitle.equalsIgnoreCase(Language.CATEGORY_MENU_TITLE.getMessage());
+        boolean isPetCategoryMenu = viewTitle.equalsIgnoreCase(Language.INVENTORY_PETS_MENU.getMessage());
+        boolean isMountCategoryMenu = viewTitle.equalsIgnoreCase(Language.INVENTORY_MOUNTS_MENU.getMessage());
+        
+        if (isCategoryMenu || isPetCategoryMenu || isMountCategoryMenu) {
             ItemStack icon = e.getCurrentItem();
             if (icon != null) {
                 CategoriesMenu.openSubCategory((Player) e.getWhoClicked(), icon);

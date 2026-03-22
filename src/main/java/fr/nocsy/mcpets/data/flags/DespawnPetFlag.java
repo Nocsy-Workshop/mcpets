@@ -41,15 +41,16 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
 
             try {
                 for (UUID owner : Pet.getActivePets().keySet()) {
-                    Pet pet = Pet.getActivePets().get(owner);
-                    Player p = Bukkit.getPlayer(owner);
+                    for (Pet pet : Pet.getActivePetsForOwner(owner)) {
+                        Player p = Bukkit.getPlayer(owner);
 
-                    if (p != null) {
-                        boolean hasToBeRemoved = testState(p.getLocation());
+                        if (p != null) {
+                            boolean hasToBeRemoved = testState(p.getLocation());
 
-                        if (hasToBeRemoved) {
-                            pet.despawn(PetDespawnReason.FLAG);
-                            Language.CANT_FOLLOW_HERE.sendMessage(p);
+                            if (hasToBeRemoved) {
+                                pet.despawn(PetDespawnReason.FLAG);
+                                Language.CANT_FOLLOW_HERE.sendMessage(p);
+                            }
                         }
                     }
                 }

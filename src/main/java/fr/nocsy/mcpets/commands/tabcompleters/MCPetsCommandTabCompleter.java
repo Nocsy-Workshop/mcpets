@@ -34,8 +34,24 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
             if (commandSender instanceof Player) {
 
                 Player p = ((Player)commandSender);
+
+                // User-facing commands available to all players
+                if (args.length == 1) {
+                    completed.add("menu");
+                }
+                else if (args.length == 2 && args[0].equalsIgnoreCase("menu")) {
+                    completed.addAll(Pet.getActivePetsForOwner(p.getUniqueId())
+                            .stream()
+                            .filter(pet -> !pet.isMountable())
+                            .map(Pet::getId)
+                            .collect(Collectors.toList()));
+                }
+
                 if (!p.hasPermission(PPermission.ADMIN.getPermission()))
-                    return completed;
+                    return completed.stream()
+                            .filter(s -> s.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))
+                            .sorted()
+                            .collect(Collectors.toList());
 
                 if (args.length == 1) {
                     completed.add("reload");
@@ -131,6 +147,11 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
         }
 
         Collections.sort(completed);
-        return completed;
+        
+        // Filter results based on what the player has typed so far
+        String partial = args[args.length - 1].toLowerCase();
+        return completed.stream()
+                .filter(s -> s.toLowerCase().startsWith(partial))
+                .collect(Collectors.toList());
     }
 }

@@ -29,6 +29,7 @@ public enum PetDespawnReason {
     ACTIVE_MOB_LINKAGE_FAILED("link to the activeMob failed"),
     PETDESPAWN_SKILL("petdespawn skill"),
     AI_TRACK_DESPAWN("AI track could not find the entity"),
+    MAX_LIMIT_REACHED("max active pets limit reached"),
     UNKNOWN("unknown");
 
 

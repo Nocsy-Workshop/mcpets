@@ -7,7 +7,6 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.FormatArg;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
@@ -24,14 +23,15 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PetInteractionMenuListener implements Listener {
 
     @Getter
-    private static final ArrayList<UUID> waitingForAnswer = new ArrayList<>();
+    private static final List<UUID> waitingForAnswer = new CopyOnWriteArrayList<>();
 
     public static void changeName(Player p) {
         if (!waitingForAnswer.contains(p.getUniqueId()))
@@ -72,13 +72,16 @@ public class PetInteractionMenuListener implements Listener {
 
     @EventHandler
     public void click(InventoryClickEvent e) {
-        if (e.getView().getTitle().equalsIgnoreCase(PetInteractionMenu.getTitle())) {
+        String viewTitle = e.getView().getTitle();
+        boolean isPetMenu = viewTitle.equalsIgnoreCase(PetInteractionMenu.getTitle());
+        boolean isMountMenu = viewTitle.equalsIgnoreCase(fr.nocsy.mcpets.data.inventories.MountInteractionMenu.getTitle());
+        
+        if (isPetMenu || isMountMenu) {
             e.setCancelled(true);
 
             Player p = (Player) e.getWhoClicked();
 
-            if (e.getClickedInventory() == null && GlobalConfig.getInstance().isActivateBackMenuIcon()) {
-                openBackPetMenu(p);
+            if (e.getClickedInventory() == null) {
                 return;
             }
 
@@ -104,6 +107,11 @@ public class PetInteractionMenuListener implements Listener {
 
                 if (localizedName.equals(Items.PETMENU.getLocalizedName())) {
                     openBackPetMenu(p);
+                    return;
+                }
+                
+                if (localizedName.equals(Items.MOUNTMENU.getLocalizedName())) {
+                    openBackMountMenu(p);
                     return;
                 }
 
@@ -167,6 +175,11 @@ public class PetInteractionMenuListener implements Listener {
 
     private void openBackPetMenu(Player p) {
         PetMenu menu = new PetMenu(p, 0);
+        menu.open(p);
+    }
+    
+    private void openBackMountMenu(Player p) {
+        fr.nocsy.mcpets.data.inventories.MountMenu menu = new fr.nocsy.mcpets.data.inventories.MountMenu(p, 0);
         menu.open(p);
     }
 }

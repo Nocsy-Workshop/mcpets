@@ -50,6 +50,10 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private int maxNameLength;
     @Getter
+    private int maxActivePets;
+    @Getter
+    private int maxActiveMounts;
+    @Getter
     private boolean activateBackMenuIcon;
 
     @Getter
@@ -106,6 +110,8 @@ public class GlobalConfig extends AbstractConfig {
     private boolean fastMount;
     @Getter
     private boolean disableFastMountWhileHoldingSignalStick;
+    @Getter
+    private boolean spawnPetAfterServerRestart;
 
     @Getter
     @Setter
@@ -214,6 +220,12 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("FastMount", false);
         if  (getConfig().get("DisableFastMountWhileHoldingSignalStick") == null)
             getConfig().set("DisableFastMountWhileHoldingSignalStick", false);
+        if (getConfig().get("SpawnPetAfterServerRestart") == null)
+            getConfig().set("SpawnPetAfterServerRestart", true);
+        if (getConfig().get("MaxActivePets") == null)
+            getConfig().set("MaxActivePets", 1);
+        if (getConfig().get("MaxActiveMounts") == null)
+            getConfig().set("MaxActiveMounts", 1);
 
         if (getConfig().get("Velocity.Enabled") == null)
             getConfig().set("Velocity.Enabled", false);
@@ -291,6 +303,10 @@ public class GlobalConfig extends AbstractConfig {
 
         velocityEnabled = getConfig().getBoolean("Velocity.Enabled");
         velocitySwitchWindow = Math.max(5, getConfig().getInt("Velocity.SwitchWindow"));
+
+        spawnPetAfterServerRestart = getConfig().getBoolean("SpawnPetAfterServerRestart");
+        maxActivePets = getConfig().getInt("MaxActivePets");
+        maxActiveMounts = getConfig().getInt("MaxActiveMounts");
     }
 
     public boolean hasBlackListedWorld(String worldName) {

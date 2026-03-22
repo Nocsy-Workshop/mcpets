@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class PermsUtils {
 
@@ -28,6 +29,30 @@ public class PermsUtils {
             return false;
         }
         return false;
+    }
+
+    /**
+     * Give permission async, returning a future that completes when LuckPerms has applied the change.
+     */
+    protected static CompletableFuture<Void> givePermissionAsync(UUID uuid, String permission) {
+        if (MCPets.getLuckPerms() != null) {
+            return MCPets.getLuckPerms().getUserManager().modifyUser(uuid, user -> user.data().add(Node.builder(permission).build()));
+        }
+
+        if (Bukkit.getPlayer(uuid) != null) {
+            Bukkit.getPlayer(uuid).addAttachment(MCPets.getInstance(), permission, true);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    /**
+     * Remove permission async, returning a future that completes when LuckPerms has applied the change.
+     */
+    protected static CompletableFuture<Void> removePermissionAsync(UUID uuid, String permission) {
+        if (MCPets.getLuckPerms() != null) {
+            return MCPets.getLuckPerms().getUserManager().modifyUser(uuid, user -> user.data().remove(Node.builder(permission).build()));
+        }
+        return CompletableFuture.completedFuture(null);
     }
 
     /**

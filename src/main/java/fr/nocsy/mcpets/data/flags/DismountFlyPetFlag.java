@@ -1,8 +1,5 @@
 package fr.nocsy.mcpets.data.flags;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.bone.manager.MountManager;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
@@ -41,44 +38,25 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
                 return;
 
             for (UUID owner : Pet.getActivePets().keySet()) {
-                Pet pet = Pet.getActivePets().get(owner);
+                for (Pet pet : Pet.getActivePetsForOwner(owner)) {
 
-                if (!pet.isMountable())
-                    continue;
-
-                UUID uuid = pet.getActiveMob().getUniqueId();
-                ModeledEntity model = ModelEngineAPI.getModeledEntity(uuid);
-                if (model == null)
-                    continue;
-                MountManager mountManager = model.getMountData().getMainMountManager();
-                if (model.getMountData() == null ||
-                        model.getMountData().getMainMountManager() ==  null ||
-                        model.getMountData().getMainMountManager().getType() == null)
-                    continue;
-                if (!mountManager.hasRiders())
-                    continue;
-
-                try {
-                    String controllerClass = ModelEngineAPI.getMountPairManager().getController(owner).getClass().getSimpleName();
-                    String petMountType = pet.getMountType();
-                    String type = petMountType + " " + model.getMountData().getMainMountManager().getType().getId() + " " + controllerClass;
-                    if(!type.toUpperCase().contains("FLY"))
-                        continue;
-                }
-                catch (Exception e) {
-                    continue;
-                }
-
-                Player p = Bukkit.getPlayer(owner);
-                if (p != null) {
-                    if (!pet.hasMount(p))
+                    if (!pet.isMountable())
                         continue;
 
-                    boolean hasToBeEjected = testState(p.getLocation());
+                    if (!MCPets.getModeler().isFlyingMount(pet, owner))
+                        continue;
 
-                    if (hasToBeEjected) {
-                        pet.dismount(p);
-                        Language.NOT_MOUNTABLE_HERE.sendMessage(p);
+                    Player p = Bukkit.getPlayer(owner);
+                    if (p != null) {
+                        if (!pet.hasMount(p))
+                            continue;
+
+                        boolean hasToBeEjected = testState(p.getLocation());
+
+                        if (hasToBeEjected) {
+                            pet.dismount(p);
+                            Language.NOT_MOUNTABLE_HERE.sendMessage(p);
+                        }
                     }
                 }
             }

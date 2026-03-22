@@ -43,7 +43,7 @@ public class DropPetInventoryMechanic implements ITargetedEntitySkill {
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            MCPets.getLog().log(java.util.logging.Level.SEVERE, "Failed to drop pet inventory", ex);
             return SkillResult.CONDITION_FAILED;
         }
 

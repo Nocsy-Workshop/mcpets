@@ -1,5 +1,7 @@
 package fr.nocsy.mcpets.utils.debug;
 
+import fr.nocsy.mcpets.utils.Utils;
+import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -25,11 +27,11 @@ public class Debugger {
         if (!isEnabled())
             return;
 
-        Bukkit.getConsoleSender().sendMessage("§7[MCPETS DEBUG]: §6" + msg);
+        ((Audience) Bukkit.getConsoleSender()).sendMessage(Utils.toComponent("§7[MCPETS DEBUG]: §6" + msg));
         for (UUID uuid : listeners) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
-                p.sendMessage("§7[DEBUG]: §6" + msg);
+                ((Audience) p).sendMessage(Utils.toComponent("§7[DEBUG]: §6" + msg));
             }
         }
     }

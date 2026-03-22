@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 public class Databases {
 
@@ -66,8 +67,17 @@ public class Databases {
     public static void createSQLTables() {
         if (!GlobalConfig.getInstance().isDatabaseSupport())
             return;
-        getMySQL().query("CREATE TABLE IF NOT EXISTS " + table + " (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, inventories LONGTEXT, data LONGTEXT, primary key (id));");
+        getMySQL().query("CREATE TABLE IF NOT EXISTS " + table + " (id INT NOT NULL AUTO_INCREMENT, uuid TEXT, names TEXT, inventories LONGTEXT, data LONGTEXT, lastActivePet TEXT, primary key (id));");
         getMySQL().query("ALTER TABLE " + table + " MODIFY inventories LONGTEXT, MODIFY data LONGTEXT;");
+        ResultSet rs = getMySQL().preparedQuery("SELECT count(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = 'lastActivePet'",
+                GlobalConfig.getInstance().getMySQL_DB(), table);
+        try {
+            if (rs != null && rs.next() && rs.getInt(1) == 0) {
+                 getMySQL().query("ALTER TABLE " + table + " ADD lastActivePet TEXT;");
+            }
+        } catch (SQLException e) {
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to check lastActivePet column", e);
+        }
         createActivePetTable();
     }
 
@@ -117,12 +127,17 @@ public class Databases {
                         PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
                     }
 
+                    try {
+                        pd.setLastActivePet(playerData.getString("lastActivePet"));
+                    } catch (SQLException e) {
+                        // Column might not exist yet
+                    }
                     PlayerData.getRegisteredData().put(uuid, pd);
                 }
             }
         }
         catch (SQLException e1) {
-            e1.printStackTrace();
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to load player data from database", e1);
             return false;
         }
 
@@ -138,7 +153,7 @@ public class Databases {
             return false;
 
         // Update the SQL query to fetch data for the specific player with the provided UUID
-        ResultSet playerData = getMySQL().query("SELECT * FROM " + table + " WHERE uuid='" + playerUUID.toString() + "';");
+        ResultSet playerData = getMySQL().preparedQuery("SELECT * FROM " + table + " WHERE uuid=?", playerUUID.toString());
 
         if (playerData == null)
             return true;
@@ -174,12 +189,17 @@ public class Databases {
                         PetInventory.unserialize(petId + ";" + seriaInv, pd.getUuid());
                     }
 
+                    try {
+                        pd.setLastActivePet(playerData.getString("lastActivePet"));
+                    } catch (SQLException e) {
+                        // Column might not exist yet
+                    }
                     PlayerData.getRegisteredData().put(uuid, pd);
                 }
             }
         }
         catch (SQLException e1) {
-            e1.printStackTrace();
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to load player data for " + playerUUID, e1);
             return false;
         }
         return true;
@@ -197,6 +217,8 @@ public class Databases {
 
                 String names = buildStringSerialized(pd.getMapOfRegisteredNames());
                 String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+                String lastActivePet = pd.getLastActivePet();
+                if (lastActivePet == null) lastActivePet = "";
 
                 StringBuilder data = new StringBuilder();
 
@@ -206,10 +228,8 @@ public class Databases {
                 if (data.length() > 0)
                     data = new StringBuilder(data.substring(0, data.length() - 3));
 
-                getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + uuid.toString()
-                        + "', '" + names
-                        + "', '" + inventories
-                        + "', '" + data + "')");
+                getMySQL().preparedQuery("INSERT INTO " + table + " (uuid, names, inventories, data, lastActivePet) VALUES (?, ?, ?, ?, ?)",
+                        uuid.toString(), names, inventories, data.toString(), lastActivePet);
             }
         }
     }
@@ -223,8 +243,10 @@ public class Databases {
         synchronized (getLockForPlayer(playerUUID)) {
             PlayerData pd = PlayerData.getRegisteredData().get(playerUUID);
 
-            String names = buildStringSerialized(pd.getMapOfRegisteredNames()).replace("'", "").replace("\"", "");
+            String names = buildStringSerialized(pd.getMapOfRegisteredNames());
             String inventories = buildStringSerialized(pd.getMapOfRegisteredInventories());
+            String lastActivePet = pd.getLastActivePet();
+            if (lastActivePet == null) lastActivePet = "";
 
             StringBuilder data = new StringBuilder();
 
@@ -235,13 +257,11 @@ public class Databases {
                 data = new StringBuilder(data.substring(0, data.length() - 3));
 
             // First, delete the existing data for the player
-            getMySQL().query("DELETE FROM " + table + " WHERE uuid='" + playerUUID.toString() + "'");
+            getMySQL().preparedQuery("DELETE FROM " + table + " WHERE uuid=?", playerUUID.toString());
 
             // Then, insert the new data for the player
-            getMySQL().query("INSERT INTO " + table + " (uuid, names, inventories, data) VALUES ('" + playerUUID.toString()
-                    + "', '" + names
-                    + "', '" + inventories
-                    + "', '" + data + "')");
+            getMySQL().preparedQuery("INSERT INTO " + table + " (uuid, names, inventories, data, lastActivePet) VALUES (?, ?, ?, ?, ?)",
+                    playerUUID.toString(), names, inventories, data.toString(), lastActivePet);
         }
     }
 
@@ -331,8 +351,7 @@ public class Databases {
                 outputMap.put(pet_id, content);
             }
             catch (IndexOutOfBoundsException ex) {
-                ex.printStackTrace();
-                MCPets.getInstance().getLogger().severe("[Database] Index out of bound for (147) : " + seriaContents);
+                MCPets.getInstance().getLogger().log(Level.SEVERE, "[Database] Index out of bound for deserialization: " + seriaContents, ex);
             }
         }
 

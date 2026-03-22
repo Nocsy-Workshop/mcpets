@@ -24,6 +24,10 @@ public class PlayerData {
     @Setter
     private ConcurrentHashMap<String, String> mapOfRegisteredPetStats = new ConcurrentHashMap<>();
 
+    @Getter
+    @Setter
+    private String lastActivePet;
+
     @Setter
     @Getter
     private UUID uuid;
@@ -51,6 +55,7 @@ public class PlayerData {
                 PlayerDataNoDatabase pdn = PlayerDataNoDatabase.get(owner);
                 data.setMapOfRegisteredNames(pdn.mapOfRegisteredNames);
                 data.setMapOfRegisteredInventories(pdn.mapOfRegisteredInventories);
+                data.setLastActivePet(pdn.getLastActivePet());
                 registeredData.put(owner, data);
 
                 return data;
@@ -89,10 +94,11 @@ public class PlayerData {
 
     public void save() {
         if (GlobalConfig.getInstance().isDatabaseSupport())
-            saveDB();
+            Databases.savePlayerData(uuid);
         else {
             PlayerDataNoDatabase pdn = PlayerDataNoDatabase.get(uuid);
             pdn.setMapOfRegisteredNames(mapOfRegisteredNames);
+            pdn.setLastActivePet(lastActivePet);
 
             mapOfRegisteredInventories.clear();
             HashMap<String, PetInventory> inventories = PetInventory.getPetInventories().get(this.getUuid());
@@ -114,6 +120,11 @@ public class PlayerData {
         else {
             PlayerDataNoDatabase.getCacheMap().values().forEach(PlayerDataNoDatabase::reload);
         }
+    }
+
+    public static void remove(UUID uuid) {
+        registeredData.remove(uuid);
+        PlayerDataNoDatabase.getCacheMap().remove(uuid);
     }
 
     public static void reloadAll(UUID uuid) {

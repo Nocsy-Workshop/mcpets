@@ -9,7 +9,7 @@
 
     <groupId>fr.nocsy</groupId>
     <artifactId>mcpets</artifactId>
-    <version>4.1.8</version>
+    <version>4.1.10</version>
 
     <licenses>
         <license>
@@ -26,8 +26,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.36</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>
@@ -38,13 +45,11 @@
             </resource>
         </resources>
     </build>
-
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <repositories>
         <repository>
             <id>spigot-repo</id>
@@ -147,6 +152,13 @@
             <groupId>com.ticxo.modelengine</groupId>
             <artifactId>ModelEngine</artifactId>
             <version>R4.0.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>bettermodel-bukkit-api</artifactId>
+            <version>2.0.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.LoneDev6</groupId>

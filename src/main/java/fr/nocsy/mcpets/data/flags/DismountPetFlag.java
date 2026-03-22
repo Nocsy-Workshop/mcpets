@@ -38,22 +38,23 @@ public class DismountPetFlag extends AbstractFlag implements StoppableFlag {
                 return;
 
             for (UUID owner : Pet.getActivePets().keySet()) {
-                Pet pet = Pet.getActivePets().get(owner);
+                for (Pet pet : Pet.getActivePetsForOwner(owner)) {
 
-                if (!pet.isMountable())
-                    continue;
-
-                Player p = Bukkit.getPlayer(owner);
-
-                if (p != null) {
-                    if (!pet.hasMount(p))
+                    if (!pet.isMountable())
                         continue;
 
-                    boolean hasToBeEjected = testState(p.getLocation());
+                    Player p = Bukkit.getPlayer(owner);
 
-                    if (hasToBeEjected) {
-                        pet.dismount(p);
-                        Language.NOT_MOUNTABLE_HERE.sendMessage(p);
+                    if (p != null) {
+                        if (!pet.hasMount(p))
+                            continue;
+
+                        boolean hasToBeEjected = testState(p.getLocation());
+
+                        if (hasToBeEjected) {
+                            pet.dismount(p);
+                            Language.NOT_MOUNTABLE_HERE.sendMessage(p);
+                        }
                     }
                 }
             }
