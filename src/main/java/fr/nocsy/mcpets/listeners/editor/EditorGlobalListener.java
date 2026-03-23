@@ -140,7 +140,8 @@ public class EditorGlobalListener implements Listener {
                 }
                 final PetLevel level = PetConfig.loadConfigPet(editorPet.getPetId()).getPetLevels().stream()
                         .filter(petLevel -> petLevel.getLevelId().equals(editorPet.getEditorMapping().get(e.getSlot())))
-                        .findFirst().orElse(null);
+                        .findFirst()
+                        .orElse(null);
 
                 editorPet.setMappedId(level.getLevelId());
                 editor.setState(EditorState.PET_EDITOR_LEVEL_EDIT);

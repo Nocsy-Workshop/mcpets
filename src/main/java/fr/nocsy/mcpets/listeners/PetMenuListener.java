@@ -13,23 +13,31 @@ import org.bukkit.inventory.ItemStack;
 public class PetMenuListener implements Listener {
 
     @EventHandler
-    public void click(InventoryClickEvent e) {
-        if (!(e.getInventory().getHolder() instanceof PetInventoryHolder holder)) return;
+    public void click(final InventoryClickEvent e) {
+        if (!(e.getInventory().getHolder() instanceof final PetInventoryHolder holder)) {
+            return;
+        }
 
-        if (holder.getType() != PetInventoryHolder.Type.PET_MENU) return;
+        if (holder.getType() != PetInventoryHolder.Type.PET_MENU) {
+            return;
+        }
 
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!(e.getWhoClicked() instanceof final Player p)) {
+            return;
+        }
 
         e.setCancelled(true);
 
-        ItemStack it = e.getCurrentItem();
-        if (it == null || it.getType().isAir()) return;
+        final ItemStack it = e.getCurrentItem();
+        if (it == null || it.getType().isAir()) {
+            return;
+        }
 
         if (it.hasItemMeta() && it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("AlmPetPage;")) {
-            int page = Integer.parseInt(it.getItemMeta().getItemName().split(";")[1]);
+            final int page = Integer.parseInt(it.getItemMeta().getItemName().split(";")[1]);
             p.closeInventory();
 
-            PetMenu menu;
+            final PetMenu menu;
             if (e.getClick() == ClickType.LEFT) {
                 menu = new PetMenu(p, Math.max(page - 1, 0));
             } else {
@@ -39,10 +47,10 @@ public class PetMenuListener implements Listener {
             return;
         }
 
-        Pet petObject = Pet.getFromIcon(it);
+        final Pet petObject = Pet.getFromIcon(it);
         if (petObject != null) {
             p.closeInventory();
-            Pet pet = petObject.copy();
+            final Pet pet = petObject.copy();
             pet.spawnWithMessage(p);
         }
     }

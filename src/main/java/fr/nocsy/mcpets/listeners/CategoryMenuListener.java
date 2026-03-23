@@ -17,18 +17,27 @@ public class CategoryMenuListener implements Listener {
 
     @EventHandler
     public void click(final InventoryClickEvent e) {
+        if (Category.getCategories().isEmpty()) {
+            return;
+        }
 
-        if (Category.getCategories().isEmpty()) return;
-
-        if (!(e.getWhoClicked() instanceof final Player p)) return;
+        if (!(e.getWhoClicked() instanceof final Player p)) {
+            return;
+        }
 
         final Category category = Category.getCategoryView(p);
 
-        if (category == null) return;
+        if (category == null) {
+            return;
+        }
 
-        if (!(e.getInventory().getHolder() instanceof final PetInventoryHolder holder)) return;
+        if (!(e.getInventory().getHolder() instanceof final PetInventoryHolder holder)) {
+            return;
+        }
 
-        if (holder.getType() != PetInventoryHolder.Type.CATEGORY_MENU) return;
+        if (holder.getType() != PetInventoryHolder.Type.CATEGORY_MENU) {
+            return;
+        }
 
         e.setCancelled(true);
 
@@ -42,7 +51,10 @@ public class CategoryMenuListener implements Listener {
         }
 
         final ItemStack it = e.getCurrentItem();
-        if (it == null || it.getType().isAir() || !it.hasItemMeta()) return;
+        if (it == null || it.getType().isAir() || !it.hasItemMeta()) {
+            return;
+        }
+
         if (it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("MCPetsPage;")) {
             final int currentPage = category.getCurrentPage(e.getClickedInventory());
             if (e.getClick() == ClickType.LEFT) {

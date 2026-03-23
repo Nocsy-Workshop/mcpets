@@ -25,18 +25,18 @@ public class PetMenu {
     @Getter
     private final UUID owner;
 
-    public PetMenu(Player p, int page) {
+    public PetMenu(final Player p, final int page) {
         // Load the data from the player
         // Mainly for the pet stats
         PlayerData.get(p.getUniqueId());
         owner = p.getUniqueId();
 
-        List<Pet> availablePets = Pet.getAvailablePets(p);
+        final List<Pet> availablePets = Pet.getAvailablePets(p);
 
         // Count the amount of pets that are being selected at that page
         // One page is up to 53 pets, so the page P has already seen 53 * P pets
         // 53 pets because we have to leave one spot available for the pager everytime
-        ArrayList<Pet> selectedPets = new ArrayList<>();
+        final ArrayList<Pet> selectedPets = new ArrayList<>();
         // Let's see if we need to add a pager to the inventory
         // Either we have more than 53 pets or we are at a page greater than 0
         boolean addPager = page > 0;
@@ -67,8 +67,8 @@ public class PetMenu {
         }
 
         // Let's fill tbe view with the selected pets
-        inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.PET_MENU).getInventory();
-        for (Pet pet : selectedPets) {
+        this.inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.PET_MENU).getInventory();
+        for (final Pet pet : selectedPets) {
             inventory.addItem(pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null));
         }
 
@@ -78,7 +78,7 @@ public class PetMenu {
         }
     }
 
-    public void open(Player p) {
+    public void open(final Player p) {
         if (p.getUniqueId().equals(owner) && !Category.getCategories().isEmpty()) {
             CategoriesMenu.open(p);
             return;

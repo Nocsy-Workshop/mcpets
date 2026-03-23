@@ -14,23 +14,35 @@ import org.bukkit.inventory.ItemStack;
 public class PetSkinsMenuListener implements Listener {
 
     @EventHandler
-    public void click(InventoryClickEvent e) {
-        if (!(e.getInventory().getHolder() instanceof PetInventoryHolder holder)) return;
+    public void click(final InventoryClickEvent e) {
+        if (!(e.getInventory().getHolder() instanceof final PetInventoryHolder holder)) {
+            return;
+        }
 
-        if (holder.getType() != PetInventoryHolder.Type.PET_SKINS_MENU) return;
+        if (holder.getType() != PetInventoryHolder.Type.PET_SKINS_MENU) {
+            return;
+        }
 
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!(e.getWhoClicked() instanceof final Player p)) {
+            return;
+        }
 
-        if (!PetSkin.hasMetadata(p)) return;
+        if (!PetSkin.hasMetadata(p)) {
+            return;
+        }
         e.setCancelled(true);
 
-        ItemStack it = e.getCurrentItem();
-        if (it == null || it.getType().isAir() || !it.hasItemMeta()) return;
+        final ItemStack it = e.getCurrentItem();
+        if (it == null || it.getType().isAir() || !it.hasItemMeta()) {
+            return;
+        }
 
-        PetSkin petSkin = PetSkin.fromIcon(it);
-        if (petSkin == null) return;
+        final PetSkin petSkin = PetSkin.fromIcon(it);
+        if (petSkin == null) {
+            return;
+        }
 
-        Pet pet = Pet.fromOwner(p.getUniqueId());
+        final Pet pet = Pet.fromOwner(p.getUniqueId());
         if (pet == null) {
             Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
             p.closeInventory();
@@ -47,8 +59,8 @@ public class PetSkinsMenuListener implements Listener {
     }
 
     @EventHandler
-    public void close(InventoryCloseEvent e) {
-        Player p = (Player) e.getPlayer();
+    public void close(final InventoryCloseEvent e) {
+        final Player p = (Player) e.getPlayer();
         if (PetSkin.hasMetadata(p)) {
             PetSkin.removeMetadata(p);
         }

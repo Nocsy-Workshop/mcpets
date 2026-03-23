@@ -11,18 +11,26 @@ import org.bukkit.inventory.ItemStack;
 public class CategoriesMenuListener implements Listener {
 
     @EventHandler
-    public void invClick(InventoryClickEvent e) {
-        if (!(e.getInventory().getHolder() instanceof PetInventoryHolder holder)) return;
+    public void invClick(final InventoryClickEvent e) {
+        if (!(e.getInventory().getHolder() instanceof final PetInventoryHolder holder)) {
+            return;
+        }
 
-        if (holder.getType() != PetInventoryHolder.Type.CATEGORIES_MENU) return;
+        if (holder.getType() != PetInventoryHolder.Type.CATEGORIES_MENU) {
+            return;
+        }
 
-        if (!(e.getWhoClicked() instanceof Player p)) return;
+        if (!(e.getWhoClicked() instanceof final Player p)) {
+            return;
+        }
 
         e.setCancelled(true);
 
-        ItemStack icon = e.getCurrentItem();
+        final ItemStack it = e.getCurrentItem();
+        if (it == null || it.getType().isAir()) {
+            return;
+        }
 
-        if (icon == null ) return;
-        CategoriesMenu.openSubCategory(p, icon);
+        CategoriesMenu.openSubCategory(p, it);
     }
 }

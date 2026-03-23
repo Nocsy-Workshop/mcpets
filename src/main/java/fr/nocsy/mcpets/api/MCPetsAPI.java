@@ -21,7 +21,7 @@ public class MCPetsAPI {
     /**
      * Returns pet object instance | not an active pet instance
      */
-    public static Pet getObjectPet(String id) {
+    public static Pet getObjectPet(final String id) {
         return Pet.getFromId(id);
     }
 
@@ -31,15 +31,15 @@ public class MCPetsAPI {
      * @deprecated Use getActivePetsForPlayer() for multiple pets support
      */
     @Deprecated
-    public static Pet getActivePet(UUID playerUUID) {
-        List<Pet> pets = Pet.getActivePets().get(playerUUID);
-        return (pets != null && !pets.isEmpty()) ? pets.get(0) : null;
+    public static Pet getActivePet(final UUID playerUUID) {
+        final List<Pet> pets = Pet.getActivePets().get(playerUUID);
+        return (pets != null && !pets.isEmpty()) ? pets.getFirst() : null;
     }
 
     /**
      * Returns all active pets for the player.
      */
-    public static List<Pet> getActivePetsForPlayer(UUID playerUUID) {
+    public static List<Pet> getActivePetsForPlayer(final UUID playerUUID) {
         return Pet.getActivePetsForOwner(playerUUID);
     }
 
@@ -62,7 +62,7 @@ public class MCPetsAPI {
     /**
      * Get the list of pet that are available to the specified player (permission based)
      */
-    public static List<Pet> getAvailablePets(Player p) {
+    public static List<Pet> getAvailablePets(final Player p) {
         return Pet.getAvailablePets(p);
     }
 
@@ -70,7 +70,7 @@ public class MCPetsAPI {
      * Set the active pet of the player
      * Returns a value giving what happened after calling the method
      */
-    public static int setActivePet(Pet pet, Player p, boolean checkPermission) {
+    public static int setActivePet(final Pet pet, final Player p, final boolean checkPermission) {
         pet.setCheckPermission(checkPermission);
         return pet.spawn(p.getLocation(), true);
     }
