@@ -24,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -151,8 +152,11 @@ public class MCPets extends JavaPlugin {
         // does not wipe the mcpets_active_pet records — players rejoin with their pet intact.
         if (GlobalConfig.getInstance().isVelocityEnabled()
                 && GlobalConfig.getInstance().isDatabaseSupport()) {
-            for (Map.Entry<UUID, Pet> entry : Pet.getActivePets().entrySet()) {
-                Databases.saveActivePet(entry.getKey(), entry.getValue().getId());
+            for (Map.Entry<UUID, List<Pet>> entry : Pet.getActivePets().entrySet()) {
+                List<Pet> activePets = entry.getValue();
+                if (activePets != null && !activePets.isEmpty()) {
+                    Databases.saveActivePet(entry.getKey(), activePets.get(0).getId());
+                }
             }
         }
 
