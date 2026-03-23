@@ -23,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MCPets extends JavaPlugin {
@@ -44,13 +45,7 @@ public class MCPets extends JavaPlugin {
     private static PlaceholderAPICompat placeholderAPI;
 
     @Getter
-    private static final Logger log = Bukkit.getLogger();
-
-    @Getter
     private static final String prefix = "§8[§»";
-
-    @Getter
-    private static final String logName = "[MCPets] : ";
 
     public static void loadConfigs() {
         ItemsListConfig.getInstance().init();
@@ -63,7 +58,7 @@ public class MCPets extends JavaPlugin {
         Databases.init();
         PlayerData.initAll();
 
-        for (EditorItems item : EditorItems.values())
+        for (final EditorItems item : EditorItems.values())
             item.refreshData();
     }
 
@@ -98,8 +93,8 @@ public class MCPets extends JavaPlugin {
                 FlagsManager.init(this);
             }
         }
-        catch (Exception ex) {
-            getLog().log(java.util.logging.Level.SEVERE, getLogName() + "Flag manager has raised an exception", ex);
+        catch (final Exception ex) {
+            getLog().log(Level.SEVERE, "Flag manager has raised an exception", ex);
         }
     }
 
@@ -148,15 +143,15 @@ public class MCPets extends JavaPlugin {
      */
     private static void checkLuckPerms() {
         try {
-            RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+            final RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
             if (provider != null) {
                 luckPerms = provider.getProvider();
             }
         }
-        catch (NoClassDefFoundError error) {
+        catch (final NoClassDefFoundError error) {
             if (!luckPermsNotFound) {
                 luckPermsNotFound = true;
-                Bukkit.getLogger().warning("[MCPets] : LuckPerms could not be found. Some features relating to giving permissions won't be available.");
+               getLog().warning("LuckPerms could not be found. Some features relating to giving permissions won't be available.");
             }
         }
     }
@@ -165,20 +160,26 @@ public class MCPets extends JavaPlugin {
         if (nexoFound) return true;
         if (nexoChecked) return false;
 
-        nexoChecked = true;
         try {
             Class.forName("com.nexomc.nexo.api.NexoItems");
-            Bukkit.getLogger().info("[MCPets] : Nexo found. Nexo Custom items features are available.");
             nexoFound = true;
-        } catch (ClassNotFoundException e) {
+            if (!nexoChecked) {
+               getLog().info("Nexo found. Nexo Custom items features are available.");
+            }
+        } catch (final ClassNotFoundException e) {
             nexoFound = false;
-            Bukkit.getLogger().warning("[MCPets] : Nexo could not be found. Nexo Custom items features won't be available.");
-        } catch (Exception e) {
+            if (!nexoChecked) {
+               getLog().warning("Nexo could not be found. Nexo Custom items features won't be available.");
+            }
+        } catch (final Exception e) {
             // Handle cases like zip file closed during plugin reload
             nexoFound = false;
-            Bukkit.getLogger().warning("[MCPets] : Could not check for Nexo (" + e.getClass().getSimpleName() + "). Nexo Custom items features won't be available.");
+            if (!nexoChecked) {
+               getLog().warning("Could not check for Nexo (" + e.getClass().getSimpleName() + "). Nexo Custom items features won't be available.");
+            }
         }
 
+        nexoChecked = true;
         return nexoFound;
     }
 
@@ -187,9 +188,9 @@ public class MCPets extends JavaPlugin {
         try {
             Class.forName("dev.lone.itemsadder.api.CustomStack");
             itemsAdderFound = true;
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             itemsAdderFound = false;
-            Bukkit.getLogger().warning("[MCPets] : ItemsAdder could not be found. IA Custom items features won't be available.");
+            getLog().warning("ItemsAdder could not be found. IA Custom items features won't be available.");
         }
     }
 
@@ -198,13 +199,13 @@ public class MCPets extends JavaPlugin {
      */
     private static void checkWorldGuard() {
         try {
-            WorldGuard wg = WorldGuard.getInstance();
+            final WorldGuard wg = WorldGuard.getInstance();
             if (wg != null)
                 GlobalConfig.getInstance().setWorldguardsupport(true);
         }
-        catch (NoClassDefFoundError error) {
+        catch (final NoClassDefFoundError error) {
             GlobalConfig.getInstance().setWorldguardsupport(false);
-            Bukkit.getLogger().warning("[MCPets] : WorldGuard could not be found. Flags won't be available.");
+           getLog().warning("WorldGuard could not be found. Flags won't be available.");
         }
     }
 
@@ -216,14 +217,14 @@ public class MCPets extends JavaPlugin {
             return true;
 
         try {
-            MythicBukkit inst = MythicBukkit.inst();
+            final MythicBukkit inst = MythicBukkit.inst();
             if (inst != null) {
                 mythicMobs = inst;
                 return true;
             }
         }
-        catch (NoClassDefFoundError error) {
-            getLog().warning("[MCPets] : MythicMobs could not be found.");
+        catch (final NoClassDefFoundError error) {
+            getLog().warning("MythicMobs could not be found.");
         }
 
         return false;
@@ -240,17 +241,17 @@ public class MCPets extends JavaPlugin {
         try {
             Class.forName("kr.toxicity.model.api.BetterModel");
             modeler = new BetterModelModeler();
-            getLog().info("[MCPets] : BetterModel found. Using BetterModel as modeler.");
+            getLog().info("BetterModel found. Using BetterModel as modeler.");
             return true;
-        } catch (ClassNotFoundException ignored) {}
+        } catch (final ClassNotFoundException ignored) {}
 
         // Fallback to ModelEngine
         try {
             Class.forName("com.ticxo.modelengine.api.ModelEngineAPI");
             modeler = new ModelEngineModeler();
-            getLog().info("[MCPets] : ModelEngine found. Using ModelEngine as modeler.");
+            getLog().info("ModelEngine found. Using ModelEngine as modeler.");
             return true;
-        } catch (ClassNotFoundException ignored) {}
+        } catch (final ClassNotFoundException ignored) {}
 
         return false;
     }
@@ -294,5 +295,9 @@ public class MCPets extends JavaPlugin {
      */
     public static boolean isItemsAdderLoaded() {
         return itemsAdderFound;
+    }
+
+    public static Logger getLog() {
+        return getInstance().getLogger();
     }
 }
