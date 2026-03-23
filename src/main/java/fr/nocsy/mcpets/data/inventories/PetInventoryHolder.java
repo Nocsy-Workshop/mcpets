@@ -37,6 +37,8 @@ public class PetInventoryHolder implements InventoryHolder {
         CATEGORIES_MENU,
         CATEGORY_MENU,
         EDITOR_MENU,
+        MOUNT_MENU,
+        MOUNT_INTERACTION_MENU,
         PET_INTERACTION_MENU,
         PET_INVENTORY_MENU,
         PET_MENU,
