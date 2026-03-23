@@ -53,6 +53,9 @@ public enum EditorState {
     PETFOOD_EDITOR_EDIT("Edit the pet food");
 
 
+    private static final int INV_SIZE = 54;
+    private static final PetInventoryHolder.Type INV_TYPE = PetInventoryHolder.Type.EDITOR_MENU;
+    
     @Getter
     private final String stateName;
     @Getter
@@ -60,22 +63,22 @@ public enum EditorState {
     @Getter
     private Inventory currentView;
 
-    EditorState(String title) {
+    EditorState(final String title) {
         this.stateName = this.name();
         this.menuTitle = title;
     }
 
-    public void openView(Player p) {
+    public void openView(final Player p) {
         this.buildInventory(p);
         p.openInventory(currentView);
     }
 
-    private void buildInventory(Player p) {
+    private void buildInventory(final Player p) {
 
         if (this.equals(EditorState.GLOBAL_EDITOR)) {
-            currentView = new PetInventoryHolder(InventoryType.HOPPER, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(InventoryType.HOPPER, getMenuTitle(), INV_TYPE).getInventory();
 
-            EditorItems[] icons = {
+            final EditorItems[] icons = {
                     EditorItems.CONFIG_EDITOR,
                     EditorItems.PET_EDITOR,
                     EditorItems.CATEGORY_EDITOR,
@@ -83,7 +86,7 @@ public enum EditorState {
                     EditorItems.PETFOOD_EDITOR,
             };
 
-            for(EditorItems editorItem : icons) {
+            for(final EditorItems editorItem : icons) {
                 currentView.addItem(editorItem.getItem());
             }
 
@@ -91,9 +94,9 @@ public enum EditorState {
 
 
         else if (this.equals(EditorState.CONFIG_EDITOR)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
-            HashMap<EditorItems, Integer> icons = new HashMap<>();
+            final HashMap<EditorItems, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.BACK_TO_GLOBAL_SELECTION, 0);
 
@@ -119,15 +122,15 @@ public enum EditorState {
             icons.put(EditorItems.CONFIG_EDITOR_GLOBAL_RESPAWN_COOLDOWN, 40);
             icons.put(EditorItems.CONFIG_EDITOR_GLOBAL_AUTORESPAWN, 41);
 
-            for(EditorItems item : icons.keySet()) {
-                int position = icons.get(item);
+            for(final EditorItems item : icons.keySet()) {
+                final int position = icons.get(item);
                 currentView.setItem(position, item.getItem());
             }
         }
 
 
         else if (this.equals(EditorState.PET_EDITOR)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
             for(int i = 45; i < 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -136,12 +139,12 @@ public enum EditorState {
             currentView.setItem(49, EditorItems.PET_EDITOR_CREATE_NEW.getItem());
             currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
 
-            int page = EditorPageSelection.get(p);
-            ArrayList<Pet> pets = Pet.getObjectPets();
+            final int page = EditorPageSelection.get(p);
+            final ArrayList<Pet> pets = Pet.getObjectPets();
 
             int currentIndex = 0;
             int inventoryPosition = 0;
-            for(Pet pet : pets) {
+            for(final Pet pet : pets) {
                 if (EditorItems.getCachedDeleted().contains(pet.getId()))
                     continue;
                 if (currentIndex < 45*page) {
@@ -150,7 +153,7 @@ public enum EditorState {
                 }
                 else if (inventoryPosition < currentView.getSize()-9) {
 
-                    ItemStack icon = EditorItems.PET_EDITOR_EDIT_PET.setupPetIcon(pet.getId()).getItem();
+                    final ItemStack icon = EditorItems.PET_EDITOR_EDIT_PET.setupPetIcon(pet.getId()).getItem();
 
                     currentView.setItem(inventoryPosition, icon);
                     inventoryPosition++;
@@ -160,12 +163,12 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_EDIT)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
-            Pet pet = PetConfig.loadConfigPet(EditorEditing.get(p).getPetId());
-            String filePath = PetConfig.getFilePath(pet.getId());
+            final Pet pet = PetConfig.loadConfigPet(EditorEditing.get(p).getPetId());
+            final String filePath = PetConfig.getFilePath(pet.getId());
 
-            HashMap<ItemStack, Integer> icons = new HashMap<>();
+            final HashMap<ItemStack, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.PET_EDITOR_DELETE.getItem(), 8);
             icons.put(EditorItems.BACK_TO_PET_SELECTION.getItem(), 0);
@@ -190,13 +193,13 @@ public enum EditorState {
             icons.put(EditorItems.PET_EDITOR_SIGNAL_STICK.setFilePath(filePath).setupSignalStickItem(pet.getId()).getItem(), 41);
             icons.put(EditorItems.PET_EDITOR_GET_SIGNAL_STICK_FROM_MENU.setFilePath(filePath).getItem(), 42);
 
-            for(ItemStack item : icons.keySet()) {
-                int position = icons.get(item);
+            for(final ItemStack item : icons.keySet()) {
+                final int position = icons.get(item);
                 currentView.setItem(position, item);
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_LEVELS)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
             for(int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -204,18 +207,18 @@ public enum EditorState {
             currentView.setItem(49, EditorItems.PET_EDITOR_LEVEL_CREATE_NEW.getItem());
             currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
 
-            EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
-            String filePath = PetConfig.getFilePath(pet.getId());
+            final EditorEditing editorPet = EditorEditing.get(p);
+            final Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
+            final String filePath = PetConfig.getFilePath(pet.getId());
 
             for(int i = 0; i < 45 && i < pet.getPetLevels().size(); i++) {
-                PetLevel level = pet.getPetLevels().get(i);
+                final PetLevel level = pet.getPetLevels().get(i);
 
-                EditorItems icon = EditorItems.PET_EDITOR_EDIT_LEVEL
+                final EditorItems icon = EditorItems.PET_EDITOR_EDIT_LEVEL
                         .setFilePath(filePath).replaceVariablePath(level.getLevelId())
                         .setupPetLevelIcon(pet.getId(), level.getLevelId());
 
-                ItemStack item = icon.getItem().clone();
+                final ItemStack item = icon.getItem().clone();
                 item.setAmount(i+1);
                 currentView.setItem(i, item);
 
@@ -223,15 +226,15 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_LEVEL_EDIT)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
 
-            EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
-            String filePath = PetConfig.getFilePath(pet.getId());
-            PetLevel level = pet.getPetLevels().stream().filter(petLevel -> petLevel.getLevelId().equals(editorPet.getMappedId())).findFirst().orElse(null);
+            final EditorEditing editorPet = EditorEditing.get(p);
+            final Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
+            final String filePath = PetConfig.getFilePath(pet.getId());
+            final PetLevel level = pet.getPetLevels().stream().filter(petLevel -> petLevel.getLevelId().equals(editorPet.getMappedId())).findFirst().orElse(null);
 
-            HashMap<EditorItems, Integer> icons = new HashMap<>();
+            final HashMap<EditorItems, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.BACK_TO_PET_LEVELS_EDIT, 0);
             icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_DELETE, 8);
@@ -257,8 +260,8 @@ public enum EditorState {
             icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_EVOLUTION_DELAY, 34);
             icons.put(EditorItems.PET_EDITOR_EDIT_LEVEL_EVOLUTION_REMOVE_ACCESS, 35);
 
-            for(EditorItems item : icons.keySet()) {
-                int position = icons.get(item);
+            for(final EditorItems item : icons.keySet()) {
+                final int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(filePath)
                                                     .replaceVariablePath(level.getLevelId())
                                                     .getItem());
@@ -266,7 +269,7 @@ public enum EditorState {
         }
         else if (this.equals(EditorState.PET_EDITOR_SKINS)) {
 
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
             for(int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -274,15 +277,15 @@ public enum EditorState {
             currentView.setItem(49, EditorItems.PET_EDITOR_SKIN_CREATE_NEW.getItem());
             currentView.setItem(45, EditorItems.BACK_TO_PET_EDIT.getItem());
 
-            EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
-            String filePath = PetConfig.getFilePath(pet.getId());
+            final EditorEditing editorPet = EditorEditing.get(p);
+            final Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
+            final String filePath = PetConfig.getFilePath(pet.getId());
 
-            ArrayList<PetSkin> skins = PetSkin.getSkins(pet);
+            final ArrayList<PetSkin> skins = PetSkin.getSkins(pet);
             for(int i = 0; i < 45 && i < skins.size(); i++) {
-                PetSkin skin = skins.get(i);
+                final PetSkin skin = skins.get(i);
 
-                EditorItems icon = EditorItems.PET_EDITOR_EDIT_SKIN
+                final EditorItems icon = EditorItems.PET_EDITOR_EDIT_SKIN
                         .setFilePath(filePath).replaceVariablePath(skin.getPathId())
                         .setupSkinIcon(pet.getId(), skin.getPathId());
 
@@ -292,14 +295,14 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PET_EDITOR_SKIN_EDIT)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
-            EditorEditing editorPet = EditorEditing.get(p);
-            Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
-            String filePath = PetConfig.getFilePath(pet.getId());
-            PetSkin skin = PetSkin.getSkins(pet).stream().filter(petSkin -> petSkin.getPathId().equals(editorPet.getMappedId())).findFirst().orElse(null);
+            final EditorEditing editorPet = EditorEditing.get(p);
+            final Pet pet = PetConfig.loadConfigPet(editorPet.getPetId());
+            final String filePath = PetConfig.getFilePath(pet.getId());
+            final PetSkin skin = PetSkin.getSkins(pet).stream().filter(petSkin -> petSkin.getPathId().equals(editorPet.getMappedId())).findFirst().orElse(null);
 
-            HashMap<EditorItems, Integer> icons = new HashMap<>();
+            final HashMap<EditorItems, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.BACK_TO_PET_SKINS_EDIT, 0);
             icons.put(EditorItems.PET_EDITOR_EDIT_SKIN_DELETE, 8);
@@ -308,17 +311,17 @@ public enum EditorState {
             icons.put(EditorItems.PET_EDITOR_EDIT_SKIN_ICON, 22);
             icons.put(EditorItems.PET_EDITOR_EDIT_SKIN_PERMISSION, 24);
 
-            for(EditorItems item : icons.keySet()) {
+            for(final EditorItems item : icons.keySet()) {
                 if (item.equals(EditorItems.PET_EDITOR_EDIT_SKIN_ICON))
                     item.setupEditSkinIcon(pet.getId(), skin.getPathId());
-                int position = icons.get(item);
+                final int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(filePath)
                         .replaceVariablePath(skin.getPathId())
                         .getItem());
             }
         }
         else if (this.equals(EditorState.CATEGORY_EDITOR)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
             for (int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -326,14 +329,14 @@ public enum EditorState {
             currentView.setItem(49, EditorItems.CATEGORY_EDITOR_CATEGORY_CREATE.getItem());
             currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
 
-            EditorEditing editorEditing = EditorEditing.get(p);
+            final EditorEditing editorEditing = EditorEditing.get(p);
 
-            List<Category> categories = Category.getCategories();
+            final List<Category> categories = Category.getCategories();
             for (int i = 0; i < 45 && i < categories.size(); i++) {
-                Category category = categories.get(i);
-                CategoryConfig config = CategoryConfig.getMapping().get(category.getId());
+                final Category category = categories.get(i);
+                final CategoryConfig config = CategoryConfig.getMapping().get(category.getId());
 
-                EditorItems icon = EditorItems.CATEGORY_EDITOR_EDIT_CATEGORY
+                final EditorItems icon = EditorItems.CATEGORY_EDITOR_EDIT_CATEGORY
                         .setFilePath(config.getFullPath())
                         .setupCategoryIcon(category.getId());
 
@@ -343,13 +346,13 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.CATEGORY_EDITOR_EDIT)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
-            EditorEditing editorEditing = EditorEditing.get(p);
-            Category category = CategoryConfig.loadConfigCategory(editorEditing.getMappedId());
-            String filePath = CategoryConfig.getMapping().get(category.getId()).getFullPath();
+            final EditorEditing editorEditing = EditorEditing.get(p);
+            final Category category = CategoryConfig.loadConfigCategory(editorEditing.getMappedId());
+            final String filePath = CategoryConfig.getMapping().get(category.getId()).getFullPath();
 
-            HashMap<EditorItems, Integer> icons = new HashMap<>();
+            final HashMap<EditorItems, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.BACK_TO_CATEGORIES_EDIT, 0);
             icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_DELETE, 8);
@@ -365,15 +368,15 @@ public enum EditorState {
             icons.put(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_PET_REMOVE, 42);
 
 
-            for (EditorItems item : icons.keySet()) {
+            for (final EditorItems item : icons.keySet()) {
                 if (item.equals(EditorItems.CATEGORY_EDITOR_CATEGORY_EDIT_ICON))
                     item.setupEditCategoryIcon(category.getId());
-                int position = icons.get(item);
+                final int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(filePath).getItem());
             }
         }
         else if (this.equals(EditorState.ITEM_EDITOR)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
             for (int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -382,18 +385,18 @@ public enum EditorState {
             currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
             currentView.setItem(53, EditorItems.PAGE_SELECTOR.getItem());
 
-            EditorEditing editing = EditorEditing.get(p);
+            final EditorEditing editing = EditorEditing.get(p);
             editing.getEditorMapping().clear();
 
-            HashMap<String, ItemStack> items = ItemsListConfig.getInstance().getItems();
-            List<String> itemsId = new ArrayList<>(items.keySet());
-            int page = EditorPageSelection.get(p);
+            final HashMap<String, ItemStack> items = ItemsListConfig.getInstance().getItems();
+            final List<String> itemsId = new ArrayList<>(items.keySet());
+            final int page = EditorPageSelection.get(p);
             for (int i = 45*page; i - 45*page < 45 && i - 45*page < items.size(); i++) {
                 if (i >= itemsId.size())
                     break;
-                String itemId = itemsId.get(i);
+                final String itemId = itemsId.get(i);
 
-                EditorItems icon = EditorItems.ITEMS_EDIT
+                final EditorItems icon = EditorItems.ITEMS_EDIT
                         .replaceVariablePath(itemId)
                         .setupItemIcon(itemId);
 
@@ -402,12 +405,12 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.ITEM_EDITOR_EDIT)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
-            EditorEditing editorEditing = EditorEditing.get(p);
-            String itemId = editorEditing.getMappedId();
+            final EditorEditing editorEditing = EditorEditing.get(p);
+            final String itemId = editorEditing.getMappedId();
 
-            HashMap<EditorItems, Integer> icons = new HashMap<>();
+            final HashMap<EditorItems, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.BACK_TO_ITEM_EDITOR, 0);
             icons.put(EditorItems.ITEMS_DELETE, 8);
@@ -416,15 +419,15 @@ public enum EditorState {
             icons.put(EditorItems.ITEMS_EDIT_ITEM, 14);
 
 
-            for (EditorItems item : icons.keySet()) {
+            for (final EditorItems item : icons.keySet()) {
                 if (item.equals(EditorItems.ITEMS_EDIT_ITEM))
                     item.setupEditItemIcon(itemId);
-                int position = icons.get(item);
+                final int position = icons.get(item);
                 currentView.setItem(position, item.setFilePath(item.getInputFilePath()).replaceVariablePath(itemId).setValue(itemId).getItem());
             }
         }
         else if (this.equals(EditorState.PETFOOD_EDITOR)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
             for (int i = 45; i <= 53; i++) {
                 currentView.setItem(i, EditorItems.FILLER.getItem());
@@ -433,18 +436,18 @@ public enum EditorState {
             currentView.setItem(45, EditorItems.BACK_TO_GLOBAL_SELECTION.getItem());
             currentView.setItem(53, EditorItems.PAGE_SELECTOR.getItem());
 
-            EditorEditing editing = EditorEditing.get(p);
+            final EditorEditing editing = EditorEditing.get(p);
             editing.getEditorMapping().clear();
 
-            HashMap<String, PetFood> items = PetFoodConfig.getInstance().getPetFoods();
-            List<String> itemsId = new ArrayList<>(items.keySet());
-            int page = EditorPageSelection.get(p);
+            final HashMap<String, PetFood> items = PetFoodConfig.getInstance().getPetFoods();
+            final List<String> itemsId = new ArrayList<>(items.keySet());
+            final int page = EditorPageSelection.get(p);
             for (int i = 45*page; i - 45*page < 45 && i - 45*page < items.size(); i++) {
                 if (i >= itemsId.size())
                     break;
-                String itemId = itemsId.get(i);
+                final String itemId = itemsId.get(i);
 
-                EditorItems icon = EditorItems.PETFOOD_EDITOR_EDIT
+                final EditorItems icon = EditorItems.PETFOOD_EDITOR_EDIT
                         .replaceVariablePath(itemId)
                         .setupPetfoodIcon(items.get(itemId).getId());
 
@@ -454,12 +457,12 @@ public enum EditorState {
             }
         }
         else if (this.equals(EditorState.PETFOOD_EDITOR_EDIT)) {
-            currentView = new PetInventoryHolder(54, this.getMenuTitle(), PetInventoryHolder.Type.EDITOR_MENU).getInventory();
+            currentView = new PetInventoryHolder(INV_SIZE, getMenuTitle(), INV_TYPE).getInventory();
 
-            EditorEditing editorEditing = EditorEditing.get(p);
-            PetFood petFood = PetFoodConfig.loadConfigPetFood(editorEditing.getMappedId());
+            final EditorEditing editorEditing = EditorEditing.get(p);
+            final PetFood petFood = PetFoodConfig.loadConfigPetFood(editorEditing.getMappedId());
 
-            HashMap<EditorItems, Integer> icons = new HashMap<>();
+            final HashMap<EditorItems, Integer> icons = new HashMap<>();
 
             icons.put(EditorItems.BACK_TO_PETFOOD_EDITOR, 0);
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_DELETE, 8);
@@ -482,21 +485,21 @@ public enum EditorState {
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_PERMISSION, 48);
             icons.put(EditorItems.PETFOOD_EDITOR_EDIT_UNLOCKED_PET, 49);
 
-            for (EditorItems item : icons.keySet()) {
-                EditorItems replacedItem = item.replaceVariablePath(petFood.getId());
+            for (final EditorItems item : icons.keySet()) {
+                final EditorItems replacedItem = item.replaceVariablePath(petFood.getId());
                 if (item.equals(EditorItems.PETFOOD_EDITOR_EDIT_ID))
                     replacedItem.setValue(petFood.getId());
 
                 if (item.equals(EditorItems.PETFOOD_EDITOR_EDIT_ITEM_ID))
                     replacedItem.setupPetFoodEditorEditItem(petFood.getId());
 
-                int position = icons.get(item);
+                final int position = icons.get(item);
                 currentView.setItem(position, replacedItem.getItem());
             }
         }
     }
 
-    public boolean equals(EditorState other) {
+    public boolean equals(final EditorState other) {
         return other.getStateName().equals(this.stateName);
     }
 }
