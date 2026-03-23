@@ -74,8 +74,8 @@ public class ArgumentMenu extends AArgument {
                 ? Language.INVENTORY_MOUNTS_MENU_INTERACTIONS.getMessage()
                 : Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage();
         final PetInventoryHolder.Type type = isMount
-                ? PetInventoryHolder.Type.MOUNT_MENU
-                : PetInventoryHolder.Type.PET_MENU;
+                ? PetInventoryHolder.Type.MOUNT_INTERACTION_MENU
+                : PetInventoryHolder.Type.PET_INTERACTION_MENU;
         final Inventory inventory = new PetInventoryHolder(INV_SIZE, title, type).getInventory();
 
         inventory.setItem(0, isMount ? Items.MOUNTMENU.getItem() : Items.PETMENU.getItem());
