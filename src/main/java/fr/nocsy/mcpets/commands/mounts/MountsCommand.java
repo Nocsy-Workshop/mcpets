@@ -38,7 +38,7 @@ public class MountsCommand implements CCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, Command command, String label, String[] args) {
+    public void execute(final CommandSender sender, final Command command, final String label, final String[] args) {
         if (!sender.hasPermission(getPermission())) {
             Language.NO_PERM.sendMessage(sender);
             return;
@@ -47,11 +47,11 @@ public class MountsCommand implements CCommand {
         if (!(sender instanceof Player))
             return;
 
-        Player p = (Player) sender;
+        final Player p = (Player) sender;
 
         // /mounts menu [mountId]
         if (args.length >= 1 && args[0].equalsIgnoreCase("menu")) {
-            List<Pet> activeMounts = Pet.getActivePetsForOwner(p.getUniqueId())
+            final List<Pet> activeMounts = Pet.getActivePetsForOwner(p.getUniqueId())
                     .stream()
                     .filter(Pet::isMountable)
                     .collect(Collectors.toList());
@@ -61,9 +61,9 @@ public class MountsCommand implements CCommand {
                 return;
             }
 
-            Pet mount;
+            final Pet mount;
             if (args.length >= 2) {
-                String mountId = args[1];
+                final String mountId = args[1];
                 mount = activeMounts.stream()
                         .filter(m -> m.getId().equalsIgnoreCase(mountId))
                         .findFirst()
@@ -73,9 +73,9 @@ public class MountsCommand implements CCommand {
                     return;
                 }
             } else if (activeMounts.size() == 1) {
-                mount = activeMounts.get(0);
+                mount = activeMounts.getFirst();
             } else {
-                String mountIds = activeMounts.stream().map(Pet::getId).collect(Collectors.joining(", "));
+                final String mountIds = activeMounts.stream().map(Pet::getId).collect(Collectors.joining(", "));
                 Language.SPECIFY_PET.sendMessageFormated(p, new FormatArg("%pets%", mountIds));
                 return;
             }
