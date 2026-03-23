@@ -31,7 +31,7 @@ Looking for help ? Join the [Discord](https://discord.com/invite/p7QTm2gUyf) !
 
 ⭕ MySQL support
 
-✨ Need a demo pet to start with ? Check out [Sleepy the Otter](https://mcmodels.net/model/sleepy-the-otter/) !
+✨ Need a demo pet to start with ? Check out [Sleepy the Otter](https://mcmodels.net/products/11051/sleepy-the-otter) !
 
 <img src="https://i.ibb.co/Sn460M4/patreon-advantages.png" alt="Patreon advantages">
 
