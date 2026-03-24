@@ -177,9 +177,10 @@ public class MCPets extends JavaPlugin {
             if (!nexoChecked) {
                getLog().warning("Could not check for Nexo (" + e.getClass().getSimpleName() + "). Nexo Custom items features won't be available.");
             }
+        } finally {
+            nexoChecked = true;
         }
 
-        nexoChecked = true;
         return nexoFound;
     }
 
