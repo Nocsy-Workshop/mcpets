@@ -2,7 +2,6 @@ package fr.nocsy.mcpets.velocity;
 
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
@@ -14,7 +13,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class SyncListener {
@@ -25,12 +23,6 @@ public class SyncListener {
     private final VelocityPluginConfig config;
     private final Logger logger;
     private final MinecraftChannelIdentifier channel;
-
-    /**
-     * UUID → destination server name for players mid-switch between synced servers.
-     * Populated in ServerPreConnectEvent, cleared on disconnect.
-     */
-    private final ConcurrentHashMap<UUID, String> pendingSwitch = new ConcurrentHashMap<>();
 
     public SyncListener(ProxyServer proxy, VelocityPluginConfig config, Logger logger,
                         MinecraftChannelIdentifier channel) {
@@ -66,20 +58,10 @@ public class SyncListener {
 
         if (config.isSynced(fromServer) && config.isSynced(toServer)) {
             UUID uuid = event.getPlayer().getUniqueId();
-            pendingSwitch.put(uuid, toServer);
             // Send now — the message arrives at the destination BEFORE the player does,
             // ensuring isPlayerSwitching() is true when PlayerJoinEvent fires there.
             sendToServer(toServer, MSG_PLAYER_SWITCHING, uuid);
         }
-    }
-
-    // ------------------------------------------------------------------
-    // Player disconnects from the network entirely
-    // ------------------------------------------------------------------
-
-    @Subscribe
-    public void onDisconnect(DisconnectEvent event) {
-        pendingSwitch.remove(event.getPlayer().getUniqueId());
     }
 
     // ------------------------------------------------------------------

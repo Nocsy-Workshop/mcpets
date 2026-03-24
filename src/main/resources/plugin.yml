@@ -21,9 +21,8 @@ softdepend:
   - ItemsAdder
 loadbefore: []
 
-# Plugin messaging channel used for Velocity pet sync
-channels:
-  - mcpets:sync
+# Plugin messaging channel "mcpets:sync" is registered in code via Bukkit.getMessenger()
+# (the 'channels' key is not part of the Bukkit plugin descriptor schema)
 
 commands:
   mcpets:

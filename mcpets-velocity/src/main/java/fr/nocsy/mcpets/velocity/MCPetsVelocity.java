@@ -11,6 +11,9 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
+// NOTE: The runtime plugin version is provided by velocity-plugin.json (Maven-filtered to
+// ${project.version} at build time). The version below must be kept in sync with pom.xml
+// manually, as Maven resource filtering cannot substitute values in Java source annotations.
 @Plugin(
     id          = "mcpets-velocity",
     name        = "MCPets-Velocity",

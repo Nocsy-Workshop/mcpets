@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.velocity;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -77,12 +78,13 @@ public class VelocitySyncManager implements PluginMessageListener {
     // ------------------------------------------------------------------
 
     /**
-     * @return true if this player arrived via a cross-server switch within the last 30 s
+     * @return true if this player arrived via a cross-server switch within the configured SwitchWindow
      */
     public static boolean isPlayerSwitching(UUID uuid) {
         Long ts = pendingSwitchPlayers.get(uuid);
         if (ts == null) return false;
-        if (System.currentTimeMillis() - ts > 30_000L) {
+        long windowMs = GlobalConfig.getInstance().getVelocitySwitchWindow() * 1000L;
+        if (System.currentTimeMillis() - ts > windowMs) {
             pendingSwitchPlayers.remove(uuid);
             return false;
         }

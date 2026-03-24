@@ -24,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -155,7 +156,13 @@ public class MCPets extends JavaPlugin {
             for (Map.Entry<UUID, List<Pet>> entry : Pet.getActivePets().entrySet()) {
                 List<Pet> activePets = entry.getValue();
                 if (activePets != null && !activePets.isEmpty()) {
-                    Databases.saveActivePet(entry.getKey(), activePets.get(0).getId());
+                    List<String> ids = new ArrayList<>();
+                    for (Pet pet : activePets) {
+                        if (pet != null) ids.add(pet.getId());
+                    }
+                    if (!ids.isEmpty()) {
+                        Databases.saveActivePet(entry.getKey(), ids);
+                    }
                 }
             }
         }

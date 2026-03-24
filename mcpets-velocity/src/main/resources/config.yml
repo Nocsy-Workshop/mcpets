@@ -12,5 +12,8 @@
 #     - skyblock2
 #     - skyblock3
 
-synced-servers:
-  - skyblock
+synced-servers: []
+# Example:
+#   synced-servers:
+#     - skyblock1
+#     - skyblock2

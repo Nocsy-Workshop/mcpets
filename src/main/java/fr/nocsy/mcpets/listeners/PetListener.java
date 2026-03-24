@@ -37,6 +37,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -159,12 +160,12 @@ public class PetListener implements Listener {
         UUID uuid = p.getUniqueId();
         List<Pet> pets = Pet.getActivePetsForOwner(uuid);
         // Create a copy to avoid ConcurrentModificationException when despawning modifies the list
-        String lastActivePetId = null;
+        List<String> activePetIds = new ArrayList<>();
         for (Pet pet : List.copyOf(pets)) {
             pet.despawn(PetDespawnReason.DISCONNECTION);
             if (p.hasPermission(pet.getPermission())) {
                 reconnectionPets.put(uuid, pet.getId());
-                lastActivePetId = pet.getId();
+                activePetIds.add(pet.getId());
                 if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
                     PlayerData pd = PlayerData.get(uuid);
                     pd.setLastActivePet(pet.getId());
@@ -175,8 +176,8 @@ public class PetListener implements Listener {
         // Velocity: persist or clear active pet record so destination server restores correctly
         if (GlobalConfig.getInstance().isVelocityEnabled()
                 && GlobalConfig.getInstance().isDatabaseSupport()) {
-            if (lastActivePetId != null) {
-                Databases.saveActivePet(uuid, lastActivePetId);
+            if (!activePetIds.isEmpty()) {
+                Databases.saveActivePet(uuid, activePetIds);
             } else {
                 Databases.clearActivePet(uuid);
             }
@@ -209,20 +210,33 @@ public class PetListener implements Listener {
                 // reconnectionPets on any given server reflects the last time the player
                 // disconnected from THAT server's JVM — it goes stale the moment the player
                 // visits another server. Never fall through to it when Velocity is on.
+                boolean isLiveSwitch = VelocitySyncManager.isPlayerSwitching(uuid);
                 VelocitySyncManager.clearSwitchingPlayer(uuid);
                 reconnectionPets.remove(uuid); // discard — DB owns the state
 
                 Databases.ActivePetRecord record = Databases.loadActivePet(uuid);
                 if (record != null) {
-                    Databases.clearActivePet(uuid);
-                    Pet template = Pet.getFromId(record.getPetId());
-                    if (template == null) return;
-                    Pet velocityPet = template.copy();
-                    velocityPet.setCheckPermission(false);
-                    velocityPet.setOwner(uuid);
-                    Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-                        if (p.isOnline()) velocityPet.spawn(p.getLocation(), true);
-                    }, 2L);
+                    // The DB record is the authoritative last-known pet state.
+                    // Always restore it regardless of how long ago it was written —
+                    // the SwitchWindow staleness check belongs only in isPlayerSwitching()
+                    // (proxy-message timing), not here.
+
+                    // Only clear the record on a live switch (one-time consumption).
+                    // For reconnect/restart recovery, leave it intact — the quit handler
+                    // will overwrite or clear it at the player's next disconnect.
+                    if (isLiveSwitch) {
+                        Databases.clearActivePet(uuid);
+                    }
+                    for (String petId : record.getPetIds()) {
+                        Pet template = Pet.getFromId(petId);
+                        if (template == null) continue;
+                        Pet velocityPet = template.copy();
+                        velocityPet.setCheckPermission(false);
+                        velocityPet.setOwner(uuid);
+                        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                            if (p.isOnline()) velocityPet.spawn(p.getLocation(), true);
+                        }, 2L);
+                    }
                 }
                 // No DB record = player had no active pet when they left — don't spawn.
                 return; // never fall through to reconnectionPets when Velocity is enabled
