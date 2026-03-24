@@ -4,10 +4,14 @@ import com.sk89q.worldguard.WorldGuard;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.config.*;
-import fr.nocsy.mcpets.modeler.AbstractModeler;
-import fr.nocsy.mcpets.modeler.BetterModelModeler;
-import fr.nocsy.mcpets.modeler.ModelEngineModeler;
+import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.data.config.BlacklistConfig;
+import fr.nocsy.mcpets.data.config.CategoryConfig;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
+import fr.nocsy.mcpets.data.config.LanguageConfig;
+import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.data.config.PetFoodConfig;
 import fr.nocsy.mcpets.data.editor.EditorConversation;
 import fr.nocsy.mcpets.data.editor.EditorItems;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
@@ -15,6 +19,9 @@ import fr.nocsy.mcpets.data.livingpets.PetStats;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.listeners.EventListener;
+import fr.nocsy.mcpets.modeler.AbstractModeler;
+import fr.nocsy.mcpets.modeler.BetterModelModeler;
+import fr.nocsy.mcpets.modeler.ModelEngineModeler;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
@@ -92,8 +99,7 @@ public class MCPets extends JavaPlugin {
             if (GlobalConfig.getInstance().isWorldguardsupport()) {
                 FlagsManager.init(this);
             }
-        }
-        catch (final Exception ex) {
+        } catch (final Exception ex) {
             getLog().log(Level.SEVERE, "Flag manager has raised an exception", ex);
         }
     }
@@ -115,7 +121,6 @@ public class MCPets extends JavaPlugin {
 
         FlagsManager.launchFlags();
     }
-
 
     @Override
     public void onDisable() {
@@ -147,11 +152,10 @@ public class MCPets extends JavaPlugin {
             if (provider != null) {
                 luckPerms = provider.getProvider();
             }
-        }
-        catch (final NoClassDefFoundError error) {
+        } catch (final NoClassDefFoundError error) {
             if (!luckPermsNotFound) {
                 luckPermsNotFound = true;
-               getLog().warning("LuckPerms could not be found. Some features relating to giving permissions won't be available.");
+                getLog().warning("LuckPerms could not be found. Some features relating to giving permissions won't be available.");
             }
         }
     }
@@ -164,18 +168,18 @@ public class MCPets extends JavaPlugin {
             Class.forName("com.nexomc.nexo.api.NexoItems");
             nexoFound = true;
             if (!nexoChecked) {
-               getLog().info("Nexo found. Nexo Custom items features are available.");
+                getLog().info("Nexo found. Nexo Custom items features are available.");
             }
         } catch (final ClassNotFoundException e) {
             nexoFound = false;
             if (!nexoChecked) {
-               getLog().warning("Nexo could not be found. Nexo Custom items features won't be available.");
+                getLog().warning("Nexo could not be found. Nexo Custom items features won't be available.");
             }
         } catch (final Exception e) {
             // Handle cases like zip file closed during plugin reload
             nexoFound = false;
             if (!nexoChecked) {
-               getLog().warning("Could not check for Nexo (" + e.getClass().getSimpleName() + "). Nexo Custom items features won't be available.");
+                getLog().warning("Could not check for Nexo (" + e.getClass().getSimpleName() + "). Nexo Custom items features won't be available.");
             }
         } finally {
             nexoChecked = true;
@@ -203,10 +207,9 @@ public class MCPets extends JavaPlugin {
             final WorldGuard wg = WorldGuard.getInstance();
             if (wg != null)
                 GlobalConfig.getInstance().setWorldguardsupport(true);
-        }
-        catch (final NoClassDefFoundError error) {
+        } catch (final NoClassDefFoundError error) {
             GlobalConfig.getInstance().setWorldguardsupport(false);
-           getLog().warning("WorldGuard could not be found. Flags won't be available.");
+            getLog().warning("WorldGuard could not be found. Flags won't be available.");
         }
     }
 
@@ -223,8 +226,7 @@ public class MCPets extends JavaPlugin {
                 mythicMobs = inst;
                 return true;
             }
-        }
-        catch (final NoClassDefFoundError error) {
+        } catch (final NoClassDefFoundError error) {
             getLog().warning("MythicMobs could not be found.");
         }
 
