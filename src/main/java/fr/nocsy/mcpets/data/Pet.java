@@ -209,7 +209,7 @@ public class Pet {
     /**
      * Constructor only used to create a fundamental Pet. If you wish to use a pet instance, please refer to copy()
      */
-    public Pet(String id) {
+    public Pet(final String id) {
         this.id = id;
         this.instance = this;
         this.checkPermission = true;
@@ -220,7 +220,7 @@ public class Pet {
     /**
      * Set the active skin of the pet and register it
      */
-    public void setActiveSkin(PetSkin skin) {
+    public void setActiveSkin(final PetSkin skin) {
         if (owner != null) {
             HashMap<String, PetSkin> ownerPetSkins = activeSkinsMap.get(owner);
             if (ownerPetSkins == null)
@@ -236,7 +236,7 @@ public class Pet {
      */
     public PetSkin getActiveSkin() {
         if (owner != null) {
-            HashMap<String, PetSkin> ownerPetSkins = activeSkinsMap.get(owner);
+            final HashMap<String, PetSkin> ownerPetSkins = activeSkinsMap.get(owner);
             if (ownerPetSkins != null) {
                 return ownerPetSkins.get(id);
             }
@@ -323,10 +323,10 @@ public class Pet {
     public static Pet getFromEntity(final Entity ent) {
         if (ent != null &&
                 ent.hasMetadata("AlmPet") &&
-                ent.getMetadata("AlmPet").size() > 0 &&
-                ent.getMetadata("AlmPet").get(0) != null &&
-                ent.getMetadata("AlmPet").get(0).value() != null) {
-            return (Pet) ent.getMetadata("AlmPet").get(0).value();
+                !ent.getMetadata("AlmPet").isEmpty() &&
+                ent.getMetadata("AlmPet").getFirst() != null &&
+                ent.getMetadata("AlmPet").getFirst().value() != null) {
+            return (Pet) ent.getMetadata("AlmPet").getFirst().value();
         }
         return null;
     }
@@ -338,7 +338,7 @@ public class Pet {
     @Deprecated
     public static Pet fromOwner(final UUID owner) {
         final List<Pet> pets = Pet.getActivePets().get(owner);
-        return (pets != null && !pets.isEmpty()) ? pets.get(0) : null;
+        return (pets != null && !pets.isEmpty()) ? pets.getFirst() : null;
     }
 
     /**
@@ -374,10 +374,10 @@ public class Pet {
     public static Pet getFromLastInteractedWith(final Player p) {
         if (p != null &&
                 p.hasMetadata("AlmPetInteracted") &&
-                p.getMetadata("AlmPetInteracted").size() > 0 &&
-                p.getMetadata("AlmPetInteracted").get(0) != null &&
-                p.getMetadata("AlmPetInteracted").get(0).value() != null) {
-            return (Pet) p.getMetadata("AlmPetInteracted").get(0).value();
+                !p.getMetadata("AlmPetInteracted").isEmpty() &&
+                p.getMetadata("AlmPetInteracted").getFirst() != null &&
+                p.getMetadata("AlmPetInteracted").getFirst().value() != null) {
+            return (Pet) p.getMetadata("AlmPetInteracted").getFirst().value();
         }
         return null;
     }
@@ -388,10 +388,10 @@ public class Pet {
     public static Pet getFromLastOpInteractedWith(final Player p) {
         if (p != null && p.hasPermission(PPermission.ADMIN.getPermission()) &&
                 p.hasMetadata("AlmPetOp") &&
-                p.getMetadata("AlmPetOp").size() > 0 &&
-                p.getMetadata("AlmPetOp").get(0) != null &&
-                p.getMetadata("AlmPetOp").get(0).value() != null) {
-            return (Pet) p.getMetadata("AlmPetOp").get(0).value();
+                !p.getMetadata("AlmPetOp").isEmpty() &&
+                p.getMetadata("AlmPetOp").getFirst() != null &&
+                p.getMetadata("AlmPetOp").getFirst().value() != null) {
+            return (Pet) p.getMetadata("AlmPetOp").getFirst().value();
         }
         return null;
     }
@@ -537,7 +537,7 @@ public class Pet {
         // If it already has registered pet stats, then we just read them from the loaded ones
         // Else we create default pet stats that will server as the base
         petStats = Optional.ofNullable(PetStats.get(id, owner)).orElseGet(() -> {
-            final PetStats start = new PetStats(this, 0, petLevels.get(0).getMaxHealth(), petLevels.get(0));
+            final PetStats start = new PetStats(this, 0, petLevels.getFirst().getMaxHealth(), petLevels.getFirst());
             // We register the pet stats if we have new ones created
             PetStats.register(start);
             return start;
@@ -1414,7 +1414,7 @@ public class Pet {
      * Says whether or not the pet has skins
      */
     public boolean hasSkins() {
-        return PetSkin.getSkins(this) != null && PetSkin.getSkins(this).size() > 0;
+        return PetSkin.getSkins(this) != null && !PetSkin.getSkins(this).isEmpty();
     }
 
     /**

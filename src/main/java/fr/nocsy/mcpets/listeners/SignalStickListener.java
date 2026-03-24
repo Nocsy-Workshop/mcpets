@@ -24,9 +24,9 @@ import java.util.UUID;
 public class SignalStickListener implements Listener {
 
     @EventHandler
-    public void switchSignal(PlayerInteractEvent e) {
+    public void switchSignal(final PlayerInteractEvent e) {
         if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-            Player p = e.getPlayer();
+            final Player p = e.getPlayer();
             ItemStack stick = p.getInventory().getItemInMainHand();
 
             if (!Items.isSignalStick(stick)) {
@@ -35,11 +35,12 @@ public class SignalStickListener implements Listener {
                     return;
             }
 
-            UUID owner = p.getUniqueId();
-            if (Pet.fromOwner(owner) == null)
+            final UUID owner = p.getUniqueId();
+            final Pet pet = Pet.fromOwner(owner);
+            if (pet == null)
                 return;
 
-            String nextSignal = PlayerSignal.getNextSignal(owner);
+            final String nextSignal = PlayerSignal.getNextSignal(owner);
 
             if (nextSignal == null)
                 return;
@@ -50,7 +51,7 @@ public class SignalStickListener implements Listener {
     }
 
     @EventHandler
-    public void castSkill(PlayerInteractEvent e) {
+    public void castSkill(final PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (checkSkillCast(e.getPlayer()))
                 e.setCancelled(true);
@@ -58,12 +59,12 @@ public class SignalStickListener implements Listener {
     }
 
     @EventHandler
-    public void castSkill(PlayerInteractAtEntityEvent e) {
+    public void castSkill(final PlayerInteractAtEntityEvent e) {
         if (checkSkillCast(e.getPlayer()))
             e.setCancelled(true);
     }
 
-    private boolean checkSkillCast(Player p) {
+    private boolean checkSkillCast(final Player p) {
         ItemStack stick = p.getInventory().getItemInMainHand();
 
         if (!Items.isSignalStick(stick)) {
@@ -72,10 +73,10 @@ public class SignalStickListener implements Listener {
                 return false;
         }
 
-        Pet pet = Pet.fromOwner(p.getUniqueId());
+        final Pet pet = Pet.fromOwner(p.getUniqueId());
         if (pet == null)
             return false;
-        String signal = PlayerSignal.getSignalTag(p.getUniqueId());
+        final String signal = PlayerSignal.getSignalTag(p.getUniqueId());
 
         if (pet.isStillHere()) {
             pet.sendSignal(signal);
@@ -89,8 +90,8 @@ public class SignalStickListener implements Listener {
      * The item is silently destroyed to avoid exploitation.
      */
     @EventHandler
-    public void dropStick(PlayerDropItemEvent e) {
-        ItemStack it = e.getItemDrop().getItemStack();
+    public void dropStick(final PlayerDropItemEvent e) {
+        final ItemStack it = e.getItemDrop().getItemStack();
 
         if (Items.isSignalStick(it)) {
             e.getItemDrop().remove();
@@ -103,7 +104,7 @@ public class SignalStickListener implements Listener {
      * as the inventory may be saved before the stick is properly removed.
      */
     @EventHandler
-    public void antiSwap(PlayerSwapHandItemsEvent e) {
+    public void antiSwap(final PlayerSwapHandItemsEvent e) {
         if (Items.isSignalStick(e.getMainHandItem()) || Items.isSignalStick(e.getOffHandItem())) {
             e.setCancelled(true);
         }
@@ -118,7 +119,7 @@ public class SignalStickListener implements Listener {
      * This prevents item duplication and stock farming exploits.
      */
     @EventHandler
-    public void antiCraft(InventoryClickEvent e) {
+    public void antiCraft(final InventoryClickEvent e) {
         if (e.getView() == null || e.getView().getTopInventory() == null)
             return;
 
@@ -126,7 +127,7 @@ public class SignalStickListener implements Listener {
         boolean movingStick = Items.isSignalStick(e.getCurrentItem()) || Items.isSignalStick(e.getCursor());
         if (!movingStick && e.getClick() == ClickType.NUMBER_KEY) {
             // Number key hotbar swaps can also move the stick into a forbidden slot
-            ItemStack hotbarItem = e.getWhoClicked().getInventory().getItem(e.getHotbarButton());
+            final ItemStack hotbarItem = e.getWhoClicked().getInventory().getItem(e.getHotbarButton());
             movingStick = Items.isSignalStick(hotbarItem);
         }
 
@@ -139,7 +140,7 @@ public class SignalStickListener implements Listener {
             return;
         }
 
-        InventoryType topType = e.getView().getTopInventory().getType();
+        final InventoryType topType = e.getView().getTopInventory().getType();
 
         // Block moving the stick into any non-player container (chest, hopper, barrel, etc.)
         if (e.getClickedInventory() != null
