@@ -22,7 +22,7 @@ public class LanguageConfig extends AbstractConfig {
     public void init() {
         super.init("", "language.yml");
 
-        for (Language lang : Language.values()) {
+        for (final Language lang : Language.values()) {
             if (getConfig().get(lang.name().toLowerCase()) == null)
                 getConfig().set(lang.name().toLowerCase(), lang.getMessage());
         }
@@ -41,7 +41,7 @@ public class LanguageConfig extends AbstractConfig {
         loadConfig();
         map.clear();
 
-        for (Language lang : Language.values()) {
+        for (final Language lang : Language.values()) {
             if (getConfig().get(lang.name().toLowerCase()) != null)
                 map.put(lang.name().toLowerCase(), getConfig().getString(lang.name().toLowerCase()));
 
@@ -49,9 +49,9 @@ public class LanguageConfig extends AbstractConfig {
         }
 
         if (Language.PET_INVENTORY_TITLE.getMessage().equals(Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage())) {
-            MCPets.getLog().severe(MCPets.getLogName() + "Interaction menu and prime menu have the same name, which might lead to unexpected behaviors. Please consider having different names for both menus.");
+            MCPets.getLog().severe("Interaction menu and prime menu have the same name, which might lead to unexpected behaviors. Please consider having different names for both menus.");
         }
 
-        MCPets.getLog().info(MCPets.getLogName() + "Language file reloaded.");
+        MCPets.getLog().info("Language file reloaded.");
     }
 }
