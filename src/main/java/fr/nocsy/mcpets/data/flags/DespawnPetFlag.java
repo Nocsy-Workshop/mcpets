@@ -16,7 +16,7 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
 
     public static String NAME = "mcpets-despawn";
 
-    public DespawnPetFlag(MCPets instance) {
+    public DespawnPetFlag(final MCPets instance) {
         super(NAME, false, instance);
     }
 
@@ -28,11 +28,11 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
     @Override
     public void launch() {
         if (getFlag() == null) {
-            MCPets.getLog().warning(MCPets.getLogName() + "Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
+            MCPets.getLog().warning("Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
             return;
         }
         else {
-            MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
+            MCPets.getLog().info("Starting flag " + getFlagName() + ".");
         }
 
         task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
@@ -40,12 +40,12 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
                 return;
 
             try {
-                for (UUID owner : Pet.getActivePets().keySet()) {
-                    for (Pet pet : Pet.getActivePetsForOwner(owner)) {
-                        Player p = Bukkit.getPlayer(owner);
+                for (final UUID owner : Pet.getActivePets().keySet()) {
+                    for (final Pet pet : Pet.getActivePetsForOwner(owner)) {
+                        final Player p = Bukkit.getPlayer(owner);
 
                         if (p != null) {
-                            boolean hasToBeRemoved = testState(p.getLocation());
+                            final boolean hasToBeRemoved = testState(p.getLocation());
 
                             if (hasToBeRemoved) {
                                 pet.despawn(PetDespawnReason.FLAG);
@@ -55,7 +55,7 @@ public class DespawnPetFlag extends AbstractFlag implements StoppableFlag {
                     }
                 }
             }
-            catch (ConcurrentModificationException ignored) {}
+            catch (final ConcurrentModificationException ignored) {}
         }, 0L, 20L);
     }
 

@@ -98,24 +98,24 @@ public class PetLevel {
     // Play a skill if the pet has one setup for that level
     private String mythicSkill;
 
-    public PetLevel(Pet pet,
-                    String levelId,
-                    String evolutionId,
-                    int delayBeforeEvolution,
-                    boolean removePrevious,
-                    double maxHealth,
-                    double regeneration,
-                    double resistanceModifier,
-                    double damageModifier,
-                    double power,
-                    int respawnCooldown,
-                    int revokeCooldown,
-                    int inventoryExtension,
-                    String levelName,
-                    double expThreshold,
-                    String announcement,
-                    PetAnnouncement announcementType,
-                    String mythicSkill) {
+    public PetLevel(final Pet pet,
+                    final String levelId,
+                    final String evolutionId,
+                    final int delayBeforeEvolution,
+                    final boolean removePrevious,
+                    final double maxHealth,
+                    final double regeneration,
+                    final double resistanceModifier,
+                    final double damageModifier,
+                    final double power,
+                    final int respawnCooldown,
+                    final int revokeCooldown,
+                    final int inventoryExtension,
+                    final String levelName,
+                    final double expThreshold,
+                    final String announcement,
+                    final PetAnnouncement announcementType,
+                    final String mythicSkill) {
         this.pet = pet;
 
         this.levelId = levelId;
@@ -146,9 +146,9 @@ public class PetLevel {
     /**
      * Throw the level up announcement if setup
      */
-    public void announce(UUID player) {
+    public void announce(final UUID player) {
         if (announcement != null && !announcement.isEmpty() && player != null) {
-            Player p = Bukkit.getPlayer(player);
+            final Player p = Bukkit.getPlayer(player);
             if (p != null)
                 announcementType.announce(p, announcement);
         }
@@ -157,11 +157,11 @@ public class PetLevel {
     /**
      * Play a skill on level up if setup
      */
-    public void playSkill(UUID owner)
+    public void playSkill(final UUID owner)
     {
-        Pet pet = Pet.fromOwner(owner);
+        final Pet pet = Pet.fromOwner(owner);
         if (mythicSkill != null && pet.isStillHere()) {
-            Optional<Skill> opt = MCPets.getMythicMobs().getSkillManager().getSkill(mythicSkill);
+            final Optional<Skill> opt = MCPets.getMythicMobs().getSkillManager().getSkill(mythicSkill);
             opt.ifPresent(skill -> skill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, pet.getActiveMob(), pet.getActiveMob().getEntity())));
         }
     }
@@ -173,7 +173,7 @@ public class PetLevel {
      * if the permission is satisfied, then it can't evolve : result is false
      * else it can evolve, so result is true
      */
-    public boolean canEvolve(UUID player, Pet evolution) {
+    public boolean canEvolve(final UUID player, final Pet evolution) {
         if (player == null)
             return false;
         // If there are no evolutions, then it technically can evolve, towards nothing
@@ -187,7 +187,7 @@ public class PetLevel {
      * Makes the pet evolves if it has an evolution
      * Gives the permission to the owner to access the new pet
      */
-    public boolean evolve(UUID player, boolean forceEvolution) {
+    public boolean evolve(final UUID player, final boolean forceEvolution) {
         return this.evolveTo(player, forceEvolution, Pet.getFromId(evolutionId));
     }
 
@@ -195,7 +195,7 @@ public class PetLevel {
      * Makes the pet evolves if it has an evolution
      * Gives the permission to the owner to access the new pet
      */
-    public boolean evolveTo(UUID player, boolean forceEvolution, Pet evolution) {
+    public boolean evolveTo(final UUID player, final boolean forceEvolution, final Pet evolution) {
         String evId = "null";
         if (evolution != null)
             evId = evolution.getId();
@@ -211,20 +211,20 @@ public class PetLevel {
             evolution.setOwner(player);
 
             // Load the player data for the pet
-            PlayerData pd = PlayerData.get(player);
+            final PlayerData pd = PlayerData.get(player);
             // Fetch the saved name
-            String name = pd.getMapOfRegisteredNames().get(pet.getId());
+            final String name = pd.getMapOfRegisteredNames().get(pet.getId());
             if (name != null)
                 evolution.setDisplayName(name, true);
 
             // Transfer the inventory to the evolution
-            PetInventory petInventory = PetInventory.get(pet);
+            final PetInventory petInventory = PetInventory.get(pet);
             if (petInventory != null) {
                 evolution.setOwner(player);
-                PetInventory evolutionInventory = PetInventory.get(evolution);
+                final PetInventory evolutionInventory = PetInventory.get(evolution);
                 // If we can not define an inventory in the evolution, then we lose the content so it doesn't make sense
                 if (evolutionInventory == null) {
-                    Bukkit.getLogger().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
+                    MCPets.getLog().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
                     return false;
                 }
                 evolutionInventory.setInventory(petInventory.getInventory());
@@ -234,7 +234,7 @@ public class PetLevel {
             PetStats.remove(pet.getId(), player);
 
             // Fetch the owner of the pet, it has to be there to spawn the next pet right
-            Player owner = Bukkit.getPlayer(player);
+            final Player owner = Bukkit.getPlayer(player);
             if (owner == null)
                 return false;
 
@@ -247,10 +247,10 @@ public class PetLevel {
             // Once permissions are applied, spawn the evolution on the main thread
             permFuture.thenRun(() -> Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
                 // Make sure the owner is still here
-                Player o = Bukkit.getPlayer(player);
+                final Player o = Bukkit.getPlayer(player);
                 if (o != null) {
-                    Pet activePet = Pet.fromOwner(player);
-                    Location loc = activePet != null && activePet.isStillHere() ?
+                    final Pet activePet = Pet.fromOwner(player);
+                    final Location loc = activePet != null && activePet.isStillHere() ?
                                     activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
                                     o.getLocation();
 
@@ -267,7 +267,7 @@ public class PetLevel {
             return true;
         }
 
-        Player p = Bukkit.getPlayer(player);
+        final Player p = Bukkit.getPlayer(player);
         if (p != null) {
             Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
             Debugger.send("§a" + pet.getId() + "§6 can not evolve into §a" + evolutionId
@@ -276,7 +276,7 @@ public class PetLevel {
         }
 
         if (evolutionId != null) {
-            Bukkit.getLogger().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
+            MCPets.getLog().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
             return false;
         }
         return false;
@@ -286,11 +286,11 @@ public class PetLevel {
      * Play all the skills, text, sound and everything for the level up animation
      * to the given player
      */
-    public void levelUp(UUID owner, PetLevel oldLevel) {
+    public void levelUp(final UUID owner, final PetLevel oldLevel) {
         if (owner == null)
             return;
 
-        PetLevelUpEvent event = new PetLevelUpEvent(pet, this, oldLevel);
+        final PetLevelUpEvent event = new PetLevelUpEvent(pet, this, oldLevel);
         Utils.callEvent(event);
 
         announce(owner);
@@ -313,16 +313,16 @@ public class PetLevel {
         return power;
     }
 
-    public int compareTo(PetLevel level)
+    public int compareTo(final PetLevel level)
     {
         return Double.compare(this.getExpThreshold(), level.getExpThreshold());
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PetLevel petLevel = (PetLevel) o;
+        final PetLevel petLevel = (PetLevel) o;
         return Double.compare(petLevel.expThreshold, expThreshold) == 0;
     }
 

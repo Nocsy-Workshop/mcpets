@@ -24,23 +24,25 @@ public class MountMenu {
     @Getter
     private static final String title = Language.INVENTORY_MOUNTS_MENU.getMessage();
 
+    private static final PetInventoryHolder.Type petInvType = PetInventoryHolder.Type.MOUNT_MENU;
+
     @Getter
     private final Inventory inventory;
 
     @Getter
     private final UUID owner;
 
-    public MountMenu(Player p, int page) {
+    public MountMenu(final Player p, final int page) {
         // Load the data from the player
         // Mainly for the pet stats
         PlayerData.get(p.getUniqueId());
         owner = p.getUniqueId();
 
         // Get only mounts (pets that are mountable)
-        List<Pet> availablePets = Pet.getAvailablePets(p);
-        List<Pet> availableMounts = new ArrayList<>();
+        final List<Pet> availablePets = Pet.getAvailablePets(p);
+        final List<Pet> availableMounts = new ArrayList<>();
         
-        for (Pet pet : availablePets) {
+        for (final Pet pet : availablePets) {
             if (pet.isMountable()) {
                 availableMounts.add(pet);
             }
@@ -49,7 +51,7 @@ public class MountMenu {
         // Count the amount of mounts that are being selected at that page
         // One page is up to 53 mounts, so the page P has already seen 53 * P mounts
         // 53 mounts because we gotta leave one spot available for the pager everytime
-        ArrayList<Pet> selectedMounts = new ArrayList<>();
+        final List<Pet> selectedMounts = new ArrayList<>();
         // Let's see if we need to add a pager to the inventory
         // Either we have more than 53 mounts or we are at a page greater than 0
         boolean addPager = page > 0;
@@ -80,8 +82,8 @@ public class MountMenu {
         }
 
         // Let's fill the view with the selected mounts
-        inventory = Bukkit.createInventory(null, invSize, title);
-        for (Pet mount : selectedMounts) {
+        inventory = new PetInventoryHolder(invSize, title, petInvType).getInventory();
+        for (final Pet mount : selectedMounts) {
             inventory.addItem(mount.buildItem(mount.getIcon(), true, null, null, null, null, 0, null));
         }
 
@@ -91,8 +93,8 @@ public class MountMenu {
         }
     }
 
-    public void open(Player p) {
-        if (p.getUniqueId().equals(owner) && Category.getCategories(CategoryType.MOUNT).size() > 0) {
+    public void open(final Player p) {
+        if (p.getUniqueId().equals(owner) && !Category.getCategories(CategoryType.MOUNT).isEmpty()) {
             CategoriesMenu.openFiltered(p, CategoryType.MOUNT);
             return;
         }

@@ -27,7 +27,7 @@ public class CategoryConfig extends AbstractConfig {
     @Getter
     private Category category;
 
-    public CategoryConfig(String id) {
+    public CategoryConfig(final String id) {
         super();
         if (id != null && !id.isEmpty())
             this.id = id;
@@ -36,13 +36,13 @@ public class CategoryConfig extends AbstractConfig {
      * Base constructor of a pet configuration (one to one)
      * It will initialize the variables while loading the data
      */
-    public CategoryConfig(String folderName, String fileName) {
+    public CategoryConfig(final String folderName, final String fileName) {
         init(folderName, fileName);
         reload();
     }
 
     @Override
-    public void init(String folderName, String fileName) {
+    public void init(final String folderName, final String fileName) {
         super.init(folderName, fileName);
 
         this.id = fileName.replace(".yml", "");
@@ -89,16 +89,16 @@ public class CategoryConfig extends AbstractConfig {
         }
 
         // Load the excluded categories so we can prevent those pets to be added
-        List<String> excludedIds = getConfig().getStringList("ExcludedCategories");
+        final List<String> excludedIds = getConfig().getStringList("ExcludedCategories");
         category.setExcludedCategoriesId(excludedIds);
-        List<Category> excludedCategories = Category.getCategories().stream()
+        final List<Category> excludedCategories = Category.getCategories().stream()
                 .filter(cat -> excludedIds.contains(cat.getId()))
                 .collect(Collectors.toList());
 
         // Handle the pets within that category
         // if it's a default category, all pets will be added
         if (getConfig().getBoolean("DefaultCategory")) {
-            for(Pet pet : Pet.getObjectPets()) {
+            for(final Pet pet : Pet.getObjectPets()) {
                 // Exclude the pets that are present in the excluded categories
                 if (excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
                     category.addPet(pet);
@@ -108,8 +108,8 @@ public class CategoryConfig extends AbstractConfig {
         }
         // Else if it's not default category, look for the specified pets
         else if (getConfig().get("Pets") != null) {
-            for(String id : getConfig().getStringList("Pets")) {
-                Pet pet = Pet.getFromId(id);
+            for(final String id : getConfig().getStringList("Pets")) {
+                final Pet pet = Pet.getFromId(id);
                 if (pet != null && excludedCategories.stream().noneMatch(cat -> cat.getPets().stream().anyMatch(p -> p.getId().equals(pet.getId()))))
                     category.addPet(pet);
             }
@@ -122,21 +122,21 @@ public class CategoryConfig extends AbstractConfig {
 
         // Load the category type
         if (getConfig().get("Type") != null) {
-            String typeStr = getConfig().getString("Type").toUpperCase();
+            final String typeStr = getConfig().getString("Type").toUpperCase();
             try {
-                CategoryType type = CategoryType.valueOf(typeStr);
+                final CategoryType type = CategoryType.valueOf(typeStr);
                 category.setCategoryType(type);
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 // If invalid type, default to PET
-                MCPets.getLog().warning(MCPets.getLogName() + "Invalid category type '" + typeStr + "' for category " + id + ". Defaulting to PET.");
+                MCPets.getLog().warning("Invalid category type '" + typeStr + "' for category " + id + ". Defaulting to PET.");
                 category.setCategoryType(CategoryType.PET);
             }
         }
     }
 
     private ItemStack setupUnkownIcon() {
-        ItemStack it = Items.UNKNOWN.getItem().clone();
-        ItemMeta meta = it.getItemMeta();
+        final ItemStack it = Items.UNKNOWN.getItem().clone();
+        final ItemMeta meta = it.getItemMeta();
         meta.setItemName("MCPets;" + id);
         meta.setDisplayName("§6" + id);
         it.setItemMeta(meta);
@@ -149,37 +149,39 @@ public class CategoryConfig extends AbstractConfig {
      * @param folderPath folder where to seek for the pets
      * @param clear whether the loaded ones should be cleared (only first call should do that)
      */
-    public static void load(String folderPath, boolean clear) {
+    public static void load(final String folderPath, final boolean clear) {
         if (clear) {
             Category.getCategories().clear();
         }
 
-        File folder = new File(folderPath);
+        final File folder = new File(folderPath);
         if (!folder.exists())
             folder.mkdirs();
 
         // First hand load to load up the categories content
         // Then we perform a secondary load to filter out the excluded categories
-        for (File file : folder.listFiles()) {
+        final File[] files = folder.listFiles();
+        if (files == null) return;
+        for (final File file : files) {
             if (file.isDirectory()) {
                 load(file.getPath().replace("\\", "/"), false);
                 continue;
             }
 
-            CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
+            final CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
 
             if (config.getCategory() != null)
                 Category.add(config.getCategory());
         }
 
         // Secondary load to filter out the excluded categories content
-        for (File file : folder.listFiles()) {
+        for (final File file : files) {
             if (file.isDirectory()) {
                 load(file.getPath().replace("\\", "/"), false);
                 continue;
             }
 
-            CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
+            final CategoryConfig config = new CategoryConfig(folder.getPath().replace("\\", "/").replace(AbstractConfig.getPath(), ""), file.getName());
 
             if (config.getCategory() != null) {
                 Category.getCategories().removeAll(Category.getCategories().stream().filter(cat -> config.getCategory().getId().equals(cat.getId())).collect(Collectors.toList()));
@@ -191,19 +193,19 @@ public class CategoryConfig extends AbstractConfig {
         Category.getCategories().sort(Comparator.comparing(Category::getId));
 
         if (clear)
-            MCPets.getLog().info(MCPets.getLogName() + Category.getCategories().size() + " categories registered successfully !");
+            MCPets.getLog().info(Category.getCategories().size() + " categories registered successfully !");
     }
 
-    public static void registerCleanCategory(Player creator) {
-        String id = UUID.randomUUID().toString();
-        String folder = AbstractConfig.getPath() + "Categories/";
-        String fileName = id + ".yml";
+    public static void registerCleanCategory(final Player creator) {
+        final String id = UUID.randomUUID().toString();
+        final String folder = AbstractConfig.getPath() + "Categories/";
+        final String fileName = id + ".yml";
 
-        File file = new File(folder + fileName);
+        final File file = new File(folder + fileName);
         if (!file.exists()) {
             try {
                 file.createNewFile();
-            } catch (IOException ignored) {}
+            } catch (final IOException ignored) {}
         }
 
         new CategoryConfig(folder, fileName);
@@ -211,21 +213,21 @@ public class CategoryConfig extends AbstractConfig {
         load(AbstractConfig.getPath() + "Categories/", true);
 
         // Associate the category the creator
-        EditorEditing editing = EditorEditing.get(creator);
+        final EditorEditing editing = EditorEditing.get(creator);
         editing.setMappedId(id);
     }
 
     /**
      * Loads a fresh config category and output a category object (for editor only)
      */
-    public static Category loadConfigCategory(String id) {
-        CategoryConfig oldConfig = CategoryConfig.getMapping().get(id);
-        CategoryConfig config = new CategoryConfig(oldConfig.getFolderName(), oldConfig.getFileName());
+    public static Category loadConfigCategory(final String id) {
+        final CategoryConfig oldConfig = CategoryConfig.getMapping().get(id);
+        final CategoryConfig config = new CategoryConfig(oldConfig.getFolderName(), oldConfig.getFileName());
         return config.getCategory();
     }
 
-    public void addPet(Pet pet) {
-        List<String> pets = getConfig().getStringList("Pets");
+    public void addPet(final Pet pet) {
+        final List<String> pets = getConfig().getStringList("Pets");
         if (!pets.contains(pet.getId()))
             pets.add(pet.getId());
         getConfig().set("Pets", pets);
@@ -233,8 +235,8 @@ public class CategoryConfig extends AbstractConfig {
         reload();
     }
 
-    public void removePet(Pet pet) {
-        List<String> pets = getConfig().getStringList("Pets");
+    public void removePet(final Pet pet) {
+        final List<String> pets = getConfig().getStringList("Pets");
         pets.remove(pet.getId());
         getConfig().set("Pets", pets);
         save();

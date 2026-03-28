@@ -6,7 +6,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
-import org.bukkit.Bukkit;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -16,7 +16,9 @@ import java.util.stream.Collectors;
 
 public class ArgumentMenu extends AArgument {
 
-    public ArgumentMenu(CommandSender sender, String[] args) {
+    private static final int INV_SIZE = 9;
+
+    public ArgumentMenu(final CommandSender sender, final String[] args) {
         super("menu", new int[]{1, 2}, sender, args);
     }
 
@@ -27,20 +29,20 @@ public class ArgumentMenu extends AArgument {
 
     @Override
     public void commandEffect() {
-        Player p = (Player) sender;
-        List<Pet> activePets = Pet.getActivePetsForOwner(p.getUniqueId())
+        final Player p = (Player) sender;
+        final List<Pet> activePets = Pet.getActivePetsForOwner(p.getUniqueId())
                 .stream()
                 .filter(pet -> !pet.isMountable())
-                .collect(Collectors.toList());
+                .toList();
 
         if (activePets.isEmpty()) {
             Language.NO_ACTIVE_PET.sendMessage(p);
             return;
         }
 
-        Pet pet;
+        final Pet pet;
         if (args.length == 2) {
-            String petId = args[1];
+            final String petId = args[1];
             pet = activePets.stream()
                     .filter(ap -> ap.getId().equalsIgnoreCase(petId))
                     .findFirst()
@@ -50,9 +52,9 @@ public class ArgumentMenu extends AArgument {
                 return;
             }
         } else if (activePets.size() == 1) {
-            pet = activePets.get(0);
+            pet = activePets.getFirst();
         } else {
-            String petIds = activePets.stream().map(Pet::getId).collect(Collectors.joining(", "));
+            final String petIds = activePets.stream().map(Pet::getId).collect(Collectors.joining(", "));
             Language.SPECIFY_PET.sendMessageFormated(p, new FormatArg("%pets%", petIds));
             return;
         }
@@ -63,15 +65,18 @@ public class ArgumentMenu extends AArgument {
     /**
      * Open a simplified interaction menu from command (back, skins, rename, revoke only)
      */
-    public static void openCommandMenu(Player p, Pet pet, boolean isMount) {
+    public static void openCommandMenu(final Player p, final Pet pet, final boolean isMount) {
         if (pet.getTamingProgress() < 1)
             return;
 
         pet.setOwner(p.getUniqueId());
-        String title = isMount
+        final String title = isMount
                 ? Language.INVENTORY_MOUNTS_MENU_INTERACTIONS.getMessage()
                 : Language.INVENTORY_PETS_MENU_INTERACTIONS.getMessage();
-        Inventory inventory = Bukkit.createInventory(null, 9, title);
+        final PetInventoryHolder.Type type = isMount
+                ? PetInventoryHolder.Type.MOUNT_INTERACTION_MENU
+                : PetInventoryHolder.Type.PET_INTERACTION_MENU;
+        final Inventory inventory = new PetInventoryHolder(INV_SIZE, title, type).getInventory();
 
         inventory.setItem(0, isMount ? Items.MOUNTMENU.getItem() : Items.PETMENU.getItem());
         if (pet.hasSkins())

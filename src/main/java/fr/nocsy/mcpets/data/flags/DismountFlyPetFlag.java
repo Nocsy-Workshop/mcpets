@@ -14,7 +14,7 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
 
     public static String NAME = "mcpets-dismount-flying";
 
-    public DismountFlyPetFlag(MCPets instance) {
+    public DismountFlyPetFlag(final MCPets instance) {
         super(NAME, false, instance);
     }
 
@@ -26,19 +26,19 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
     @Override
     public void launch() {
         if (getFlag() == null) {
-            MCPets.getLog().warning(MCPets.getLogName() + "Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
+            MCPets.getLog().warning("Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
             return;
         }
         else {
-            MCPets.getLog().info(MCPets.getLogName() + "Starting flag " + getFlagName() + ".");
+            MCPets.getLog().info("Starting flag " + getFlagName() + ".");
         }
 
         task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
             if (MCPets.getMythicMobs() == null)
                 return;
 
-            for (UUID owner : Pet.getActivePets().keySet()) {
-                for (Pet pet : Pet.getActivePetsForOwner(owner)) {
+            for (final UUID owner : Pet.getActivePets().keySet()) {
+                for (final Pet pet : Pet.getActivePetsForOwner(owner)) {
 
                     if (!pet.isMountable())
                         continue;
@@ -46,12 +46,12 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
                     if (!MCPets.getModeler().isFlyingMount(pet, owner))
                         continue;
 
-                    Player p = Bukkit.getPlayer(owner);
+                    final Player p = Bukkit.getPlayer(owner);
                     if (p != null) {
                         if (!pet.hasMount(p))
                             continue;
 
-                        boolean hasToBeEjected = testState(p.getLocation());
+                        final boolean hasToBeEjected = testState(p.getLocation());
 
                         if (hasToBeEjected) {
                             pet.dismount(p);

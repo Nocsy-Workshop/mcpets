@@ -5,7 +5,6 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -19,17 +18,19 @@ public class MountInteractionMenu {
     @Getter
     private static final String title = Language.INVENTORY_MOUNTS_MENU_INTERACTIONS.getMessage();
 
+    private static final PetInventoryHolder.Type petInvType = PetInventoryHolder.Type.MOUNT_INTERACTION_MENU;
+
     @Getter
     private final Inventory inventory;
 
-    public MountInteractionMenu(Pet pet, UUID owner) {
+    public MountInteractionMenu(final Pet pet, final UUID owner) {
         // If the taming is incomplete then there is no mount menu available
         if (pet.getTamingProgress() < 1) {
             inventory = null;
             return;
         }
         pet.setOwner(owner);
-        inventory = Bukkit.createInventory(null, 9, title);
+        inventory = new PetInventoryHolder(9, title, petInvType).getInventory();
 
         if (GlobalConfig.getInstance().isActivateBackMenuIcon())
             inventory.setItem(0, Items.MOUNTMENU.getItem());
@@ -46,7 +47,7 @@ public class MountInteractionMenu {
         inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null));
     }
 
-    public void open(Player p) {
+    public void open(final Player p) {
         if (inventory != null)
             p.openInventory(inventory);
     }
