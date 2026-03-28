@@ -88,7 +88,9 @@ public class PetConfig extends AbstractConfig {
         if (!folder.exists())
             folder.mkdirs();
 
-        for (final File file : folder.listFiles()) {
+        final File[] files = folder.listFiles();
+        if (files == null) return;
+        for (final File file : files) {
             if (file.isDirectory()) {
                 loadPets(file.getPath().replace("\\", "/"), false);
                 continue;

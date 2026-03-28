@@ -160,7 +160,9 @@ public class CategoryConfig extends AbstractConfig {
 
         // First hand load to load up the categories content
         // Then we perform a secondary load to filter out the excluded categories
-        for (final File file : folder.listFiles()) {
+        final File[] files = folder.listFiles();
+        if (files == null) return;
+        for (final File file : files) {
             if (file.isDirectory()) {
                 load(file.getPath().replace("\\", "/"), false);
                 continue;
@@ -173,7 +175,7 @@ public class CategoryConfig extends AbstractConfig {
         }
 
         // Secondary load to filter out the excluded categories content
-        for (final File file : folder.listFiles()) {
+        for (final File file : files) {
             if (file.isDirectory()) {
                 load(file.getPath().replace("\\", "/"), false);
                 continue;

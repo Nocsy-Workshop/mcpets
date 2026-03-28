@@ -301,6 +301,9 @@ public class MCPets extends JavaPlugin {
     }
 
     public static Logger getLog() {
-        return getInstance().getLogger();
+        final MCPets plugin = getInstance();
+        if (plugin != null)
+            return plugin.getLogger();
+        return Bukkit.getLogger();
     }
 }
