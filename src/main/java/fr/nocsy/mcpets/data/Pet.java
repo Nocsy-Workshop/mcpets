@@ -1089,6 +1089,8 @@ public class Pet {
                 }
             }
 
+            activeMob = null;
+
             Pet.removeActivePet(owner, this);
             Debugger.send("§b[DESPAWN] Removed pet " + id + " from active list");
             if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
