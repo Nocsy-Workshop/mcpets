@@ -356,6 +356,7 @@ public class PetListener implements Listener {
     public void blacklistedWorld(PetSpawnEvent e) {
         if (GlobalConfig.getInstance().hasBlackListedWorld(e.getWhere().getWorld().getName())) {
             e.setCancelled(true);
+            Debugger.send("§cSpawn of §6" + e.getPet().getId() + "§c cancelled: world §6" + e.getWhere().getWorld().getName() + "§c is blacklisted.");
             Player p = Bukkit.getPlayer(e.getPet().getOwner());
             if (p != null) {
                 Language.BLACKLISTED_WORLD.sendMessage(p);

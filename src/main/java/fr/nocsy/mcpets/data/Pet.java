@@ -581,7 +581,13 @@ public class Pet {
 
         // If the event is cancelled trigger a despawn
         if (event.isCancelled()) {
-            Debugger.send("§cThe spawn event was cancelled.");
+            Debugger.send("§cThe spawn event for §6" + id + "§c was cancelled. Check above for details, or an external plugin may have cancelled it.");
+            // List all plugins listening to PetSpawnEvent to help identify the culprit
+            for (final org.bukkit.plugin.RegisteredListener rl : PetSpawnEvent.getHandlerList().getRegisteredListeners()) {
+                if (!rl.getPlugin().equals(MCPets.getInstance())) {
+                    Debugger.send("§c  -> External listener: §6" + rl.getPlugin().getName() + "§c (priority: " + rl.getPriority() + ")");
+                }
+            }
             despawn(PetDespawnReason.CANCELLED);
             return BLOCKED;
         }
