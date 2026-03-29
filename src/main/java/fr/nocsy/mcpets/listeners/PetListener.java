@@ -220,7 +220,7 @@ public class PetListener implements Listener {
     public void teleport(PlayerChangedWorldEvent e) {
         Player p = e.getPlayer();
         List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
-        for (Pet pet : pets) {
+        for (Pet pet : List.copyOf(pets)) {
             if (pet.getTamingProgress() < 1)
                 continue;
             pet.despawn(PetDespawnReason.TELEPORT);
@@ -237,7 +237,7 @@ public class PetListener implements Listener {
     public void teleport(PlayerTeleportEvent e) {
         Player p = e.getPlayer();
         List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
-        for (Pet pet : pets) {
+        for (Pet pet : List.copyOf(pets)) {
             pet.dismount(p);
         }
     }
