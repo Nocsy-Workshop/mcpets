@@ -117,6 +117,12 @@ public class GlobalConfig extends AbstractConfig {
     @Setter
     private boolean databaseSupport = false;
 
+    @Getter
+    private boolean velocityEnabled;
+    /** Seconds after quit within which a DB active-pet record is treated as a cross-server switch. */
+    @Getter
+    private int velocitySwitchWindow;
+
     public static GlobalConfig getInstance() {
         if (instance == null)
             instance = new GlobalConfig();
@@ -221,6 +227,11 @@ public class GlobalConfig extends AbstractConfig {
         if (getConfig().get("MaxActiveMounts") == null)
             getConfig().set("MaxActiveMounts", 1);
 
+        if (getConfig().get("Velocity.Enabled") == null)
+            getConfig().set("Velocity.Enabled", false);
+        if (getConfig().get("Velocity.SwitchWindow") == null)
+            getConfig().set("Velocity.SwitchWindow", 60);
+
         save();
         reload();
     }
@@ -289,6 +300,10 @@ public class GlobalConfig extends AbstractConfig {
 
         fastMount = getConfig().getBoolean("FastMount");
         disableFastMountWhileHoldingSignalStick = getConfig().getBoolean("DisableFastMountWhileHoldingSignalStick");
+
+        velocityEnabled = getConfig().getBoolean("Velocity.Enabled");
+        velocitySwitchWindow = Math.max(5, getConfig().getInt("Velocity.SwitchWindow"));
+
         spawnPetAfterServerRestart = getConfig().getBoolean("SpawnPetAfterServerRestart");
         maxActivePets = getConfig().getInt("MaxActivePets");
         maxActiveMounts = getConfig().getInt("MaxActiveMounts");

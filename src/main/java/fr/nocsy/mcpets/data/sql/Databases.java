@@ -9,10 +9,13 @@ import lombok.Setter;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class Databases {
 
@@ -21,7 +24,30 @@ public class Databases {
     public static MySQLDB mySQL;
 
     private static String table = GlobalConfig.getInstance().getMySQL_Prefix() + "mcpets_player_data";
+    private static String activeTable = GlobalConfig.getInstance().getMySQL_Prefix() + "mcpets_active_pet";
     private static ConcurrentHashMap<UUID, Object> playerLocks = new ConcurrentHashMap<>();
+
+    // -------------------------------------------------------------------------
+    // Active-pet record: remembers the pet a player had active when they quit,
+    // used to restore it on the destination server after a Velocity cross-server
+    // switch via the dedicated mcpets_active_pet table.
+    // -------------------------------------------------------------------------
+
+    private static final String PET_ID_DELIMITER = ",";
+
+    public static class ActivePetRecord {
+        private final List<String> petIds;
+        private final long updatedAt;
+
+        public ActivePetRecord(List<String> petIds, long updatedAt) {
+            this.petIds = petIds;
+            this.updatedAt = updatedAt;
+        }
+
+        /** All active pet IDs stored in this record (may be multiple). */
+        public List<String> getPetIds()  { return petIds; }
+        public long         getUpdatedAt() { return updatedAt; }
+    }
 
     public static boolean init() {
         if (GlobalConfig.getInstance().isDisableMySQL()) {
@@ -58,6 +84,13 @@ public class Databases {
         } catch (SQLException e) {
             MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to check lastActivePet column", e);
         }
+        createActivePetTable();
+    }
+
+    private static void createActivePetTable() {
+        getMySQL().query("CREATE TABLE IF NOT EXISTS " + activeTable
+                + " (uuid VARCHAR(36) NOT NULL, pet_id VARCHAR(255) NOT NULL,"
+                + " updated_at BIGINT NOT NULL, PRIMARY KEY (uuid))");
     }
 
     public static boolean loadData() {
@@ -88,8 +121,10 @@ public class Databases {
                         PetStats.register(stats);
                     }
 
-                    // Unserialize the pet names
-                    pd.setMapOfRegisteredNames(unserializeData(playerData, "names"));
+                    // Unserialize the pet names; strip any legacy __active__ key silently
+                    ConcurrentHashMap<String, String> names = unserializeData(playerData, "names");
+                    names.remove("__active__");
+                    pd.setMapOfRegisteredNames(names);
 
                     // Unserialize the pet inventories
                     pd.setMapOfRegisteredInventories(unserializeData(playerData, "inventories"));
@@ -147,8 +182,11 @@ public class Databases {
                         stats.launchTimers();
                         PetStats.register(stats);
                     }
-                    // Unserialize the pet names
-                    pd.setMapOfRegisteredNames(unserializeData(playerData, "names"));
+
+                    // Unserialize the pet names; strip any legacy __active__ key silently
+                    ConcurrentHashMap<String, String> names = unserializeData(playerData, "names");
+                    names.remove("__active__");
+                    pd.setMapOfRegisteredNames(names);
 
                     // Unserialize the pet inventories
                     pd.setMapOfRegisteredInventories(unserializeData(playerData, "inventories"));
@@ -231,6 +269,60 @@ public class Databases {
             getMySQL().preparedQuery("INSERT INTO " + table + " (uuid, names, inventories, data, lastActivePet) VALUES (?, ?, ?, ?, ?)",
                     playerUUID.toString(), names, inventories, data.toString(), lastActivePet);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Active-pet persistence for Velocity cross-server switching
+    // -------------------------------------------------------------------------
+
+    /**
+     * Upsert the active pets for a player into the dedicated table.
+     * Multiple pet IDs are stored as a comma-delimited list in the pet_id column.
+     * Called synchronously on disconnect (HIGHEST priority) so the record is
+     * committed before Velocity routes the player to the next server.
+     */
+    public static void saveActivePet(UUID uuid, List<String> petIds) {
+        if (!GlobalConfig.getInstance().isDatabaseSupport()) return;
+        String joined = String.join(PET_ID_DELIMITER, petIds);
+        long now = System.currentTimeMillis();
+        getMySQL().preparedQuery(
+                "INSERT INTO " + activeTable + " (uuid, pet_id, updated_at) VALUES (?, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE pet_id=?, updated_at=?",
+                uuid.toString(), joined, now, joined, now);
+    }
+
+    /**
+     * Load the active-pet record for a player, or null if none exists.
+     * Called on join to check whether the player arrived via a cross-server switch.
+     */
+    public static ActivePetRecord loadActivePet(UUID uuid) {
+        if (!GlobalConfig.getInstance().isDatabaseSupport()) return null;
+        ResultSet rs = getMySQL().preparedQuery(
+                "SELECT pet_id, updated_at FROM " + activeTable + " WHERE uuid=?",
+                uuid.toString());
+        if (rs == null) return null;
+        try {
+            if (rs.next()) {
+                String raw = rs.getString("pet_id");
+                List<String> ids = Arrays.stream(raw.split(PET_ID_DELIMITER))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+                return new ActivePetRecord(ids, rs.getLong("updated_at"));
+            }
+        } catch (SQLException e) {
+            MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to load active pet record for " + uuid, e);
+        }
+        return null;
+    }
+
+    /**
+     * Delete the active-pet record for a player once it has been consumed
+     * (pet spawned on destination) or when it is no longer needed.
+     */
+    public static void clearActivePet(UUID uuid) {
+        if (!GlobalConfig.getInstance().isDatabaseSupport()) return;
+        getMySQL().preparedQuery("DELETE FROM " + activeTable + " WHERE uuid=?", uuid.toString());
     }
 
     public static void closeConnection() {
