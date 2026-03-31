@@ -13,8 +13,10 @@ import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.inventories.MountInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.livingpets.PetFood;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
+import fr.nocsy.mcpets.velocity.VelocitySyncManager;
 import fr.nocsy.mcpets.events.PetOwnerInteractEvent;
 import fr.nocsy.mcpets.events.PetSpawnEvent;
 import fr.nocsy.mcpets.utils.Utils;
@@ -35,6 +37,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -154,21 +157,33 @@ public class PetListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void disconnectPlayer(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        List<Pet> pets = Pet.getActivePetsForOwner(p.getUniqueId());
+        UUID uuid = p.getUniqueId();
+        List<Pet> pets = Pet.getActivePetsForOwner(uuid);
         // Create a copy to avoid ConcurrentModificationException when despawning modifies the list
+        List<String> activePetIds = new ArrayList<>();
         for (Pet pet : List.copyOf(pets)) {
             pet.despawn(PetDespawnReason.DISCONNECTION);
             if (p.hasPermission(pet.getPermission())) {
-                reconnectionPets.put(p.getUniqueId(), pet.getId());
+                reconnectionPets.put(uuid, pet.getId());
+                activePetIds.add(pet.getId());
                 if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
-                    PlayerData pd = PlayerData.get(p.getUniqueId());
+                    PlayerData pd = PlayerData.get(uuid);
                     pd.setLastActivePet(pet.getId());
                     pd.save();
                 }
             }
         }
+        // Velocity: persist or clear active pet record so destination server restores correctly
+        if (GlobalConfig.getInstance().isVelocityEnabled()
+                && GlobalConfig.getInstance().isDatabaseSupport()) {
+            if (!activePetIds.isEmpty()) {
+                Databases.saveActivePet(uuid, activePetIds);
+            } else {
+                Databases.clearActivePet(uuid);
+            }
+        }
         if (pets.isEmpty() && GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
-            PlayerData pd = PlayerData.get(p.getUniqueId());
+            PlayerData pd = PlayerData.get(uuid);
             pd.setLastActivePet("");
             pd.save();
         }
@@ -181,34 +196,75 @@ public class PetListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void reconnectionPlayer(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        UUID uuid = p.getUniqueId();
 
         Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
             if (GlobalConfig.getInstance().isDatabaseSupport()) {
-                PlayerData.reloadAll(p.getUniqueId());
+                PlayerData.reloadAll(uuid);
             }
 
-            if (reconnectionPets.containsKey(p.getUniqueId())) {
-                Pet pet = Pet.getFromId(reconnectionPets.get(p.getUniqueId()));
+            if (GlobalConfig.getInstance().isVelocityEnabled()
+                    && GlobalConfig.getInstance().isDatabaseSupport()) {
+
+                // When Velocity is enabled the DB is the ONLY source of truth.
+                // reconnectionPets on any given server reflects the last time the player
+                // disconnected from THAT server's JVM — it goes stale the moment the player
+                // visits another server. Never fall through to it when Velocity is on.
+                boolean isLiveSwitch = VelocitySyncManager.isPlayerSwitching(uuid);
+                VelocitySyncManager.clearSwitchingPlayer(uuid);
+                reconnectionPets.remove(uuid); // discard — DB owns the state
+
+                Databases.ActivePetRecord record = Databases.loadActivePet(uuid);
+                if (record != null) {
+                    // The DB record is the authoritative last-known pet state.
+                    // Always restore it regardless of how long ago it was written —
+                    // the SwitchWindow staleness check belongs only in isPlayerSwitching()
+                    // (proxy-message timing), not here.
+
+                    // Only clear the record on a live switch (one-time consumption).
+                    // For reconnect/restart recovery, leave it intact — the quit handler
+                    // will overwrite or clear it at the player's next disconnect.
+                    if (isLiveSwitch) {
+                        Databases.clearActivePet(uuid);
+                    }
+                    for (String petId : record.getPetIds()) {
+                        Pet template = Pet.getFromId(petId);
+                        if (template == null) continue;
+                        Pet velocityPet = template.copy();
+                        velocityPet.setCheckPermission(false);
+                        velocityPet.setOwner(uuid);
+                        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                            if (p.isOnline()) velocityPet.spawn(p.getLocation(), true);
+                        }, 2L);
+                    }
+                }
+                // No DB record = player had no active pet when they left — don't spawn.
+                return; // never fall through to reconnectionPets when Velocity is enabled
+            }
+
+            // Velocity disabled: use the local reconnection map (original behaviour).
+            if (reconnectionPets.containsKey(uuid)) {
+                Pet pet = Pet.getFromId(reconnectionPets.get(uuid));
                 if (pet == null)
                     return;
                 if (!p.hasPermission(pet.getPermission())) {
-                    reconnectionPets.remove(p.getUniqueId());
+                    reconnectionPets.remove(uuid);
                     return;
                 }
                 pet = pet.copy();
                 pet.setCheckPermission(false);
-                pet.setOwner(p.getUniqueId());
+                pet.setOwner(uuid);
                 pet.spawn(p.getLocation(), true);
-                reconnectionPets.remove(p.getUniqueId());
+                reconnectionPets.remove(uuid);
             } else if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
-                PlayerData pd = PlayerData.get(p.getUniqueId());
+                PlayerData pd = PlayerData.get(uuid);
                 String lastPetId = pd.getLastActivePet();
                 if (lastPetId != null && !lastPetId.isEmpty()) {
                     Pet pet = Pet.getFromId(lastPetId);
                     if (pet != null) {
                         pet = pet.copy();
                         pet.setCheckPermission(false);
-                        pet.setOwner(p.getUniqueId());
+                        pet.setOwner(uuid);
                         pet.spawn(p.getLocation(), true);
                     }
                 }
