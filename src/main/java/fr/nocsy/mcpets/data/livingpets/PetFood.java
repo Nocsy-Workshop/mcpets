@@ -4,6 +4,7 @@ import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
 import dev.lone.itemsadder.api.CustomStack;
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
@@ -161,7 +162,7 @@ public class PetFood {
 
             }
             ItemMeta meta = itemStack.getItemMeta();
-            meta.setItemName("MCPets;Food;" + itemId);
+            PDCTag.set(meta, "MCPets;Food;" + itemId);
             itemStack.setItemMeta(meta);
         }
 

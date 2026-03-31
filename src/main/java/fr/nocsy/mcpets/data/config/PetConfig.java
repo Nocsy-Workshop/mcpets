@@ -5,6 +5,7 @@ import com.nexomc.nexo.items.ItemBuilder;
 import dev.lone.itemsadder.api.CustomStack;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
@@ -209,7 +210,7 @@ public class PetConfig extends AbstractConfig {
         try {
             itemStack = getConfig().getItemStack(path + ".Raw");
             final ItemMeta meta = itemStack.getItemMeta();
-            meta.setItemName(localName);
+            PDCTag.set(meta, localName);
             itemStack.setItemMeta(meta);
             if (showStats)
                 itemStack = pet.applyStats(itemStack);

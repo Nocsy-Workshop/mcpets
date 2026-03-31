@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
@@ -324,8 +325,9 @@ public class Pet {
      * Get the pet from the ItemStack icon
      */
     public static Pet getFromIcon(final ItemStack icon) {
-        if (icon.hasItemMeta() && icon.getItemMeta().hasItemName()) {
-            return fromString(icon.getItemMeta().getItemName());
+        if (icon.hasItemMeta()) {
+            String tag = PDCTag.get(icon.getItemMeta());
+            if (tag != null) return fromString(tag);
         }
         return null;
     }
@@ -1445,12 +1447,12 @@ public class Pet {
         if (mat == null && textureBase64 != null) {
             item = Utils.createHead(iconName, desc, textureBase64);
             final ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            PDCTag.set(meta, localizedName);
             item.setItemMeta(meta);
         } else if (mat != null) {
             item = new ItemStack(mat);
             final ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            PDCTag.set(meta, localizedName);
             meta.setCustomModelData(customModelData);
             meta.setDisplayName(iconName);
             meta.setLore(desc);
@@ -1458,7 +1460,7 @@ public class Pet {
         } else if (item == null) {
             item = Utils.createHead(iconName, desc, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQ5Y2M1OGFkMjVhMWFiMTZkMzZiYjVkNmQ0OTNjOGY1ODk4YzJiZjMwMmI2NGUzMjU5MjFjNDFjMzU4NjcifX19");
             final ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            PDCTag.set(meta, localizedName);
             item.setItemMeta(meta);
         }
 

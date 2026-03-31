@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data.inventories;
 
 import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.CategoryType;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
@@ -64,14 +65,14 @@ public class CategoriesMenu {
             return null;
         }
 
-        if (icon.hasItemMeta()
-                && icon.getItemMeta().hasItemName()
-                && icon.getItemMeta().getItemName().contains("MCPetsCategory")) {
-
-            final String[] data = icon.getItemMeta().getItemName().split(";");
-            if (data.length == 2) {
-                final String catId = data[1];
-                return Category.getFromId(catId);
+        if (icon.hasItemMeta()) {
+            String tagVal = PDCTag.get(icon.getItemMeta());
+            if (tagVal != null && tagVal.contains("MCPetsCategory")) {
+                final String[] data = tagVal.split(";");
+                if (data.length == 2) {
+                    final String catId = data[1];
+                    return Category.getFromId(catId);
+                }
             }
         }
 

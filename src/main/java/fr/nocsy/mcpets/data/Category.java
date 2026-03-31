@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import lombok.Getter;
 import lombok.Setter;
@@ -141,7 +142,7 @@ public class Category {
 
     private void setupData() {
         final ItemMeta meta = icon.getItemMeta();
-        meta.setItemName("MCPetsCategory;" + this.getId());
+        PDCTag.set(meta, "MCPetsCategory;" + this.getId());
         meta.setDisplayName(iconName);
 
         icon.setItemMeta(meta);
@@ -158,10 +159,11 @@ public class Category {
         final ItemStack pager = inventory.getItem(inventory.getSize()-1);
         if (pager != null
                 && !pager.getType().isAir()
-                && pager.hasItemMeta()
-                && pager.getItemMeta().hasItemName())
+                && pager.hasItemMeta())
         {
-            final String[] data = pager.getItemMeta().getItemName().split(";");
+            String tagVal = PDCTag.get(pager.getItemMeta());
+            if (tagVal == null) return -1;
+            final String[] data = tagVal.split(";");
             if (data.length != 3)
                 return -1;
 
@@ -241,9 +243,10 @@ public class Category {
         final ItemStack pager = inventory.getItem(inventory.getSize()-1);
         if (pager != null
                 && !pager.getType().isAir()
-                && pager.hasItemMeta()
-                && pager.getItemMeta().hasItemName()) {
-            final String[] data = pager.getItemMeta().getItemName().split(";");
+                && pager.hasItemMeta()) {
+            String tagVal = PDCTag.get(pager.getItemMeta());
+            if (tagVal == null) return null;
+            final String[] data = tagVal.split(";");
             if (data.length != 3)
                 return null;
 
