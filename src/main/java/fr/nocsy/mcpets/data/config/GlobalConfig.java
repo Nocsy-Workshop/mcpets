@@ -302,7 +302,10 @@ public class GlobalConfig extends AbstractConfig {
         disableFastMountWhileHoldingSignalStick = getConfig().getBoolean("DisableFastMountWhileHoldingSignalStick");
 
         velocityEnabled = getConfig().getBoolean("Velocity.Enabled");
-        velocitySwitchWindow = Math.max(5, getConfig().getInt("Velocity.SwitchWindow"));
+        velocitySwitchWindow = Math.max(5, Math.min(300, getConfig().getInt("Velocity.SwitchWindow")));
+        if (velocityEnabled && !databaseSupport) {
+            MCPets.getLog().warning(MCPets.getLogName() + "Velocity is enabled but DatabaseSupport is disabled. Cross-server pet sync requires database support.");
+        }
 
         spawnPetAfterServerRestart = getConfig().getBoolean("SpawnPetAfterServerRestart");
         maxActivePets = getConfig().getInt("MaxActivePets");

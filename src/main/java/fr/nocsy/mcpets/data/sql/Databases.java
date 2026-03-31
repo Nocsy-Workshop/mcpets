@@ -304,6 +304,7 @@ public class Databases {
         try {
             if (rs.next()) {
                 String raw = rs.getString("pet_id");
+                if (raw == null) return null;
                 List<String> ids = Arrays.stream(raw.split(PET_ID_DELIMITER))
                         .map(String::trim)
                         .filter(s -> !s.isEmpty())

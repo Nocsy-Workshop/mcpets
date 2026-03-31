@@ -164,12 +164,14 @@ public class PetListener implements Listener {
         for (Pet pet : List.copyOf(pets)) {
             pet.despawn(PetDespawnReason.DISCONNECTION);
             if (p.hasPermission(pet.getPermission())) {
-                reconnectionPets.put(uuid, pet.getId());
+                reconnectionPets.putIfAbsent(uuid, pet.getId());
                 activePetIds.add(pet.getId());
                 if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
                     PlayerData pd = PlayerData.get(uuid);
-                    pd.setLastActivePet(pet.getId());
-                    pd.save();
+                    if (pd != null) {
+                        pd.setLastActivePet(pet.getId());
+                        pd.save();
+                    }
                 }
             }
         }
@@ -184,8 +186,10 @@ public class PetListener implements Listener {
         }
         if (pets.isEmpty() && GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
             PlayerData pd = PlayerData.get(uuid);
-            pd.setLastActivePet("");
-            pd.save();
+            if (pd != null) {
+                pd.setLastActivePet("");
+                pd.save();
+            }
         }
         // Clean up player caches from memory to prevent memory leak
         PlayerData.remove(p.getUniqueId());
