@@ -8,6 +8,7 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetCastSkillEvent;
@@ -1104,10 +1105,13 @@ public class Pet {
             if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
                 if (reason == PetDespawnReason.REVOKE || reason == PetDespawnReason.DISMOUNT || reason == PetDespawnReason.UNKNOWN) {
                     final PlayerData pd = PlayerData.get(owner);
-                    pd.setLastActivePet("");
-                    pd.save();
+                    if (pd != null) {
+                        pd.setLastActivePet("");
+                        pd.save();
+                    }
                 }
             }
+            syncActivePetsToDb(reason);
             return true;
         }
 
@@ -1117,11 +1121,40 @@ public class Pet {
         if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
             if (reason == PetDespawnReason.REVOKE || reason == PetDespawnReason.DISMOUNT || reason == PetDespawnReason.UNKNOWN) {
                 final PlayerData pd = PlayerData.get(owner);
-                pd.setLastActivePet("");
-                pd.save();
+                if (pd != null) {
+                    pd.setLastActivePet("");
+                    pd.save();
+                }
             }
         }
+        syncActivePetsToDb(reason);
         return false;
+    }
+
+    /**
+     * Sync active pets to the Velocity DB after a despawn.
+     * Skips DISCONNECTION (handled by PetListener) and TELEPORT (pet will re-spawn).
+     */
+    private void syncActivePetsToDb(final PetDespawnReason reason) {
+        if (!GlobalConfig.getInstance().isVelocityEnabled()
+                || !GlobalConfig.getInstance().isDatabaseSupport())
+            return;
+        if (reason == PetDespawnReason.DISCONNECTION || reason == PetDespawnReason.TELEPORT)
+            return;
+        if (owner == null)
+            return;
+
+        final UUID ownerUuid = owner;
+        Bukkit.getScheduler().runTaskAsynchronously(MCPets.getInstance(), () -> {
+            final List<Pet> remaining = Pet.getActivePetsForOwner(ownerUuid);
+            if (remaining.isEmpty()) {
+                Databases.clearActivePet(ownerUuid);
+            } else {
+                final List<String> ids = new java.util.ArrayList<>();
+                for (final Pet p : remaining) ids.add(p.getId());
+                Databases.saveActivePet(ownerUuid, ids);
+            }
+        });
     }
 
     /**
