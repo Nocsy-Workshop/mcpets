@@ -23,6 +23,7 @@ import fr.nocsy.mcpets.modeler.AbstractModeler;
 import fr.nocsy.mcpets.modeler.BetterModelModeler;
 import fr.nocsy.mcpets.modeler.ModelEngineModeler;
 import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
+import fr.nocsy.mcpets.velocity.VelocitySyncManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
@@ -112,6 +113,12 @@ public class MCPets extends JavaPlugin {
 
         loadConfigs();
         PetStats.saveStats();
+
+        if (GlobalConfig.getInstance().isVelocityEnabled()) {
+            VelocitySyncManager.init();
+            getLog().info(getLogName() + "Velocity sync enabled.");
+        }
+
         // Register the placeholders
         PetPlaceholdersManager.registerPlaceholders();
 
@@ -137,10 +144,30 @@ public class MCPets extends JavaPlugin {
         }
 
         PetStats.saveAll();
+
+        // Save all active pets to DB before clearing them so that a server restart
+        // does not wipe the mcpets_active_pet records — players rejoin with their pet intact.
+        if (GlobalConfig.getInstance().isVelocityEnabled()
+                && GlobalConfig.getInstance().isDatabaseSupport()) {
+            for (Map.Entry<UUID, List<Pet>> entry : Pet.getActivePets().entrySet()) {
+                List<Pet> activePets = entry.getValue();
+                if (activePets != null && !activePets.isEmpty()) {
+                    List<String> ids = new ArrayList<>();
+                    for (Pet pet : activePets) {
+                        if (pet != null) ids.add(pet.getId());
+                    }
+                    if (!ids.isEmpty()) {
+                        Databases.saveActivePet(entry.getKey(), ids);
+                    }
+                }
+            }
+        }
+
         Pet.clearPets();
         PlayerData.saveDB();
         FlagsManager.stopFlags();
         Databases.closeConnection();
+        VelocitySyncManager.shutdown();
     }
 
     /**

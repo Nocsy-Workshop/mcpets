@@ -56,8 +56,9 @@ public class DatabaseRefreshListener implements Listener {
     public void saveDB(PlayerQuitEvent e) {
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             UUID owner = e.getPlayer().getUniqueId();
-            if (PlayerData.isRegistered(owner))
+            if (PlayerData.isRegistered(owner)) {
                 Databases.savePlayerData(owner);
+            }
         }
     }
 }
