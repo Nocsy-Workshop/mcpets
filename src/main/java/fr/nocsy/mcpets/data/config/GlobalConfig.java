@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.data.config;
 
+import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
 import lombok.Getter;
 import lombok.Setter;
