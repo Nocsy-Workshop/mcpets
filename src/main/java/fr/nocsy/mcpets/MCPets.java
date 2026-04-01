@@ -31,6 +31,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,7 +120,7 @@ public class MCPets extends JavaPlugin {
 
         if (GlobalConfig.getInstance().isVelocityEnabled()) {
             VelocitySyncManager.init();
-            getLog().info(getLogName() + "Velocity sync enabled.");
+            getLog().info("[MCPets] : Velocity sync enabled.");
         }
 
         // Register the placeholders
