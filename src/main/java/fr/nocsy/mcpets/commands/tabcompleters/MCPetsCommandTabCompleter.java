@@ -38,6 +38,7 @@ public class MCPetsCommandTabCompleter implements TabCompleter {
                 // User-facing commands available to all players
                 if (args.length == 1) {
                     completed.add("menu");
+                    completed.add("name");
                 }
                 else if (args.length == 2 && args[0].equalsIgnoreCase("menu")) {
                     completed.addAll(Pet.getActivePetsForOwner(p.getUniqueId())
