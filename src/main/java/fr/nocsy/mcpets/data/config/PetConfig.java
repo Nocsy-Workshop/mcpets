@@ -64,11 +64,10 @@ public class PetConfig extends AbstractConfig {
             getConfig().set("SpawnRange", 3);
         if (getConfig().get("ComingBackRange") == null)
             getConfig().set("ComingBackRange", 3);
-        if (getConfig().get("MythicMob") == null)
-            getConfig().set("MythicMob", "No MythicMob defined");
-        if (getConfig().get("MythicMob") == null)
-            getConfig().set("MythicMob", "No MythicMob defined");
-
+        reorderKeys("Id", "MythicMob", "Permission", "Distance", "SpawnRange", "ComingBackRange",
+                "Mountable", "MountType", "MountPermission", "DespawnOnDismount", "AutoRide",
+                "Invulnerable", "InventorySize", "UseDefaultMythicMobsName",
+                "DespawnSkill", "SpawnSkill", "Taming", "Icon", "Signals", "Levels");
         save();
     }
 
@@ -182,6 +181,9 @@ public class PetConfig extends AbstractConfig {
             mountType = "walking";
         pet.setDespawnOnDismount(despawnOnDismount);
         pet.setAutoRide(autoRide);
+        if (getConfig().get("UseDefaultMythicMobsName") != null) {
+            pet.setUseDefaultMythicMobNames(getConfig().getBoolean("UseDefaultMythicMobsName"));
+        }
         pet.setDistance(distance);
         pet.setSpawnRange(spawnRange);
         pet.setComingBackRange(comingbackRange);
