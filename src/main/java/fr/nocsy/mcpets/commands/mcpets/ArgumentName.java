@@ -6,6 +6,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.listeners.PetInteractionMenuListener;
 import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -14,7 +15,7 @@ import org.bukkit.entity.Player;
 public class ArgumentName extends AArgument {
 
     public ArgumentName(CommandSender sender, String[] args) {
-        super("name", new int[]{2}, sender, args, "/mcpets name <name>");
+        super("name", new int[]{1}, sender, args, "/mcpets name [name]");
     }
 
     @Override
@@ -33,6 +34,14 @@ public class ArgumentName extends AArgument {
             return;
         }
 
+        // No name provided: prompt in chat (original behaviour)
+        if (args.length == 1) {
+            pet.setLastInteractedWith(p);
+            PetInteractionMenuListener.changeName(p);
+            return;
+        }
+
+        // Name provided inline: apply directly
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
             if (i > 1) sb.append(" ");
@@ -66,7 +75,6 @@ public class ArgumentName extends AArgument {
 
     @Override
     public boolean conditionsVerified() {
-        // Accept 2 or more args (name with spaces)
-        return args.length >= 2 && args[0].equalsIgnoreCase(argumentName);
+        return args.length >= 1 && args[0].equalsIgnoreCase(argumentName);
     }
 }
