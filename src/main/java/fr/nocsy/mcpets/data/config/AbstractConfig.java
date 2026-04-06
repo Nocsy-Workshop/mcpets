@@ -8,6 +8,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 public abstract class AbstractConfig {
@@ -68,6 +71,26 @@ public abstract class AbstractConfig {
     public void loadConfig() {
         final File file = new File(getFullPath());
         config = YamlConfiguration.loadConfiguration(file);
+    }
+
+    protected void reorderKeys(String... keyOrder) {
+        Map<String, Object> ordered = new LinkedHashMap<>();
+        for (String key : keyOrder) {
+            if (config.contains(key)) {
+                ordered.put(key, config.get(key));
+            }
+        }
+        for (String key : new ArrayList<>(config.getKeys(false))) {
+            if (!ordered.containsKey(key)) {
+                ordered.put(key, config.get(key));
+            }
+        }
+        for (String key : new ArrayList<>(config.getKeys(false))) {
+            config.set(key, null);
+        }
+        for (Map.Entry<String, Object> entry : ordered.entrySet()) {
+            config.set(entry.getKey(), entry.getValue());
+        }
     }
 
     public abstract void reload();

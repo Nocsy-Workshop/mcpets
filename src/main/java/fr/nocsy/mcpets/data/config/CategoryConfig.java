@@ -64,6 +64,7 @@ public class CategoryConfig extends AbstractConfig {
         if (getConfig().get("ExcludedCategories") == null)
             getConfig().set("ExcludedCategories", new ArrayList<String>());
 
+        reorderKeys("Id", "Type", "DisplayName", "IconName", "Icon", "Pets", "DefaultCategory", "ExcludedCategories");
         save();
         reload();
     }

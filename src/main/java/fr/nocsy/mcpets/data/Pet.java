@@ -154,6 +154,11 @@ public class Pet {
     @Setter
     private boolean autoRide;
 
+    @Getter
+    @Setter
+    // Per-pet override for UseDefaultMythicMobsNames. null = use global config.
+    private Boolean useDefaultMythicMobNames;
+
     @Setter
     @Getter
     private String mountType;
@@ -1173,7 +1178,8 @@ public class Pet {
 
         if (name.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage()) && !GlobalConfig.getInstance().isOverrideDefaultName()) {
             isDefaultName = true;
-            if (GlobalConfig.getInstance().isUseDefaultMythicMobNames())
+            boolean useMM = useDefaultMythicMobNames != null ? useDefaultMythicMobNames : GlobalConfig.getInstance().isUseDefaultMythicMobNames();
+            if (useMM)
                 name = activeMob.getDisplayName();
             else
                 name = GlobalConfig.getInstance().getDefaultName()
