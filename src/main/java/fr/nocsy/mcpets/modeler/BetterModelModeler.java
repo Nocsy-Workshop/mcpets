@@ -23,13 +23,17 @@ public class BetterModelModeler implements AbstractModeler {
     private BetterModelListeners listeners;
 
     /**
-     * Finds the first mountable HitBox from the registry's trackers.
+     * Finds the first HitBox from the registry's trackers.
+     * Note: canMount() is intentionally NOT checked here because mountDriver()
+     * will overwrite the mountController right after finding the HitBox.
+     * BBModel files that lack an explicit mount tag default to MountControllers.INVALID,
+     * whose canMount() returns false — filtering it out would prevent mounting entirely.
      */
     private HitBox findMountableHitBox(EntityTrackerRegistry registry) {
         for (EntityTracker tracker : registry.trackers()) {
             for (RenderedBone bone : tracker.bones()) {
                 HitBox hb = bone.getHitBox();
-                if (hb != null && hb.mountController().canMount()) {
+                if (hb != null) {
                     return hb;
                 }
             }
@@ -56,7 +60,11 @@ public class BetterModelModeler implements AbstractModeler {
                 Debugger.send("§a[BetterModel] Mounted " + rider.getName()
                         + " on pet " + petUUID + " via HitBox (controller: " + base.name() + ")");
                 return true;
+            }else{
+                Debugger.send("§e[BetterModel] No mountable HitBox found for pet " + petUUID + " when trying to mount driver " + rider.getName());
             }
+        }else{
+            Debugger.send("§e[BetterModel] No registry found for pet " + petUUID + " when trying to mount driver " + rider.getName());
         }
 
         // Fallback to vanilla passengers if no HitBox is available
