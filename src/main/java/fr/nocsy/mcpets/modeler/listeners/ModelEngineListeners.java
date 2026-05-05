@@ -14,7 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import fr.nocsy.mcpets.MCPets;
 
 public class ModelEngineListeners implements Listener {
@@ -24,15 +24,12 @@ public class ModelEngineListeners implements Listener {
         if (e.getVehicle() == null || e.getVehicle().getModeledEntity() == null || e.getVehicle().getModeledEntity().getBase() == null)
             return;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID()));
-                if (pet != null && pet.isDespawnOnDismount()) {
-                    pet.despawn(PetDespawnReason.DISMOUNT);
-                }
+        FoliaCompat.runGlobal(() -> {
+            Pet pet = Pet.getFromEntity(Bukkit.getEntity(e.getVehicle().getModeledEntity().getBase().getUUID()));
+            if (pet != null && pet.isDespawnOnDismount()) {
+                pet.despawn(PetDespawnReason.DISMOUNT);
             }
-        }.runTask(MCPets.getInstance());
+        });
     }
 
     @EventHandler

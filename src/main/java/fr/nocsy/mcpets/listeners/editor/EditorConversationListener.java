@@ -13,7 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -23,19 +23,15 @@ public class EditorConversationListener implements Listener {
 
     public void syncOpenEditor(Player p, EditorState newState) {
         final UUID uuid = p.getUniqueId();
-        // Run it sync otherwise it will not open
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Player player = Bukkit.getPlayer(uuid);
-                if (player == null)
-                    return;
-                Editor editor = Editor.getEditor(player);
-                if (newState != null)
-                    editor.setState(newState);
-                editor.openEditor();
-            }
-        }.runTask(MCPets.getInstance());
+        FoliaCompat.runGlobal(() -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null)
+                return;
+            Editor editor = Editor.getEditor(player);
+            if (newState != null)
+                editor.setState(newState);
+            editor.openEditor();
+        });
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

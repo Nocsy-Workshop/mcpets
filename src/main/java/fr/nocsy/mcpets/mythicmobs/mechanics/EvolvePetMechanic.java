@@ -9,7 +9,7 @@ import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.bukkit.BukkitAdapter;
-import org.bukkit.Bukkit;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import org.bukkit.entity.Entity;
 
 public class EvolvePetMechanic implements ITargetedEntitySkill {
@@ -35,7 +35,7 @@ public class EvolvePetMechanic implements ITargetedEntitySkill {
 
         if (evolution != null && pet != null && pet.getPetStats() != null) {
             // Call the experience gain on sync so it can trigger events
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> pet.getPetStats().getCurrentLevel().evolveTo(pet.getOwner(), forceEvolution, evolution));
+            FoliaCompat.runEntity(entity, () -> pet.getPetStats().getCurrentLevel().evolveTo(pet.getOwner(), forceEvolution, evolution));
             return SkillResult.SUCCESS;
         }
 

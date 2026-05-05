@@ -17,7 +17,7 @@ public class ArgumentOpen extends AArgument {
 
     @Override
     public boolean additionalConditions() {
-        return sender instanceof Player && sender.hasPermission(PPermission.ADMIN.getPermission());
+        return sender.hasPermission(PPermission.ADMIN.getPermission());
     }
 
     @Override
@@ -30,6 +30,12 @@ public class ArgumentOpen extends AArgument {
         }
 
         PetMenu menu = new PetMenu(playerToOpen, 0);
-        menu.open((Player) sender);
+        if (sender instanceof Player player) {
+            menu.open(player);
+            return;
+        }
+
+        menu.open(playerToOpen);
+        sender.sendMessage("§aOpened MCPets menu for §e" + playerToOpen.getName() + "§a.");
     }
 }

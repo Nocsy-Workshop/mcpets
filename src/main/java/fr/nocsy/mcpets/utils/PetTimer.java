@@ -5,11 +5,13 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 
 import java.util.HashMap;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import org.bukkit.scheduler.BukkitTask;
 
 public class PetTimer {
 
     @Getter
-    private static HashMap<PetTimer, Integer> runningTimers = new HashMap<>();
+    private static HashMap<PetTimer, Object> runningTimers = new HashMap<>();
 
     @Getter
     private int cooldown;
@@ -17,14 +19,8 @@ public class PetTimer {
     private int remainingTime;
     private long frequency;
 
-    private int task;
-
     private final Runnable endingRunnable;
 
-    /**
-     * Constructor
-     * Frequency giving the tick when repeating the task
-     */
     public PetTimer(int cooldown, long frequency, Runnable endingRunnable) {
         this.cooldown = cooldown;
         this.remainingTime = 0;
@@ -33,11 +29,11 @@ public class PetTimer {
     }
 
     public void launch(Runnable runnable) {
-        // If it's running then cancel the current scheduler
         if (isRunning())
             stop(null);
         remainingTime = cooldown;
-        task = Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), () -> {
+
+        Runnable taskLogic = () -> {
             if (cooldown != Integer.MAX_VALUE)
                 remainingTime--;
             if (remainingTime <= 0)
@@ -45,12 +41,26 @@ public class PetTimer {
 
             if (runnable != null)
                 runnable.run();
-        }, 0L, frequency);
-        runningTimers.put(this, task);
+        };
+
+        if (FoliaCompat.isFolia()) {
+            ScheduledTask task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(MCPets.getInstance(), t -> taskLogic.run(), 1L, frequency);
+            runningTimers.put(this, task);
+        } else {
+            BukkitTask task = Bukkit.getScheduler().runTaskTimer(MCPets.getInstance(), taskLogic, 0L, frequency);
+            runningTimers.put(this, task);
+        }
     }
 
     public void stop(Runnable runnable) {
-        Bukkit.getScheduler().cancelTask(task);
+        Object task = runningTimers.get(this);
+        if (task != null) {
+            if (FoliaCompat.isFolia()) {
+                ((ScheduledTask) task).cancel();
+            } else {
+                ((BukkitTask) task).cancel();
+            }
+        }
         runningTimers.remove(this);
         remainingTime = 0;
         if (runnable != null)

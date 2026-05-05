@@ -13,7 +13,7 @@ import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.api.skills.placeholders.PlaceholderFloat;
 import io.lumine.mythic.api.skills.placeholders.PlaceholderInt;
 import io.lumine.mythic.bukkit.BukkitAdapter;
-import org.bukkit.Bukkit;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import org.bukkit.entity.Entity;
 
 public class PetBuffMechanic implements ITargetedEntitySkill {
@@ -40,7 +40,7 @@ public class PetBuffMechanic implements ITargetedEntitySkill {
             final float powerValue = power.get(data);
             PetFoodType buffType = PetFoodType.get(type);
             PetMath mathOperator = PetMath.get(operator);
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> {
+            FoliaCompat.runEntity(entity, () -> {
                 PetFoodBuff buff = new PetFoodBuff(pet, buffType, powerValue, mathOperator, durationValue);
                 buff.apply();
             });

@@ -1,141 +1,21 @@
 package fr.nocsy.mcpets.mythicmobs.placeholders;
 
 import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.data.Pet;
-import io.lumine.mythic.api.adapters.AbstractEntity;
-import io.lumine.mythic.core.skills.placeholders.Placeholder;
-import org.bukkit.Bukkit;
-
+import io.lumine.mythic.core.skills.CustomComponentRegistry;
 
 public class PetPlaceholdersManager {
+
+    private static boolean registered = false;
 
     /**
      * Register the Placeholders of MCPets into MythicMobs
      */
     public static void registerPlaceholders() {
-        // Power placeholder
-        register("pet.power", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return "1";
-            else
-                return Double.toString(pet.getPetStats().getPower());
-        }));
+        if (registered) {
+            return;
+        }
 
-        // Damage modifier placeholder
-        register("pet.damagemodifier", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return "1";
-            else
-                return Double.toString(pet.getPetStats().getDamageModifier());
-        }));
-
-        // Resistance modifier placeholder
-        register("pet.resistancemodifier", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return "1";
-            else
-                return Double.toString(pet.getPetStats().getResistanceModifier());
-        }));
-
-        // Experience placeholder
-        register("pet.experience", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return "0";
-            else
-                return Double.toString(pet.getPetStats().getExperience());
-        }));
-
-        // Pet Taming progress placeholder
-        register("pet.tamingprogress", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null)
-                return "1";
-            else
-                return  Double.toString(pet.getTamingProgress());
-        }));
-
-        // Pet Id placeholder
-        register("pet.id", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null)
-                return "null";
-            else
-                return pet.getId();
-        }));
-
-        // Pet owner UUID placeholder
-        register("pet.owner.uuid", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null)
-                return "null";
-            else
-                return pet.getOwner().toString();
-        }));
-
-        // Pet owner name placeholder
-        register("pet.owner.name", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null)
-                return "null";
-            else {
-                if (pet.getOwner() == null)
-                    return "null";
-                return Bukkit.getOfflinePlayer(pet.getOwner()).getName();
-            }
-        }));
-
-        // Level index placeholder
-        register("pet.level.index", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return "0";
-            else
-                return Integer.toString(pet.getPetStats().getCurrentLevelIndex());
-        }));
-
-        // Level name placeholder
-        register("pet.level.name", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return "null";
-            else
-                return pet.getPetStats().getCurrentLevel().getLevelName();
-        }));
-
-        register("pet.hp", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return Integer.toString((int)entity.getHealth());
-            else
-                return Integer.toString((int)pet.getPetStats().getCurrentHealth());
-        }));
-
-        register("pet.max.hp", Placeholder.meta((meta,arg) -> {
-            AbstractEntity entity = meta.getCaster().getEntity();
-            Pet pet = Pet.getFromEntity(entity.getBukkitEntity());
-            if (pet == null || pet.getPetStats() == null)
-                return Integer.toString((int)entity.getMaxHealth());
-            else
-                return Integer.toString((int)pet.getPetStats().getCurrentLevel().getMaxHealth());
-        }));
-    }
-
-    private static void register(String placeholder, Placeholder function) {
-        MCPets.getMythicMobs().getPlaceholderManager().register(placeholder, function);
+        new CustomComponentRegistry(MCPets.getInstance(), "fr.nocsy.mcpets.mythicmobs.placeholders");
+        registered = true;
     }
 }

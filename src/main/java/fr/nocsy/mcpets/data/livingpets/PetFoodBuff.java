@@ -5,7 +5,7 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -73,13 +73,7 @@ public class PetFoodBuff {
                 "  \n§aDuration: §7" + duration + "§7 ticks.");
 
         PetFoodBuff instance = this;
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                instance.stop();
-            }
-        }.runTaskLater(MCPets.getInstance(), duration);
+        FoliaCompat.runGlobalLater(instance::stop, duration);
     }
 
     public void stop() {

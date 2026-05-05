@@ -8,6 +8,7 @@ import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.flags.DismountPetFlag;
 import fr.nocsy.mcpets.data.flags.FlagsManager;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import kr.toxicity.model.api.BetterModel;
 import kr.toxicity.model.api.bukkit.BetterModelBukkit;
@@ -116,7 +117,7 @@ public class BetterModelListeners {
             return;
         }
 
-        Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> {
+        FoliaCompat.runGlobal(() -> {
             Pet pet = Pet.getFromEntity(mountEntity);
             if (pet != null && pet.isDespawnOnDismount()) {
                 pet.despawn(PetDespawnReason.DISMOUNT);

@@ -8,7 +8,7 @@ import io.lumine.mythic.api.skills.ITargetedEntitySkill;
 import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.bukkit.BukkitAdapter;
-import org.bukkit.Bukkit;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
@@ -34,7 +34,7 @@ public class DropPetItemMechanic implements ITargetedEntitySkill {
             Random random = new Random();
             if (random.nextFloat() <= percentage) {
                 // Call the drop on sync so it can trigger events
-                Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> entity.getLocation().getWorld().dropItemNaturally(entity.getLocation(), it));
+                FoliaCompat.runLocation(entity.getLocation(), () -> entity.getLocation().getWorld().dropItemNaturally(entity.getLocation(), it));
             }
         }
 

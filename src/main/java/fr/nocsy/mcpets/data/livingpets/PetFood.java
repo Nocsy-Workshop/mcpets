@@ -19,7 +19,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 
 import java.util.*;
 public class PetFood {
@@ -191,12 +191,7 @@ public class PetFood {
         if (waitingListApply.contains(owner))
             return;
         waitingListApply.add(owner);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                waitingListApply.remove(owner);
-            }
-        }.runTaskLater(MCPets.getInstance(), delay);
+        FoliaCompat.runGlobalLater(() -> waitingListApply.remove(owner), delay);
     }
 
     private int getRemainingCooldownInSeconds(Pet pet) {

@@ -9,7 +9,7 @@ import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.api.skills.placeholders.PlaceholderDouble;
 import io.lumine.mythic.bukkit.BukkitAdapter;
-import org.bukkit.Bukkit;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import org.bukkit.entity.Entity;
 
 public class PetExperienceMechanic implements ITargetedEntitySkill {
@@ -27,7 +27,7 @@ public class PetExperienceMechanic implements ITargetedEntitySkill {
         if (pet != null && pet.getPetStats() != null) {
             // Call the experience gain on sync so it can trigger events
             final double expValue = experience.get(data);
-            Bukkit.getScheduler().runTask(MCPets.getInstance(), () -> pet.getPetStats().addExperience(expValue));
+            FoliaCompat.runEntity(entity, () -> pet.getPetStats().addExperience(expValue));
             return SkillResult.SUCCESS;
         }
         return SkillResult.CONDITION_FAILED;
