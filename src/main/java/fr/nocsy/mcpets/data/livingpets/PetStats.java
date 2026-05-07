@@ -7,6 +7,7 @@ import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
 import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.PetGainExperienceEvent;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import fr.nocsy.mcpets.utils.PetTimer;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
@@ -451,15 +452,26 @@ public class PetStats {
             return;
         // Runs ASync if it's a SQL, sync if not coz YAML doesn't support ASync
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
-            // TODO: For now, we make the AutoSave only saving the connected players for MySQL users
-            Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), () -> {
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    Databases.savePlayerData(p.getUniqueId());
-                }
-            }, delay, delay);
+            if (FoliaCompat.isFolia()) {
+                Bukkit.getAsyncScheduler().runAtFixedRate(MCPets.getInstance(), task -> {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        Databases.savePlayerData(p.getUniqueId());
+                    }
+                }, delay / 20, delay / 20, java.util.concurrent.TimeUnit.SECONDS);
+            } else {
+                Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), () -> {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        Databases.savePlayerData(p.getUniqueId());
+                    }
+                }, delay, delay);
+            }
         }
         else {
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), () -> petStatsList.forEach(PetStats::save), delay, delay);
+            if (FoliaCompat.isFolia()) {
+                Bukkit.getGlobalRegionScheduler().runAtFixedRate(MCPets.getInstance(), task -> petStatsList.forEach(PetStats::save), 1L, delay);
+            } else {
+                Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), () -> petStatsList.forEach(PetStats::save), delay, delay);
+            }
         }
     }
 

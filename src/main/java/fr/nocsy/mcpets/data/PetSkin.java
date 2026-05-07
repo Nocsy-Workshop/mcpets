@@ -12,7 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,20 +204,14 @@ public class PetSkin {
 
         instancePet.despawn(PetDespawnReason.SKIN);
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                instancePet.spawn(loc, false);
-                if (hasRider) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            instancePet.setMount(Bukkit.getPlayer(instancePet.getOwner()));
-                        }
-                    }.runTaskLater(MCPets.getInstance(), 2L);
-                }
+        FoliaCompat.runLocationLater(loc, () -> {
+            instancePet.spawn(loc, false);
+            if (hasRider) {
+                FoliaCompat.runGlobalLater(() -> {
+                    instancePet.setMount(Bukkit.getPlayer(instancePet.getOwner()));
+                }, 2L);
             }
-        }.runTaskLater(MCPets.getInstance(), 2L);
+        }, 2L);
         return true;
     }
 }

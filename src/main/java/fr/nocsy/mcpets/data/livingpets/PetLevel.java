@@ -18,7 +18,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -245,8 +245,7 @@ public class PetLevel {
             }
 
             // Once permissions are applied, spawn the evolution on the main thread
-            permFuture.thenRun(() -> Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-                // Make sure the owner is still here
+            permFuture.thenRun(() -> FoliaCompat.runGlobalLater(() -> {
                 final Player o = Bukkit.getPlayer(player);
                 if (o != null) {
                     final Pet activePet = Pet.fromOwner(player);
@@ -254,13 +253,10 @@ public class PetLevel {
                                     activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
                                     o.getLocation();
 
-                    // Despawn the previous pet
                     if (activePet != null && activePet.isStillHere())
                         activePet.despawn(PetDespawnReason.EVOLUTION);
 
-                    // Spawn the evolution
                     evolution.spawn(loc, false);
-                    // Re-enable permission checking now that LuckPerms has propagated
                     evolution.setCheckPermission(true);
                 }
             }, delayBeforeEvolution));

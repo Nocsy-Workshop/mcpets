@@ -11,7 +11,7 @@ import io.lumine.mythic.api.skills.SkillResult;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 
 public class SetPetMechanic implements ITargetedEntitySkill {
 
@@ -33,17 +33,14 @@ public class SetPetMechanic implements ITargetedEntitySkill {
             if (pet == null)
                 return SkillResult.CONDITION_FAILED;
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId())
-                            .ifPresent(activeMob -> pet.changeActiveMobTo(
-                                    activeMob,
-                                    ((Player)player).getUniqueId(),
-                                    followOwner,
-                                    PetDespawnReason.SETPET_REPLACED));
-                }
-            }.runTaskLater(MCPets.getInstance(), 1L);
+            FoliaCompat.runGlobalLater(() -> {
+                MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId())
+                        .ifPresent(activeMob -> pet.changeActiveMobTo(
+                                activeMob,
+                                ((Player)player).getUniqueId(),
+                                followOwner,
+                                PetDespawnReason.SETPET_REPLACED));
+            }, 1L);
             return SkillResult.SUCCESS;
         }
         return SkillResult.CONDITION_FAILED;

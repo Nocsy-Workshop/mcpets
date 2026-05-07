@@ -3,14 +3,17 @@ package fr.nocsy.mcpets.data.flags;
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import org.bukkit.scheduler.BukkitTask;
 
 public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
 
-    private int task;
+    private Object task;
 
     public static String NAME = "mcpets-dismount-flying";
 
@@ -28,12 +31,11 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
         if (getFlag() == null) {
             MCPets.getLog().warning("Flag " + getFlagName() + " couldn't not be launched as it's null. Please contact Nocsy.");
             return;
-        }
-        else {
+        } else {
             MCPets.getLog().info("Starting flag " + getFlagName() + ".");
         }
 
-        task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(getMCPetsInstance(), () -> {
+        Runnable runnable = () -> {
             if (MCPets.getMythicMobs() == null)
                 return;
 
@@ -48,23 +50,38 @@ public class DismountFlyPetFlag extends AbstractFlag implements StoppableFlag {
 
                     final Player p = Bukkit.getPlayer(owner);
                     if (p != null) {
-                        if (!pet.hasMount(p))
-                            continue;
+                        FoliaCompat.runEntity(p, () -> {
+                            if (!pet.hasMount(p))
+                                return;
 
-                        final boolean hasToBeEjected = testState(p.getLocation());
+                            final boolean hasToBeEjected = testState(p.getLocation());
 
-                        if (hasToBeEjected) {
-                            pet.dismount(p);
-                            Language.NOT_MOUNTABLE_HERE.sendMessage(p);
-                        }
+                            if (hasToBeEjected) {
+                                pet.dismount(p);
+                                Language.NOT_MOUNTABLE_HERE.sendMessage(p);
+                            }
+                        });
                     }
                 }
             }
-        }, 0L, 20L);
+        };
+
+        if (FoliaCompat.isFolia()) {
+            task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(getMCPetsInstance(), t -> runnable.run(), 1L, 20L);
+        } else {
+            task = Bukkit.getServer().getScheduler().runTaskTimer(getMCPetsInstance(), runnable, 0L, 20L);
+        }
     }
 
     @Override
     public void stop() {
-        Bukkit.getServer().getScheduler().cancelTask(task);
+        if (task != null) {
+            if (FoliaCompat.isFolia()) {
+                ((ScheduledTask) task).cancel();
+            } else {
+                ((BukkitTask) task).cancel();
+            }
+            task = null;
+        }
     }
 }

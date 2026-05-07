@@ -35,7 +35,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -198,7 +198,7 @@ public class PetListener implements Listener {
         Player p = e.getPlayer();
         UUID uuid = p.getUniqueId();
 
-        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+        FoliaCompat.runGlobalLater(() -> {
             if (GlobalConfig.getInstance().isDatabaseSupport()) {
                 PlayerData.reloadAll(uuid);
             }
@@ -206,24 +206,12 @@ public class PetListener implements Listener {
             if (GlobalConfig.getInstance().isVelocityEnabled()
                     && GlobalConfig.getInstance().isDatabaseSupport()) {
 
-                // When Velocity is enabled the DB is the ONLY source of truth.
-                // reconnectionPets on any given server reflects the last time the player
-                // disconnected from THAT server's JVM — it goes stale the moment the player
-                // visits another server. Never fall through to it when Velocity is on.
                 boolean isLiveSwitch = VelocitySyncManager.isPlayerSwitching(uuid);
                 VelocitySyncManager.clearSwitchingPlayer(uuid);
-                reconnectionPets.remove(uuid); // discard — DB owns the state
+                reconnectionPets.remove(uuid);
 
                 Databases.ActivePetRecord record = Databases.loadActivePet(uuid);
                 if (record != null) {
-                    // The DB record is the authoritative last-known pet state.
-                    // Always restore it regardless of how long ago it was written —
-                    // the SwitchWindow staleness check belongs only in isPlayerSwitching()
-                    // (proxy-message timing), not here.
-
-                    // Only clear the record on a live switch (one-time consumption).
-                    // For reconnect/restart recovery, leave it intact — the quit handler
-                    // will overwrite or clear it at the player's next disconnect.
                     if (isLiveSwitch) {
                         Databases.clearActivePet(uuid);
                     }
@@ -233,16 +221,14 @@ public class PetListener implements Listener {
                         Pet velocityPet = template.copy();
                         velocityPet.setCheckPermission(false);
                         velocityPet.setOwner(uuid);
-                        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+                        FoliaCompat.runGlobalLater(() -> {
                             if (p.isOnline()) velocityPet.spawn(p.getLocation(), true);
                         }, 2L);
                     }
                 }
-                // No DB record = player had no active pet when they left — don't spawn.
-                return; // never fall through to reconnectionPets when Velocity is enabled
+                return;
             }
 
-            // Velocity disabled: use the local reconnection map (original behaviour).
             if (reconnectionPets.containsKey(uuid)) {
                 Pet pet = Pet.getFromId(reconnectionPets.get(uuid));
                 if (pet == null)
@@ -280,12 +266,7 @@ public class PetListener implements Listener {
             if (pet.getTamingProgress() < 1)
                 continue;
             pet.despawn(PetDespawnReason.TELEPORT);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    pet.spawn(p, p.getLocation());
-                }
-            }.runTaskLater(MCPets.getInstance(), 20L);
+            FoliaCompat.runGlobalLater(() -> pet.spawn(p, p.getLocation()), 20L);
         }
     }
 
@@ -372,12 +353,7 @@ public class PetListener implements Listener {
                         pet.spawn(owner, owner.getLocation());
                         pet.setRecurrent_spawn(false);
                         repeatRespawn.put(owner.getUniqueId(), value + 1);
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                repeatRespawn.remove(owner.getUniqueId());
-                            }
-                        }.runTaskLater(MCPets.getInstance(), 10L);
+                        FoliaCompat.runGlobalLater(() -> repeatRespawn.remove(owner.getUniqueId()), 10L);
                     }
                 }
             }

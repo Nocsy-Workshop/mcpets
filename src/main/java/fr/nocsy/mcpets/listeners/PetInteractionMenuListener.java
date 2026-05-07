@@ -22,7 +22,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
+import fr.nocsy.mcpets.utils.FoliaCompat;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -58,17 +58,24 @@ public class PetInteractionMenuListener implements Listener {
     }
 
     public static void skins(final Player p, final Pet pet) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                PetSkin.openInventory(p, pet);
-            }
-        }.runTaskLater(MCPets.getInstance(), 2L);
+        FoliaCompat.runGlobalLater(() -> PetSkin.openInventory(p, pet), 2L);
     }
 
     public static void revoke(final Player p, @NotNull final Pet pet) {
-        pet.despawn(PetDespawnReason.REVOKE);
-        Language.REVOKED.sendMessage(p);
+        if (pet.getActiveMob() != null
+                && pet.getActiveMob().getEntity() != null
+                && pet.getActiveMob().getEntity().getBukkitEntity() != null) {
+            FoliaCompat.runEntity(pet.getActiveMob().getEntity().getBukkitEntity(), () -> {
+                pet.despawn(PetDespawnReason.REVOKE);
+                FoliaCompat.runEntity(p, () -> Language.REVOKED.sendMessage(p));
+            });
+            return;
+        }
+
+        FoliaCompat.runEntity(p, () -> {
+            pet.despawn(PetDespawnReason.REVOKE);
+            Language.REVOKED.sendMessage(p);
+        });
     }
 
     @EventHandler
