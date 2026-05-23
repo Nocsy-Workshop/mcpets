@@ -27,8 +27,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
+                    <source>21</source>
+                    <target>21</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -91,7 +91,8 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
-            <id>nexo-repo</id>
+            <id>nexomc-releases</id>
+            <name>Reposilite Repository</name>
             <url>https://repo.nexomc.com/releases</url>
         </repository>
         <repository>

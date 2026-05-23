@@ -51,6 +51,7 @@ public class MCPetsCommand implements CCommand {
                     new ArgumentMount(sender, args),
                     new ArgumentMounts(sender, args),
                     new ArgumentMenu(sender, args),
+                    new ArgumentName(sender, args),
                     new ArgumentOpen(sender, args),
                     new ArgumentPetFood(sender, args),
                     new ArgumentReload(sender, args),

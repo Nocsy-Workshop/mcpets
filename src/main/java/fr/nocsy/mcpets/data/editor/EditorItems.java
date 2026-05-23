@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.data.editor;
 
 import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.CategoryConfig;
@@ -346,7 +347,7 @@ public enum EditorItems {
         final ItemMeta meta = it.getItemMeta();
         if (it.getType().equals(Material.FILLED_MAP))
             it.setType(Material.MAP);
-        meta.setItemName(editorTag + getId());
+        PDCTag.set(meta, editorTag + getId());
 
         // Basically, we are replacing the placeholder for the value within the lores
         final List<String> lores = meta.getLore();
@@ -405,9 +406,9 @@ public enum EditorItems {
         if (it == null || !it.hasItemMeta())
             return null;
 
-        final String localName = it.getItemMeta().getItemName();
+        final String localName = PDCTag.get(it.getItemMeta());
         // Item does not have the editor tag, so it's not an editor item
-        if (!localName.contains(editorTag))
+        if (localName == null || !localName.contains(editorTag))
             return null;
 
         final String id = localName.replace(editorTag, "");

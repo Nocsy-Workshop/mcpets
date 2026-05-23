@@ -25,6 +25,7 @@ public class EventListener implements Listener {
         listeners.add(new SignalStickListener());
         listeners.add(new PetSkinsMenuListener());
         listeners.add(new VanillaDismountListener());
+        listeners.add(new MountWallClipListener());
 
         listeners.add(new LivingPetsListener());
 
