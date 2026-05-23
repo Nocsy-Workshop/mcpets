@@ -4,6 +4,7 @@ import com.sk89q.worldguard.WorldGuard;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.AbstractConfig;
 import fr.nocsy.mcpets.data.config.BlacklistConfig;
 import fr.nocsy.mcpets.data.config.CategoryConfig;
@@ -32,9 +33,11 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,11 +70,33 @@ public class MCPets extends JavaPlugin {
         BlacklistConfig.getInstance().init();
         PetConfig.loadPets(AbstractConfig.getPath() + "Pets/", true);
         CategoryConfig.load(AbstractConfig.getPath() + "Categories/", true);
-        Databases.init();
-        PlayerData.initAll();
+
+        // Run DB initialization asynchronously to avoid freezing the main thread.
+        // Tasks that depend on isDatabaseSupport() being correctly set (autosave scheduler,
+        // Velocity init) must run AFTER this completes — see scheduleDbDependentTasks().
+        Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
+            Databases.init();
+            PlayerData.initAll();
+            // Hop back to main thread for tasks that must schedule on the main scheduler
+            Bukkit.getScheduler().runTask(instance, MCPets::scheduleDbDependentTasks);
+        });
 
         for (final EditorItems item : EditorItems.values())
             item.refreshData();
+    }
+
+    /**
+     * Tasks that depend on the DB connection state being known (isDatabaseSupport()).
+     * Called from the async DB init path so that PetStats.saveStats() picks the correct
+     * sync/async branch — otherwise a sync YAML autosave gets scheduled while DB init is
+     * still pending, then runs heavy MySQL writes on the main thread once DB connects.
+     */
+    private static void scheduleDbDependentTasks() {
+        PetStats.saveStats();
+        if (GlobalConfig.getInstance().isVelocityEnabled()) {
+            VelocitySyncManager.init();
+            getLog().info("[MCPets] : Velocity sync enabled.");
+        }
     }
 
     @Override
@@ -116,12 +141,8 @@ public class MCPets extends JavaPlugin {
         modeler.registerListeners(this);
 
         loadConfigs();
-        PetStats.saveStats();
-
-        if (GlobalConfig.getInstance().isVelocityEnabled()) {
-            VelocitySyncManager.init();
-            getLog().info("[MCPets] : Velocity sync enabled.");
-        }
+        // PetStats.saveStats() and VelocitySyncManager.init() are scheduled inside
+        // loadConfigs() once async DB init completes — see scheduleDbDependentTasks()
 
         // Register the placeholders
         PetPlaceholdersManager.registerPlaceholders();
@@ -147,31 +168,48 @@ public class MCPets extends JavaPlugin {
             modeler.unregisterListeners();
         }
 
-        PetStats.saveAll();
+        // Run all DB saves on a separate thread to avoid freezing the main thread
+        final CompletableFuture<Void> saveFuture = CompletableFuture.runAsync(() -> {
+            PetStats.saveAll();
 
-        // Save all active pets to DB before clearing them so that a server restart
-        // does not wipe the mcpets_active_pet records — players rejoin with their pet intact.
-        if (GlobalConfig.getInstance().isVelocityEnabled()
-                && GlobalConfig.getInstance().isDatabaseSupport()) {
-            for (Map.Entry<UUID, List<Pet>> entry : Pet.getActivePets().entrySet()) {
-                List<Pet> activePets = entry.getValue();
-                if (activePets != null && !activePets.isEmpty()) {
-                    List<String> ids = new ArrayList<>();
-                    for (Pet pet : activePets) {
-                        if (pet != null) ids.add(pet.getId());
-                    }
-                    if (!ids.isEmpty()) {
-                        Databases.saveActivePet(entry.getKey(), ids);
+            // Save all active pets to DB before clearing them so that a server restart
+            // does not wipe the mcpets_active_pet records — players rejoin with their pet intact.
+            if (GlobalConfig.getInstance().isVelocityEnabled()
+                    && GlobalConfig.getInstance().isDatabaseSupport()) {
+                for (Map.Entry<UUID, List<Pet>> entry : Pet.getActivePets().entrySet()) {
+                    List<Pet> activePets = entry.getValue();
+                    if (activePets != null && !activePets.isEmpty()) {
+                        List<String> ids = new ArrayList<>();
+                        Map<String, String> skinUuids = new HashMap<>();
+                        for (Pet pet : activePets) {
+                            if (pet != null) {
+                                ids.add(pet.getId());
+                                final PetSkin skin = pet.getActiveSkin();
+                                if (skin != null) {
+                                    skinUuids.put(pet.getId(), skin.getUuid());
+                                }
+                            }
+                        }
+                        if (!ids.isEmpty()) {
+                            Databases.saveActivePet(entry.getKey(), ids, skinUuids);
+                        }
                     }
                 }
             }
+        });
+
+        FlagsManager.stopFlags();
+        VelocitySyncManager.shutdown();
+
+        // Wait for DB saves to complete before cleaning up
+        try {
+            saveFuture.join();
+        } catch (final Exception e) {
+            getLog().log(Level.SEVERE, "Error saving data on disable", e);
         }
 
         Pet.clearPets();
-        PlayerData.saveDB();
-        FlagsManager.stopFlags();
         Databases.closeConnection();
-        VelocitySyncManager.shutdown();
     }
 
     /**

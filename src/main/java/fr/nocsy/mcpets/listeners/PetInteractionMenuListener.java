@@ -12,6 +12,7 @@ import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
 import org.bukkit.ChatColor;
@@ -105,10 +106,11 @@ public class PetInteractionMenuListener implements Listener {
             }
 
             final ItemStack it = e.getCurrentItem();
-            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName()
-                    && it.getItemMeta().hasItemName()) {
+            if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName()) {
 
-                final String localizedName = it.getItemMeta().getItemName();
+                final String localizedName = PDCTag.get(it.getItemMeta());
+                if (localizedName == null)
+                    return;
                 if (localizedName.contains("AlmPetPage;"))
                     return;
 

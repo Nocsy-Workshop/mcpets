@@ -40,6 +40,9 @@ public class VelocitySyncManager implements PluginMessageListener {
     // ------------------------------------------------------------------
 
     public static void init() {
+        if (instance != null) {
+            shutdown();
+        }
         instance = new VelocitySyncManager();
         Bukkit.getMessenger().registerIncomingPluginChannel(MCPets.getInstance(), CHANNEL, instance);
         Bukkit.getMessenger().registerOutgoingPluginChannel(MCPets.getInstance(), CHANNEL);

@@ -84,7 +84,7 @@ public class MountMenu {
         // Let's fill the view with the selected mounts
         inventory = new PetInventoryHolder(invSize, title, petInvType).getInventory();
         for (final Pet mount : selectedMounts) {
-            inventory.addItem(mount.buildItem(mount.getIcon(), true, null, null, null, null, 0, null));
+            inventory.addItem(mount.buildItem(mount.getIcon(), true, null, null, null, null, 0, null, null));
         }
 
         // If we need to add a pager, we do so

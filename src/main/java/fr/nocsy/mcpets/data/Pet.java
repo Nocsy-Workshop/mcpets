@@ -2,11 +2,13 @@ package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
 import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.sql.Databases;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.events.EntityMountPetEvent;
 import fr.nocsy.mcpets.events.PetCastSkillEvent;
@@ -28,6 +30,7 @@ import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -329,8 +332,10 @@ public class Pet {
      * Get the pet from the ItemStack icon
      */
     public static Pet getFromIcon(final ItemStack icon) {
-        if (icon.hasItemMeta() && icon.getItemMeta().hasItemName()) {
-            return fromString(icon.getItemMeta().getItemName());
+        if (icon.hasItemMeta()) {
+            final String tag = PDCTag.get(icon.getItemMeta());
+            if (tag != null)
+                return fromString(tag);
         }
         return null;
     }
@@ -683,11 +688,29 @@ public class Pet {
                     // if it's autoride then we spawn it at the player's location so he can climb on it directly
                     // Otherwise we spawn the pet around according to the noise
                     if (autoRide) {
+                        // Reject mount spawns inside solid blocks — prevents the wall-clip exploit
+                        // where a mount is spawned in a wall to drag the rider through it.
+                        if (this.isMount() && !Utils.isLocationClearForMount(loc)) {
+                            Debugger.send("§cBlocked mount spawn inside a solid block for pet §6" + id + "§c (owner: " + owner + ").");
+                            final Player ownerPlayer = Bukkit.getPlayer(owner);
+                            if (ownerPlayer != null)
+                                Language.NOT_MOUNTABLE_HERE.sendMessage(ownerPlayer);
+                            despawn(PetDespawnReason.SPAWN_ISSUE);
+                            return BLOCKED;
+                        }
                         ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, loc);
                     } else {
                         Location spawnLoc = loc;
                         if (bruise)
                             spawnLoc = Utils.bruised(loc, getSpawnRange());
+                        if (this.isMount() && !Utils.isLocationClearForMount(spawnLoc)) {
+                            Debugger.send("§cBlocked mount spawn inside a solid block for pet §6" + id + "§c (owner: " + owner + ").");
+                            final Player ownerPlayer = Bukkit.getPlayer(owner);
+                            if (ownerPlayer != null)
+                                Language.NOT_MOUNTABLE_HERE.sendMessage(ownerPlayer);
+                            despawn(PetDespawnReason.SPAWN_ISSUE);
+                            return BLOCKED;
+                        }
                         ent = MCPets.getMythicMobs().getAPIHelper().spawnMythicMob(mythicMobName, spawnLoc);
                     }
                 } catch (final NullPointerException | NoSuchElementException ex) {
@@ -716,8 +739,9 @@ public class Pet {
                             MCPets.getMythicMobs().getMobManager().getMythicMob(mythicMobName).get(),
                             0
                     );
-                    if (mob != null)
+                    if (mob != null) {
                         setActiveMob(mob);
+                    }
                 }
 
                 // If any weird thing happened and the activeMob couldn't be registered, then we cancel everything
@@ -1107,10 +1131,13 @@ public class Pet {
             if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
                 if (reason == PetDespawnReason.REVOKE || reason == PetDespawnReason.DISMOUNT || reason == PetDespawnReason.UNKNOWN) {
                     final PlayerData pd = PlayerData.get(owner);
-                    pd.setLastActivePet("");
-                    pd.save();
+                    if (pd != null) {
+                        pd.setLastActivePet("");
+                        pd.save();
+                    }
                 }
             }
+            syncActivePetsToDb(reason);
             return true;
         }
 
@@ -1120,11 +1147,47 @@ public class Pet {
         if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
             if (reason == PetDespawnReason.REVOKE || reason == PetDespawnReason.DISMOUNT || reason == PetDespawnReason.UNKNOWN) {
                 final PlayerData pd = PlayerData.get(owner);
-                pd.setLastActivePet("");
-                pd.save();
+                if (pd != null) {
+                    pd.setLastActivePet("");
+                    pd.save();
+                }
             }
         }
+        syncActivePetsToDb(reason);
         return false;
+    }
+
+    /**
+     * Sync active pets to the Velocity DB after a despawn.
+     * Skips DISCONNECTION (handled by PetListener) and TELEPORT (pet will re-spawn).
+     */
+    private void syncActivePetsToDb(final PetDespawnReason reason) {
+        if (!GlobalConfig.getInstance().isVelocityEnabled()
+                || !GlobalConfig.getInstance().isDatabaseSupport())
+            return;
+        if (reason == PetDespawnReason.DISCONNECTION || reason == PetDespawnReason.TELEPORT)
+            return;
+        if (owner == null)
+            return;
+
+        final UUID ownerUuid = owner;
+        Bukkit.getScheduler().runTaskAsynchronously(MCPets.getInstance(), () -> {
+            final List<Pet> remaining = Pet.getActivePetsForOwner(ownerUuid);
+            if (remaining.isEmpty()) {
+                Databases.clearActivePet(ownerUuid);
+            } else {
+                final List<String> ids = new java.util.ArrayList<>();
+                final java.util.Map<String, String> skinUuids = new java.util.HashMap<>();
+                for (final Pet p : remaining) {
+                    ids.add(p.getId());
+                    final PetSkin skin = p.getActiveSkin();
+                    if (skin != null) {
+                        skinUuids.put(p.getId(), skin.getUuid());
+                    }
+                }
+                Databases.saveActivePet(ownerUuid, ids, skinUuids);
+            }
+        });
     }
 
     /**
@@ -1436,7 +1499,7 @@ public class Pet {
      * Setup the item with requirements
      * Show stats to make the item show the pet stats if it has some
      */
-    public ItemStack buildItem(ItemStack item, final boolean showStats, final String localizedName, String iconName, final List<String> description, final String materialType, final int customModelData, final String textureBase64) {
+    public ItemStack buildItem(ItemStack item, final boolean showStats, final String localizedName, String iconName, final List<String> description, final String materialType, final int customModelData, final String textureBase64, final String itemModel) {
         final Material mat = materialType != null ? Material.getMaterial(materialType) : null;
         if (iconName == null)
             iconName = "§cUndefined";
@@ -1451,20 +1514,28 @@ public class Pet {
         if (mat == null && textureBase64 != null) {
             item = Utils.createHead(iconName, desc, textureBase64);
             final ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            PDCTag.set(meta, localizedName);
             item.setItemMeta(meta);
         } else if (mat != null) {
             item = new ItemStack(mat);
             final ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            PDCTag.set(meta, localizedName);
             meta.setCustomModelData(customModelData);
+            if (itemModel != null && !itemModel.isEmpty()) {
+                try {
+                    java.lang.reflect.Method setItemModel = meta.getClass().getMethod("setItemModel", NamespacedKey.class);
+                    setItemModel.invoke(meta, NamespacedKey.fromString(itemModel));
+                } catch (final Exception ignored) {
+                    // setItemModel not available on this server version
+                }
+            }
             meta.setDisplayName(iconName);
             meta.setLore(desc);
             item.setItemMeta(meta);
         } else if (item == null) {
             item = Utils.createHead(iconName, desc, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQ5Y2M1OGFkMjVhMWFiMTZkMzZiYjVkNmQ0OTNjOGY1ODk4YzJiZjMwMmI2NGUzMjU5MjFjNDFjMzU4NjcifX19");
             final ItemMeta meta = item.getItemMeta();
-            meta.setItemName(localizedName);
+            PDCTag.set(meta, localizedName);
             item.setItemMeta(meta);
         }
 

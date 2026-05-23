@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -45,7 +46,7 @@ public class Utils {
             final JsonObject jsonObject = parser.parse(decodedString).getAsJsonObject();
             final String url = jsonObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
 
-            final PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("4fbecd49-c7d4-4c18-8410-adf7a7348728"));
+            final PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("4fbecd49-c7d4-4c18-8410-adf7a7348728"), "MCPets");
             final PlayerTextures pt = pp.getTextures();
 
             URL urlObject = null;
@@ -90,6 +91,20 @@ public class Utils {
     /**
      * Location bruiser
      */
+    /**
+     * Check that a location has enough vertical clearance to spawn a mount
+     * (feet + head block must both be passable). Used to prevent the mount
+     * wall-clip exploit where a mount spawned inside a solid block lets the
+     * rider end up clipped into geometry.
+     */
+    public static boolean isLocationClearForMount(final Location loc) {
+        if (loc == null || loc.getWorld() == null)
+            return false;
+        final Block feet = loc.getBlock();
+        final Block head = loc.clone().add(0, 1, 0).getBlock();
+        return feet.isPassable() && head.isPassable();
+    }
+
     public static Location bruised(Location loc, final double distance) {
         final Location origin = loc.clone();
 

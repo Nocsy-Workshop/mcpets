@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
 import org.bukkit.entity.Player;
@@ -33,8 +34,9 @@ public class PetMenuListener implements Listener {
             return;
         }
 
-        if (it.hasItemMeta() && it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("AlmPetPage;")) {
-            final int page = Integer.parseInt(it.getItemMeta().getItemName().split(";")[1]);
+        String tag = it.hasItemMeta() ? PDCTag.get(it.getItemMeta()) : null;
+        if (tag != null && tag.contains("AlmPetPage;")) {
+            final int page = Integer.parseInt(tag.split(";")[1]);
             p.closeInventory();
 
             final PetMenu menu;

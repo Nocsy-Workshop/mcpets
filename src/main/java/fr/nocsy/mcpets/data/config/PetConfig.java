@@ -9,11 +9,12 @@ import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.utils.PetAnnouncement;
+import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -211,7 +212,7 @@ public class PetConfig extends AbstractConfig {
         try {
             itemStack = getConfig().getItemStack(path + ".Raw");
             final ItemMeta meta = itemStack.getItemMeta();
-            meta.setItemName(localName);
+            PDCTag.set(meta, localName);
             itemStack.setItemMeta(meta);
             if (showStats)
                 itemStack = pet.applyStats(itemStack);
@@ -231,10 +232,11 @@ public class PetConfig extends AbstractConfig {
             final String itemsAdder = getConfig().getString(path + ".ItemsAdder", "");
             final int data = getConfig().getInt(path + ".CustomModelData");
             final String textureBase = getConfig().getString(path + ".TextureBase64");
+            final String itemModel = getConfig().getString(path + ".ItemModel");
             final List<String> description = getConfig().getStringList(path + ".Description");
             itemStack = pet.buildItem(
                     item, showStats, localName,
-                    name, description, mat, data, textureBase
+                    name, description, mat, data, textureBase, itemModel
             );
             // ItemsAdder compat
             if (MCPets.isItemsAdderLoaded() && !itemsAdder.isEmpty()) {
@@ -249,34 +251,36 @@ public class PetConfig extends AbstractConfig {
                             description,
                             iaItem.getType().toString(),
                             iaItem.getItemMeta().getCustomModelData(),
-                            textureBase
+                            textureBase,
+                            null
                     );
                 }
             }
 
-            // Nexo integration
+            // Nexo integration — keep the original Nexo ItemStack to preserve item_model and all components
             if (MCPets.checkNexo()) {
                 final String itemId = getConfig().getString(path + ".NexoId");
                 if (itemId != null && !itemId.isEmpty()) {
                     final ItemBuilder builder = NexoItems.itemFromId(itemId);
                     if (builder != null) {
-                        final ItemStack nexoItem = builder.build();
-                        final Material nexoMat = nexoItem.getType();
-                        final ItemMeta nexoMeta = nexoItem.getItemMeta();
-                        final int nexoModelData = (nexoMeta != null && nexoMeta.hasCustomModelData())
-                                ? nexoMeta.getCustomModelData()
-                                : 0;
-
-                        itemStack = pet.buildItem(
-                                nexoItem,
-                                showStats,
-                                localName,
-                                name,
-                                description,
-                                nexoMat != null ? nexoMat.toString() : null,
-                                nexoModelData,
-                                textureBase
-                        );
+                        itemStack = builder.build();
+                        final ItemMeta meta = itemStack.getItemMeta();
+                        PDCTag.set(meta, localName);
+                        if (name != null) {
+                            String iconName = Utils.translateHexColorCodes("#", "", name);
+                            iconName = Utils.applyPlaceholders(pet.getOwner(), iconName);
+                            meta.setDisplayName(iconName);
+                        }
+                        if (description != null) {
+                            final ArrayList<String> desc = new ArrayList<>();
+                            for (final String s : description) {
+                                desc.add(Utils.applyPlaceholders(pet.getOwner(), Utils.translateHexColorCodes("#", "", s)));
+                            }
+                            meta.setLore(desc);
+                        }
+                        itemStack.setItemMeta(meta);
+                        if (showStats)
+                            itemStack = pet.applyStats(itemStack);
                         return itemStack;
                     }
                 }

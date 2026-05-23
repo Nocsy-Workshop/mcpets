@@ -44,7 +44,7 @@ public class MountInteractionMenu {
             inventory.setItem(6, pet.getSignalStick());
         if (pet.getInventorySize() > 0)
             inventory.setItem(7, Items.INVENTORY.getItem());
-        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null));
+        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null, null));
     }
 
     public void open(final Player p) {

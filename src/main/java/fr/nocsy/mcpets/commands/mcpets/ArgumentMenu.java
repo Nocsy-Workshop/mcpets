@@ -83,7 +83,7 @@ public class ArgumentMenu extends AArgument {
             inventory.setItem(2, Items.SKINS.getItem());
         if (GlobalConfig.getInstance().isNameable())
             inventory.setItem(3, Items.RENAME.getItem());
-        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null));
+        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null, null));
 
         p.openInventory(inventory);
     }

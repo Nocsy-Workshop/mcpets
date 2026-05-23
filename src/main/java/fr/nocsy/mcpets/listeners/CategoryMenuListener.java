@@ -1,6 +1,7 @@
 package fr.nocsy.mcpets.listeners;
 
 import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.data.CategoryType;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
@@ -55,7 +56,8 @@ public class CategoryMenuListener implements Listener {
             return;
         }
 
-        if (it.getItemMeta().hasItemName() && it.getItemMeta().getItemName().contains("MCPetsPage;")) {
+        String tag = PDCTag.get(it.getItemMeta());
+        if (tag != null && tag.contains("MCPetsPage;")) {
             final int currentPage = category.getCurrentPage(e.getClickedInventory());
             if (e.getClick() == ClickType.LEFT) {
                 category.openInventory(p, currentPage - 1);
