@@ -123,7 +123,11 @@ public class MCPets extends JavaPlugin {
         checkWorldGuard();
         checkLuckPerms();
         checkPlaceholderApi();
+        checkNexo();
         checkItemsAdder();
+        if (!nexoFound && !itemsAdderFound) {
+            getLog().info("Neither Nexo nor ItemsAdder were found. Custom items features won't be available.");
+        }
 
         try {
             if (GlobalConfig.getInstance().isWorldguardsupport()) {
@@ -241,9 +245,6 @@ public class MCPets extends JavaPlugin {
             }
         } catch (final ClassNotFoundException e) {
             nexoFound = false;
-            if (!nexoChecked) {
-                getLog().warning("Nexo could not be found. Nexo Custom items features won't be available.");
-            }
         } catch (final Exception e) {
             // Handle cases like zip file closed during plugin reload
             nexoFound = false;
@@ -264,7 +265,6 @@ public class MCPets extends JavaPlugin {
             itemsAdderFound = true;
         } catch (final ClassNotFoundException e) {
             itemsAdderFound = false;
-            getLog().warning("ItemsAdder could not be found. IA Custom items features won't be available.");
         }
     }
 
