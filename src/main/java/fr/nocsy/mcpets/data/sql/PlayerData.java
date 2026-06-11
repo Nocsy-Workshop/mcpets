@@ -32,6 +32,8 @@ public class PlayerData {
     @Getter
     private UUID uuid;
 
+    private static final String ACTIVE_PET_SKIN_DELIMITER = ":";
+
     private PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -71,6 +73,28 @@ public class PlayerData {
         PlayerData data = new PlayerData();
         data.setUuid(owner);
         return data;
+    }
+
+    public static String encodeActivePet(String petId, String skinPathId) {
+        if (petId == null)
+            petId = "";
+        return (skinPathId == null || skinPathId.isEmpty())
+                ? petId
+                : petId + ACTIVE_PET_SKIN_DELIMITER + skinPathId;
+    }
+
+    public static String decodeActivePetId(String value) {
+        if (value == null)
+            return null;
+        int idx = value.indexOf(ACTIVE_PET_SKIN_DELIMITER);
+        return idx < 0 ? value : value.substring(0, idx);
+    }
+
+    public static String decodeActiveSkinId(String value) {
+        if (value == null)
+            return null;
+        int idx = value.indexOf(ACTIVE_PET_SKIN_DELIMITER);
+        return idx < 0 ? null : value.substring(idx + ACTIVE_PET_SKIN_DELIMITER.length());
     }
 
     public static void saveDB() {

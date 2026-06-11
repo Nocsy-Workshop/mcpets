@@ -41,19 +41,19 @@ public class Databases {
 
     public static class ActivePetRecord {
         private final List<String> petIds;
-        private final Map<String, String> skinUuids;
+        private final Map<String, String> skinIds;
         private final long updatedAt;
 
-        public ActivePetRecord(List<String> petIds, Map<String, String> skinUuids, long updatedAt) {
+        public ActivePetRecord(List<String> petIds, Map<String, String> skinIds, long updatedAt) {
             this.petIds = petIds;
-            this.skinUuids = skinUuids;
+            this.skinIds = skinIds;
             this.updatedAt = updatedAt;
         }
 
         /** All active pet IDs stored in this record (may be multiple). */
         public List<String> getPetIds()  { return petIds; }
-        /** Skin UUID for a given pet ID, or null if the pet had no skin active. */
-        public String getSkinUuid(String petId) { return skinUuids.get(petId); }
+        /** Stable skin path id for a given pet ID, or null if the pet had no skin active. */
+        public String getSkinId(String petId) { return skinIds.get(petId); }
         public long   getUpdatedAt() { return updatedAt; }
     }
 
@@ -285,15 +285,15 @@ public class Databases {
 
     /**
      * Upsert the active pets for a player into the dedicated table.
-     * Each entry is stored as "petId:skinUuid" (or just "petId" if no skin),
+     * Each entry is stored as "petId:skinPathId" (or just "petId" if no skin),
      * comma-delimited in the pet_id column.
      */
-    public static void saveActivePet(UUID uuid, List<String> petIds, Map<String, String> skinUuids) {
+    public static void saveActivePet(UUID uuid, List<String> petIds, Map<String, String> skinIds) {
         if (!GlobalConfig.getInstance().isDatabaseSupport()) return;
         final List<String> entries = new ArrayList<>();
         for (String petId : petIds) {
-            String skinUuid = skinUuids != null ? skinUuids.get(petId) : null;
-            entries.add(skinUuid != null ? petId + SKIN_DELIMITER + skinUuid : petId);
+            String skinId = skinIds != null ? skinIds.get(petId) : null;
+            entries.add(skinId != null ? petId + SKIN_DELIMITER + skinId : petId);
         }
         String joined = String.join(PET_ID_DELIMITER, entries);
         long now = System.currentTimeMillis();
@@ -318,19 +318,19 @@ public class Databases {
                 String raw = rs.getString("pet_id");
                 if (raw == null) return null;
                 List<String> ids = new ArrayList<>();
-                Map<String, String> skinUuids = new HashMap<>();
+                Map<String, String> skinIds = new HashMap<>();
                 for (String entry : raw.split(PET_ID_DELIMITER)) {
                     entry = entry.trim();
                     if (entry.isEmpty()) continue;
                     if (entry.contains(SKIN_DELIMITER)) {
                         String[] parts = entry.split(SKIN_DELIMITER, 2);
                         ids.add(parts[0]);
-                        skinUuids.put(parts[0], parts[1]);
+                        skinIds.put(parts[0], parts[1]);
                     } else {
                         ids.add(entry);
                     }
                 }
-                return new ActivePetRecord(ids, skinUuids, rs.getLong("updated_at"));
+                return new ActivePetRecord(ids, skinIds, rs.getLong("updated_at"));
             }
         } catch (SQLException e) {
             MCPets.getInstance().getLogger().log(Level.SEVERE, "Failed to load active pet record for " + uuid, e);

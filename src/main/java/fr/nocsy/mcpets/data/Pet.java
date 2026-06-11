@@ -863,7 +863,9 @@ public class Pet {
 
         if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
             final PlayerData pd = PlayerData.get(owner);
-            pd.setLastActivePet(this.getId());
+            final PetSkin activeSkin = getActiveSkin();
+            pd.setLastActivePet(PlayerData.encodeActivePet(this.getId(),
+                    activeSkin != null ? activeSkin.getPathId() : null));
             pd.save();
         }
 
@@ -1177,15 +1179,15 @@ public class Pet {
                 Databases.clearActivePet(ownerUuid);
             } else {
                 final List<String> ids = new java.util.ArrayList<>();
-                final java.util.Map<String, String> skinUuids = new java.util.HashMap<>();
+                final java.util.Map<String, String> skinIds = new java.util.HashMap<>();
                 for (final Pet p : remaining) {
                     ids.add(p.getId());
                     final PetSkin skin = p.getActiveSkin();
                     if (skin != null) {
-                        skinUuids.put(p.getId(), skin.getUuid());
+                        skinIds.put(p.getId(), skin.getPathId());
                     }
                 }
-                Databases.saveActivePet(ownerUuid, ids, skinUuids);
+                Databases.saveActivePet(ownerUuid, ids, skinIds);
             }
         });
     }
