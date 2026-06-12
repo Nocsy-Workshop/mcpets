@@ -1,11 +1,15 @@
 package fr.nocsy.mcpets.data.inventories;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
+
 import org.jetbrains.annotations.NotNull;
+
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.InventoryHolder;
+
+import fr.nocsy.mcpets.utils.Utils;
 
 public class PetInventoryHolder implements InventoryHolder {
     private final Inventory inventory;
@@ -18,12 +22,12 @@ public class PetInventoryHolder implements InventoryHolder {
     }
 
     public PetInventoryHolder(final int size, @NotNull final String title, @NotNull final Type type) {
-        this.inventory = Bukkit.createInventory(this, size, title);
+        this.inventory = Bukkit.createInventory(this, size, Utils.toComponent(title));
         this.type = type;
     }
 
     public PetInventoryHolder(final InventoryType inventoryType, @NotNull final String title, @NotNull final Type type) {
-        this.inventory = Bukkit.createInventory(this, inventoryType, title);
+        this.inventory = Bukkit.createInventory(this, inventoryType, Utils.toComponent(title));
         this.type = type;
     }
 

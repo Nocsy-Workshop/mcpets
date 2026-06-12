@@ -29,6 +29,7 @@ import io.lumine.mythic.core.skills.SkillMetadataImpl;
 import io.lumine.mythic.core.skills.SkillTriggers;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.ChatColor;
@@ -1501,16 +1502,16 @@ public class Pet {
      */
     public ItemStack buildItem(ItemStack item, final boolean showStats, final String localizedName, String iconName, final List<String> description, final String materialType, final int customModelData, final String textureBase64, final String itemModel) {
         final Material mat = materialType != null ? Material.getMaterial(materialType) : null;
-        if (iconName == null)
-            iconName = "§cUndefined";
-        iconName = Utils.translateHexColorCodes("#", "", iconName);
+        if (iconName == null) iconName = "§cUndefined";
         iconName = Utils.applyPlaceholders(owner, iconName);
-        final ArrayList<String> desc = new ArrayList<>();
+
+        final List<Component> desc = new ArrayList<>();
         if (description != null) {
             for (final String s : description) {
-                desc.add(Utils.applyPlaceholders(owner, Utils.translateHexColorCodes("#", "", s)));
+                desc.add(Utils.toComponent(Utils.applyPlaceholders(owner, s)));
             }
         }
+
         if (mat == null && textureBase64 != null) {
             item = Utils.createHead(iconName, desc, textureBase64);
             final ItemMeta meta = item.getItemMeta();
@@ -1529,8 +1530,8 @@ public class Pet {
                     // setItemModel not available on this server version
                 }
             }
-            meta.setDisplayName(iconName);
-            meta.setLore(desc);
+            meta.displayName(Utils.toComponent(iconName));
+            meta.lore(desc);
             item.setItemMeta(meta);
         } else if (item == null) {
             item = Utils.createHead(iconName, desc, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQ5Y2M1OGFkMjVhMWFiMTZkMzZiYjVkNmQ0OTNjOGY1ODk4YzJiZjMwMmI2NGUzMjU5MjFjNDFjMzU4NjcifX19");
@@ -1548,15 +1549,14 @@ public class Pet {
     public ItemStack applyStats(final ItemStack item) {
         // If we show the stats then we should not modify the actual item, but just its instance in that function
         final ItemStack it = item.clone();
-        // Handles the statistics being showed on the icon
+        // Handles the statistics being shown on the icon
         if (petStats != null) {
             final ItemMeta meta = it.getItemMeta();
             // Recover the existing lores
-            ArrayList<String> lores = (ArrayList<String>) meta.getLore();
-            if (lores == null)
-                lores = new ArrayList<>();
+            List<Component> lores = meta.lore();
+            if (lores == null) lores = new ArrayList<>();
             // Add a space
-            lores.add(" ");
+            lores.add(Component.empty());
 
             // Implement the progress bar
             final StringBuilder progressBar = new StringBuilder();
@@ -1573,39 +1573,39 @@ public class Pet {
 
                     for (int i = 0; i < progressBarSize; i++) {
                         if (i < indexProgress)
-                            progressBar.append(GlobalConfig.getInstance().getExperienceColorDone() +
-                                    GlobalConfig.getInstance().getExperienceSymbol() +
-                                    GlobalConfig.getInstance().getExperienceColorLeft());
+                            progressBar.append(GlobalConfig.getInstance().getExperienceColorDone())
+                                    .append(GlobalConfig.getInstance().getExperienceSymbol())
+                                    .append(GlobalConfig.getInstance().getExperienceColorLeft());
                         else
-                            progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft() +
-                                    GlobalConfig.getInstance().getExperienceSymbol() +
-                                    GlobalConfig.getInstance().getExperienceColorLeft());
+                            progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft())
+                                    .append(GlobalConfig.getInstance().getExperienceSymbol())
+                                    .append(GlobalConfig.getInstance().getExperienceColorLeft());
                     }
                 }
-                if (nextLevel.getEvolutionId() != null &&
-                        !nextLevel.canEvolve(owner, Pet.getFromId(nextLevel.getEvolutionId()))) {
+                if (nextLevel.getEvolutionId() != null
+                        && !nextLevel.canEvolve(owner, Pet.getFromId(nextLevel.getEvolutionId()))) {
                     progressBar.append('\n').append(Language.PET_STATS_EVOLUTION_ALREADY_OWNED.getMessage());
                 }
             }
 
             // Get the positive or negative sign symbol of the bonus
-            final String signSymbol_damageModifer = Utils.getSignSymbol(petStats.getDamageModifier() - 1);
-            final String signSymbol_resistanceModifer = Utils.getSignSymbol(petStats.getResistanceModifier() - 1);
+            final String signSymbol_damageModifier = Utils.getSignSymbol(petStats.getDamageModifier() - 1);
+            final String signSymbol_resistanceModifier = Utils.getSignSymbol(petStats.getResistanceModifier() - 1);
             final String signSymbol_power = Utils.getSignSymbol(petStats.getPower() - 1);
 
             String currentHealthStr = Integer.toString((int) petStats.getCurrentHealth());
-            if (petStats.getCurrentHealth() == 0 &&
-                    petStats.getRespawnTimer() != null && !petStats.getRespawnTimer().isRunning())
+            if (petStats.getCurrentHealth() == 0
+                    && petStats.getRespawnTimer() != null && !petStats.getRespawnTimer().isRunning())
                 currentHealthStr = Integer.toString((int) petStats.getRespawnHealth());
 
             // Handles the status of the pet
             String status = Language.PET_STATUS_ALIVE.getMessage();
             if (petStats.isRespawnTimerRunning()) {
                 status = Language.PET_STATUS_DEAD.getMessageFormatted(new FormatArg("%timeleft%",
-                        Integer.toString((int) petStats.getRespawnTimer().getRemainingTime())));
+                        Integer.toString(petStats.getRespawnTimer().getRemainingTime())));
             } else if (petStats.isRevokeTimerRunning())
                 status = Language.PET_STATUS_REVOKED.getMessageFormatted(new FormatArg("%timeleft%",
-                        Integer.toString((int) petStats.getRevokeTimer().getRemainingTime())));
+                        Integer.toString(petStats.getRevokeTimer().getRemainingTime())));
 
             final String statsLore = Language.PET_STATS.getMessageFormatted(
                     new FormatArg("%status%", status),
@@ -1613,17 +1613,18 @@ public class Pet {
                     new FormatArg("%health%", currentHealthStr),
                     new FormatArg("%maxhealth%", Integer.toString((int) petStats.getCurrentLevel().getMaxHealth())),
                     new FormatArg("%regeneration%", Double.toString(petStats.getCurrentLevel().getRegeneration())),
-                    new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getDamageModifier() - 1))),
-                    new FormatArg("%resistancemodifier%", signSymbol_resistanceModifer + (int) (100 * (petStats.getResistanceModifier() - 1))),
+                    new FormatArg("%damagemodifier%", signSymbol_damageModifier + (int) (100 * (petStats.getDamageModifier() - 1))),
+                    new FormatArg("%resistancemodifier%", signSymbol_resistanceModifier + (int) (100 * (petStats.getResistanceModifier() - 1))),
                     new FormatArg("%power%", signSymbol_power + (int) (100 * (petStats.getPower() - 1))),
                     new FormatArg("%experience%", Integer.toString((int) petStats.getExperience())),
                     new FormatArg("%threshold%", Integer.toString((int) petStats.getNextLevel().getExpThreshold())),
                     new FormatArg("%progressbar%", progressBar.toString()));
 
             // add the formatted statistics
-            lores.addAll(Arrays.asList(statsLore.split("\n")));
+            lores.addAll(Utils.toComponents(statsLore));
 
-            meta.setLore(lores);
+            meta.lore(lores);
+
             it.setItemMeta(meta);
         }
         return it;
@@ -1644,13 +1645,12 @@ public class Pet {
         setPetStats();
 
         int inventorySize = 0;
-        if (petStats == null)
-            inventorySize = defaultInventorySize;
-        else
-            inventorySize = petStats.getExtendedInventorySize();
+        if (petStats == null) inventorySize = defaultInventorySize;
+        else inventorySize = petStats.getExtendedInventorySize();
 
-        while (inventorySize % 9 != 0)
+        while (inventorySize % 9 != 0) {
             inventorySize++;
+        }
 
         return Math.min(54, inventorySize);
     }

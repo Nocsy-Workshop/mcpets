@@ -205,4 +205,15 @@ public enum Language {
         }
         return toSend;
     }
+
+    public Component getComponentFormatted(FormatArg... args) {
+        String toSend = getMessage();
+
+        for (FormatArg arg : args) {
+            toSend = arg.applyToString(toSend);
+        }
+
+        return Utils.toComponent(toSend);
+    }
+
 }
