@@ -8,14 +8,12 @@ import fr.nocsy.mcpets.data.PetDespawnReason;
 import fr.nocsy.mcpets.data.PetSkin;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.inventories.PetInteractionMenu;
 import fr.nocsy.mcpets.data.inventories.PetInventory;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import fr.nocsy.mcpets.data.inventories.PetMenu;
 import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.utils.Utils;
 import lombok.Getter;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -40,7 +38,7 @@ public class PetInteractionMenuListener implements Listener {
         if (!waitingForAnswer.contains(p.getUniqueId()))
             waitingForAnswer.add(p.getUniqueId());
         Language.TYPE_NAME_IN_CHAT.sendMessage(p);
-        Language.IF_WISH_TO_REMOVE_NAME.sendMessageFormated(p, new FormatArg("%tag%", Language.TAG_TO_REMOVE_NAME.getMessage()));
+        Language.IF_WISH_TO_REMOVE_NAME.sendMessageFormatted(p, new FormatArg("%tag%", Language.TAG_TO_REMOVE_NAME.getMessage()));
     }
 
     public static void mount(@NotNull final Player p, final Pet pet) {
@@ -154,21 +152,20 @@ public class PetInteractionMenuListener implements Listener {
 
             final String blackListedWord = Utils.isInBlackList(name);
             if (blackListedWord != null) {
-                Language.BLACKLISTED_WORD.sendMessageFormated(p, new FormatArg("%word%", blackListedWord));
+                Language.BLACKLISTED_WORD.sendMessageFormatted(p, new FormatArg("%word%", blackListedWord));
                 return;
             }
 
             final Pet pet = Optional.ofNullable(Pet.getFromLastInteractedWith(p)).orElse(Pet.getFromLastOpInteractedWith(p));
 
             if (pet != null && pet.isStillHere()) {
-                if (!p.hasPermission(PPermission.COLOR.getPermission()))
-                    name = ChatColor.stripColor(name);
+                boolean stripColor = !p.hasPermission(PPermission.COLOR.getPermission());
 
                 if (name.isEmpty()) {
                     Language.NICKNAME_NOT_CHANGED.sendMessage(p);
                     return;
                 }
-                pet.setDisplayName(name, true);
+                pet.setDisplayName(name, true, stripColor);
 
                 Language.NICKNAME_CHANGED_SUCCESSFULY.sendMessage(p);
             } else {

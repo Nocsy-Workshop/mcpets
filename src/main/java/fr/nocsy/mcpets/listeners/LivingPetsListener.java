@@ -217,7 +217,7 @@ public class LivingPetsListener implements Listener {
                 Player p = Bukkit.getPlayer(pet.getOwner());
 
                 if (p != null)
-                    Language.GLOBAL_RESPAWN_TIMER_RUNNING.sendMessageFormated(p,
+                    Language.GLOBAL_RESPAWN_TIMER_RUNNING.sendMessageFormatted(p,
                             new FormatArg("%timeLeft%", Integer.toString(stats.getRespawnTimer().getRemainingTime())),
                             new FormatArg("%cooldown%", Integer.toString(stats.getRespawnTimer().getCooldown())));
             }
@@ -235,7 +235,7 @@ public class LivingPetsListener implements Listener {
                 Player p = Bukkit.getPlayer(pet.getOwner());
 
                 if (p != null)
-                    Language.RESPAWN_TIMER_RUNNING.sendMessageFormated(p,
+                    Language.RESPAWN_TIMER_RUNNING.sendMessageFormatted(p,
                         new FormatArg("%timeLeft%", Integer.toString(stats.getRespawnTimer().getRemainingTime())),
                         new FormatArg("%cooldown%", Integer.toString(stats.getRespawnTimer().getCooldown())));
             }
@@ -248,7 +248,7 @@ public class LivingPetsListener implements Listener {
                 Player p = Bukkit.getPlayer(pet.getOwner());
 
                 if (p != null)
-                    Language.REVOKE_TIMER_RUNNING.sendMessageFormated(p,
+                    Language.REVOKE_TIMER_RUNNING.sendMessageFormatted(p,
                         new FormatArg("%timeLeft%", Integer.toString(stats.getRevokeTimer().getRemainingTime())),
                         new FormatArg("%cooldown%", Integer.toString(stats.getRevokeTimer().getCooldown())));
             }

@@ -45,7 +45,7 @@ public class ArgumentCategory extends AArgument {
             String playerName = args[2];
             Player player = Bukkit.getPlayer(playerName);
             if (player == null) {
-                Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
+                Language.PLAYER_NOT_CONNECTED.sendMessageFormatted(sender, new FormatArg("%player%", playerName));
                 return;
             }
 

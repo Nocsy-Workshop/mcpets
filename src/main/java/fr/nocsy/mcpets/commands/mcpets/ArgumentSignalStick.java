@@ -41,10 +41,11 @@ public class ArgumentSignalStick extends AArgument {
             p.getInventory().setItemInMainHand(Items.turnIntoSignalStick(it, pet));
         }
         else if (args.length == 3) {
+            Bukkit.broadcastMessage(args[0] + " - " + args[1] + " - " + args[2]);
             final String playerName = args[1];
             final Player player = Bukkit.getPlayer(playerName);
             if (player == null) {
-                Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
+                Language.PLAYER_NOT_CONNECTED.sendMessageFormatted(sender, new FormatArg("%player%", playerName));
                 return;
             }
 

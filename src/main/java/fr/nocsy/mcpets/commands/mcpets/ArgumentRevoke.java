@@ -34,7 +34,7 @@ public class ArgumentRevoke extends AArgument {
             String playerName = args[1];
             Player p = Bukkit.getPlayer(playerName);
             if (p == null) {
-                Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
+                Language.PLAYER_NOT_CONNECTED.sendMessageFormatted(sender, new FormatArg("%player%", playerName));
                 return;
             }
 

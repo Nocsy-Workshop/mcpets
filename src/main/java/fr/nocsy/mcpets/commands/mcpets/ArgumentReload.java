@@ -25,6 +25,6 @@ public class ArgumentReload extends AArgument {
         PlayerData.saveDB();
         MCPets.loadConfigs();
         Language.RELOAD_SUCCESS.sendMessage(sender);
-        Language.HOW_MANY_PETS_LOADED.sendMessageFormated(sender, new FormatArg("%numberofpets%", Integer.toString(Pet.getObjectPets().size())));
+        Language.HOW_MANY_PETS_LOADED.sendMessageFormatted(sender, new FormatArg("%numberofpets%", Integer.toString(Pet.getObjectPets().size())));
     }
 }

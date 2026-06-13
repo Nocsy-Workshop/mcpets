@@ -1,59 +1,55 @@
 package fr.nocsy.mcpets.data;
 
-import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.PPermission;
-import fr.nocsy.mcpets.utils.PDCTag;
-import fr.nocsy.mcpets.data.config.FormatArg;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.livingpets.PetLevel;
-import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.data.sql.Databases;
-import fr.nocsy.mcpets.data.sql.PlayerData;
-import fr.nocsy.mcpets.events.EntityMountPetEvent;
-import fr.nocsy.mcpets.events.PetCastSkillEvent;
-import fr.nocsy.mcpets.events.PetDespawnEvent;
-import fr.nocsy.mcpets.events.PetSpawnEvent;
-import fr.nocsy.mcpets.events.PetSpawnedEvent;
-import fr.nocsy.mcpets.events.PetTamingEvent;
-import fr.nocsy.mcpets.modeler.bone.AbstractNameTag;
-import fr.nocsy.mcpets.utils.PathFindingUtils;
-import fr.nocsy.mcpets.utils.Utils;
-import fr.nocsy.mcpets.utils.debug.Debugger;
-import io.lumine.mythic.api.adapters.AbstractLocation;
-import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
-import io.lumine.mythic.api.skills.Skill;
-import io.lumine.mythic.bukkit.BukkitAdapter;
-import io.lumine.mythic.core.mobs.ActiveMob;
-import io.lumine.mythic.core.skills.SkillMetadataImpl;
-import io.lumine.mythic.core.skills.SkillTriggers;
+import java.util.*;
+import java.util.logging.Level;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityMountEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
+
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Level;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.event.entity.EntityMountEvent;
+
+import io.lumine.mythic.api.skills.Skill;
+import io.lumine.mythic.core.mobs.ActiveMob;
+import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.core.skills.SkillTriggers;
+import io.lumine.mythic.core.skills.SkillMetadataImpl;
+import io.lumine.mythic.api.adapters.AbstractLocation;
+import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
+
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.utils.PDCTag;
+import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.utils.debug.Debugger;
+import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.events.PetTamingEvent;
+import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.utils.PathFindingUtils;
+import fr.nocsy.mcpets.events.PetDespawnEvent;
+import fr.nocsy.mcpets.events.PetSpawnedEvent;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.events.PetCastSkillEvent;
+import fr.nocsy.mcpets.events.EntityMountPetEvent;
+import fr.nocsy.mcpets.modeler.bone.AbstractNameTag;
 
 public class Pet {
 
@@ -74,11 +70,11 @@ public class Pet {
     //********** Static values **********
 
     @Getter
-    private static HashMap<UUID, List<Pet>> activePets = new HashMap<>();
+    private static Map<UUID, List<Pet>> activePets = new HashMap<>();
     @Getter
-    private static ArrayList<Pet> objectPets = new ArrayList<Pet>();
+    private static List<Pet> objectPets = new ArrayList<>();
     @Getter
-    private static HashMap<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
+    private static Map<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
 
     // Prevent race conditions during spawn
     private static Set<String> spawningPets = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -829,7 +825,7 @@ public class Pet {
                     Language.OWNER_NOT_FOUND.sendMessage(p);
                     break;
                 case Pet.MAX_ACTIVE_PETS_REACHED:
-                    Language.MAX_ACTIVE_PETS_REACHED.sendMessageFormated(p,
+                    Language.MAX_ACTIVE_PETS_REACHED.sendMessageFormatted(p,
                             new FormatArg("%max%", String.valueOf(GlobalConfig.getInstance().getMaxActivePets())));
                     break;
             }
@@ -1237,38 +1233,54 @@ public class Pet {
      * Set the display name of the pet
      */
     public void setDisplayName(String name, final boolean save) {
+        setDisplayName(name, save, false);
+    }
+
+    public void setDisplayName(String name, final boolean save, final boolean stripColor) {
 
         boolean isDefaultName = false;
-        if (name == null)
-            name = Language.TAG_TO_REMOVE_NAME.getMessage();
+        if (name == null) name = Language.TAG_TO_REMOVE_NAME.getMessage();
 
-        if (name.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage()) && !GlobalConfig.getInstance().isOverrideDefaultName()) {
+        if (stripColor) name = Utils.stripColors(name);
+
+        if (Utils.stripColors(name).equalsIgnoreCase(Utils.stripColors(Language.TAG_TO_REMOVE_NAME.getMessage()))
+                && !GlobalConfig.getInstance().isOverrideDefaultName()) {
             isDefaultName = true;
             boolean useMM = useDefaultMythicMobNames != null ? useDefaultMythicMobNames : GlobalConfig.getInstance().isUseDefaultMythicMobNames();
-            if (useMM)
-                name = activeMob.getDisplayName();
-            else
+            if (useMM) name = activeMob.getDisplayName();
+            else {
                 name = GlobalConfig.getInstance().getDefaultName()
                         .replace("%player%", Optional.ofNullable(Bukkit.getOfflinePlayer(owner).getName()).orElse("Unknown"))
                         .replace("%pet_id%", id)
                         .replace("%pet_name%", icon.getItemMeta().getDisplayName());
+            }
         }
 
         try {
-            if (name != null && ChatColor.stripColor(name).length() > GlobalConfig.instance.getMaxNameLength()) {
-                setDisplayName(name.substring(0, GlobalConfig.instance.getMaxNameLength()), save);
-                return;
+            if (name != null) {
+                int maxLength = GlobalConfig.instance.getMaxNameLength();
+
+                String plainName = Utils.stripColors(name);
+
+                if (plainName.length() > maxLength) {
+                    plainName = plainName.substring(0, maxLength);
+
+                    setDisplayName(plainName, save, true);
+                    return;
+                }
             }
-            if (name != null)
-                name = name.replace("'", " ");
+
+            if (name != null) name = name.replace("'", " ");
 
             currentName = name;
             if (isStillHere()) {
                 if (currentName == null || currentName.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
-                    activeMob.getEntity().getBukkitEntity().setCustomName(GlobalConfig.getInstance().getDefaultName()
+                    Component customName = Utils.toComponent(GlobalConfig.getInstance().getDefaultName()
                             .replace("%player%", Optional.ofNullable(Bukkit.getOfflinePlayer(owner).getName()).orElse("Unknown"))
                             .replace("%pet_id%", id)
                             .replace("%pet_name%", icon.getItemMeta().getDisplayName()));
+
+                    activeMob.getEntity().getBukkitEntity().customName(customName);
 
                     new BukkitRunnable() {
 
@@ -1287,7 +1299,7 @@ public class Pet {
                     return;
                 }
 
-                activeMob.getEntity().getBukkitEntity().setCustomName(currentName);
+                activeMob.getEntity().getBukkitEntity().customName(Utils.toComponent(currentName));
 
                 new BukkitRunnable() {
                     @Override
@@ -1299,8 +1311,7 @@ public class Pet {
                 Debugger.send("§7Applying name " + name + " to pet " + id);
                 if (save) {
                     String savedName = currentName;
-                    if (isDefaultName)
-                        savedName = Language.TAG_TO_REMOVE_NAME.getMessage();
+                    if (isDefaultName) savedName = Language.TAG_TO_REMOVE_NAME.getMessage();
                     final PlayerData pd = PlayerData.get(owner);
                     pd.getMapOfRegisteredNames().put(getId(), savedName);
                     pd.save();
@@ -1336,8 +1347,7 @@ public class Pet {
         pet.setIcon(icon);
         pet.setSignalStick(signalStick);
         pet.setOwner(owner);
-        if (activeMob != null)
-            pet.setActiveMob(activeMob);
+        if (activeMob != null) pet.setActiveMob(activeMob);
         pet.setSignals(signals);
         pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
         return pet;
@@ -1347,8 +1357,7 @@ public class Pet {
      * Set the specified entity riding on the pet
      */
     public boolean setMount(final Entity ent) {
-        if (ent == null)
-            return false;
+        if (ent == null) return false;
 
         final EntityMountPetEvent event = new EntityMountPetEvent(ent, this);
         final EntityMountEvent vanillaMountEvent = new EntityMountEvent(ent, activeMob.getEntity().getBukkitEntity());
@@ -1356,8 +1365,7 @@ public class Pet {
         Utils.callEvent(event);
 
         // We still return true as it's a normal situation, not linked to mounting point issue
-        if (event.isCancelled() || vanillaMountEvent.isCancelled())
-            return true;
+        if (event.isCancelled() || vanillaMountEvent.isCancelled()) return true;
 
         if (isStillHere()) {
             final UUID petUUID = activeMob.getEntity().getUniqueId();
@@ -1367,7 +1375,7 @@ public class Pet {
                     return false;
                 }
             } catch (final IllegalStateException ex) {
-                Language.ALREADY_MOUNTING.sendMessageFormated(ent);
+                Language.ALREADY_MOUNTING.sendMessageFormatted(ent);
             }
             return true;
         }
@@ -1389,8 +1397,7 @@ public class Pet {
      * Unset the specified entity riding on the pet
      */
     public void dismount(final Entity ent) {
-        if (ent == null)
-            return;
+        if (ent == null) return;
 
         if (isStillHere()) {
             final UUID localUUID = activeMob.getEntity().getUniqueId();
@@ -1410,8 +1417,7 @@ public class Pet {
             }
 
             final AbstractNameTag tag = getNameBone();
-            if (tag == null)
-                return;
+            if (tag == null) return;
             tag.setString(name);
             tag.setVisible(visible);
         }
@@ -1434,41 +1440,36 @@ public class Pet {
      * Does nothing if the signal stick feature is disabled globally or per-pet configuration.
      */
     public void giveStickSignals(final Player p) {
-        if (getOwner() == null || getSignalStick() == null)
-            return;
+        if (getOwner() == null || getSignalStick() == null) return;
 
-        if (p == null)
-            return;
+        if (p == null) return;
 
         // Respect per-pet configuration flag
-        if (!enableSignalStickFromMenu)
-            return;
+        if (!enableSignalStickFromMenu) return;
 
         clearStickSignals(p, this.id);
 
-        if (!p.getInventory().contains(signalStick))
-            p.getInventory().addItem(signalStick);
+        if (!p.getInventory().contains(signalStick)) p.getInventory().addItem(signalStick);
     }
 
     /**
      * Get the pet to cast a skill by sending it a signal
      */
     public boolean sendSignal(final String signal) {
-        if (signal == null || signal.isEmpty())
-            return false;
+        if (signal == null || signal.isEmpty()) return false;
 
         final PetCastSkillEvent event = new PetCastSkillEvent(this, signal);
         Utils.callEvent(event);
 
-        if (event.isCancelled())
-            return false;
+        if (event.isCancelled()) return false;
 
         if (this.isStillHere()) {
             final ActiveMob mob = this.getActiveMob();
             try {
                 String evolutionId = null;
-                if (petStats != null && petStats.getNextLevel() != null)
+                if (petStats != null && petStats.getNextLevel() != null) {
                     evolutionId = petStats.getNextLevel().getEvolutionId();
+                }
 
                 if (evolutionId != null) {
                     // Iterate through all active pets
@@ -1550,8 +1551,7 @@ public class Pet {
             item.setItemMeta(meta);
         }
 
-        if (showStats)
-            return applyStats(item);
+        if (showStats) return applyStats(item);
 
         return item;
     }

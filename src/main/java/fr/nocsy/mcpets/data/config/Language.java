@@ -190,15 +190,10 @@ public enum Language {
         sender.sendMessage(getComponentWithPrefix());
     }
 
-    public void sendMessageFormated(CommandSender sender, FormatArg... args) {
+    public void sendMessageFormatted(CommandSender sender, FormatArg... args) {
         if (message.isEmpty()) return;
 
-        String toSend = getMessage();
-        for (FormatArg arg : args) {
-            toSend = arg.applyToString(toSend);
-        }
-
-        sender.sendMessage(Utils.toComponentWithPrefix(toSend));
+        sender.sendMessage(Utils.toComponentWithPrefix(getMessageFormatted(args)));
     }
 
     public String getMessageFormatted(FormatArg... args) {
@@ -211,12 +206,7 @@ public enum Language {
     }
 
     public Component getComponentFormatted(FormatArg... args) {
-        String toSend = getMessage();
-        for (FormatArg arg : args) {
-            toSend = arg.applyToString(toSend);
-        }
-
-        return Utils.toComponent(toSend);
+        return Utils.toComponent(getMessageFormatted(args));
     }
 
 }

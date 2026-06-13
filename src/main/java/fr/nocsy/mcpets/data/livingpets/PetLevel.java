@@ -18,7 +18,6 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -157,8 +156,7 @@ public class PetLevel {
     /**
      * Play a skill on level up if setup
      */
-    public void playSkill(final UUID owner)
-    {
+    public void playSkill(final UUID owner) {
         final Pet pet = Pet.fromOwner(owner);
         if (mythicSkill != null && pet.isStillHere()) {
             final Optional<Skill> opt = MCPets.getMythicMobs().getSkillManager().getSkill(mythicSkill);
@@ -174,11 +172,9 @@ public class PetLevel {
      * else it can evolve, so result is true
      */
     public boolean canEvolve(final UUID player, final Pet evolution) {
-        if (player == null)
-            return false;
+        if (player == null) return false;
         // If there are no evolutions, then it technically can evolve, towards nothing
-        if (evolution == null)
-            return true;
+        if (evolution == null) return true;
         // If the owner already has the evolution, then we say that the pet can not evolve
         return !Utils.hasPermission(player, evolution.getPermission());
     }
@@ -197,13 +193,11 @@ public class PetLevel {
      */
     public boolean evolveTo(final UUID player, final boolean forceEvolution, final Pet evolution) {
         String evId = "null";
-        if (evolution != null)
-            evId = evolution.getId();
+        if (evolution != null) evId = evolution.getId();
         Debugger.send("Pet §6" + this.getPet().getId() + "§7 is trying to evolve as §a" + evId);
         Debugger.send("Checking conditions: §6can evolve ? §a" + canEvolve(player, evolution) + " §7| §6forced ? §a" + forceEvolution);
         if (canEvolve(player, evolution) || forceEvolution) {
-            if (evolution == null)
-                return false;
+            if (evolution == null) return false;
 
             // We disable the perm check on that one so it doesn't run into a weird synchronisation issue
             evolution.setCheckPermission(false);
@@ -214,8 +208,7 @@ public class PetLevel {
             final PlayerData pd = PlayerData.get(player);
             // Fetch the saved name
             final String name = pd.getMapOfRegisteredNames().get(pet.getId());
-            if (name != null)
-                evolution.setDisplayName(name, true);
+            if (name != null) evolution.setDisplayName(name, true);
 
             // Transfer the inventory to the evolution
             final PetInventory petInventory = PetInventory.get(pet);
@@ -235,8 +228,7 @@ public class PetLevel {
 
             // Fetch the owner of the pet, it has to be there to spawn the next pet right
             final Player owner = Bukkit.getPlayer(player);
-            if (owner == null)
-                return false;
+            if (owner == null) return false;
 
             // Give the permission async and wait for LuckPerms to apply before spawning
             CompletableFuture<Void> permFuture = Utils.givePermissionAsync(player, evolution.getPermission());
@@ -255,8 +247,9 @@ public class PetLevel {
                                     o.getLocation();
 
                     // Despawn the previous pet
-                    if (activePet != null && activePet.isStillHere())
+                    if (activePet != null && activePet.isStillHere()) {
                         activePet.despawn(PetDespawnReason.EVOLUTION);
+                    }
 
                     // Spawn the evolution
                     evolution.spawn(loc, false);
@@ -287,8 +280,7 @@ public class PetLevel {
      * to the given player
      */
     public void levelUp(final UUID owner, final PetLevel oldLevel) {
-        if (owner == null)
-            return;
+        if (owner == null) return;
 
         final PetLevelUpEvent event = new PetLevelUpEvent(pet, this, oldLevel);
         Utils.callEvent(event);
@@ -304,8 +296,7 @@ public class PetLevel {
 
     public double getFlatResistanceModifier() {
         double value = resistanceModifier;
-        if (value == 0)
-            return value = 10E-5;
+        if (value == 0) return 10E-5;
         return value;
     }
 
@@ -313,8 +304,7 @@ public class PetLevel {
         return power;
     }
 
-    public int compareTo(final PetLevel level)
-    {
+    public int compareTo(final PetLevel level) {
         return Double.compare(this.getExpThreshold(), level.getExpThreshold());
     }
 
@@ -330,4 +320,5 @@ public class PetLevel {
     public int hashCode() {
         return Objects.hash(levelName, expThreshold, announcement);
     }
+
 }

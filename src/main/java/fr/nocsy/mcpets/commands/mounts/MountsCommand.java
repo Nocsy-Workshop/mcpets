@@ -76,7 +76,7 @@ public class MountsCommand implements CCommand {
                 mount = activeMounts.getFirst();
             } else {
                 final String mountIds = activeMounts.stream().map(Pet::getId).collect(Collectors.joining(", "));
-                Language.SPECIFY_PET.sendMessageFormated(p, new FormatArg("%pets%", mountIds));
+                Language.SPECIFY_PET.sendMessageFormatted(p, new FormatArg("%pets%", mountIds));
                 return;
             }
 

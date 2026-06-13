@@ -1,13 +1,15 @@
 package fr.nocsy.mcpets.mythicmobs.mechanics;
 
+import org.bukkit.entity.Entity;
+
 import fr.nocsy.mcpets.data.Pet;
+
+import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.api.skills.SkillResult;
+import io.lumine.mythic.api.skills.SkillMetadata;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
-import io.lumine.mythic.api.skills.SkillMetadata;
-import io.lumine.mythic.api.skills.SkillResult;
-import io.lumine.mythic.bukkit.BukkitAdapter;
-import org.bukkit.entity.Entity;
 
 public class PetNameMechanic implements ITargetedEntitySkill {
 
@@ -22,9 +24,9 @@ public class PetNameMechanic implements ITargetedEntitySkill {
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
         Entity petEntity = BukkitAdapter.adapt(target);
         Pet pet = Pet.getFromEntity(petEntity);
-        if (pet != null) {
-            pet.setDisplayName(petName, save);
-        }
+        if (pet != null) pet.setDisplayName(petName, save);
+
         return SkillResult.CONDITION_FAILED;
     }
+
 }

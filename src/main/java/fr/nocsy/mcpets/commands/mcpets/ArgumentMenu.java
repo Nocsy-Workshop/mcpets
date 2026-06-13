@@ -55,7 +55,7 @@ public class ArgumentMenu extends AArgument {
             pet = activePets.getFirst();
         } else {
             final String petIds = activePets.stream().map(Pet::getId).collect(Collectors.joining(", "));
-            Language.SPECIFY_PET.sendMessageFormated(p, new FormatArg("%pets%", petIds));
+            Language.SPECIFY_PET.sendMessageFormatted(p, new FormatArg("%pets%", petIds));
             return;
         }
 
