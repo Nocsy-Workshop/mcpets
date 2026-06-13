@@ -1,20 +1,21 @@
 package fr.nocsy.mcpets.data.inventories;
 
-import fr.nocsy.mcpets.data.Category;
-import fr.nocsy.mcpets.data.CategoryType;
-import fr.nocsy.mcpets.data.Items;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.sql.PlayerData;
+import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
+
 import lombok.Getter;
-import org.bukkit.Bukkit;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.Items;
+import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.data.CategoryType;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 
 /**
  * Menu to display the list of available mounts for a player
@@ -59,11 +60,9 @@ public class MountMenu {
         if (GlobalConfig.getInstance().getAdaptiveInventory() > 0) {
             pageSize = GlobalConfig.getInstance().getAdaptiveInventory() - 1;
         }
-        for (int i = pageSize * page; i < availableMounts.size(); i++)
-        {
+        for (int i = pageSize * page; i < availableMounts.size(); i++) {
             // We can not have more than 53 mounts selected at a given page
-            if(selectedMounts.size() >= 53)
-            {
+            if (selectedMounts.size() >= 53) {
                 addPager = true;
                 break;
             }
@@ -84,7 +83,7 @@ public class MountMenu {
         // Let's fill the view with the selected mounts
         inventory = new PetInventoryHolder(invSize, title, petInvType).getInventory();
         for (final Pet mount : selectedMounts) {
-            inventory.addItem(mount.buildItem(mount.getIcon(), true, null, null, null, null, 0, null, null));
+            inventory.addItem(mount.buildItem(mount.getIcon(), true));
         }
 
         // If we need to add a pager, we do so
@@ -100,4 +99,5 @@ public class MountMenu {
         }
         p.openInventory(inventory);
     }
+
 }

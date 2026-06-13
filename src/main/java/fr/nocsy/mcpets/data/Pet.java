@@ -1502,7 +1502,7 @@ public class Pet {
      * Setup the item with requirements
      * Show stats to make the item show the pet stats if it has some
      */
-    public ItemStack buildItem(ItemStack item, final boolean showStats, final String localizedName, String iconName, final List<String> description, final String materialType, final int customModelData, final String textureBase64, final String itemModel) {
+    public ItemStack buildItem(ItemStack item, final boolean showStats, final String localizedName, String iconName, final List<String> description, final String materialType, final int customModelData, final String textureBase64, final String itemModel, final String tooltipStyle) {
         final Material mat = materialType != null ? Material.getMaterial(materialType) : null;
         if (iconName == null) iconName = "§cUndefined";
         iconName = Utils.applyPlaceholders(owner, iconName);
@@ -1532,6 +1532,14 @@ public class Pet {
                     // setItemModel not available on this server version
                 }
             }
+            if (tooltipStyle != null && !tooltipStyle.isEmpty()) {
+                try {
+                    java.lang.reflect.Method setTooltipStyle = meta.getClass().getMethod("setTooltipStyle", NamespacedKey.class);
+                    setTooltipStyle.invoke(meta, NamespacedKey.fromString(tooltipStyle));
+                } catch (final Exception ignored) {
+                    // setTooltipStyle not available on this server version
+                }
+            }
             meta.displayName(Utils.toComponent(iconName));
             meta.lore(desc);
             item.setItemMeta(meta);
@@ -1546,6 +1554,10 @@ public class Pet {
             return applyStats(item);
 
         return item;
+    }
+
+    public ItemStack buildItem(ItemStack item, final boolean showStats) {
+        return buildItem(item, showStats, null, null, null, null, 0, null, null, null);
     }
 
     public ItemStack applyStats(final ItemStack item) {

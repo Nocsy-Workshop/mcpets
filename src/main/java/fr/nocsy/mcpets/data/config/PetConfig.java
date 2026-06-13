@@ -232,10 +232,11 @@ public class PetConfig extends AbstractConfig {
             final int data = getConfig().getInt(path + ".CustomModelData");
             final String textureBase = getConfig().getString(path + ".TextureBase64");
             final String itemModel = getConfig().getString(path + ".ItemModel");
+            final String tooltipStyle = getConfig().getString(path + ".TooltipStyle");
             final List<String> description = getConfig().getStringList(path + ".Description");
             itemStack = pet.buildItem(
                     item, showStats, localName,
-                    name, description, mat, data, textureBase, itemModel
+                    name, description, mat, data, textureBase, itemModel, tooltipStyle
             );
             // ItemsAdder compat
             if (MCPets.isItemsAdderLoaded() && !itemsAdder.isEmpty()) {
@@ -251,7 +252,7 @@ public class PetConfig extends AbstractConfig {
                             iaItem.getType().toString(),
                             iaItem.getItemMeta().getCustomModelData(),
                             textureBase,
-                            null
+                            null, null
                     );
                 }
             }

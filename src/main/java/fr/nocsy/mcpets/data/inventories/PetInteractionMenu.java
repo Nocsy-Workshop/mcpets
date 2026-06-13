@@ -1,15 +1,18 @@
 package fr.nocsy.mcpets.data.inventories;
 
-import fr.nocsy.mcpets.data.Items;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.Language;
+import java.util.UUID;
+
 import lombok.Getter;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
+
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.Items;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 
 public class PetInteractionMenu {
 
@@ -40,11 +43,11 @@ public class PetInteractionMenu {
             inventory.setItem(6, pet.getSignalStick());
         if (pet.getInventorySize() > 0)
             inventory.setItem(7, Items.INVENTORY.getItem());
-        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null, null));
+        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true));
     }
 
     public void open(final Player p) {
-        if (inventory != null)
-            p.openInventory(inventory);
+        if (inventory != null) p.openInventory(inventory);
     }
+
 }

@@ -1,18 +1,20 @@
 package fr.nocsy.mcpets.data.inventories;
 
-import fr.nocsy.mcpets.data.Category;
-import fr.nocsy.mcpets.data.Items;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.sql.PlayerData;
+import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
+
 import lombok.Getter;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.Items;
+import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 
 public class PetMenu {
 
@@ -36,7 +38,7 @@ public class PetMenu {
         // Count the amount of pets that are being selected at that page
         // One page is up to 53 pets, so the page P has already seen 53 * P pets
         // 53 pets because we have to leave one spot available for the pager everytime
-        final ArrayList<Pet> selectedPets = new ArrayList<>();
+        final List<Pet> selectedPets = new ArrayList<>();
         // Let's see if we need to add a pager to the inventory
         // Either we have more than 53 pets or we are at a page greater than 0
         boolean addPager = page > 0;
@@ -44,11 +46,9 @@ public class PetMenu {
         if (GlobalConfig.getInstance().getAdaptiveInventory() > 0) {
             pageSize = GlobalConfig.getInstance().getAdaptiveInventory() - 1;
         }
-        for (int i = pageSize * page; i < availablePets.size(); i++)
-        {
+        for (int i = pageSize * page; i < availablePets.size(); i++) {
             // We can not have more than 53 pets selected at a given page
-            if(selectedPets.size() >= 53)
-            {
+            if (selectedPets.size() >= 53) {
                 addPager = true;
                 break;
             }
@@ -67,9 +67,9 @@ public class PetMenu {
         }
 
         // Let's fill tbe view with the selected pets
-        this.inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.PET_MENU).getInventory();
+        inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.PET_MENU).getInventory();
         for (final Pet pet : selectedPets) {
-            inventory.addItem(pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null, null));
+            inventory.addItem(pet.buildItem(pet.getIcon(), true));
         }
 
         // If we need to add a pager, we do so
@@ -85,4 +85,5 @@ public class PetMenu {
         }
         p.openInventory(inventory);
     }
+
 }
