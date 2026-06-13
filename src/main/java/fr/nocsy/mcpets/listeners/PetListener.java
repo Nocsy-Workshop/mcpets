@@ -163,21 +163,23 @@ public class PetListener implements Listener {
         List<Pet> pets = Pet.getActivePetsForOwner(uuid);
         // Create a copy to avoid ConcurrentModificationException when despawning modifies the list
         List<String> activePetIds = new ArrayList<>();
-        Map<String, String> activeSkinUuids = new HashMap<>();
+        Map<String, String> activeSkinIds = new HashMap<>();
         for (Pet pet : List.copyOf(pets)) {
             // Capture skin data before despawn clears it
             PetSkin activeSkin = pet.getActiveSkin();
             pet.despawn(PetDespawnReason.DISCONNECTION);
             if (p.hasPermission(pet.getPermission())) {
-                reconnectionPets.putIfAbsent(uuid, pet.getId());
+                String encoded = PlayerData.encodeActivePet(pet.getId(),
+                        activeSkin != null ? activeSkin.getPathId() : null);
+                reconnectionPets.putIfAbsent(uuid, encoded);
                 activePetIds.add(pet.getId());
                 if (activeSkin != null) {
-                    activeSkinUuids.put(pet.getId(), activeSkin.getUuid());
+                    activeSkinIds.put(pet.getId(), activeSkin.getPathId());
                 }
                 if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
                     PlayerData pd = PlayerData.get(uuid);
                     if (pd != null) {
-                        pd.setLastActivePet(pet.getId());
+                        pd.setLastActivePet(encoded);
                         pd.save();
                     }
                 }
@@ -188,9 +190,9 @@ public class PetListener implements Listener {
                 && GlobalConfig.getInstance().isDatabaseSupport()) {
             if (!activePetIds.isEmpty()) {
                 final List<String> petIdsToSave = new ArrayList<>(activePetIds);
-                final Map<String, String> skinUuidsToSave = new HashMap<>(activeSkinUuids);
+                final Map<String, String> skinIdsToSave = new HashMap<>(activeSkinIds);
                 Bukkit.getScheduler().runTaskAsynchronously(MCPets.getInstance(),
-                        () -> Databases.saveActivePet(uuid, petIdsToSave, skinUuidsToSave));
+                        () -> Databases.saveActivePet(uuid, petIdsToSave, skinIdsToSave));
             } else {
                 Bukkit.getScheduler().runTaskAsynchronously(MCPets.getInstance(),
                         () -> Databases.clearActivePet(uuid));
@@ -244,15 +246,7 @@ public class PetListener implements Listener {
                             velocityPet.setCheckPermission(false);
                             velocityPet.setOwner(uuid);
                             // Restore active skin if one was saved
-                            String skinUuid = record.getSkinUuid(petId);
-                            if (skinUuid != null) {
-                                for (PetSkin skin : PetSkin.getSkins(template)) {
-                                    if (skin.getUuid().equals(skinUuid)) {
-                                        velocityPet.setActiveSkin(skin);
-                                        break;
-                                    }
-                                }
-                            }
+                            restoreSkin(p, velocityPet, record.getSkinId(petId));
                             velocityPet.spawn(p.getLocation(), true);
                         }
                     });
@@ -262,7 +256,8 @@ public class PetListener implements Listener {
 
             // Velocity disabled: use the local reconnection map (original behaviour).
             if (reconnectionPets.containsKey(uuid)) {
-                Pet pet = Pet.getFromId(reconnectionPets.get(uuid));
+                String stored = reconnectionPets.get(uuid);
+                Pet pet = Pet.getFromId(PlayerData.decodeActivePetId(stored));
                 if (pet == null)
                     return;
                 if (!p.hasPermission(pet.getPermission())) {
@@ -272,22 +267,38 @@ public class PetListener implements Listener {
                 pet = pet.copy();
                 pet.setCheckPermission(false);
                 pet.setOwner(uuid);
+                restoreSkin(p, pet, PlayerData.decodeActiveSkinId(stored));
                 pet.spawn(p.getLocation(), true);
                 reconnectionPets.remove(uuid);
             } else if (GlobalConfig.getInstance().isSpawnPetAfterServerRestart()) {
                 PlayerData pd = PlayerData.get(uuid);
-                String lastPetId = pd.getLastActivePet();
+                String stored = pd.getLastActivePet();
+                String lastPetId = PlayerData.decodeActivePetId(stored);
                 if (lastPetId != null && !lastPetId.isEmpty()) {
                     Pet pet = Pet.getFromId(lastPetId);
                     if (pet != null) {
                         pet = pet.copy();
                         pet.setCheckPermission(false);
                         pet.setOwner(uuid);
+                        restoreSkin(p, pet, PlayerData.decodeActiveSkinId(stored));
                         pet.spawn(p.getLocation(), true);
                     }
                 }
             }
         }, 20L);
+    }
+
+    private void restoreSkin(Player p, Pet pet, String skinPathId) {
+        if (skinPathId == null || skinPathId.isEmpty())
+            return;
+        for (PetSkin skin : PetSkin.getSkins(pet)) {
+            if (skinPathId.equals(skin.getPathId())) {
+                String perm = skin.getPermission();
+                if (perm == null || perm.isEmpty() || p.hasPermission(perm))
+                    pet.setActiveSkin(skin);
+                return;
+            }
+        }
     }
 
     @EventHandler

@@ -184,18 +184,18 @@ public class MCPets extends JavaPlugin {
                     List<Pet> activePets = entry.getValue();
                     if (activePets != null && !activePets.isEmpty()) {
                         List<String> ids = new ArrayList<>();
-                        Map<String, String> skinUuids = new HashMap<>();
+                        Map<String, String> skinIds = new HashMap<>();
                         for (Pet pet : activePets) {
                             if (pet != null) {
                                 ids.add(pet.getId());
                                 final PetSkin skin = pet.getActiveSkin();
                                 if (skin != null) {
-                                    skinUuids.put(pet.getId(), skin.getUuid());
+                                    skinIds.put(pet.getId(), skin.getPathId());
                                 }
                             }
                         }
                         if (!ids.isEmpty()) {
-                            Databases.saveActivePet(entry.getKey(), ids, skinUuids);
+                            Databases.saveActivePet(entry.getKey(), ids, skinIds);
                         }
                     }
                 }
