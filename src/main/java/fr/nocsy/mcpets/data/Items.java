@@ -107,7 +107,7 @@ public enum Items {
     private static ItemStack mount() {
         ItemStack it = new ItemStack(Material.SADDLE);
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Utils.toComponent(Language.MOUNT_ITEM_NAME.getMessage()));
+        meta.displayName(Language.MOUNT_ITEM_NAME.getComponent());
 
         meta.lore(
                 Utils.toComponents(
@@ -122,7 +122,7 @@ public enum Items {
     private static ItemStack rename() {
         ItemStack it = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Utils.toComponent(Language.RENAME_ITEM_NAME.getMessage()));
+        meta.displayName(Language.RENAME_ITEM_NAME.getComponent());
 
         meta.lore(
                 Utils.toComponents(
@@ -137,7 +137,7 @@ public enum Items {
     private static ItemStack petmenu() {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Utils.toComponent(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage()));
+        meta.displayName(Language.BACK_TO_PETMENU_ITEM_NAME.getComponent());
         meta.lore(
                 Utils.toComponents(
                         Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage()
@@ -152,7 +152,7 @@ public enum Items {
     private static ItemStack mountmenu() {
         ItemStack it = new ItemStack(Material.PAPER);
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Utils.toComponent(Language.BACK_TO_PETMENU_ITEM_NAME.getMessage()));
+        meta.displayName(Language.BACK_TO_PETMENU_ITEM_NAME.getComponent());
         meta.lore(
                 Utils.toComponents(
                         Language.BACK_TO_PETMENU_ITEM_DESCRIPTION.getMessage()
@@ -168,7 +168,7 @@ public enum Items {
     private static ItemStack inventory() {
         ItemStack it = new ItemStack(Material.CHEST);
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Utils.toComponent(Language.INVENTORY_ITEM_NAME.getMessage()));
+        meta.displayName(Language.INVENTORY_ITEM_NAME.getComponent());
         PDCTag.set(meta, "AlmPet;Inventory");
 
         it.setItemMeta(meta);
@@ -179,7 +179,7 @@ public enum Items {
     private static ItemStack skins() {
         ItemStack it = new ItemStack(Material.MAGMA_CREAM);
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Utils.toComponent(Language.SKINS_ITEM_NAME.getMessage()));
+        meta.displayName(Language.SKINS_ITEM_NAME.getComponent());
         PDCTag.set(meta, "AlmPet;Skins");
 
         it.setItemMeta(meta);
@@ -190,7 +190,7 @@ public enum Items {
     private static ItemStack equipment() {
         ItemStack it = new ItemStack(Material.LEATHER_HORSE_ARMOR);
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Utils.toComponent(Language.EQUIPMENT_ITEM_NAME.getMessage()));
+        meta.displayName(Language.EQUIPMENT_ITEM_NAME.getComponent());
         PDCTag.set(meta, "AlmPet;Inventory");
 
         it.setItemMeta(meta);

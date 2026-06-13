@@ -1,13 +1,13 @@
 package fr.nocsy.mcpets.utils.debug;
 
-import fr.nocsy.mcpets.utils.Utils;
-import net.kyori.adventure.audience.Audience;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
+
+import fr.nocsy.mcpets.utils.Utils;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public class Debugger {
 
@@ -25,15 +25,14 @@ public class Debugger {
      * Send a message to the debug listeners
      */
     public static void send(final String msg) {
-        if (!isEnabled())
-            return;
+        if (!isEnabled()) return;
 
-        ((Audience) Bukkit.getConsoleSender()).sendMessage(Utils.toComponent("§7[MCPETS DEBUG]: §6" + msg));
+        Bukkit.getConsoleSender().sendMessage(Utils.toComponent("§7[MCPETS DEBUG]: §6" + msg));
         for (final UUID uuid : listeners) {
             final Player p = Bukkit.getPlayer(uuid);
-            if (p != null) {
-                ((Audience) p).sendMessage(Utils.toComponent("§7[DEBUG]: §6" + msg));
-            }
+            if (p == null) continue;
+
+            p.sendMessage(Utils.toComponent("§7[DEBUG]: §6" + msg));
         }
     }
 
@@ -41,8 +40,7 @@ public class Debugger {
      * Join the listening conversation to the debugger
      */
     public static void join(final UUID uuid) {
-        if (listeners.contains(uuid))
-            return;
+        if (listeners.contains(uuid)) return;
         listeners.add(uuid);
     }
 

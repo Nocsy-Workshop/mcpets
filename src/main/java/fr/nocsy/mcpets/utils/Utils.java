@@ -25,7 +25,6 @@ import org.bukkit.profile.PlayerTextures;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -37,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import me.clip.placeholderapi.PlaceholderAPI;
 
 import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.config.BlacklistConfig;
 
 public class Utils {
@@ -242,6 +242,16 @@ public class Utils {
                 .append(MiniMessage.miniMessage().deserialize(text));
     }
 
+    public static Component toComponentWithPrefix(String text) {
+        text = GlobalConfig.getInstance().getPrefix() + text;
+        text = convertSectionHexToMiniMessage(text);
+        text = convertLegacyToMiniMessage(text);
+
+        return Component.empty()
+                .decoration(TextDecoration.ITALIC, false)
+                .append(MiniMessage.miniMessage().deserialize(text));
+    }
+
     public static List<Component> toComponents(String text) {
         return Arrays.stream(text.split("\n"))
                 .map(Utils::toComponent)
@@ -253,10 +263,6 @@ public class Utils {
      */
     public static String stripColors(final String text) {
         return PlainTextComponentSerializer.plainText().serialize(toComponent(text));
-    }
-
-    public static void sendActionBar(final Player p, final String message) {
-        ((Audience) p).sendActionBar(toComponent(message));
     }
 
     /**
@@ -278,10 +284,8 @@ public class Utils {
      * Return an empty string if it's negative to prevent duplicating issue
      */
     public static String getSignSymbol(final double value) {
-        if (value < 0)
-            return "";
-        else
-            return "+";
+        if (value < 0) return "";
+        else return "+";
     }
 
     /**
@@ -296,9 +300,7 @@ public class Utils {
      */
     public static void debug(final String msg) {
         final Player p = Bukkit.getPlayer("Nocsy");
-        if (p != null) {
-            p.sendMessage(msg);
-        }
+        if (p != null) p.sendMessage(msg);
         MCPets.getLog().severe("[DEBUG]: " + msg);
     }
 
@@ -362,37 +364,17 @@ public class Utils {
     }
 
     /**
-     * Translate the string to hex color code
-     */
-    public static String translateHexColorCodes(final String startTag, final String endTag, final String message) {
-        final char COLOR_CHAR = ChatColor.COLOR_CHAR;
-        final Pattern hexPattern = Pattern.compile(startTag + "([A-Fa-f0-9]{6})" + endTag);
-        final Matcher matcher = hexPattern.matcher(message);
-        final StringBuilder buffer = new StringBuilder(message.length() + 4 * 8);
-        while (matcher.find()) {
-            final String group = matcher.group(1);
-            matcher.appendReplacement(buffer, COLOR_CHAR + "x"
-                    + COLOR_CHAR + group.charAt(0) + COLOR_CHAR + group.charAt(1)
-                    + COLOR_CHAR + group.charAt(2) + COLOR_CHAR + group.charAt(3)
-                    + COLOR_CHAR + group.charAt(4) + COLOR_CHAR + group.charAt(5)
-            );
-        }
-        return matcher.appendTail(buffer).toString();
-    }
-
-    /**
      * Check if a string is a numerical expression
      */
     public static boolean isNumeric(final String strNum) {
-        if (strNum == null) {
-            return false;
-        }
+        if (strNum == null) return false;
+
         try {
             final double d = Double.parseDouble(strNum);
-        }
-        catch (final NumberFormatException nfe) {
+        } catch (final NumberFormatException nfe) {
             return false;
         }
+
         return true;
     }
 
@@ -400,12 +382,11 @@ public class Utils {
         if (MCPets.getPlaceholderAPI() == null) {
             return msg;
         }
-        if (uuid == null)
-            uuid = UUID.randomUUID();
+        if (uuid == null) uuid = UUID.randomUUID();
         final Player p = Bukkit.getPlayer(uuid);
-        if (p == null)
+        if (p == null) {
             return PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(uuid), msg);
-
+        }
         return PlaceholderAPI.setPlaceholders(p, msg);
     }
 
@@ -413,4 +394,5 @@ public class Utils {
         final Optional<Skill> optionalSkill = MCPets.getMythicMobs().getSkillManager().getSkill(skillName);
         return optionalSkill.orElse(null);
     }
+
 }
