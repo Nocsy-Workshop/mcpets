@@ -848,7 +848,14 @@ public class Pet {
 
         // Set the owner
         this.owner = owner;
-        activeMob.setOwnerUUID(owner);
+
+        // Set the MythicMob owner with a delay so it will not conflict with ModelEngine
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                activeMob.setOwnerUUID(owner);
+            }
+        }.runTaskLater(MCPets.getInstance(), 1L);
 
         // Follow up the owner ?
         this.followOwner = followOwner;
