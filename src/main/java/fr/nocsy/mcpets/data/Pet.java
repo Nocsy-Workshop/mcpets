@@ -1421,6 +1421,8 @@ public class Pet {
             if (name != null) {
                 name = name.replace("'", " ");
                 name = Utils.convertRawHexToMiniMessage(name);
+                name = Utils.convertSectionHexToMiniMessage(name);
+                name = Utils.convertLegacyToMiniMessage(name);
             }
 
             final AbstractNameTag tag = getNameBone();

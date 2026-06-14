@@ -169,7 +169,7 @@ public class Utils {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
-    private static String convertLegacyToMiniMessage(String input) {
+    public static String convertLegacyToMiniMessage(String input) {
         Matcher matcher = LEGACY_PATTERN.matcher(input);
         StringBuilder result = new StringBuilder();
 
@@ -223,7 +223,7 @@ public class Utils {
         return sb.toString();
     }
 
-    private static String convertSectionHexToMiniMessage(String input) {
+    public static String convertSectionHexToMiniMessage(String input) {
         Matcher matcher = HEX_PATTERN.matcher(input);
 
         StringBuilder result = new StringBuilder();
