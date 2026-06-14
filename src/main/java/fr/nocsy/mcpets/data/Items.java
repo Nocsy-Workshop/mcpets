@@ -113,7 +113,7 @@ public enum Items {
                 Utils.toComponents(
                         Language.MOUNT_ITEM_DESCRIPTION.getMessage()
                 )
-        );;
+        );
 
         it.setItemMeta(meta);
         return it;
