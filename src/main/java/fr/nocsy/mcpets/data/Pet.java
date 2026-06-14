@@ -1420,7 +1420,7 @@ public class Pet {
         if (isStillHere()) {
             if (name != null) {
                 name = name.replace("'", " ");
-                Utils.hex(name);
+                name = Utils.convertRawHexToMiniMessage(name);
             }
 
             final AbstractNameTag tag = getNameBone();
@@ -1574,8 +1574,7 @@ public class Pet {
         if (petStats != null) {
             final ItemMeta meta = it.getItemMeta();
             // Recover the existing lores
-            List<Component> lores = meta.lore();
-            if (lores == null) lores = new ArrayList<>();
+            List<Component> lores = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
             // Add a space
             lores.add(Component.empty());
 

@@ -148,7 +148,6 @@ public class PetInteractionMenuListener implements Listener {
 
             String name = e.getMessage().replace("'", "");
             name = name.replace(";;", ";").replace(";;;", ";");
-            name = Utils.hex(name);
 
             final String blackListedWord = Utils.isInBlackList(name);
             if (blackListedWord != null) {

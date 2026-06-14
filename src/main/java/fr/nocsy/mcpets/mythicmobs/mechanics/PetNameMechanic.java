@@ -24,9 +24,10 @@ public class PetNameMechanic implements ITargetedEntitySkill {
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
         Entity petEntity = BukkitAdapter.adapt(target);
         Pet pet = Pet.getFromEntity(petEntity);
-        if (pet != null) pet.setDisplayName(petName, save);
+        if (pet == null) return SkillResult.CONDITION_FAILED;
+        pet.setDisplayName(petName, save);
 
-        return SkillResult.CONDITION_FAILED;
+        return SkillResult.SUCCESS;
     }
 
 }

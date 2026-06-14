@@ -48,7 +48,6 @@ public class ArgumentName extends AArgument {
             sb.append(args[i]);
         }
         String name = sb.toString().replace("'", "").replace(";;", ";").replace(";;;", ";");
-        name = Utils.hex(name);
 
         String blackListedWord = Utils.isInBlackList(name);
         if (blackListedWord != null) {

@@ -46,6 +46,8 @@ public class Utils {
     private static final Pattern HEX_PATTERN =
             Pattern.compile("(?i)§x§([A-F0-9])§([A-F0-9])§([A-F0-9])§([A-F0-9])§([A-F0-9])§([A-F0-9])");
 
+    private static final Pattern RAW_HEX_PATTERN = Pattern.compile("(?i)(?<![<:#])#([A-F0-9]{6})");
+
     public static ItemStack createHead(final String name, final List<Component> lore, final String base64) {
         final ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         final SkullMeta meta = (SkullMeta) item.getItemMeta();
@@ -208,6 +210,19 @@ public class Utils {
         return result.toString();
     }
 
+    public static String convertRawHexToMiniMessage(String text) {
+        Matcher matcher = RAW_HEX_PATTERN.matcher(text);
+        StringBuilder sb = new StringBuilder();
+
+        while (matcher.find()) {
+            matcher.appendReplacement(sb, "<color:#" + matcher.group(1) + ">");
+        }
+
+        matcher.appendTail(sb);
+
+        return sb.toString();
+    }
+
     private static String convertSectionHexToMiniMessage(String input) {
         Matcher matcher = HEX_PATTERN.matcher(input);
 
@@ -234,22 +249,32 @@ public class Utils {
      * Convert a legacy color-coded string (§ codes) to an Adventure Component
      */
     public static Component toComponent(String text) {
+        if (text == null) return Component.empty();
+
+        text = convertRawHexToMiniMessage(text);
         text = convertSectionHexToMiniMessage(text);
         text = convertLegacyToMiniMessage(text);
 
-        return Component.empty()
-                .decoration(TextDecoration.ITALIC, false)
-                .append(MiniMessage.miniMessage().deserialize(text));
+        try {
+            return MiniMessage.miniMessage().deserialize(text).decoration(TextDecoration.ITALIC, false);
+        } catch (final Exception ex) {
+            return Component.text(text).decoration(TextDecoration.ITALIC, false);
+        }
     }
 
     public static Component toComponentWithPrefix(String text) {
+        if (text == null) return Component.empty();
+
         text = GlobalConfig.getInstance().getPrefix() + text;
+        text = convertRawHexToMiniMessage(text);
         text = convertSectionHexToMiniMessage(text);
         text = convertLegacyToMiniMessage(text);
 
-        return Component.empty()
-                .decoration(TextDecoration.ITALIC, false)
-                .append(MiniMessage.miniMessage().deserialize(text));
+        try {
+            return MiniMessage.miniMessage().deserialize(text).decoration(TextDecoration.ITALIC, false);
+        } catch (final Exception ex) {
+            return Component.text(text).decoration(TextDecoration.ITALIC, false);
+        }
     }
 
     public static List<Component> toComponents(String text) {
