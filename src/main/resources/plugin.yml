@@ -6,7 +6,7 @@ author: Nocsy
 website: 'https://mcpets.gitbook.io/mcpets'
 
 main: fr.nocsy.mcpets.MCPets
-api-version: 1.17
+api-version: 1.21
 database: false
 prefix: '${project.name}'
 depend:
