@@ -1,24 +1,26 @@
 package fr.nocsy.mcpets.data;
 
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.utils.PDCTag;
-import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
+import java.util.*;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.PDCTag;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 
 public class Category {
 
     @Getter
-    private static ArrayList<Category> categories = new ArrayList<>();
+    private static List<Category> categories = new ArrayList<>();
     @Getter
-    private static HashMap<UUID, Category> categoryView = new HashMap<>();
+    private static Map<UUID, Category> categoryView = new HashMap<>();
 
     @Getter
     private final String id;
@@ -34,7 +36,7 @@ public class Category {
     @Getter
     private ItemStack icon;
     @Getter
-    private ArrayList<Pet> pets;
+    private List<Pet> pets;
 
     @Getter
     private int maxPages;
@@ -61,8 +63,7 @@ public class Category {
     }
 
     public boolean openInventory(final Player p, final int page) {
-        if (page >= maxPages || page < 0)
-            return false;
+        if (page >= maxPages || page < 0) return false;
 
         p.closeInventory();
 
@@ -72,17 +73,15 @@ public class Category {
             invSize = pets.size() - page * 53 + 1; //Adding 1 for the page manager
         }
         invSize = Math.min(54, invSize);
-        while(invSize <= 0 || invSize%9 != 0) {
+        while (invSize <= 0 || invSize % 9 != 0) {
             invSize++;
         }
 
         final ArrayList<Pet> showedPets = new ArrayList<>();
-        for (int i = page*(invSize-1); i < pets.size(); i++) {
-            if (showedPets.size() >= invSize-1)
-                break;
+        for (int i = page*(invSize - 1); i < pets.size(); i++) {
+            if (showedPets.size() >= invSize - 1) break;
             final Pet pet = pets.get(i);
-            if (pet.has(p))
-                showedPets.add(pet);
+            if (pet.has(p)) showedPets.add(pet);
         }
 
         if (showedPets.isEmpty() && page > 0)
@@ -91,19 +90,18 @@ public class Category {
         // Adaptive inventory setting
         if (GlobalConfig.getInstance().getAdaptiveInventory() <= 0) {
             invSize = showedPets.size();
-            if (maxPages > 1)
+            if (maxPages > 1) invSize++;
+            while (invSize <= 0 || invSize % 9 != 0) {
                 invSize++;
-            while(invSize <= 0 || invSize % 9 != 0)
-                invSize++;
+            }
         }
 
         final Inventory inventory = new PetInventoryHolder(invSize, displayName, PetInventoryHolder.Type.CATEGORY_MENU).getInventory();
 
-        if (maxPages > 1)
-            inventory.setItem(invSize-1, Items.page(this, page));
+        if (maxPages > 1) inventory.setItem(invSize - 1, Items.page(this, page));
         for (int i = 0; i < showedPets.size(); i++) {
             final Pet pet = showedPets.get(i);
-            inventory.setItem(i,  pet.buildItem(pet.getIcon(), true, null, null, null, null, 0, null, null));
+            inventory.setItem(i, pet.buildItem(pet.getIcon(), true));
         }
         p.openInventory(inventory);
         Category.registerPlayerView(p, this);
@@ -111,25 +109,23 @@ public class Category {
     }
 
     public void addPet(final Pet pet) {
-        if (!pets.contains(pet))
-            pets.add(pet);
+        if (!pets.contains(pet)) pets.add(pet);
     }
 
     public void countMaxPages() {
-        this.maxPages = 1;
+        maxPages = 1;
         int count = pets.size();
         int invSize = GlobalConfig.getInstance().getAdaptiveInventory();
         if (invSize > 0) {
-            while (invSize <= 0 || invSize % 9 != 0)
+            while (invSize <= 0 || invSize % 9 != 0) {
                 invSize++;
+            }
             invSize--;
-        }
-        else {
+        } else {
             invSize = 53;
         }
         while (count > 0) {
-            if (count%invSize == 0)
-                maxPages++;
+            if (count % invSize == 0) maxPages++;
             count--;
         }
     }
@@ -143,7 +139,7 @@ public class Category {
     private void setupData() {
         final ItemMeta meta = icon.getItemMeta();
         PDCTag.set(meta, "MCPetsCategory;" + this.getId());
-        meta.setDisplayName(iconName);
+        meta.displayName(Utils.toComponent(iconName));
 
         icon.setItemMeta(meta);
     }
@@ -153,10 +149,9 @@ public class Category {
      * -1 if no category is found
      */
     public int getCurrentPage(final Inventory inventory) {
-        if (inventory == null)
-            return -1;
+        if (inventory == null) return -1;
 
-        final ItemStack pager = inventory.getItem(inventory.getSize()-1);
+        final ItemStack pager = inventory.getItem(inventory.getSize() - 1);
         if (pager != null
                 && !pager.getType().isAir()
                 && pager.hasItemMeta())
@@ -164,12 +159,10 @@ public class Category {
             String tagVal = PDCTag.get(pager.getItemMeta());
             if (tagVal == null) return -1;
             final String[] data = tagVal.split(";");
-            if (data.length != 3)
-                return -1;
+            if (data.length != 3) return -1;
 
             final String tag = data[0];
-            if (!tag.equalsIgnoreCase("MCPetsPage"))
-                return -1;
+            if (!tag.equalsIgnoreCase("MCPetsPage")) return -1;
 
             final String page = data[2];
             return Integer.parseInt(page);
@@ -196,8 +189,8 @@ public class Category {
      * @param type the category type to filter by
      * @return list of categories matching the type
      */
-    public static ArrayList<Category> getCategories(CategoryType type) {
-        ArrayList<Category> filtered = new ArrayList<>();
+    public static List<Category> getCategories(CategoryType type) {
+        List<Category> filtered = new ArrayList<>();
         for (Category cat : categories) {
             if (cat.getCategoryType() == type) {
                 filtered.add(cat);
@@ -237,8 +230,7 @@ public class Category {
      * null if none is found
      */
     public static Category getFromInventory(final Inventory inventory) {
-        if (inventory == null)
-            return null;
+        if (inventory == null) return null;
 
         final ItemStack pager = inventory.getItem(inventory.getSize()-1);
         if (pager != null
@@ -247,12 +239,10 @@ public class Category {
             String tagVal = PDCTag.get(pager.getItemMeta());
             if (tagVal == null) return null;
             final String[] data = tagVal.split(";");
-            if (data.length != 3)
-                return null;
+            if (data.length != 3) return null;
 
             final String tag = data[0];
-            if (!tag.equalsIgnoreCase("MCPetsPage"))
-                return null;
+            if (!tag.equalsIgnoreCase("MCPetsPage")) return null;
 
             final String categoryId = data[1];
             final String page = data[2];
@@ -261,4 +251,5 @@ public class Category {
         }
         return null;
     }
+
 }

@@ -55,7 +55,7 @@ public class ArgumentMenu extends AArgument {
             pet = activePets.getFirst();
         } else {
             final String petIds = activePets.stream().map(Pet::getId).collect(Collectors.joining(", "));
-            Language.SPECIFY_PET.sendMessageFormated(p, new FormatArg("%pets%", petIds));
+            Language.SPECIFY_PET.sendMessageFormatted(p, new FormatArg("%pets%", petIds));
             return;
         }
 
@@ -83,7 +83,7 @@ public class ArgumentMenu extends AArgument {
             inventory.setItem(2, Items.SKINS.getItem());
         if (GlobalConfig.getInstance().isNameable())
             inventory.setItem(3, Items.RENAME.getItem());
-        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true, null, null, null, null, 0, null, null));
+        inventory.setItem(4, pet.buildItem(Items.petInfo(pet), true));
 
         p.openInventory(inventory);
     }

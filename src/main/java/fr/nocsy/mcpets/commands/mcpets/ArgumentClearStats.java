@@ -41,7 +41,7 @@ public class ArgumentClearStats extends AArgument {
                 Pet pet = Pet.getFromId(petId);
                 if (pet != null) {
                     PetStats.remove(petId);
-                    Language.STATS_CLEARED_FOR_PET.sendMessageFormated(sender, new FormatArg("%petId%", petId));
+                    Language.STATS_CLEARED_FOR_PET.sendMessageFormatted(sender, new FormatArg("%petId%", petId));
                     PlayerData.saveDB();
                     return;
                 }
@@ -61,7 +61,7 @@ public class ArgumentClearStats extends AArgument {
                 if (player != null || !player.hasPlayedBefore()) {
                     PlayerData pd = PlayerData.get(player.getUniqueId()); // Start by loading the player data
                     PetStats.remove(petId, player.getUniqueId());
-                    Language.STATS_CLEARED_FOR_PET_FOR_PLAYER.sendMessageFormated(sender, new FormatArg("%petId%", petId),
+                    Language.STATS_CLEARED_FOR_PET_FOR_PLAYER.sendMessageFormatted(sender, new FormatArg("%petId%", petId),
                             new FormatArg("%player%", playerName));
                     pd.save();
                     return;

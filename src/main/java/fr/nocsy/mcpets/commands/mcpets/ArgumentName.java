@@ -1,16 +1,16 @@
 package fr.nocsy.mcpets.commands.mcpets;
 
+import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.PPermission;
 import fr.nocsy.mcpets.commands.AArgument;
-import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.listeners.PetInteractionMenuListener;
-import fr.nocsy.mcpets.utils.Utils;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class ArgumentName extends AArgument {
 
@@ -34,7 +34,7 @@ public class ArgumentName extends AArgument {
             return;
         }
 
-        // No name provided: prompt in chat (original behaviour)
+        // No name provided: prompt in chat (original behavior)
         if (args.length == 1) {
             pet.setLastInteractedWith(p);
             PetInteractionMenuListener.changeName(p);
@@ -48,23 +48,21 @@ public class ArgumentName extends AArgument {
             sb.append(args[i]);
         }
         String name = sb.toString().replace("'", "").replace(";;", ";").replace(";;;", ";");
-        name = Utils.hex(name);
 
         String blackListedWord = Utils.isInBlackList(name);
         if (blackListedWord != null) {
-            Language.BLACKLISTED_WORD.sendMessageFormated(p, new FormatArg("%word%", blackListedWord));
+            Language.BLACKLISTED_WORD.sendMessageFormatted(p, new FormatArg("%word%", blackListedWord));
             return;
         }
 
-        if (!p.hasPermission(PPermission.COLOR.getPermission()))
-            name = ChatColor.stripColor(name);
+        boolean stripColor = !p.hasPermission(PPermission.COLOR.getPermission());
 
         if (name.isEmpty()) {
             Language.NICKNAME_NOT_CHANGED.sendMessage(p);
             return;
         }
 
-        pet.setDisplayName(name, true);
+        pet.setDisplayName(name, true, stripColor);
         Language.NICKNAME_CHANGED_SUCCESSFULY.sendMessage(p);
     }
 

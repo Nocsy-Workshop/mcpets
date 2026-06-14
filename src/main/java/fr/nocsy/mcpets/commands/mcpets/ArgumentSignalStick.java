@@ -44,7 +44,7 @@ public class ArgumentSignalStick extends AArgument {
             final String playerName = args[1];
             final Player player = Bukkit.getPlayer(playerName);
             if (player == null) {
-                Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
+                Language.PLAYER_NOT_CONNECTED.sendMessageFormatted(sender, new FormatArg("%player%", playerName));
                 return;
             }
 

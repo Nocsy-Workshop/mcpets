@@ -5,7 +5,6 @@ import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PlayerSignal;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.utils.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -46,7 +45,7 @@ public class SignalStickListener implements Listener {
                 return;
 
             PlayerSignal.setSignal(owner, nextSignal);
-            Utils.sendActionBar(p, Utils.hex(Language.SIGNAL_STICK_SIGNAL.getMessageFormatted(new FormatArg("%signal%", nextSignal.toLowerCase().replace("_", " ")))));
+            p.sendActionBar(Language.SIGNAL_STICK_SIGNAL.getComponentFormatted(new FormatArg("%signal%", nextSignal.toLowerCase().replace("_", " "))));
         }
     }
 
@@ -172,4 +171,5 @@ public class SignalStickListener implements Listener {
             e.setCancelled(true);
         }
     }
+
 }

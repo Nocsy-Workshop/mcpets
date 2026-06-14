@@ -1,58 +1,55 @@
 package fr.nocsy.mcpets.data;
 
-import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.PPermission;
-import fr.nocsy.mcpets.utils.PDCTag;
-import fr.nocsy.mcpets.data.config.FormatArg;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.livingpets.PetLevel;
-import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.data.sql.Databases;
-import fr.nocsy.mcpets.data.sql.PlayerData;
-import fr.nocsy.mcpets.events.EntityMountPetEvent;
-import fr.nocsy.mcpets.events.PetCastSkillEvent;
-import fr.nocsy.mcpets.events.PetDespawnEvent;
-import fr.nocsy.mcpets.events.PetSpawnEvent;
-import fr.nocsy.mcpets.events.PetSpawnedEvent;
-import fr.nocsy.mcpets.events.PetTamingEvent;
-import fr.nocsy.mcpets.modeler.bone.AbstractNameTag;
-import fr.nocsy.mcpets.utils.PathFindingUtils;
-import fr.nocsy.mcpets.utils.Utils;
-import fr.nocsy.mcpets.utils.debug.Debugger;
-import io.lumine.mythic.api.adapters.AbstractLocation;
-import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
-import io.lumine.mythic.api.skills.Skill;
-import io.lumine.mythic.bukkit.BukkitAdapter;
-import io.lumine.mythic.core.mobs.ActiveMob;
-import io.lumine.mythic.core.skills.SkillMetadataImpl;
-import io.lumine.mythic.core.skills.SkillTriggers;
+import java.util.*;
+import java.util.logging.Level;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityMountEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import net.kyori.adventure.text.Component;
+
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Level;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.event.entity.EntityMountEvent;
+
+import io.lumine.mythic.api.skills.Skill;
+import io.lumine.mythic.core.mobs.ActiveMob;
+import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.core.skills.SkillTriggers;
+import io.lumine.mythic.core.skills.SkillMetadataImpl;
+import io.lumine.mythic.api.adapters.AbstractLocation;
+import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
+
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.utils.PDCTag;
+import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.utils.debug.Debugger;
+import fr.nocsy.mcpets.events.PetSpawnEvent;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.events.PetTamingEvent;
+import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.utils.PathFindingUtils;
+import fr.nocsy.mcpets.events.PetDespawnEvent;
+import fr.nocsy.mcpets.events.PetSpawnedEvent;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.livingpets.PetLevel;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.events.PetCastSkillEvent;
+import fr.nocsy.mcpets.events.EntityMountPetEvent;
+import fr.nocsy.mcpets.modeler.bone.AbstractNameTag;
 
 public class Pet {
 
@@ -73,11 +70,11 @@ public class Pet {
     //********** Static values **********
 
     @Getter
-    private static HashMap<UUID, List<Pet>> activePets = new HashMap<>();
+    private static Map<UUID, List<Pet>> activePets = new HashMap<>();
     @Getter
-    private static ArrayList<Pet> objectPets = new ArrayList<Pet>();
+    private static List<Pet> objectPets = new ArrayList<>();
     @Getter
-    private static HashMap<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
+    private static Map<UUID, HashMap<String, PetSkin>> activeSkinsMap = new HashMap<>();
 
     // Prevent race conditions during spawn
     private static Set<String> spawningPets = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -828,7 +825,7 @@ public class Pet {
                     Language.OWNER_NOT_FOUND.sendMessage(p);
                     break;
                 case Pet.MAX_ACTIVE_PETS_REACHED:
-                    Language.MAX_ACTIVE_PETS_REACHED.sendMessageFormated(p,
+                    Language.MAX_ACTIVE_PETS_REACHED.sendMessageFormatted(p,
                             new FormatArg("%max%", String.valueOf(GlobalConfig.getInstance().getMaxActivePets())));
                     break;
             }
@@ -851,7 +848,14 @@ public class Pet {
 
         // Set the owner
         this.owner = owner;
-        activeMob.setOwnerUUID(owner);
+
+        // Set the MythicMob owner with a delay so it will not conflict with ModelEngine
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                activeMob.setOwnerUUID(owner);
+            }
+        }.runTaskLater(MCPets.getInstance(), 1L);
 
         // Follow up the owner ?
         this.followOwner = followOwner;
@@ -1236,38 +1240,54 @@ public class Pet {
      * Set the display name of the pet
      */
     public void setDisplayName(String name, final boolean save) {
+        setDisplayName(name, save, false);
+    }
+
+    public void setDisplayName(String name, final boolean save, final boolean stripColor) {
 
         boolean isDefaultName = false;
-        if (name == null)
-            name = Language.TAG_TO_REMOVE_NAME.getMessage();
+        if (name == null) name = Language.TAG_TO_REMOVE_NAME.getMessage();
 
-        if (name.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage()) && !GlobalConfig.getInstance().isOverrideDefaultName()) {
+        if (stripColor) name = Utils.stripColors(name);
+
+        if (Utils.stripColors(name).equalsIgnoreCase(Utils.stripColors(Language.TAG_TO_REMOVE_NAME.getMessage()))
+                && !GlobalConfig.getInstance().isOverrideDefaultName()) {
             isDefaultName = true;
             boolean useMM = useDefaultMythicMobNames != null ? useDefaultMythicMobNames : GlobalConfig.getInstance().isUseDefaultMythicMobNames();
-            if (useMM)
-                name = activeMob.getDisplayName();
-            else
+            if (useMM) name = activeMob.getDisplayName();
+            else {
                 name = GlobalConfig.getInstance().getDefaultName()
                         .replace("%player%", Optional.ofNullable(Bukkit.getOfflinePlayer(owner).getName()).orElse("Unknown"))
                         .replace("%pet_id%", id)
                         .replace("%pet_name%", icon.getItemMeta().getDisplayName());
+            }
         }
 
         try {
-            if (name != null && ChatColor.stripColor(name).length() > GlobalConfig.instance.getMaxNameLength()) {
-                setDisplayName(name.substring(0, GlobalConfig.instance.getMaxNameLength()), save);
-                return;
+            if (name != null) {
+                int maxLength = GlobalConfig.instance.getMaxNameLength();
+
+                String plainName = Utils.stripColors(name);
+
+                if (plainName.length() > maxLength) {
+                    plainName = plainName.substring(0, maxLength);
+
+                    setDisplayName(plainName, save, true);
+                    return;
+                }
             }
-            if (name != null)
-                name = name.replace("'", " ");
+
+            if (name != null) name = name.replace("'", " ");
 
             currentName = name;
             if (isStillHere()) {
                 if (currentName == null || currentName.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
-                    activeMob.getEntity().getBukkitEntity().setCustomName(GlobalConfig.getInstance().getDefaultName()
+                    Component customName = Utils.toComponent(GlobalConfig.getInstance().getDefaultName()
                             .replace("%player%", Optional.ofNullable(Bukkit.getOfflinePlayer(owner).getName()).orElse("Unknown"))
                             .replace("%pet_id%", id)
                             .replace("%pet_name%", icon.getItemMeta().getDisplayName()));
+
+                    activeMob.getEntity().getBukkitEntity().customName(customName);
 
                     new BukkitRunnable() {
 
@@ -1286,7 +1306,7 @@ public class Pet {
                     return;
                 }
 
-                activeMob.getEntity().getBukkitEntity().setCustomName(currentName);
+                activeMob.getEntity().getBukkitEntity().customName(Utils.toComponent(currentName));
 
                 new BukkitRunnable() {
                     @Override
@@ -1298,8 +1318,7 @@ public class Pet {
                 Debugger.send("§7Applying name " + name + " to pet " + id);
                 if (save) {
                     String savedName = currentName;
-                    if (isDefaultName)
-                        savedName = Language.TAG_TO_REMOVE_NAME.getMessage();
+                    if (isDefaultName) savedName = Language.TAG_TO_REMOVE_NAME.getMessage();
                     final PlayerData pd = PlayerData.get(owner);
                     pd.getMapOfRegisteredNames().put(getId(), savedName);
                     pd.save();
@@ -1335,8 +1354,7 @@ public class Pet {
         pet.setIcon(icon);
         pet.setSignalStick(signalStick);
         pet.setOwner(owner);
-        if (activeMob != null)
-            pet.setActiveMob(activeMob);
+        if (activeMob != null) pet.setActiveMob(activeMob);
         pet.setSignals(signals);
         pet.setEnableSignalStickFromMenu(enableSignalStickFromMenu);
         return pet;
@@ -1346,8 +1364,7 @@ public class Pet {
      * Set the specified entity riding on the pet
      */
     public boolean setMount(final Entity ent) {
-        if (ent == null)
-            return false;
+        if (ent == null) return false;
 
         final EntityMountPetEvent event = new EntityMountPetEvent(ent, this);
         final EntityMountEvent vanillaMountEvent = new EntityMountEvent(ent, activeMob.getEntity().getBukkitEntity());
@@ -1355,8 +1372,7 @@ public class Pet {
         Utils.callEvent(event);
 
         // We still return true as it's a normal situation, not linked to mounting point issue
-        if (event.isCancelled() || vanillaMountEvent.isCancelled())
-            return true;
+        if (event.isCancelled() || vanillaMountEvent.isCancelled()) return true;
 
         if (isStillHere()) {
             final UUID petUUID = activeMob.getEntity().getUniqueId();
@@ -1366,7 +1382,7 @@ public class Pet {
                     return false;
                 }
             } catch (final IllegalStateException ex) {
-                Language.ALREADY_MOUNTING.sendMessageFormated(ent);
+                Language.ALREADY_MOUNTING.sendMessageFormatted(ent);
             }
             return true;
         }
@@ -1388,8 +1404,7 @@ public class Pet {
      * Unset the specified entity riding on the pet
      */
     public void dismount(final Entity ent) {
-        if (ent == null)
-            return;
+        if (ent == null) return;
 
         if (isStillHere()) {
             final UUID localUUID = activeMob.getEntity().getUniqueId();
@@ -1405,12 +1420,11 @@ public class Pet {
         if (isStillHere()) {
             if (name != null) {
                 name = name.replace("'", " ");
-                Utils.hex(name);
+                name = Utils.convertRawHexToMiniMessage(name);
             }
 
             final AbstractNameTag tag = getNameBone();
-            if (tag == null)
-                return;
+            if (tag == null) return;
             tag.setString(name);
             tag.setVisible(visible);
         }
@@ -1433,41 +1447,36 @@ public class Pet {
      * Does nothing if the signal stick feature is disabled globally or per-pet configuration.
      */
     public void giveStickSignals(final Player p) {
-        if (getOwner() == null || getSignalStick() == null)
-            return;
+        if (getOwner() == null || getSignalStick() == null) return;
 
-        if (p == null)
-            return;
+        if (p == null) return;
 
         // Respect per-pet configuration flag
-        if (!enableSignalStickFromMenu)
-            return;
+        if (!enableSignalStickFromMenu) return;
 
         clearStickSignals(p, this.id);
 
-        if (!p.getInventory().contains(signalStick))
-            p.getInventory().addItem(signalStick);
+        if (!p.getInventory().contains(signalStick)) p.getInventory().addItem(signalStick);
     }
 
     /**
      * Get the pet to cast a skill by sending it a signal
      */
     public boolean sendSignal(final String signal) {
-        if (signal == null || signal.isEmpty())
-            return false;
+        if (signal == null || signal.isEmpty()) return false;
 
         final PetCastSkillEvent event = new PetCastSkillEvent(this, signal);
         Utils.callEvent(event);
 
-        if (event.isCancelled())
-            return false;
+        if (event.isCancelled()) return false;
 
         if (this.isStillHere()) {
             final ActiveMob mob = this.getActiveMob();
             try {
                 String evolutionId = null;
-                if (petStats != null && petStats.getNextLevel() != null)
+                if (petStats != null && petStats.getNextLevel() != null) {
                     evolutionId = petStats.getNextLevel().getEvolutionId();
+                }
 
                 if (evolutionId != null) {
                     // Iterate through all active pets
@@ -1501,18 +1510,18 @@ public class Pet {
      * Setup the item with requirements
      * Show stats to make the item show the pet stats if it has some
      */
-    public ItemStack buildItem(ItemStack item, final boolean showStats, final String localizedName, String iconName, final List<String> description, final String materialType, final int customModelData, final String textureBase64, final String itemModel) {
+    public ItemStack buildItem(ItemStack item, final boolean showStats, final String localizedName, String iconName, final List<String> description, final String materialType, final int customModelData, final String textureBase64, final String itemModel, final String tooltipStyle) {
         final Material mat = materialType != null ? Material.getMaterial(materialType) : null;
-        if (iconName == null)
-            iconName = "§cUndefined";
-        iconName = Utils.translateHexColorCodes("#", "", iconName);
+        if (iconName == null) iconName = "§cUndefined";
         iconName = Utils.applyPlaceholders(owner, iconName);
-        final ArrayList<String> desc = new ArrayList<>();
+
+        final List<Component> desc = new ArrayList<>();
         if (description != null) {
             for (final String s : description) {
-                desc.add(Utils.applyPlaceholders(owner, Utils.translateHexColorCodes("#", "", s)));
+                desc.add(Utils.toComponent(Utils.applyPlaceholders(owner, s)));
             }
         }
+
         if (mat == null && textureBase64 != null) {
             item = Utils.createHead(iconName, desc, textureBase64);
             final ItemMeta meta = item.getItemMeta();
@@ -1531,8 +1540,16 @@ public class Pet {
                     // setItemModel not available on this server version
                 }
             }
-            meta.setDisplayName(iconName);
-            meta.setLore(desc);
+            if (tooltipStyle != null && !tooltipStyle.isEmpty()) {
+                try {
+                    java.lang.reflect.Method setTooltipStyle = meta.getClass().getMethod("setTooltipStyle", NamespacedKey.class);
+                    setTooltipStyle.invoke(meta, NamespacedKey.fromString(tooltipStyle));
+                } catch (final Exception ignored) {
+                    // setTooltipStyle not available on this server version
+                }
+            }
+            meta.displayName(Utils.toComponent(iconName));
+            meta.lore(desc);
             item.setItemMeta(meta);
         } else if (item == null) {
             item = Utils.createHead(iconName, desc, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQ5Y2M1OGFkMjVhMWFiMTZkMzZiYjVkNmQ0OTNjOGY1ODk4YzJiZjMwMmI2NGUzMjU5MjFjNDFjMzU4NjcifX19");
@@ -1541,24 +1558,25 @@ public class Pet {
             item.setItemMeta(meta);
         }
 
-        if (showStats)
-            return applyStats(item);
+        if (showStats) return applyStats(item);
 
         return item;
+    }
+
+    public ItemStack buildItem(ItemStack item, final boolean showStats) {
+        return buildItem(item, showStats, null, null, null, null, 0, null, null, null);
     }
 
     public ItemStack applyStats(final ItemStack item) {
         // If we show the stats then we should not modify the actual item, but just its instance in that function
         final ItemStack it = item.clone();
-        // Handles the statistics being showed on the icon
+        // Handles the statistics being shown on the icon
         if (petStats != null) {
             final ItemMeta meta = it.getItemMeta();
             // Recover the existing lores
-            ArrayList<String> lores = (ArrayList<String>) meta.getLore();
-            if (lores == null)
-                lores = new ArrayList<>();
+            List<Component> lores = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
             // Add a space
-            lores.add(" ");
+            lores.add(Component.empty());
 
             // Implement the progress bar
             final StringBuilder progressBar = new StringBuilder();
@@ -1575,39 +1593,39 @@ public class Pet {
 
                     for (int i = 0; i < progressBarSize; i++) {
                         if (i < indexProgress)
-                            progressBar.append(GlobalConfig.getInstance().getExperienceColorDone() +
-                                    GlobalConfig.getInstance().getExperienceSymbol() +
-                                    GlobalConfig.getInstance().getExperienceColorLeft());
+                            progressBar.append(GlobalConfig.getInstance().getExperienceColorDone())
+                                    .append(GlobalConfig.getInstance().getExperienceSymbol())
+                                    .append(GlobalConfig.getInstance().getExperienceColorLeft());
                         else
-                            progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft() +
-                                    GlobalConfig.getInstance().getExperienceSymbol() +
-                                    GlobalConfig.getInstance().getExperienceColorLeft());
+                            progressBar.append(GlobalConfig.getInstance().getExperienceColorLeft())
+                                    .append(GlobalConfig.getInstance().getExperienceSymbol())
+                                    .append(GlobalConfig.getInstance().getExperienceColorLeft());
                     }
                 }
-                if (nextLevel.getEvolutionId() != null &&
-                        !nextLevel.canEvolve(owner, Pet.getFromId(nextLevel.getEvolutionId()))) {
+                if (nextLevel.getEvolutionId() != null
+                        && !nextLevel.canEvolve(owner, Pet.getFromId(nextLevel.getEvolutionId()))) {
                     progressBar.append('\n').append(Language.PET_STATS_EVOLUTION_ALREADY_OWNED.getMessage());
                 }
             }
 
             // Get the positive or negative sign symbol of the bonus
-            final String signSymbol_damageModifer = Utils.getSignSymbol(petStats.getDamageModifier() - 1);
-            final String signSymbol_resistanceModifer = Utils.getSignSymbol(petStats.getResistanceModifier() - 1);
+            final String signSymbol_damageModifier = Utils.getSignSymbol(petStats.getDamageModifier() - 1);
+            final String signSymbol_resistanceModifier = Utils.getSignSymbol(petStats.getResistanceModifier() - 1);
             final String signSymbol_power = Utils.getSignSymbol(petStats.getPower() - 1);
 
             String currentHealthStr = Integer.toString((int) petStats.getCurrentHealth());
-            if (petStats.getCurrentHealth() == 0 &&
-                    petStats.getRespawnTimer() != null && !petStats.getRespawnTimer().isRunning())
+            if (petStats.getCurrentHealth() == 0
+                    && petStats.getRespawnTimer() != null && !petStats.getRespawnTimer().isRunning())
                 currentHealthStr = Integer.toString((int) petStats.getRespawnHealth());
 
             // Handles the status of the pet
             String status = Language.PET_STATUS_ALIVE.getMessage();
             if (petStats.isRespawnTimerRunning()) {
                 status = Language.PET_STATUS_DEAD.getMessageFormatted(new FormatArg("%timeleft%",
-                        Integer.toString((int) petStats.getRespawnTimer().getRemainingTime())));
+                        Integer.toString(petStats.getRespawnTimer().getRemainingTime())));
             } else if (petStats.isRevokeTimerRunning())
                 status = Language.PET_STATUS_REVOKED.getMessageFormatted(new FormatArg("%timeleft%",
-                        Integer.toString((int) petStats.getRevokeTimer().getRemainingTime())));
+                        Integer.toString(petStats.getRevokeTimer().getRemainingTime())));
 
             final String statsLore = Language.PET_STATS.getMessageFormatted(
                     new FormatArg("%status%", status),
@@ -1615,17 +1633,18 @@ public class Pet {
                     new FormatArg("%health%", currentHealthStr),
                     new FormatArg("%maxhealth%", Integer.toString((int) petStats.getCurrentLevel().getMaxHealth())),
                     new FormatArg("%regeneration%", Double.toString(petStats.getCurrentLevel().getRegeneration())),
-                    new FormatArg("%damagemodifier%", signSymbol_damageModifer + (int) (100 * (petStats.getDamageModifier() - 1))),
-                    new FormatArg("%resistancemodifier%", signSymbol_resistanceModifer + (int) (100 * (petStats.getResistanceModifier() - 1))),
+                    new FormatArg("%damagemodifier%", signSymbol_damageModifier + (int) (100 * (petStats.getDamageModifier() - 1))),
+                    new FormatArg("%resistancemodifier%", signSymbol_resistanceModifier + (int) (100 * (petStats.getResistanceModifier() - 1))),
                     new FormatArg("%power%", signSymbol_power + (int) (100 * (petStats.getPower() - 1))),
                     new FormatArg("%experience%", Integer.toString((int) petStats.getExperience())),
                     new FormatArg("%threshold%", Integer.toString((int) petStats.getNextLevel().getExpThreshold())),
                     new FormatArg("%progressbar%", progressBar.toString()));
 
             // add the formatted statistics
-            lores.addAll(Arrays.asList(statsLore.split("\n")));
+            lores.addAll(Utils.toComponents(statsLore));
 
-            meta.setLore(lores);
+            meta.lore(lores);
+
             it.setItemMeta(meta);
         }
         return it;
@@ -1646,13 +1665,12 @@ public class Pet {
         setPetStats();
 
         int inventorySize = 0;
-        if (petStats == null)
-            inventorySize = defaultInventorySize;
-        else
-            inventorySize = petStats.getExtendedInventorySize();
+        if (petStats == null) inventorySize = defaultInventorySize;
+        else inventorySize = petStats.getExtendedInventorySize();
 
-        while (inventorySize % 9 != 0)
+        while (inventorySize % 9 != 0) {
             inventorySize++;
+        }
 
         return Math.min(54, inventorySize);
     }

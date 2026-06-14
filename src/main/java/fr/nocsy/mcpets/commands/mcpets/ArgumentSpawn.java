@@ -29,7 +29,7 @@ public class ArgumentSpawn extends AArgument {
 
         Player target = Bukkit.getPlayer(playerName);
         if (target == null) {
-            Language.PLAYER_NOT_CONNECTED.sendMessageFormated(sender, new FormatArg("%player%", playerName));
+            Language.PLAYER_NOT_CONNECTED.sendMessageFormatted(sender, new FormatArg("%player%", playerName));
             return;
         }
 

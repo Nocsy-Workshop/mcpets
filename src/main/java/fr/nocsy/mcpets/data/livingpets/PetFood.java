@@ -15,7 +15,6 @@ import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.utils.debug.Debugger;
 import lombok.Getter;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -226,7 +225,7 @@ public class PetFood {
         int foodCooldown = getRemainingCooldownInSeconds(pet);
         if (foodCooldown > 0) {
             Debugger.send("§7NOT applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 because it's on cooldown for " + foodCooldown + "s more");
-            Language.PET_FOOD_ON_COOLDOWN.sendMessageFormated(p, new FormatArg("%timeleft%", foodCooldown));
+            Language.PET_FOOD_ON_COOLDOWN.sendMessageFormatted(p, new FormatArg("%timeleft%", foodCooldown));
             return false;
         }
 
@@ -291,12 +290,12 @@ public class PetFood {
                 }
                 else if (p.hasPermission(unlockedPetObject.getPermission())) {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but they already own the pet.");
-                    Language.PETUNLOCKED_ALREADY.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
+                    Language.PETUNLOCKED_ALREADY.sendMessageFormatted(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
                     return false;
                 }
 
                 Utils.givePermission(p.getUniqueId(), unlockedPetObject.getPermission());
-                Language.PETUNLOCKED.sendMessageFormated(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
+                Language.PETUNLOCKED.sendMessageFormatted(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
                 triggered = true;
             }
         }

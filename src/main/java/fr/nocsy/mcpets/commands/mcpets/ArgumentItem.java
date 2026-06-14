@@ -43,10 +43,10 @@ public class ArgumentItem extends AArgument {
             String key = args[1];
             if (ItemsListConfig.getInstance().getItemStack(key) != null) {
                 ItemsListConfig.getInstance().setItemStack(key, item);
-                Language.ITEM_UPDATED.sendMessageFormated(p, new FormatArg("%key%", key));
+                Language.ITEM_UPDATED.sendMessageFormatted(p, new FormatArg("%key%", key));
             }
             else {
-                Language.ITEM_DOESNT_EXIST.sendMessageFormated(p, new FormatArg("%key%", key));
+                Language.ITEM_DOESNT_EXIST.sendMessageFormatted(p, new FormatArg("%key%", key));
             }
         }
         else if (args.length == 3) {
