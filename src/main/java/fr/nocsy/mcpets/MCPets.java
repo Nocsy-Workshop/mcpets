@@ -42,7 +42,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static fr.nocsy.mcpets.mythicmobs.MythicListener.PLACEHOLDER_PACKAGE;
+import static fr.nocsy.mcpets.mythicmobs.MythicListener.*;
 
 public class MCPets extends JavaPlugin {
 
@@ -156,7 +156,10 @@ public class MCPets extends JavaPlugin {
 
         // Register the placeholders
         componentRegistry = new CustomComponentRegistry(instance, Lists.newArrayList());
-        componentRegistry.registerCustomComponent(CustomComponentRegistry.MythicComponentType.PLACEHOLDER, PLACEHOLDER_PACKAGE);
+        componentRegistry.registerCustomComponent(CustomComponentRegistry.MythicComponentType.PLACEHOLDER, PLACEHOLDER_PACKAGE)
+                .registerCustomComponent(CustomComponentRegistry.MythicComponentType.CONDITION, CONDITION_PACKAGE)
+                .registerCustomComponent(CustomComponentRegistry.MythicComponentType.TARGETER, TARGETER_PACKAGE)
+                .registerCustomComponent(CustomComponentRegistry.MythicComponentType.MECHANIC, MECHANIC_PACKAGE);
 
         getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
         getLog().info("      Plugin made by Nocsy     ");
