@@ -1,51 +1,74 @@
 package fr.nocsy.mcpets.mythicmobs.mechanics;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.data.PetDespawnReason;
+
+import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.api.skills.SkillResult;
+import io.lumine.mythic.api.skills.SkillMetadata;
+import io.lumine.mythic.core.skills.SkillMechanic;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
-import io.lumine.mythic.api.skills.SkillMetadata;
-import io.lumine.mythic.api.skills.SkillResult;
-import io.lumine.mythic.bukkit.BukkitAdapter;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+import io.lumine.mythic.core.utils.annotations.MythicMechanic;
+import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
 
-public class SetPetMechanic implements ITargetedEntitySkill {
+@MythicMechanic(
+        name = "setPet"
+)
+public class SetPetMechanic extends SkillMechanic implements ITargetedEntitySkill {
 
-    private String petId;
-    private boolean followOwner = true;
-    private boolean mustHavePermission;
+    private final String petId;
+    private final boolean followOwner;
+    private final boolean mustHavePermission;
 
-    public SetPetMechanic(MythicLineConfig config) {
-        this.petId = config.getString(new String[]{"id"}, this.petId);
-        this.followOwner = config.getBoolean(new String[]{"followOwner", "fo"}, this.followOwner);
-        this.mustHavePermission =  config.getBoolean(new String[]{"mustHavePermission","permCheck"}, this.mustHavePermission);
+    public SetPetMechanic(MythicMechanicLoadEvent event) {
+        super(event.getContainer().getManager(), event.getContainer().getFile());
+
+        MythicLineConfig config = event.getConfig();
+
+        petId = config.getString(new String[]{"id"}, "");
+        followOwner = config.getBoolean(new String[]{"followOwner", "fo"}, true);
+        mustHavePermission = config.getBoolean(new String[]{"mustHavePermission", "permCheck"}, false);
     }
 
+    @Override
     public SkillResult castAtEntity(SkillMetadata data, AbstractEntity target) {
-        Entity player = BukkitAdapter.adapt(target);
-
-        if (player instanceof Player) {
-            Pet pet = Pet.getFromId(petId);
-            if (pet == null)
-                return SkillResult.CONDITION_FAILED;
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    MCPets.getMythicMobs().getMobManager().getActiveMob(data.getCaster().getEntity().getUniqueId())
-                            .ifPresent(activeMob -> pet.changeActiveMobTo(
-                                    activeMob,
-                                    ((Player)player).getUniqueId(),
-                                    followOwner,
-                                    PetDespawnReason.SETPET_REPLACED));
-                }
-            }.runTaskLater(MCPets.getInstance(), 1L);
-            return SkillResult.SUCCESS;
+        Entity entity = BukkitAdapter.adapt(target);
+        if (!(entity instanceof Player player)) {
+            return SkillResult.CONDITION_FAILED;
         }
-        return SkillResult.CONDITION_FAILED;
+
+        Pet pet = Pet.getFromId(petId);
+        if (pet == null) {
+            return SkillResult.CONDITION_FAILED;
+        }
+        
+        if (mustHavePermission && !player.hasPermission(pet.getPermission())) {
+            return SkillResult.CONDITION_FAILED;
+        }
+
+        Bukkit.getScheduler().runTask(
+                MCPets.getInstance(),
+                () -> MCPets.getMythicMobs()
+                        .getMobManager()
+                        .getActiveMob(data.getCaster().getEntity().getUniqueId())
+                        .ifPresent(activeMob ->
+                                pet.changeActiveMobTo(
+                                        activeMob,
+                                        player.getUniqueId(),
+                                        followOwner,
+                                        PetDespawnReason.SETPET_REPLACED
+                                )
+                        )
+        );
+
+        return SkillResult.SUCCESS;
     }
+
 }

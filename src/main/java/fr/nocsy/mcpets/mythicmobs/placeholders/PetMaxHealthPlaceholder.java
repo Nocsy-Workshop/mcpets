@@ -6,9 +6,9 @@ import fr.nocsy.mcpets.data.Pet;
 
 import io.lumine.mythic.api.skills.SkillCaster;
 import io.lumine.mythic.api.skills.SkillMetadata;
+import io.lumine.mythic.core.utils.annotations.MythicPlaceholder;
 import io.lumine.mythic.core.skills.placeholders.PlaceholderContext;
 import io.lumine.mythic.core.skills.placeholders.types.GenericPlaceholderTypes.IntegerPlaceholder;
-import io.lumine.mythic.core.utils.annotations.MythicPlaceholder;
 
 @MythicPlaceholder(placeholder = "pet.max.hp", version = "5.9")
 public class PetMaxHealthPlaceholder extends PetPlaceholder<Integer> implements IntegerPlaceholder {

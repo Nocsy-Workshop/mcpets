@@ -1,29 +1,44 @@
 package fr.nocsy.mcpets.mythicmobs.targeters;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
-import io.lumine.mythic.api.adapters.AbstractEntity;
-import io.lumine.mythic.api.config.MythicLineConfig;
-import io.lumine.mythic.api.skills.SkillMetadata;
+
 import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.api.skills.SkillMetadata;
+import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.core.skills.targeters.IEntitySelector;
-import org.bukkit.Bukkit;
+import io.lumine.mythic.core.utils.annotations.MythicTargeter;
+import io.lumine.mythic.bukkit.events.MythicTargeterLoadEvent;
 
-import java.util.Collection;
-import java.util.HashSet;
-
+@MythicTargeter(
+        name = "petOwner"
+)
 public class TargeterPetOwner extends IEntitySelector {
 
-    public TargeterPetOwner(MythicLineConfig paramMythicLineConfig) {
-        super(MCPets.getMythicMobs().getSkillManager(),paramMythicLineConfig);
+    public TargeterPetOwner(MythicTargeterLoadEvent event) {
+        super(MCPets.getMythicMobs().getSkillManager(), event.getConfig());
     }
 
-    public Collection<AbstractEntity> getEntities(SkillMetadata paramSkillMetadata) {
-        HashSet<AbstractEntity> hashSet = new HashSet<>();
-        AbstractEntity abstractEntity = paramSkillMetadata.getCaster().getEntity();
-        Pet pet = Pet.getFromEntity(abstractEntity.getBukkitEntity());
-        if (pet != null && Bukkit.getPlayer(pet.getOwner()) != null)
-            hashSet.add(BukkitAdapter.adapt(Bukkit.getPlayer(pet.getOwner())));
-        return hashSet;
+    @Override
+    public Collection<AbstractEntity> getEntities(SkillMetadata meta) {
+        AbstractEntity caster = meta.getCaster().getEntity();
+        Pet pet = Pet.getFromEntity(caster.getBukkitEntity());
+
+        if (pet != null) {
+            Player owner = Bukkit.getPlayer(pet.getOwner());
+
+            if (owner != null) {
+                return Collections.singleton(BukkitAdapter.adapt(owner));
+            }
+        }
+
+        return Collections.emptySet();
     }
+
 }
