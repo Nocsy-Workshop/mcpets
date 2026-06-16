@@ -65,12 +65,12 @@
             <url>https://libraries.minecraft.net/</url>
         </repository>
         <repository>
-            <id>lumine</id>
+            <id>nexus</id>
             <name>Lumine Releases</name>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>nexus</id>
+            <id>lumine</id>
             <name>Lumine Public</name>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>io.lumine</groupId>
             <artifactId>Mythic-Dist</artifactId>
-            <version>5.9.5</version>
+            <version>5.12.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

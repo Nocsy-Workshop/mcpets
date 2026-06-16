@@ -853,7 +853,7 @@ public class Pet {
         new BukkitRunnable() {
             @Override
             public void run() {
-                activeMob.setOwnerUUID(owner);
+                if (activeMob != null) activeMob.setOwnerUUID(owner);
             }
         }.runTaskLater(MCPets.getInstance(), 1L);
 
