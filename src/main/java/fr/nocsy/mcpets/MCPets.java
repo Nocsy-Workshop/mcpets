@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets;
 
+import com.google.common.collect.Lists;
 import com.sk89q.worldguard.WorldGuard;
 import fr.nocsy.mcpets.commands.CommandHandler;
 import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
@@ -23,9 +24,9 @@ import fr.nocsy.mcpets.listeners.EventListener;
 import fr.nocsy.mcpets.modeler.AbstractModeler;
 import fr.nocsy.mcpets.modeler.BetterModelModeler;
 import fr.nocsy.mcpets.modeler.ModelEngineModeler;
-import fr.nocsy.mcpets.mythicmobs.placeholders.PetPlaceholdersManager;
 import fr.nocsy.mcpets.velocity.VelocitySyncManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
+import io.lumine.mythic.core.skills.CustomComponentRegistry;
 import lombok.Getter;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
@@ -41,6 +42,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static fr.nocsy.mcpets.mythicmobs.MythicListener.PLACEHOLDER_PACKAGE;
+
 public class MCPets extends JavaPlugin {
 
     @Getter
@@ -52,6 +55,9 @@ public class MCPets extends JavaPlugin {
     private static boolean luckPermsNotFound = false;
     private static boolean nexoFound = false;
     private static boolean nexoChecked = false;
+
+    @Getter
+    private static CustomComponentRegistry componentRegistry;
 
     @Getter
     private static AbstractModeler modeler;
@@ -149,7 +155,8 @@ public class MCPets extends JavaPlugin {
         // loadConfigs() once async DB init completes — see scheduleDbDependentTasks()
 
         // Register the placeholders
-        PetPlaceholdersManager.registerPlaceholders();
+        componentRegistry = new CustomComponentRegistry(instance, Lists.newArrayList());
+        componentRegistry.registerCustomComponent(CustomComponentRegistry.MythicComponentType.PLACEHOLDER, PLACEHOLDER_PACKAGE);
 
         getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
         getLog().info("      Plugin made by Nocsy     ");
