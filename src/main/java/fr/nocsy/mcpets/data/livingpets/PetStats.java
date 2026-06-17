@@ -1,24 +1,26 @@
 package fr.nocsy.mcpets.data.livingpets;
 
-import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
-import fr.nocsy.mcpets.data.sql.Databases;
-import fr.nocsy.mcpets.data.sql.PlayerData;
-import fr.nocsy.mcpets.events.PetGainExperienceEvent;
-import fr.nocsy.mcpets.utils.PetTimer;
-import fr.nocsy.mcpets.utils.Utils;
-import fr.nocsy.mcpets.utils.debug.Debugger;
+import java.util.List;
+import java.util.UUID;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.PetTimer;
+import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.utils.debug.Debugger;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.events.PetGainExperienceEvent;
+import fr.nocsy.mcpets.data.serializer.PetStatsSerializer;
 
 public class PetStats {
 
@@ -79,9 +81,8 @@ public class PetStats {
      * Update the pet's health for the stats
      */
     public void updateHealth() {
-        if (pet.isStillHere()) {
-            this.currentHealth = pet.getActiveMob().getEntity().getHealth();
-        }
+        if (!pet.isStillHere()) return;
+        currentHealth = pet.getActiveMob().getEntity().getHealth();
     }
 
     /**
@@ -102,8 +103,7 @@ public class PetStats {
                 if (p != null && Pet.getActivePets().get(pet.getOwner()) == null) {
                     pet.spawn(p.getLocation(), true);
                     Debugger.send("§aPet §6" + pet.getId() + "§a was autorespawned after death.");
-                }
-                else {
+                } else {
                     Debugger.send("§cPet §6" + pet.getId() + "§c was supposed to autorespawn, but the player already has a spawned pet with him, or is disconnected.");
                 }
             }
@@ -124,19 +124,22 @@ public class PetStats {
      */
     public void launchRegenerationTimer() {
         // If the regeneration timer is already running and not null, then do not run it again
-        if (regenerationTimer != null && regenerationTimer.isRunning())
+        if (regenerationTimer != null && regenerationTimer.isRunning()) {
             return;
+        }
+
         // If the regeneration is none then do not launch the scheduler coz it's useless
-        if (currentLevel.getRegeneration() <= 0)
+        if (currentLevel.getRegeneration() <= 0) {
             return;
+        }
+
         regenerationTimer = new PetTimer(Integer.MAX_VALUE, 20, null);
         regenerationTimer.launch(() -> {
             if (pet.isStillHere()) {
                 double value = Math.min(currentHealth + currentLevel.getRegeneration(), currentLevel.getMaxHealth());
                 pet.getActiveMob().getEntity().setHealth(value);
                 updateHealth();
-            }
-            else {
+            } else {
                 regenerationTimer.stop(null);
             }
         });
@@ -146,20 +149,20 @@ public class PetStats {
      * Launch the respawn timer
      */
     public void launchRespawnTimer() {
-        if (respawnTimer != null)
-            respawnTimer.launch(() -> {
-                if (!isDead()) {
-                    respawnTimer.stop(null);
-                }
-            });
+        if (respawnTimer == null) return;
+        respawnTimer.launch(() -> {
+            if (!isDead()) {
+                respawnTimer.stop(null);
+            }
+        });
     }
 
     /**
      * Launch the revoke timer
      */
     public void launchRevokeTimer() {
-        if (revokeTimer != null)
-            revokeTimer.launch(null);
+        if (revokeTimer == null) return;
+        revokeTimer.launch(null);
     }
 
     /**
@@ -188,20 +191,19 @@ public class PetStats {
      * Reset the Max Health of the pet to the given value
      */
     public void refreshMaxHealth() {
-        if (pet.isStillHere())
-            pet.getActiveMob().getEntity().setMaxHealth(currentLevel.getMaxHealth());
+        if (!pet.isStillHere()) return;
+        pet.getActiveMob().getEntity().setMaxHealth(currentLevel.getMaxHealth());
     }
 
     /**
      * Set health to a given value
      */
     public void setHealth(double value) {
-        if (value >= currentLevel.getMaxHealth())
-            value = currentLevel.getMaxHealth();
-        if (pet.isStillHere()) {
-            pet.getActiveMob().getEntity().setHealth(value);
-            currentHealth = value;
-        }
+        value = Math.min(value, currentLevel.getMaxHealth());
+
+        if (!pet.isStillHere()) return;
+        pet.getActiveMob().getEntity().setHealth(value);
+        currentHealth = value;
     }
 
     /**
@@ -217,9 +219,8 @@ public class PetStats {
      * Minimum is 1% of pet's health
      * Maximum is 100% of pet's health
      */
-    public double getRespawnHealth()
-    {
-        double coef = Math.min(1, Math.max(0.01, GlobalConfig.getInstance().getPercentHealthOnRespawn()));
+    public double getRespawnHealth() {
+        double coef = Math.clamp(GlobalConfig.getInstance().getPercentHealthOnRespawn(), 0.01, 1);
         return coef * currentLevel.getMaxHealth();
     }
 
@@ -230,9 +231,8 @@ public class PetStats {
         double value = originalValue;
 
         for (PetFoodBuff buff : PetFoodBuff.getBuffs(pet)) {
-            if (buff.getType() == modifier) {
-                value = buff.getOperator().get(value, buff.getPower());
-            }
+            if (buff.getType() != modifier) continue;
+            value = buff.getOperator().get(value, buff.getPower());
         }
         return value;
     }
@@ -243,8 +243,7 @@ public class PetStats {
 
     public double getResistanceModifier() {
         double value = getBuffedModifier(getCurrentLevel().getFlatResistanceModifier(), PetFoodType.BUFF_RESISTANCE);
-        if (value == 0)
-            return value = 10E-5;
+        if (value == 0) return 10E-5;
         return value;
     }
 
@@ -254,7 +253,7 @@ public class PetStats {
 
     /**
      * Get the extended inventory size value
-     * Depends of the actual pet inventory size and the current level bonuses
+     * Depends on the actual pet inventory size and the current level bonuses
      */
     public int getExtendedInventorySize() {
         return Math.min(pet.getDefaultInventorySize() + currentLevel.getInventoryExtension(), 54);
@@ -265,16 +264,16 @@ public class PetStats {
      */
     public boolean addExperience(double value) {
         // That's the case for which the pet has already reached the maximum level, so it doesn't need to exp anymore
-        if (currentLevel.equals(pet.getPetLevels().get(pet.getPetLevels().size()-1)))
+        if (currentLevel.equals(pet.getPetLevels().getLast())) {
             return false;
+        }
+
         // If there is no owner, then the pet can not gain experience
-        if (pet.getOwner() == null)
-            return false;
+        if (pet.getOwner() == null) return false;
 
         PetGainExperienceEvent event = new PetGainExperienceEvent(pet, value);
         Utils.callEvent(event);
-        if (event.isCancelled())
-            return false;
+        if (event.isCancelled()) return false;
 
         // add the experience to the pet
         experience = experience + event.getExperience();
@@ -283,15 +282,14 @@ public class PetStats {
         // Look if there's a level up to perform
         PetLevel nextLevel = getNextLevel();
         boolean levelUp = false;
-        while(!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience) {
+        while (!nextLevel.equals(currentLevel) && nextLevel.getExpThreshold() <= experience) {
             if (nextLevel.getEvolutionId() != null && !nextLevel.canEvolve(pet.getOwner(), Pet.getFromId(nextLevel.getEvolutionId()))) {
                 Debugger.send("Pet §6" + pet.getId() + "§7 can not evolve into §a" + nextLevel.getEvolutionId() + "§7 because the player already owns the evolution.");
-                if (experience == nextLevel.getExpThreshold()-1 + event.getExperience()) {
+                if (experience == nextLevel.getExpThreshold() - 1 + event.getExperience()) {
                     experience = nextLevel.getExpThreshold() - 1;
                     return false;
-                }
-                else {
-                    experience = nextLevel.getExpThreshold()-1;
+                } else {
+                    experience = nextLevel.getExpThreshold() - 1;
                     break;
                 }
             }
@@ -307,9 +305,7 @@ public class PetStats {
         }
 
         // If a level up happened, make sure to save it and update the actual pet
-        if (levelUp) {
-            updateChangingData();
-        }
+        if (levelUp) updateChangingData();
 
         // If there is no next level, set the experience so that it's the plateau value
         if (getNextLevel().equals(currentLevel) && experience > currentLevel.getExpThreshold()) {
@@ -321,27 +317,25 @@ public class PetStats {
     }
 
     public PetLevel getNextLevel() {
-        if (currentLevel == null)
-            return null;
+        if (currentLevel == null) return null;
 
         return pet.getPetLevels().stream()
-                                    .filter(petLevel -> petLevel.getExpThreshold() > currentLevel.getExpThreshold())
-                                    .findFirst().orElse(currentLevel);
+                .filter(petLevel -> petLevel.getExpThreshold() > currentLevel.getExpThreshold())
+                .findFirst().orElse(currentLevel);
     }
 
     /**
-     * Apply the modified attack damages to the given amount of damages, depending of the damage modifer of the stats
+     * Apply the modified attack damages to the given amount of damages, depending on the damage modifier of the stats
      */
     public double getModifiedAttackDamages(double value) {
         return value * getDamageModifier();
     }
 
     /**
-     * Apply the modified resistance to damages to the given amount of damages, depending of the damage modifer of the stats
+     * Apply the modified resistance to damages to the given amount of damages, depending on the damage modifier of the stats
      */
     public double getModifiedResistanceDamages(double value) {
-        if (getResistanceModifier() == 0)
-            return Integer.MAX_VALUE;
+        if (getResistanceModifier() == 0) return Integer.MAX_VALUE;
         return value / getResistanceModifier();
     }
 
@@ -356,10 +350,9 @@ public class PetStats {
     /**
      * Unserialize the PetStats object
      */
-    public static PetStats unzerialize(String base64Str) {
+    public static PetStats unserialize(String base64Str) {
         PetStatsSerializer serializer = PetStatsSerializer.unserialize(base64Str);
-        if (serializer == null)
-            return null;
+        if (serializer == null) return null;
         return serializer.buildStats();
     }
 
@@ -370,13 +363,11 @@ public class PetStats {
     public void save() {
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             PlayerData.saveDB();
+            return;
         }
-        else {
-            PlayerData pd = PlayerData.get(pet.getOwner());
-            if (pd != null) {
-                pd.save();
-            }
-        }
+
+        PlayerData pd = PlayerData.get(pet.getOwner());
+        if (pd != null) pd.save();
     }
 
     /**
@@ -384,9 +375,8 @@ public class PetStats {
      */
     public int getCurrentLevelIndex() {
         int i = 1;
-        for(PetLevel level : pet.getPetLevels()) {
-            if (level.equals(currentLevel))
-                return i;
+        for (PetLevel level : pet.getPetLevels()) {
+            if (level.equals(currentLevel)) return i;
             i++;
         }
         return -1;
@@ -406,10 +396,9 @@ public class PetStats {
      * Remove the pet stats corresponding to the given pet id
      */
     public static void remove(String petId) {
-        petStatsList.removeAll(petStatsList.stream()
-                .filter(stat -> stat.getPet().getId().equals(petId))
-                .collect(Collectors.toList()));
+        petStatsList.removeIf(petStats -> petStats.getPet().getId().equals(petId));
     }
+
 
     /**
      * Remove the pet stats corresponding to the given player
@@ -419,13 +408,12 @@ public class PetStats {
     }
 
     /**
-     * Remove the pet stats corresponding to the given owner
+     * Remove the pet stats corresponding to the given pet and owner
      */
     public static void remove(String petId, UUID owner) {
-        petStatsList.removeAll(petStatsList.stream()
-                .filter(stat -> stat.getPet().getOwner().equals(owner)
-                        && stat.getPet().getId().equals(petId))
-                .collect(Collectors.toList()));
+        petStatsList.removeIf(stat ->
+                stat.getPet().getOwner().equals(owner)
+                        && stat.getPet().getId().equals(petId));
     }
 
     /**
@@ -434,10 +422,10 @@ public class PetStats {
     public static void saveAll() {
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             PlayerData.saveDB();
+            return;
         }
-        else {
-            petStatsList.forEach(PetStats::save);
-        }
+
+        new ArrayList<>(petStatsList).forEach(PetStats::save);
     }
 
     /**
@@ -445,28 +433,30 @@ public class PetStats {
      */
     public static void saveStats() {
         // Get the auto save delay (in seconds) and transform it into ticks
-        long delay = (long)GlobalConfig.getInstance().getAutoSave() * 20;
+        long delay = (long) GlobalConfig.getInstance().getAutoSave() * 20;
+
         // If the delay is negative, disable the autosave
-        if (delay <= 0)
-            return;
-        // Runs ASync if it's a SQL, sync if not coz YAML doesn't support ASync
+        if (delay <= 0) return;
+
+        // Runs Async if it's a SQL, sync if not coz YAML doesn't support Async
         if (GlobalConfig.getInstance().isDatabaseSupport()) {
             // TODO: For now, we make the AutoSave only saving the connected players for MySQL users
-            Bukkit.getScheduler().scheduleAsyncRepeatingTask(MCPets.getInstance(), () -> {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(MCPets.getInstance(), () -> {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     Databases.savePlayerData(p.getUniqueId());
                 }
             }, delay, delay);
+            return;
         }
-        else {
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(MCPets.getInstance(), () -> petStatsList.forEach(PetStats::save), delay, delay);
-        }
+
+        Bukkit.getScheduler().runTaskTimer(MCPets.getInstance(), () ->
+                new ArrayList<>(petStatsList).forEach(PetStats::save), delay, delay);
     }
 
 
     /**
      * Find the pet stats corresponding to the pet and the defined owner if registered
-     * null if nothing is found
+     * returns null if nothing is found
      */
     public static PetStats get(String petId, UUID owner) {
         return petStatsList.stream()
@@ -480,8 +470,9 @@ public class PetStats {
      */
     public static boolean register(PetStats petStats) {
         // If there is no pet nor owner, we can not do the sanity check, so we don't register it
-        if (petStats.getPet() == null || petStats.getPet().getOwner() == null)
+        if (petStats.getPet() == null || petStats.getPet().getOwner() == null) {
             return false;
+        }
 
         // If the pet stats is already registered, then we overwrite the previous one
         if (get(petStats.getPet().getId(), petStats.getPet().getOwner()) != null) {
@@ -499,7 +490,9 @@ public class PetStats {
      * Useful only in one case but better put it here
      */
     public static PetStats getPetStatsOnRespawnTimerRunning(UUID uuid) {
-        return petStatsList.stream().filter(petStats -> petStats.getPet().getOwner().equals(uuid) && petStats.isRespawnTimerRunning()).findFirst().orElse(null);
+        return petStatsList.stream().filter(petStats ->
+                petStats.getPet().getOwner().equals(uuid)
+                        && petStats.isRespawnTimerRunning()).findFirst().orElse(null);
     }
 
     /**
@@ -513,4 +506,5 @@ public class PetStats {
         updateChangingData();
         launchRegenerationTimer();
     }
+
 }

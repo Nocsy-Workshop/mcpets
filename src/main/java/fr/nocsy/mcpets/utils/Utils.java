@@ -1,5 +1,6 @@
 package fr.nocsy.mcpets.utils;
 
+import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
 
@@ -15,7 +16,6 @@ import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -57,8 +57,7 @@ public class Utils {
             final byte[] decodedBytes = Base64.getDecoder().decode(base64);
             final String decodedString = new String(decodedBytes);
 
-            final JsonParser parser = new JsonParser();
-            final JsonObject jsonObject = parser.parse(decodedString).getAsJsonObject();
+            final JsonObject jsonObject = JsonParser.parseString(decodedString).getAsJsonObject();
             final String url = jsonObject.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
 
             final PlayerProfile pp = Bukkit.createPlayerProfile(UUID.fromString("4fbecd49-c7d4-4c18-8410-adf7a7348728"), "MCPets");
@@ -66,14 +65,12 @@ public class Utils {
 
             URL urlObject = null;
             try {
-                urlObject = new URL(url);
-            }
-            catch (final MalformedURLException e) {
+                urlObject = URI.create(url).toURL();
+            } catch (final IllegalArgumentException | MalformedURLException e) {
                 try {
-                    urlObject = new URL("http://textures.minecraft.net/texture/8dcfabbbb4d7b0381135bf07b6af3de920ab4c366c06c37fa4c4e8b8f43bbb2b");
-                }
-                catch (final MalformedURLException malformedURLException) {
-                    MCPets.getLog().log(Level.SEVERE, "Failed to parse fallback texture URL", malformedURLException);
+                    urlObject = URI.create("http://textures.minecraft.net/texture/8dcfabbbb4d7b0381135bf07b6af3de920ab4c366c06c37fa4c4e8b8f43bbb2b").toURL();
+                } catch (final IllegalArgumentException | MalformedURLException ex) {
+                    MCPets.getLog().log(Level.SEVERE, "Failed to parse fallback texture URL", ex);
                 }
             }
 
@@ -143,30 +140,6 @@ public class Utils {
             return origin;
         }
         return loc;
-    }
-
-    /**
-     * Translate hexadecimal colors
-     */
-    public static String hex(String message) {
-        final Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
-        Matcher matcher = pattern.matcher(message);
-
-        while (matcher.find()) {
-            final String hexCode = message.substring(matcher.start(), matcher.end());
-            final String replace = hexCode.replace('#', 'x');
-
-            final char[] ch = replace.toCharArray();
-            final StringBuilder builder = new StringBuilder();
-            for (final char c : ch) {
-                builder.append("&").append(c);
-            }
-
-            message = message.replace(hexCode, builder.toString());
-            matcher = pattern.matcher(message);
-        }
-
-        return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     public static String convertLegacyToMiniMessage(String input) {

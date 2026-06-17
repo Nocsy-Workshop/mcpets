@@ -1,20 +1,24 @@
 package fr.nocsy.mcpets.data.livingpets;
 
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+
+import lombok.Getter;
+
+import org.bukkit.Bukkit;
+
+import org.jetbrains.annotations.NotNull;
+
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.data.Pet;
 import fr.nocsy.mcpets.utils.PetMath;
 import fr.nocsy.mcpets.utils.debug.Debugger;
-import lombok.Getter;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class PetFoodBuff {
 
-    public static HashMap<Pet, ArrayList<PetFoodBuff>> runningBuffs = new HashMap<>();
+    public static Map<Pet, List<PetFoodBuff>> runningBuffs = new HashMap<>();
 
     @Getter
     private PetFoodType type;
@@ -37,21 +41,13 @@ public class PetFoodBuff {
     }
 
     public boolean apply() {
-
-        PetStats stats = pet.getPetStats();
-        if (stats == null) {
+        if (pet.getPetStats() == null) {
             Debugger.send("§cBuff could not be triggered on that pet as it has no statistics of a living pet.");
             return false;
         }
 
-        List<PetFoodBuff> buffs = getBuffs(pet);
-        ArrayList<PetFoodBuff> toRemove = new ArrayList<>();
-        for (PetFoodBuff buff : buffs) {
-            if (buff.getType() == this.getType()) {
-                toRemove.add(buff);
-            }
-        }
-        for (PetFoodBuff buff : toRemove) {
+        for (PetFoodBuff buff : new ArrayList<>(getBuffs(pet))) {
+            if (buff.getType() != this.getType()) continue;
             buff.stop();
         }
 
@@ -60,7 +56,7 @@ public class PetFoodBuff {
     }
 
     private void runTask() {
-        ArrayList<PetFoodBuff> buffs = (ArrayList<PetFoodBuff>) getBuffs(pet);
+        List<PetFoodBuff> buffs = getBuffs(pet);
         buffs.add(this);
         runningBuffs.put(pet, buffs);
 
@@ -74,26 +70,19 @@ public class PetFoodBuff {
 
         PetFoodBuff instance = this;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                instance.stop();
-            }
-        }.runTaskLater(MCPets.getInstance(), duration);
+        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), instance::stop, duration);
     }
 
     public void stop() {
-        ArrayList<PetFoodBuff> buffs = runningBuffs.get(pet);
-        if (buffs == null)
-            return;
+        List<PetFoodBuff> buffs = runningBuffs.get(pet);
+        if (buffs == null) return;
+
         buffs.remove(this);
         Debugger.send("§7Buff §a" + type.name() + "§7 applied to §6" + pet.getId() + "§7 has §cexpired§7 after §a" + duration + "§7 ticks.");
     }
 
     public static List<PetFoodBuff> getBuffs(Pet pet) {
-        ArrayList<PetFoodBuff> buffs = runningBuffs.get(pet);
-        if (buffs == null)
-            buffs = new ArrayList<>();
-        return buffs;
+        return runningBuffs.getOrDefault(pet, List.of());
     }
+
 }

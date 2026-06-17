@@ -103,7 +103,7 @@ public class PlayerDataNoDatabase extends AbstractConfig {
         // Unserialize the pet stats first, coz it influences the inventories
         PetStats.remove(uuid);
         for (String seria : getConfig().getStringList("PetStats")) {
-            PetStats stats = PetStats.unzerialize(seria);
+            PetStats stats = PetStats.unserialize(seria);
             if (stats == null)
                 continue;
             stats.launchTimers();
