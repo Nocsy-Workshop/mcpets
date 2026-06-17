@@ -47,7 +47,7 @@ public class ArgumentClearStats extends AArgument {
                 }
 
                 // In that case it's not a pet clear so he probably failed to give a player name
-                sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
+                sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getComponent());
             }
         }
         else if (args.length == 3) {
@@ -68,7 +68,7 @@ public class ArgumentClearStats extends AArgument {
                 }
             }
 
-            sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getMessage());
+            sender.sendMessage(Language.PLAYER_OR_PET_DOESNT_EXIST.getComponent());
         }
     }
 }

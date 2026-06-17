@@ -1,28 +1,29 @@
 package fr.nocsy.mcpets.data.livingpets;
 
-import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.PetDespawnReason;
-import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.inventories.PetInventory;
-import fr.nocsy.mcpets.data.sql.PlayerData;
-import fr.nocsy.mcpets.events.PetLevelUpEvent;
-import fr.nocsy.mcpets.utils.PetAnnouncement;
-import fr.nocsy.mcpets.utils.Utils;
-import fr.nocsy.mcpets.utils.debug.Debugger;
-import io.lumine.mythic.api.skills.Skill;
-import io.lumine.mythic.core.skills.SkillMetadataImpl;
-import io.lumine.mythic.core.skills.SkillTriggers;
+import java.util.UUID;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.utils.debug.Debugger;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.utils.PetAnnouncement;
+import fr.nocsy.mcpets.data.PetDespawnReason;
+import fr.nocsy.mcpets.events.PetLevelUpEvent;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
+
+import io.lumine.mythic.core.skills.SkillTriggers;
+import io.lumine.mythic.core.skills.SkillMetadataImpl;
 
 public class PetLevel {
 
@@ -146,22 +147,24 @@ public class PetLevel {
      * Throw the level up announcement if setup
      */
     public void announce(final UUID player) {
-        if (announcement != null && !announcement.isEmpty() && player != null) {
-            final Player p = Bukkit.getPlayer(player);
-            if (p != null)
-                announcementType.announce(p, announcement);
-        }
+        if (player == null) return;
+        if (announcement == null || announcement.isEmpty()) return;
+
+        final Player p = Bukkit.getPlayer(player);
+        if (p == null) return;
+
+        announcementType.announce(p, announcement);
     }
 
     /**
      * Play a skill on level up if setup
      */
     public void playSkill(final UUID owner) {
-        final Pet pet = Pet.fromOwner(owner);
-        if (mythicSkill != null && pet.isStillHere()) {
-            final Optional<Skill> opt = MCPets.getMythicMobs().getSkillManager().getSkill(mythicSkill);
-            opt.ifPresent(skill -> skill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, pet.getActiveMob(), pet.getActiveMob().getEntity())));
-        }
+        if (pet == null || !pet.isStillHere()) return;
+        if (mythicSkill == null) return;
+
+        MCPets.getMythicMobs().getSkillManager().getSkill(mythicSkill).ifPresent(skill ->
+                skill.execute(new SkillMetadataImpl(SkillTriggers.CUSTOM, pet.getActiveMob(), pet.getActiveMob().getEntity())));
     }
 
     /**
@@ -184,95 +187,100 @@ public class PetLevel {
      * Gives the permission to the owner to access the new pet
      */
     public boolean evolve(final UUID player, final boolean forceEvolution) {
-        return this.evolveTo(player, forceEvolution, Pet.getFromId(evolutionId));
+        return evolveTo(player, forceEvolution, Pet.getFromId(evolutionId));
     }
 
     /**
      * Makes the pet evolves if it has an evolution
      * Gives the permission to the owner to access the new pet
      */
-    public boolean evolveTo(final UUID player, final boolean forceEvolution, final Pet evolution) {
-        String evId = "null";
-        if (evolution != null) evId = evolution.getId();
-        Debugger.send("Pet §6" + this.getPet().getId() + "§7 is trying to evolve as §a" + evId);
-        Debugger.send("Checking conditions: §6can evolve ? §a" + canEvolve(player, evolution) + " §7| §6forced ? §a" + forceEvolution);
-        if (canEvolve(player, evolution) || forceEvolution) {
-            if (evolution == null) return false;
+    public boolean evolveTo(final UUID player, final boolean forceEvolution, final Pet petEvolution) {
+        if (petEvolution == null) return false;
 
-            // We disable the perm check on that one so it doesn't run into a weird synchronisation issue
-            evolution.setCheckPermission(false);
-            // Set the owner as the current player
-            evolution.setOwner(player);
+        String evId = petEvolution.getId();
+        boolean canEvolve = canEvolve(player, petEvolution);
 
-            // Load the player data for the pet
-            final PlayerData pd = PlayerData.get(player);
-            // Fetch the saved name
-            final String name = pd.getMapOfRegisteredNames().get(pet.getId());
-            if (name != null) evolution.setDisplayName(name, true);
+        Debugger.send("Pet §6" + pet.getId() + "§7 is trying to evolve as §a" + evId);
+        Debugger.send("Checking conditions: §6can evolve ? §a" + canEvolve + " §7| §6forced ? §a" + forceEvolution);
 
-            // Transfer the inventory to the evolution
-            final PetInventory petInventory = PetInventory.get(pet);
-            if (petInventory != null) {
-                evolution.setOwner(player);
-                final PetInventory evolutionInventory = PetInventory.get(evolution);
-                // If we can not define an inventory in the evolution, then we lose the content so it doesn't make sense
-                if (evolutionInventory == null) {
-                    MCPets.getLog().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
-                    return false;
-                }
-                evolutionInventory.setInventory(petInventory.getInventory());
+        if (!canEvolve && !forceEvolution) {
+            final Player p = Bukkit.getPlayer(player);
+            if (p != null) {
+                Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
+                Debugger.send("§a" + pet.getId() + "§6 can not evolve into §a" + evolutionId
+                        + "§6 because the §cplayer" + p.getName() + " already owns the evolution§6.");
+                return false;
             }
 
-            // Clear the stats of the previous level since we are evolving to the next one
-            PetStats.remove(pet.getId(), player);
-
-            // Fetch the owner of the pet, it has to be there to spawn the next pet right
-            final Player owner = Bukkit.getPlayer(player);
-            if (owner == null) return false;
-
-            // Give the permission async and wait for LuckPerms to apply before spawning
-            CompletableFuture<Void> permFuture = Utils.givePermissionAsync(player, evolution.getPermission());
-            if (removePrevious) {
-                permFuture = permFuture.thenCompose(v -> Utils.removePermissionAsync(player, pet.getPermission()));
+            if (evolutionId != null) {
+                MCPets.getLog().warning("The pet " + pet.getId() + " tried to evolve into "
+                        + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
+                return false;
             }
 
-            // Once permissions are applied, spawn the evolution on the main thread
-            permFuture.thenRun(() -> Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
-                // Make sure the owner is still here
-                final Player o = Bukkit.getPlayer(player);
-                if (o != null) {
-                    final Pet activePet = Pet.fromOwner(player);
-                    final Location loc = activePet != null && activePet.isStillHere() ?
-                                    activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
-                                    o.getLocation();
-
-                    // Despawn the previous pet
-                    if (activePet != null && activePet.isStillHere()) {
-                        activePet.despawn(PetDespawnReason.EVOLUTION);
-                    }
-
-                    // Spawn the evolution
-                    evolution.spawn(loc, false);
-                    // Re-enable permission checking now that LuckPerms has propagated
-                    evolution.setCheckPermission(true);
-                }
-            }, delayBeforeEvolution));
-            return true;
-        }
-
-        final Player p = Bukkit.getPlayer(player);
-        if (p != null) {
-            Language.PET_COULD_NOT_EVOLVE.sendMessage(p);
-            Debugger.send("§a" + pet.getId() + "§6 can not evolve into §a" + evolutionId
-                    + "§6 because the §cplayer" + p.getName() + " already owns the evolution§6.");
             return false;
         }
 
-        if (evolutionId != null) {
-            MCPets.getLog().warning("The pet " + pet.getId() + " tried to evolve into " + evolutionId + " but this evolution doesn't exist in MCPets. Please provide the ID of a registered pet.");
-            return false;
+        // We disable the perm check on that one so it doesn't run into a weird synchronization issue
+        petEvolution.setCheckPermission(false);
+        // Set the owner as the current player
+        petEvolution.setOwner(player);
+
+        // Load the player data for the pet
+        final PlayerData pd = PlayerData.get(player);
+        // Fetch the saved name
+        final String name = pd.getMapOfRegisteredNames().get(pet.getId());
+        if (name != null) petEvolution.setDisplayName(name, true);
+
+        // Transfer the inventory to the evolution
+        final PetInventory petInventory = PetInventory.get(pet);
+        if (petInventory != null) {
+            petEvolution.setOwner(player);
+            final PetInventory evolutionInventory = PetInventory.get(petEvolution);
+            // If we can not define an inventory in the evolution, then we lose the content so it doesn't make sense
+            if (evolutionInventory == null) {
+                MCPets.getLog().severe("Could not load inventory of pet " + evolutionId + " for player " + player + "\nCritical issue : could not evolve the pet.");
+                return false;
+            }
+            evolutionInventory.setInventory(petInventory.getInventory());
         }
-        return false;
+
+        // Clear the stats of the previous level since we are evolving to the next one
+        PetStats.remove(pet.getId(), player);
+
+        // Fetch the owner of the pet, it has to be there to spawn the next pet right
+        final Player owner = Bukkit.getPlayer(player);
+        if (owner == null) return false;
+
+        // Give the permission async and wait for LuckPerms to apply before spawning
+        CompletableFuture<Void> permFuture = Utils.givePermissionAsync(player, petEvolution.getPermission());
+        if (removePrevious) {
+            permFuture = permFuture.thenCompose(v -> Utils.removePermissionAsync(player, pet.getPermission()));
+        }
+
+        // Once permissions are applied, spawn the evolution on the main thread
+        permFuture.thenRun(() -> Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> {
+            // Make sure the owner is still here
+            final Player o = Bukkit.getPlayer(player);
+            if (o != null) {
+                final Pet activePet = Pet.fromOwner(player);
+                final Location loc = activePet != null && activePet.isStillHere() ?
+                                activePet.getActiveMob().getEntity().getBukkitEntity().getLocation() :
+                                o.getLocation();
+
+                // Despawn the previous pet
+                if (activePet != null && activePet.isStillHere()) {
+                    activePet.despawn(PetDespawnReason.EVOLUTION);
+                }
+
+                // Spawn the evolution
+                petEvolution.spawn(loc, false);
+                // Re-enable permission checking now that LuckPerms has propagated
+                petEvolution.setCheckPermission(true);
+            }
+        }, delayBeforeEvolution));
+
+        return true;
     }
 
     /**

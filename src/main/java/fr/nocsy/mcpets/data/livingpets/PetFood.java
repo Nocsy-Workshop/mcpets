@@ -1,30 +1,35 @@
 package fr.nocsy.mcpets.data.livingpets;
 
-import com.nexomc.nexo.api.NexoItems;
-import com.nexomc.nexo.items.ItemBuilder;
-import dev.lone.itemsadder.api.CustomStack;
-import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.utils.PDCTag;
-import fr.nocsy.mcpets.data.Items;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.config.FormatArg;
-import fr.nocsy.mcpets.data.config.ItemsListConfig;
-import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.config.PetFoodConfig;
-import fr.nocsy.mcpets.utils.PetMath;
-import fr.nocsy.mcpets.utils.Utils;
-import fr.nocsy.mcpets.utils.debug.Debugger;
+import java.util.*;
+
 import lombok.Getter;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.Items;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.PDCTag;
+import fr.nocsy.mcpets.utils.PetMath;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.utils.debug.Debugger;
+import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
+import fr.nocsy.mcpets.data.config.PetFoodConfig;
+
+import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
+
+import dev.lone.itemsadder.api.CustomStack;
+
 public class PetFood {
 
-    private static final HashMap<String, PetFood> petFoodHashMap = new HashMap<>();
+    private static final Map<String, PetFood> petFoodHashMap = new HashMap<>();
 
 
     //----------------- Generic item section ------------------//
@@ -115,7 +120,7 @@ public class PetFood {
         this.duration = duration;
 
         // Setup the item stack
-        this.getItemStack();
+        getItemStack();
 
         petFoodHashMap.put(id, this);
     }
@@ -124,48 +129,45 @@ public class PetFood {
      * Get the item stack of the pet food
      */
     public ItemStack getItemStack() {
-        // Setup the item stack
+        if (itemStack != null) return itemStack;
+
+        // Fetch the item stack within the registered ones
+        itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
+
+        // If no item stack matches, then we'll see if it's a default MC material
         if (itemStack == null) {
-
-            // Fetch the item stack within the registered ones
-            itemStack = ItemsListConfig.getInstance().getItemStack(itemId);
-
-            // If no item stack matches, then we'll see if it's a default MC material
-            if (itemStack == null) {
-                // Checking MC materials
-                Material material = Arrays.stream(Material.values()).filter(mat -> mat.name().equalsIgnoreCase(itemId)).findFirst().orElse(null);
-                if (material != null && !material.isAir()) {
-                    itemStack = new ItemStack(material);
-                    defaultMCItem = true;
-                    // return the itemstack without adding localized information to it, coz it's a default item
-                    return itemStack;
-                }
-                // We found no match.
-                // so, trying to find items from ItemsAdder if ItemsAdder is enabled.
-                // if ItemsAdder is not enabled or found no match in ItemsAdder, set the item to unknown.
-                if (MCPets.isItemsAdderLoaded()) {
-                    CustomStack customStack = CustomStack.getInstance(itemId);
-                    itemStack = (customStack == null) ? Items.UNKNOWN.getItem().clone() : customStack.getItemStack();
-                }
-
-                if (itemStack == null && MCPets.checkNexo()) {
-                    ItemBuilder builder = NexoItems.itemFromId(itemId);
-                    if (builder != null) {
-                        itemStack = builder.build(); // Output the Nexo Item.
-                    }
-                }
-
-                if (itemStack == null) {
-                    itemStack = Items.UNKNOWN.getItem().clone();
-                }
-
+            // Checking MC materials
+            Material material = Material.matchMaterial(itemId);
+            if (material != null && !material.isAir()) {
+                itemStack = new ItemStack(material);
+                defaultMCItem = true;
+                // return the itemStack without adding localized information to it, coz it's a default item
+                return itemStack;
             }
-            ItemMeta meta = itemStack.getItemMeta();
-            PDCTag.set(meta, "MCPets;Food;" + itemId);
-            itemStack.setItemMeta(meta);
-        }
+            // We found no match.
+            // so, trying to find items from ItemsAdder if ItemsAdder is enabled.
+            // if ItemsAdder is not enabled or found no match in ItemsAdder, set the item to unknown.
+            if (MCPets.isItemsAdderLoaded()) {
+                CustomStack customStack = CustomStack.getInstance(itemId);
+                itemStack = (customStack == null) ? Items.UNKNOWN.getItem().clone() : customStack.getItemStack();
+            }
 
-        // Item Stack already setup
+            if (itemStack == null && MCPets.checkNexo()) {
+                ItemBuilder builder = NexoItems.itemFromId(itemId);
+                if (builder != null) {
+                    itemStack = builder.build(); // Output the Nexo Item.
+                }
+            }
+
+            if (itemStack == null) {
+                itemStack = Items.UNKNOWN.getItem().clone();
+            }
+
+        }
+        ItemMeta meta = itemStack.getItemMeta();
+        PDCTag.set(meta, "MCPets;Food;" + itemId);
+        itemStack.setItemMeta(meta);
+
         return itemStack;
     }
 
@@ -174,29 +176,22 @@ public class PetFood {
      * If the food doesn't state any pet ids, then the food is compatible with any pet
      */
     public boolean isCompatibleWithPet(Pet pet) {
-        if (pet == null)
-            return false;
-        if (petIds == null || petIds.isEmpty())
-            return true;
+        if (pet == null) return false;
+        if (petIds == null || petIds.isEmpty()) return true;
+
         return petIds.contains(pet.getId());
     }
 
 
     /**
      * Register an owner in the waiting list so that they don't spam an item
-     * and loose it unintentionally
+     * and lose it unintentionally
      */
-    private ArrayList<UUID> waitingListApply = new ArrayList<>();
+    private final Set<UUID> waitingListApply = new HashSet<>();
     public void registerWaitingList(UUID owner, long delay) {
-        if (waitingListApply.contains(owner))
-            return;
-        waitingListApply.add(owner);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                waitingListApply.remove(owner);
-            }
-        }.runTaskLater(MCPets.getInstance(), delay);
+        if (!waitingListApply.add(owner)) return;
+
+        Bukkit.getScheduler().runTaskLater(MCPets.getInstance(), () -> waitingListApply.remove(owner), delay);
     }
 
     private int getRemainingCooldownInSeconds(Pet pet) {
@@ -207,24 +202,20 @@ public class PetFood {
 
     /**
      * Give the food to the pet
-     * @return value stating whether or not the food could be applied
+     * @return value stating whether the food could be applied
      */
     public boolean apply(Pet pet, Player p) {
-        if (pet == null)
-            return false;
+        if (pet == null) return false;
 
-        if (waitingListApply.contains(pet.getOwner()))
-            return false;
+        if (waitingListApply.contains(pet.getOwner())) return false;
 
-        if (type == null)
-            return false;
+        if (type == null) return false;
 
-        if (!isCompatibleWithPet(pet))
-            return false;
+        if (!isCompatibleWithPet(pet)) return false;
 
         int foodCooldown = getRemainingCooldownInSeconds(pet);
         if (foodCooldown > 0) {
-            Debugger.send("§7NOT applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 because it's on cooldown for " + foodCooldown + "s more");
+            Debugger.send("§7NOT applying pet food §6" + id + "§7 to §6" + pet.getId() + "§7 because it's on cooldown for " + foodCooldown + "s more");
             Language.PET_FOOD_ON_COOLDOWN.sendMessageFormatted(p, new FormatArg("%timeleft%", foodCooldown));
             return false;
         }
@@ -232,52 +223,57 @@ public class PetFood {
         // says whether the petfood was triggered or not
         boolean triggered = false;
 
-        Debugger.send("§7Applying pet food §6" + this.id + "§7 to §6" + pet.getId() + "§7 with type §a" + this.type.getType());
-        if (type.getType().equals(PetFoodType.HEALTH.getType())) {
-            if (pet.getPetStats() != null && pet.getPetStats().getCurrentHealth() < pet.getPetStats().getCurrentLevel().getMaxHealth()) {
-                pet.getPetStats().setHealth(operator.get(pet.getPetStats().getCurrentHealth(), power));
+        Debugger.send("§7Applying pet food §6" + id + "§7 to §6" + pet.getId() + "§7 with type §a" + type.getType());
+
+        PetStats stats = pet.getPetStats();
+        switch (type) {
+            case HEALTH -> {
+                if (stats == null || stats.getCurrentHealth() >= stats.getCurrentLevel().getMaxHealth()) {
+                    Debugger.send("§cCould not give HEALTH to the pet because it is already at maximum value.");
+                    break;
+                }
+
+                stats.setHealth(operator.get(stats.getCurrentHealth(), power));
                 triggered = true;
             }
-            else {
-                Debugger.send("§cCould not give HEALTH to the pet because it is already at maximum value.");
-            }
-        }
-        else if (type.getType().toUpperCase().contains("BUFF")) {
-            PetFoodBuff buff = new PetFoodBuff(pet, this.type, (float)this.power, this.operator, duration);
-            triggered = buff.apply();
-        }
-        else if (type.getType().equals(PetFoodType.TAME.getType())) {
-            if (pet.getTamingProgress() != 1) {
+            case TAME -> {
+                if (pet.getTamingProgress() >= 1) {
+                    Debugger.send("§cCould not give TAMING PROGRESS to the pet because it has reached maximum value.");
+                    break;
+                }
+
                 pet.setTamingProgress(operator.get(pet.getTamingProgress(), power));
                 triggered = true;
             }
-            else {
-                Debugger.send("§cCould not give TAMING PROGRESS to the pet because it has reached maximum value.");
-            }
-        }
-        else if (type.getType().equals(PetFoodType.EXP.getType())) {
-            if (pet.getPetStats() != null) {
-                triggered = pet.getPetStats().addExperience(power);
+            case EXP -> {
+                if (stats == null) {
+                    break;
+                }
+
+                triggered = stats.addExperience(power);
+
                 if (!triggered) {
                     Debugger.send("§cCould not give EXP to the pet because it has reached maximum value.");
                 }
             }
-        }
-        else if (type.getType().equals(PetFoodType.EVOLUTION.getType())) {
-            Pet evolutionPet = Pet.getFromId(evolution);
-            if (pet.getPetStats() != null
-                    && evolutionPet != null
-                    && pet.getPetStats().getExperience() >= experienceThreshold) {
-                PetLevel level = pet.getPetStats().getCurrentLevel();
+            case EVOLUTION -> {
+                Pet evolutionPet = Pet.getFromId(evolution);
+                if (stats == null
+                        || evolutionPet == null
+                        || stats.getExperience() < experienceThreshold) {
+                    Debugger.send("§cCould not evolve pet has conditions are not met or the evolution doesn't exist.");
+                    break;
+                }
+
+                PetLevel level = stats.getCurrentLevel();
                 level.setDelayBeforeEvolution(delay);
                 triggered = level.evolveTo(pet.getOwner(), false, evolutionPet);
             }
-            else {
-                Debugger.send("§cCould not evolve pet has conditions are not met or the evolution doesn't exist.");
-            }
-        }
-        else if (type.getType().equals(PetFoodType.UNLOCK.getType())) {
-            if (p != null) {
+            case UNLOCK -> {
+                if (p == null) {
+                    break;
+                }
+
                 if (permission != null && !p.hasPermission(permission)) {
                     Language.PETUNLOCK_NOPERM.sendMessage(p);
                     return false;
@@ -288,7 +284,8 @@ public class PetFood {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but the pet §7"+ unlockedPet +"§7 does not exist.");
                     return false;
                 }
-                else if (p.hasPermission(unlockedPetObject.getPermission())) {
+
+                if (p.hasPermission(unlockedPetObject.getPermission())) {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but they already own the pet.");
                     Language.PETUNLOCKED_ALREADY.sendMessageFormatted(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
                     return false;
@@ -297,6 +294,10 @@ public class PetFood {
                 Utils.givePermission(p.getUniqueId(), unlockedPetObject.getPermission());
                 Language.PETUNLOCKED.sendMessageFormatted(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
                 triggered = true;
+            }
+            case BUFF_DAMAGE, BUFF_RESISTANCE, BUFF_POWER -> {
+                PetFoodBuff buff = new PetFoodBuff(pet, type, (float) power, operator, duration);
+                triggered = buff.apply();
             }
         }
 
@@ -317,13 +318,12 @@ public class PetFood {
         if (p == null) return;
     
         ItemStack mainHandItem = p.getInventory().getItemInMainHand();
-        if (mainHandItem == null || mainHandItem.getType().isAir()) return;
+        if (mainHandItem.getType().isAir()) return;
     
         int currentAmount = mainHandItem.getAmount();
         if (currentAmount <= 1) {
             p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-        }
-        else {
+        } else {
             mainHandItem.setAmount(currentAmount - 1);
         }
     }
@@ -337,8 +337,9 @@ public class PetFood {
         PetFood resultFood = null;
         for (PetFood petFoods : PetFoodConfig.getInstance().list()) {
 
-            if (petFoods == null || petFoods.getItemStack() == null || petFoods.getItemStack().getItemMeta() == null)
+            if (petFoods == null || petFoods.getItemStack() == null || petFoods.getItemStack().getItemMeta() == null) {
                 continue;
+            }
 
             if (petFoods.getItemStack().isSimilar(handItem)) {
                 resultFood = petFoods;
@@ -363,11 +364,9 @@ public class PetFood {
                 }
             }
 
-            if (MCPets.checkNexo()) {
-                if (NexoItems.isSameId(handItem, petFoods.getItemStack())) {
-                    resultFood = petFoods;
-                    break;
-                }
+            if (MCPets.checkNexo() && NexoItems.isSameId(handItem, petFoods.getItemStack())) {
+                resultFood = petFoods;
+                break;
             }
         }
 
@@ -380,4 +379,5 @@ public class PetFood {
     public static PetFood getFromId(String id) {
         return petFoodHashMap.get(id);
     }
+
 }

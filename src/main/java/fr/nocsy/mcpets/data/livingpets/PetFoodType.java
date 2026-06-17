@@ -27,6 +27,10 @@ public enum PetFoodType {
      * Get the food type corresponding to the given name
      */
     public static PetFoodType get(String type) {
-        return Arrays.stream(PetFoodType.values()).filter(petFoodType -> petFoodType.getType().equalsIgnoreCase(type)).findFirst().orElse(null);
+        return Arrays.stream(values())
+                .filter(foodType -> foodType.type.equalsIgnoreCase(type))
+                .findFirst()
+                .orElse(null);
     }
+
 }

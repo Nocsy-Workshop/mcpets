@@ -159,14 +159,14 @@ public enum Language {
     }
 
     public String getMessage() {
-        String m = Utils.hex(message);
+        String m = message;
 
         m = Utils.applyPlaceholders(null, m);
         return m;
     }
 
     public String getMessagePAPI() {
-        String m = Utils.hex(message);
+        String m = message;
 
         m = Utils.applyPlaceholders(null, m);
         return m;

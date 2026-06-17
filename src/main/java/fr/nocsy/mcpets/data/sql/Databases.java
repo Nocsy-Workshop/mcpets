@@ -10,14 +10,12 @@ import lombok.Setter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class Databases {
 
@@ -122,7 +120,7 @@ public class Databases {
                     PetStats.remove(uuid);
 
                     for (String seria : playerData.getString("data").split(";;;")) {
-                        PetStats stats = PetStats.unzerialize(seria);
+                        PetStats stats = PetStats.unserialize(seria);
                         if (stats == null)
                             continue;
                         stats.launchTimers();
@@ -184,7 +182,7 @@ public class Databases {
                     PetStats.remove(uuid);
 
                     for (String seria : playerData.getString("data").split(";;;")) {
-                        PetStats stats = PetStats.unzerialize(seria);
+                        PetStats stats = PetStats.unserialize(seria);
                         if (stats == null)
                             continue;
                         stats.launchTimers();
