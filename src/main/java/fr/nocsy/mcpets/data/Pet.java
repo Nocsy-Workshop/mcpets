@@ -483,14 +483,14 @@ public class Pet {
      * Set the value of the taming progress default value
      */
     public void setDefaultTamingValue(final double value) {
-        tamingProgress = Math.min(1, Math.max(value, 0));
+        tamingProgress = Math.clamp(value, 0, 1);
     }
 
     /**
      * Set the taming progress to the given value
      */
     public void setTamingProgress(double value) {
-        value = Math.min(1, Math.max(value, 0));
+        value = Math.clamp(value, 0, 1);
 
         final PetTamingEvent event = new PetTamingEvent(this, value);
         Utils.callEvent(event);
@@ -503,7 +503,7 @@ public class Pet {
 
             // If taming is complete, then give the access to the owner
             if (event.isTamingComplete()) {
-                // Setup the pet stats
+                // Set up the pet stats
                 setPetStats();
                 // Give the access
                 Utils.givePermission(owner, permission);
@@ -546,17 +546,17 @@ public class Pet {
     }
 
     /**
-     * Setup the pet stats if possible
+     * Set up the pet stats if possible
      */
     private void setPetStats() {
-        // We do not setup pet stats if :
+        // We do not set up pet stats if :
         // - The pet already has stats
         // - The pet has no registered levels (it's not a living pet then)
         if (petStats != null || petLevels == null || petLevels.isEmpty())
             return;
 
         // If it already has registered pet stats, then we just read them from the loaded ones
-        // Else we create default pet stats that will server as the base
+        // Else we create default pet stats that will serve as the base
         petStats = Optional.ofNullable(PetStats.get(id, owner)).orElseGet(() -> {
             final PetStats start = new PetStats(this, 0, petLevels.getFirst().getMaxHealth(), petLevels.getFirst());
             // We register the pet stats if we have new ones created
