@@ -194,11 +194,9 @@ public class PetSkin {
      * Apply the skin to the pet
      */
     public boolean apply(Pet instancePet) {
-        if (!instancePet.isStillHere())
-            return false;
+        if (!instancePet.isStillHere()) return false;
 
-        if (!instancePet.getId().equals(objectPet.getId()))
-            return false;
+        if (!instancePet.getId().equals(objectPet.getId())) return false;
 
         Location loc = instancePet.getActiveMob().getEntity().getBukkitEntity().getLocation();
 
