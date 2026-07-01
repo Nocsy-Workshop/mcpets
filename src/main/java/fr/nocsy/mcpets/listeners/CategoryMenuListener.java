@@ -1,18 +1,19 @@
 package fr.nocsy.mcpets.listeners;
 
-import fr.nocsy.mcpets.data.Category;
-import fr.nocsy.mcpets.utils.PDCTag;
-import fr.nocsy.mcpets.data.CategoryType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.inventory.InventoryClickEvent;
+
 import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.utils.PDCTag;
+import fr.nocsy.mcpets.data.Category;
+import fr.nocsy.mcpets.data.CategoryType;
 import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.utils.MenuPaginationHelper;
 import fr.nocsy.mcpets.data.inventories.CategoriesMenu;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class CategoryMenuListener implements Listener {
 
@@ -57,14 +58,12 @@ public class CategoryMenuListener implements Listener {
         }
 
         String tag = PDCTag.get(it.getItemMeta());
-        if (tag != null && tag.contains("MCPetsPage;")) {
-            final int currentPage = category.getCurrentPage(e.getClickedInventory());
-            if (e.getClick() == ClickType.LEFT) {
-                category.openInventory(p, currentPage - 1);
-            } else {
-                category.openInventory(p, currentPage + 1);
+        if (tag != null) {
+            if (MenuPaginationHelper.handlePagination(it, p,
+                    "MCPetsPreviousPage;", "MCPetsNextPage;",
+                    category::openInventory)) {
+                return;
             }
-            return;
         }
 
         final Pet petObject = Pet.getFromIcon(it);
@@ -75,4 +74,5 @@ public class CategoryMenuListener implements Listener {
             Category.unregisterPlayerView(p);
         }
     }
+
 }

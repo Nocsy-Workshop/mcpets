@@ -23,7 +23,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 public enum Items {
 
-    UNKNOWN("unkown"),
+    UNKNOWN("unknown"),
 
     MOUNT("mount"),
     RENAME("rename"),
@@ -32,7 +32,8 @@ public enum Items {
     INVENTORY("inventory"),
     SKINS("skins"),
     EQUIPMENT("equipment"),
-    PAGE_SELECTOR("page_selector");
+    PREVIOUS_PAGE_SELECTOR("previous_page_selector"),
+    NEXT_PAGE_SELECTOR("next_page_selector");
 
     @Setter
     @Getter
@@ -72,6 +73,8 @@ public enum Items {
                 item = equipment();
                 break;
             case "page_selector":
+            case "previous_page_selector":
+            case "next_page_selector":
                 item = page_item();
                 break;
             default:
@@ -92,7 +95,6 @@ public enum Items {
     }
 
     private static ItemStack unknown() {
-
         ItemStack it = new ItemStack(Material.BEDROCK);
         ItemMeta meta = it.getItemMeta();
         meta.displayName(Utils.toComponent("Unknown"));
@@ -206,32 +208,103 @@ public enum Items {
         return it;
     }
 
-    public static ItemStack page(int index, Player p) {
-        ItemStack it = ItemsListConfig.getInstance().getItemStack("page_selector");
+    public static ItemStack nextPage(int index, Player p, int maxPages) {
+        return nextPage(index, p, maxPages, null);
+    }
+
+    public static ItemStack nextPage(int index, Player p, int maxPages, CategoryType filterType) {
+        // Fallback to page_selector for compatibility
+        ItemStack it = ItemsListConfig.getInstance().getItemStack("next_page_selector");
+        if (it == null) {
+            it = ItemsListConfig.getInstance().getItemStack("page_selector");
+        }
+
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Language.TURNPAGE_ITEM_NAME.getComponentFormatted(
+        meta.displayName(Language.NEXT_PAGE_ITEM_NAME.getComponentFormatted(
                 new FormatArg("%currentPage%", Integer.toString(index + 1)),
-                new FormatArg("%maxPage%", Integer.toString((int) ((double) Pet.getAvailablePets(p).size() / 54 + 0.5)))));
+                new FormatArg("%maxPage%", Integer.toString(maxPages))));
 
-        PDCTag.set(meta, "AlmPetPage;" + index);
+        String tag = "AlmPetNextPage;" + index;
+        if (filterType != null) {
+            tag += ";" + filterType.name();
+        }
+        PDCTag.set(meta, tag);
 
-        meta.lore(Utils.toComponents(Language.TURNPAGE_ITEM_DESCRIPTION.getMessage()));
+        meta.lore(Utils.toComponents(Language.NEXT_PAGE_ITEM_DESCRIPTION.getMessage()));
 
         it.setItemMeta(meta);
         return it;
     }
 
-    public static ItemStack page(Category category, int index) {
-        ItemStack it = ItemsListConfig.getInstance().getItemStack("page_selector");
+    public static ItemStack previousPage(int index, Player p, int maxPages) {
+        return previousPage(index, p, maxPages, null);
+    }
+
+    public static ItemStack previousPage(int index, Player p, int maxPages, CategoryType filterType) {
+        // Fallback to page_selector for compatibility
+        ItemStack it = ItemsListConfig.getInstance().getItemStack("previous_page_selector");
+        if (it == null) {
+            it = ItemsListConfig.getInstance().getItemStack("page_selector");
+        }
+
         ItemMeta meta = it.getItemMeta();
-        meta.displayName(Language.TURNPAGE_ITEM_NAME.getComponentFormatted(new FormatArg("%currentPage%", Integer.toString(index + 1)),
-                                                                            new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
-        PDCTag.set(meta, "MCPetsPage;" + category.getId() + ";" + index);
+        meta.displayName(Language.PREVIOUS_PAGE_ITEM_NAME.getComponentFormatted(
+                new FormatArg("%currentPage%", Integer.toString(index + 1)),
+                new FormatArg("%maxPage%", Integer.toString(maxPages))));
+
+        String tag = "AlmPetPreviousPage;" + index;
+        if (filterType != null) {
+            tag += ";" + filterType.name();
+        }
+        PDCTag.set(meta, tag);
+
+        meta.lore(Utils.toComponents(Language.PREVIOUS_PAGE_ITEM_DESCRIPTION.getMessage()));
+
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    public static ItemStack nextPage(Category category, int index) {
+        // Fallback to page_selector for compatibility
+        ItemStack it = ItemsListConfig.getInstance().getItemStack("next_page_selector");
+        if (it == null) {
+            it = ItemsListConfig.getInstance().getItemStack("page_selector");
+        }
+
+        ItemMeta meta = it.getItemMeta();
+        meta.displayName(Language.NEXT_PAGE_ITEM_NAME.getComponentFormatted(new FormatArg("%currentPage%", Integer.toString(index + 1)),
+                new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
+        PDCTag.set(meta, "MCPetsNextPage;" + category.getId() + ";" + index);
 
         meta.lore(
                 Utils.toComponents(
-                        Language.TURNPAGE_ITEM_DESCRIPTION.getMessageFormatted(
-                                new FormatArg("%currentPage%", Integer.toString(index)),
+                        Language.NEXT_PAGE_ITEM_DESCRIPTION.getMessageFormatted(
+                                new FormatArg("%currentPage%", Integer.toString(index + 1)),
+                                new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))
+                        )
+                )
+        );
+
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    public static ItemStack previousPage(Category category, int index) {
+        // Fallback to page_selector for compatibility
+        ItemStack it = ItemsListConfig.getInstance().getItemStack("previous_page_selector");
+        if (it == null) {
+            it = ItemsListConfig.getInstance().getItemStack("page_selector");
+        }
+
+        ItemMeta meta = it.getItemMeta();
+        meta.displayName(Language.PREVIOUS_PAGE_ITEM_NAME.getComponentFormatted(new FormatArg("%currentPage%", Integer.toString(index + 1)),
+                new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))));
+        PDCTag.set(meta, "MCPetsPreviousPage;" + category.getId() + ";" + index);
+
+        meta.lore(
+                Utils.toComponents(
+                        Language.PREVIOUS_PAGE_ITEM_DESCRIPTION.getMessageFormatted(
+                                new FormatArg("%currentPage%", Integer.toString(index + 1)),
                                 new FormatArg("%maxPage%", Integer.toString(category.getMaxPages()))
                         )
                 )
@@ -301,14 +374,13 @@ public enum Items {
     }
 
     public static String getPetTag(ItemStack it) {
-        if (it != null && it.hasItemMeta()) {
-            final String tag = PDCTag.get(it.getItemMeta());
-            if (tag != null) {
-                final String[] split = tag.split(";");
-                if (split.length == 2)
-                    return split[1];
-            }
-        }
+        if (it == null || !it.hasItemMeta()) return null;
+
+        final String tag = PDCTag.get(it.getItemMeta());
+        if (tag == null) return null;
+
+        final String[] split = tag.split(";");
+        if (split.length == 2) return split[1];
 
         return null;
     }

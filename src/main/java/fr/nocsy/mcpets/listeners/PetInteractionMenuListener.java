@@ -1,33 +1,36 @@
 package fr.nocsy.mcpets.listeners;
 
-import fr.nocsy.mcpets.MCPets;
-import fr.nocsy.mcpets.PPermission;
-import fr.nocsy.mcpets.data.Items;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.PetDespawnReason;
-import fr.nocsy.mcpets.data.PetSkin;
-import fr.nocsy.mcpets.data.config.FormatArg;
-import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.inventories.PetInventory;
-import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
-import fr.nocsy.mcpets.data.inventories.PetMenu;
-import fr.nocsy.mcpets.utils.PDCTag;
-import fr.nocsy.mcpets.utils.Utils;
-import lombok.Getter;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
-
+import java.util.UUID;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import lombok.Getter;
+
+import org.jetbrains.annotations.NotNull;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+
+import fr.nocsy.mcpets.MCPets;
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.Items;
+import fr.nocsy.mcpets.PPermission;
+import fr.nocsy.mcpets.utils.Utils;
+import fr.nocsy.mcpets.utils.PDCTag;
+import fr.nocsy.mcpets.data.PetSkin;
+import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.PetDespawnReason;
+import fr.nocsy.mcpets.data.config.FormatArg;
+import fr.nocsy.mcpets.data.inventories.PetMenu;
+import fr.nocsy.mcpets.data.inventories.PetInventory;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 
 public class PetInteractionMenuListener implements Listener {
 
@@ -35,8 +38,9 @@ public class PetInteractionMenuListener implements Listener {
     private static final List<UUID> waitingForAnswer = new CopyOnWriteArrayList<>();
 
     public static void changeName(@NotNull final Player p) {
-        if (!waitingForAnswer.contains(p.getUniqueId()))
+        if (!waitingForAnswer.contains(p.getUniqueId())) {
             waitingForAnswer.add(p.getUniqueId());
+        }
         Language.TYPE_NAME_IN_CHAT.sendMessage(p);
         Language.IF_WISH_TO_REMOVE_NAME.sendMessageFormatted(p, new FormatArg("%tag%", Language.TAG_TO_REMOVE_NAME.getMessage()));
     }
@@ -51,9 +55,7 @@ public class PetInteractionMenuListener implements Listener {
 
     public static void inventory(final Player p, final Pet pet) {
         final PetInventory inventory = PetInventory.get(pet);
-        if (inventory != null) {
-            inventory.open(p);
-        }
+        if (inventory != null) inventory.open(p);
     }
 
     public static void skins(final Player p, final Pet pet) {
@@ -107,10 +109,7 @@ public class PetInteractionMenuListener implements Listener {
             if (it != null && it.hasItemMeta() && it.getItemMeta().hasDisplayName()) {
 
                 final String localizedName = PDCTag.get(it.getItemMeta());
-                if (localizedName == null)
-                    return;
-                if (localizedName.contains("AlmPetPage;"))
-                    return;
+                if (localizedName == null) return;
 
                 if (localizedName.equals(Items.PETMENU.getLocalizedName())) {
                     openBackPetMenu(p);

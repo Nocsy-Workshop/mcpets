@@ -33,8 +33,11 @@ public enum Language {
     EQUIPMENT_ITEM_NAME("§6Equipment"),
     EQUIPMENT_DESCRIPTION("§7Click to open your pet's equipment"),
 
-    TURNPAGE_ITEM_NAME("§6Next page §7(§e%currentPage%§8/§7%maxPage%)"),
-    TURNPAGE_ITEM_DESCRIPTION("§eRight click§7 to go forward \n§aLeft click§7 to go backward"),
+    NEXT_PAGE_ITEM_NAME("§6Next page §7(§e%currentPage%§8/§7%maxPage%)"),
+    NEXT_PAGE_ITEM_DESCRIPTION("§eClick§7 to go forward"),
+
+    PREVIOUS_PAGE_ITEM_NAME("§6Previous page §7(§e%currentPage%§8/§7%maxPage%)"),
+    PREVIOUS_PAGE_ITEM_DESCRIPTION("§eClick§7 to go backward"),
 
     NICKNAME("§9Nickname : §7%nickname%"),
     NICKNAME_ITEM_LORE("§cClick here to revoke your pet"),

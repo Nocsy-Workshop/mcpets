@@ -14,7 +14,8 @@ import fr.nocsy.mcpets.data.Items;
 import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.utils.MenuPaginationHelper;
+import fr.nocsy.mcpets.utils.MenuPaginationHelper.PaginationConfig;
 
 public class PetMenu {
 
@@ -35,46 +36,27 @@ public class PetMenu {
 
         final List<Pet> availablePets = Pet.getAvailablePets(p);
 
-        // Count the amount of pets that are being selected at that page
-        // One page is up to 53 pets, so the page P has already seen 53 * P pets
-        // 53 pets because we have to leave one spot available for the pager everytime
+        PaginationConfig config = MenuPaginationHelper.calculatePagination(page, availablePets.size());
+        
         final List<Pet> selectedPets = new ArrayList<>();
-        // Let's see if we need to add a pager to the inventory
-        // Either we have more than 53 pets or we are at a page greater than 0
-        boolean addPager = page > 0;
-        int pageSize = 53;
-        if (GlobalConfig.getInstance().getAdaptiveInventory() > 0) {
-            pageSize = GlobalConfig.getInstance().getAdaptiveInventory() - 1;
-        }
-        for (int i = pageSize * page; i < availablePets.size(); i++) {
-            // We can not have more than 53 pets selected at a given page
-            if (selectedPets.size() >= 53) {
-                addPager = true;
-                break;
-            }
+        for (int i = config.startIndex(); i < config.startIndex() + config.itemsToShow() && i < availablePets.size(); i++) {
             selectedPets.add(availablePets.get(i));
         }
 
-        // We can now easily compute the inventory size in the adaptive case
-        // by taking the amount of pets selected and adding one for the pager
-        // then we round it up to the nearest multiple of 9
-        int invSize = GlobalConfig.getInstance().getAdaptiveInventory();
-        if (invSize <= 0) {
-            invSize = selectedPets.size() + 1;
-            while (invSize % 9 != 0) {
-                invSize++;
-            }
-        }
-
-        // Let's fill tbe view with the selected pets
-        inventory = new PetInventoryHolder(invSize, title, PetInventoryHolder.Type.PET_MENU).getInventory();
+        inventory = new PetInventoryHolder(config.invSize(), title, PetInventoryHolder.Type.PET_MENU).getInventory();
+        int slot = config.startSlot();
         for (final Pet pet : selectedPets) {
-            inventory.addItem(pet.buildItem(pet.getIcon(), true));
+            inventory.setItem(slot++, pet.buildItem(pet.getIcon(), true));
         }
 
-        // If we need to add a pager, we do so
-        if (addPager) {
-            inventory.setItem(invSize - 1, Items.page(page, p));
+        int maxPages = MenuPaginationHelper.calculateMaxPages(availablePets.size());
+
+        if (config.needsPreviousButton()) {
+            inventory.setItem(0, Items.previousPage(page, p, maxPages));
+        }
+
+        if (config.needsNextButton()) {
+            inventory.setItem(config.invSize() - 1, Items.nextPage(page, p, maxPages));
         }
     }
 
