@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>MCPets</name>
-    <description>Modeled Pets for you Server!</description>
+    <description>Modeled Pets for your Server!</description>
 
     <groupId>fr.nocsy</groupId>
     <artifactId>mcpets</artifactId>
-    <version>4.1.12</version>
+    <version>4.2.0</version>
 
     <licenses>
         <license>
