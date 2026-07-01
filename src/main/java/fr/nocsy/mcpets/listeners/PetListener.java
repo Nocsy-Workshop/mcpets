@@ -459,7 +459,7 @@ public class PetListener implements Listener {
         Pet pet = e.getPet();
         Entity player = e.getEntity();
         if (player instanceof Player &&
-                GlobalConfig.getInstance().isWorldguardsupport() &&
+                GlobalConfig.getInstance().isWorldGuardSupport() &&
                 FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
                 FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation())) {
 

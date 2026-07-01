@@ -71,7 +71,7 @@ public abstract class AbstractFlag {
      * Test if the state flag is allowed at player's location
      */
     public boolean testState(final org.bukkit.Location location) {
-        if (!GlobalConfig.getInstance().isWorldguardsupport())
+        if (!GlobalConfig.getInstance().isWorldGuardSupport())
             return true;
         final Location loc = BukkitAdapter.adapt(location);
         final RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();

@@ -73,7 +73,7 @@ public class ModelEngineListeners implements Listener {
             Debugger.send("[ModelMountEvent] §c" + player.getName() + " can not mount model of " + pet.getId() + " as he's not the owner, nor an admin.");
         }
 
-        if (GlobalConfig.getInstance().isWorldguardsupport() &&
+        if (GlobalConfig.getInstance().isWorldGuardSupport() &&
                 FlagsManager.getFlag(DismountPetFlag.NAME) != null &&
                 FlagsManager.getFlag(DismountPetFlag.NAME).testState(player.getLocation())) {
 

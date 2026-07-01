@@ -82,7 +82,7 @@ public class BetterModelListeners {
         }
 
         // Check WorldGuard dismount flag
-        if (GlobalConfig.getInstance().isWorldguardsupport()
+        if (GlobalConfig.getInstance().isWorldGuardSupport()
                 && FlagsManager.getFlag(DismountPetFlag.NAME) != null
                 && FlagsManager.getFlag(DismountPetFlag.NAME).testState(playerEntity.getLocation())) {
             event.setCancelled(true);
