@@ -1,46 +1,52 @@
 package fr.nocsy.mcpets;
 
-import com.google.common.collect.Lists;
-import com.sk89q.worldguard.WorldGuard;
-import fr.nocsy.mcpets.commands.CommandHandler;
-import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.data.PetSkin;
-import fr.nocsy.mcpets.data.config.AbstractConfig;
-import fr.nocsy.mcpets.data.config.BlacklistConfig;
-import fr.nocsy.mcpets.data.config.CategoryConfig;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
-import fr.nocsy.mcpets.data.config.ItemsListConfig;
-import fr.nocsy.mcpets.data.config.LanguageConfig;
-import fr.nocsy.mcpets.data.config.PetConfig;
-import fr.nocsy.mcpets.data.config.PetFoodConfig;
-import fr.nocsy.mcpets.data.editor.EditorConversation;
-import fr.nocsy.mcpets.data.editor.EditorItems;
-import fr.nocsy.mcpets.data.flags.FlagsManager;
-import fr.nocsy.mcpets.data.livingpets.PetStats;
-import fr.nocsy.mcpets.data.sql.Databases;
-import fr.nocsy.mcpets.data.sql.PlayerData;
-import fr.nocsy.mcpets.listeners.EventListener;
-import fr.nocsy.mcpets.modeler.AbstractModeler;
-import fr.nocsy.mcpets.modeler.BetterModelModeler;
-import fr.nocsy.mcpets.modeler.ModelEngineModeler;
-import fr.nocsy.mcpets.velocity.VelocitySyncManager;
-import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.core.skills.CustomComponentRegistry;
-import lombok.Getter;
-import net.luckperms.api.LuckPerms;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.concurrent.CompletableFuture;
+
+import com.google.common.collect.Lists;
+
+import lombok.Getter;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
+
+import net.luckperms.api.LuckPerms;
+
+import com.sk89q.worldguard.WorldGuard;
+
+import io.lumine.mythic.bukkit.MythicBukkit;
+import io.lumine.mythic.core.skills.CustomComponentRegistry;
+
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.PetSkin;
+import fr.nocsy.mcpets.data.sql.Databases;
+import fr.nocsy.mcpets.data.sql.PlayerData;
+import fr.nocsy.mcpets.data.config.PetConfig;
+import fr.nocsy.mcpets.commands.CommandHandler;
+import fr.nocsy.mcpets.data.editor.EditorItems;
+import fr.nocsy.mcpets.data.flags.FlagsManager;
+import fr.nocsy.mcpets.modeler.AbstractModeler;
+import fr.nocsy.mcpets.listeners.EventListener;
+import fr.nocsy.mcpets.data.livingpets.PetStats;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.data.config.PetFoodConfig;
+import fr.nocsy.mcpets.data.config.CategoryConfig;
+import fr.nocsy.mcpets.data.config.LanguageConfig;
+import fr.nocsy.mcpets.modeler.BetterModelModeler;
+import fr.nocsy.mcpets.modeler.ModelEngineModeler;
+import fr.nocsy.mcpets.data.config.AbstractConfig;
+import fr.nocsy.mcpets.compat.PlaceholderAPICompat;
+import fr.nocsy.mcpets.data.config.BlacklistConfig;
+import fr.nocsy.mcpets.data.config.ItemsListConfig;
+import fr.nocsy.mcpets.velocity.VelocitySyncManager;
+import fr.nocsy.mcpets.data.editor.EditorConversation;
 
 import static fr.nocsy.mcpets.mythicmobs.MythicListener.*;
 
@@ -87,8 +93,9 @@ public class MCPets extends JavaPlugin {
             Bukkit.getScheduler().runTask(instance, MCPets::scheduleDbDependentTasks);
         });
 
-        for (final EditorItems item : EditorItems.values())
+        for (final EditorItems item : EditorItems.values()) {
             item.refreshData();
+        }
     }
 
     /**
@@ -150,22 +157,24 @@ public class MCPets extends JavaPlugin {
         EventListener.init(this);
         modeler.registerListeners(this);
 
-        loadConfigs();
-        // PetStats.saveStats() and VelocitySyncManager.init() are scheduled inside
-        // loadConfigs() once async DB init completes — see scheduleDbDependentTasks()
+        Bukkit.getScheduler().runTask(this, () -> {
+            loadConfigs();
+            // PetStats.saveStats() and VelocitySyncManager.init() are scheduled inside
+            // loadConfigs() once async DB init completes — see scheduleDbDependentTasks()
 
-        // Register the placeholders
-        componentRegistry = new CustomComponentRegistry(instance, Lists.newArrayList());
-        componentRegistry.registerCustomComponent(CustomComponentRegistry.MythicComponentType.PLACEHOLDER, PLACEHOLDER_PACKAGE)
-                .registerCustomComponent(CustomComponentRegistry.MythicComponentType.CONDITION, CONDITION_PACKAGE)
-                .registerCustomComponent(CustomComponentRegistry.MythicComponentType.TARGETER, TARGETER_PACKAGE)
-                .registerCustomComponent(CustomComponentRegistry.MythicComponentType.MECHANIC, MECHANIC_PACKAGE);
+            // Register the placeholders
+            componentRegistry = new CustomComponentRegistry(instance, Lists.newArrayList());
+            componentRegistry.registerCustomComponent(CustomComponentRegistry.MythicComponentType.PLACEHOLDER, PLACEHOLDER_PACKAGE)
+                    .registerCustomComponent(CustomComponentRegistry.MythicComponentType.CONDITION, CONDITION_PACKAGE)
+                    .registerCustomComponent(CustomComponentRegistry.MythicComponentType.TARGETER, TARGETER_PACKAGE)
+                    .registerCustomComponent(CustomComponentRegistry.MythicComponentType.MECHANIC, MECHANIC_PACKAGE);
 
-        getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
-        getLog().info("      Plugin made by Nocsy     ");
-        getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
+            getLog().info("-=-=-=-= MCPets loaded =-=-=-=-");
+            getLog().info("      Plugin made by Nocsy     ");
+            getLog().info("-=-=-=-= -=-=-=-=-=-=- =-=-=-=-");
 
-        FlagsManager.launchFlags();
+            FlagsManager.launchFlags();
+        });
     }
 
     @Override
@@ -192,22 +201,25 @@ public class MCPets extends JavaPlugin {
                     && GlobalConfig.getInstance().isDatabaseSupport()) {
                 for (Map.Entry<UUID, List<Pet>> entry : Pet.getActivePets().entrySet()) {
                     List<Pet> activePets = entry.getValue();
-                    if (activePets != null && !activePets.isEmpty()) {
-                        List<String> ids = new ArrayList<>();
-                        Map<String, String> skinIds = new HashMap<>();
-                        for (Pet pet : activePets) {
-                            if (pet != null) {
-                                ids.add(pet.getId());
-                                final PetSkin skin = pet.getActiveSkin();
-                                if (skin != null) {
-                                    skinIds.put(pet.getId(), skin.getPathId());
-                                }
-                            }
-                        }
-                        if (!ids.isEmpty()) {
-                            Databases.saveActivePet(entry.getKey(), ids, skinIds);
+                    if (activePets == null || activePets.isEmpty()) {
+                        continue;
+                    }
+
+                    List<String> ids = new ArrayList<>();
+                    Map<String, String> skinIds = new HashMap<>();
+                    for (Pet pet : activePets) {
+                        if (pet == null) continue;
+
+                        ids.add(pet.getId());
+                        final PetSkin skin = pet.getActiveSkin();
+                        if (skin != null) {
+                            skinIds.put(pet.getId(), skin.getPathId());
                         }
                     }
+
+                    if (ids.isEmpty()) continue;
+
+                    Databases.saveActivePet(entry.getKey(), ids, skinIds);
                 }
             }
         });
@@ -269,7 +281,6 @@ public class MCPets extends JavaPlugin {
     }
 
     private static void checkItemsAdder() {
-
         try {
             Class.forName("dev.lone.itemsadder.api.CustomStack");
             itemsAdderFound = true;
@@ -296,8 +307,7 @@ public class MCPets extends JavaPlugin {
      * Check and initialize MythicMobs instance
      */
     private static boolean checkMythicMobs() {
-        if (mythicMobs != null)
-            return true;
+        if (mythicMobs != null) return true;
 
         try {
             final MythicBukkit inst = MythicBukkit.inst();
@@ -316,8 +326,7 @@ public class MCPets extends JavaPlugin {
      * Check and initialize the modeler (BetterModel or ModelEngine)
      */
     private static boolean checkModeler() {
-        if (modeler != null)
-            return true;
+        if (modeler != null) return true;
 
         // Try BetterModel first
         try {
@@ -356,8 +365,7 @@ public class MCPets extends JavaPlugin {
      * Return MythicMobs instance
      */
     public static MythicBukkit getMythicMobs() {
-        if (mythicMobs == null)
-            checkMythicMobs();
+        if (mythicMobs == null) checkMythicMobs();
 
         return mythicMobs;
     }
@@ -366,8 +374,7 @@ public class MCPets extends JavaPlugin {
      * Return LuckPerms instance
      */
     public static LuckPerms getLuckPerms() {
-        if (luckPerms == null)
-            checkLuckPerms();
+        if (luckPerms == null) checkLuckPerms();
 
         return luckPerms;
     }
@@ -381,8 +388,8 @@ public class MCPets extends JavaPlugin {
 
     public static Logger getLog() {
         final MCPets plugin = getInstance();
-        if (plugin != null)
-            return plugin.getLogger();
+        if (plugin != null) return plugin.getLogger();
         return Bukkit.getLogger();
     }
+
 }
