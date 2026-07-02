@@ -297,7 +297,8 @@ public class PetConfig extends AbstractConfig {
         final List<PetLevel> levels = new ArrayList<>();
 
         final List<String> keys = getConfig().getKeys(true).stream()
-                .filter(key ->  key.contains("Levels") &&
+                .filter(key ->
+                        key.contains("Levels") &&
                         key.replace(".", ";").split(";").length == 2)
                 .toList();
         for (final String key : keys) {

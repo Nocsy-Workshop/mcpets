@@ -1,19 +1,21 @@
 package fr.nocsy.mcpets.data.flags;
 
-import fr.nocsy.mcpets.MCPets;
+import java.util.List;
+import java.util.ArrayList;
+
 import lombok.Getter;
 
-import java.util.ArrayList;
+import fr.nocsy.mcpets.MCPets;
 
 public class FlagsManager {
 
-    private static ArrayList<AbstractFlag> flags = new ArrayList<>();
+    private static final List<AbstractFlag> flags = new ArrayList<>();
 
     @Getter
     private static boolean registered;
 
     public static void init(MCPets instance) {
-        flags = new ArrayList<>();
+        flags.clear();
         registered = true;
 
         if (instance == null) {
@@ -45,10 +47,9 @@ public class FlagsManager {
         MCPets.getLog().info("-=- Launching Flags -=-");
         int count = 0;
         for (AbstractFlag flag : flags) {
-            if (flag instanceof StoppableFlag) {
-                ((StoppableFlag) flag).launch();
-                count++;
-            }
+            if (!(flag instanceof StoppableFlag stoppableFlag)) continue;
+            stoppableFlag.launch();
+            count++;
         }
         MCPets.getLog().info(count + " flags launched.");
     }
@@ -58,9 +59,10 @@ public class FlagsManager {
      */
     public static void stopFlags() {
         for (AbstractFlag flag : flags) {
-            if (flag instanceof StoppableFlag) {
-                ((StoppableFlag) flag).stop();
-            }
+            if (!(flag instanceof StoppableFlag stoppableFlag)) continue;
+            stoppableFlag.stop();
         }
+        flags.clear();
     }
+
 }
