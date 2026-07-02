@@ -1,26 +1,28 @@
 package fr.nocsy.mcpets.data.config;
 
-import fr.nocsy.mcpets.data.Items;
-import lombok.Getter;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
+
+import lombok.Getter;
+
+import fr.nocsy.mcpets.data.Items;
+
+import org.bukkit.inventory.ItemStack;
 
 public class ItemsListConfig extends AbstractConfig {
 
     private static ItemsListConfig instance;
 
     @Getter
-    private HashMap<String, ItemStack> items;
+    private Map<String, ItemStack> items;
 
     private ItemsListConfig() {
         items = new HashMap<>();
     }
 
     public static ItemsListConfig getInstance() {
-        if (instance == null)
-            instance = new ItemsListConfig();
+        if (instance == null) instance = new ItemsListConfig();
         return instance;
     }
 
@@ -46,8 +48,10 @@ public class ItemsListConfig extends AbstractConfig {
             getConfig().set("skins", Items.SKINS.getItem());
         if (getConfig().get("equipment") == null)
             getConfig().set("equipment", Items.EQUIPMENT.getItem());
-        if (getConfig().get("page_selector") == null)
-            getConfig().set("page_selector", Items.PAGE_SELECTOR.getItem());
+        if (getConfig().get("previous_page_selector") == null)
+            getConfig().set("previous_page_selector", Items.PREVIOUS_PAGE_SELECTOR.getItem());
+        if (getConfig().get("next_page_selector") == null)
+            getConfig().set("next_page_selector", Items.NEXT_PAGE_SELECTOR.getItem());
 
         save();
         reload();
@@ -63,8 +67,8 @@ public class ItemsListConfig extends AbstractConfig {
         loadConfig();
 
         for (String key : getConfig().getKeys(false)) {
-            if(getConfig().getItemStack(key) != null)
-                items.put(key, getConfig().getItemStack(key));
+            if (getConfig().getItemStack(key) == null) continue;
+            items.put(key, getConfig().getItemStack(key));
         }
     }
 
@@ -97,4 +101,5 @@ public class ItemsListConfig extends AbstractConfig {
     public Set<String> listKeys() {
         return items.keySet();
     }
+
 }

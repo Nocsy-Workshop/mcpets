@@ -1,15 +1,15 @@
 package fr.nocsy.mcpets.listeners;
 
-import fr.nocsy.mcpets.data.Pet;
-import fr.nocsy.mcpets.utils.PDCTag;
-import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
-import fr.nocsy.mcpets.data.inventories.PetMenu;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.inventory.InventoryClickEvent;
+
+import fr.nocsy.mcpets.data.Pet;
+import fr.nocsy.mcpets.data.inventories.PetMenu;
+import fr.nocsy.mcpets.utils.MenuPaginationHelper;
+import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 
 public class PetMenuListener implements Listener {
 
@@ -34,18 +34,9 @@ public class PetMenuListener implements Listener {
             return;
         }
 
-        String tag = it.hasItemMeta() ? PDCTag.get(it.getItemMeta()) : null;
-        if (tag != null && tag.contains("AlmPetPage;")) {
-            final int page = Integer.parseInt(tag.split(";")[1]);
-            p.closeInventory();
-
-            final PetMenu menu;
-            if (e.getClick() == ClickType.LEFT) {
-                menu = new PetMenu(p, Math.max(page - 1, 0));
-            } else {
-                menu = new PetMenu(p, page + 1);
-            }
-            menu.open(p);
+        if (MenuPaginationHelper.handlePagination(it, p,
+                "AlmPetPreviousPage;", "AlmPetNextPage;",
+            (player, page) -> new PetMenu(player, page).open(player))) {
             return;
         }
 
@@ -56,4 +47,5 @@ public class PetMenuListener implements Listener {
             pet.spawnWithMessage(p);
         }
     }
+
 }

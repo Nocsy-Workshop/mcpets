@@ -136,7 +136,7 @@ public class MCPets extends JavaPlugin {
         }
 
         try {
-            if (GlobalConfig.getInstance().isWorldguardsupport()) {
+            if (GlobalConfig.getInstance().isWorldGuardSupport()) {
                 FlagsManager.init(this);
             }
         } catch (final Exception ex) {
@@ -285,9 +285,9 @@ public class MCPets extends JavaPlugin {
         try {
             final WorldGuard wg = WorldGuard.getInstance();
             if (wg != null)
-                GlobalConfig.getInstance().setWorldguardsupport(true);
+                GlobalConfig.getInstance().setWorldGuardSupport(true);
         } catch (final NoClassDefFoundError error) {
-            GlobalConfig.getInstance().setWorldguardsupport(false);
+            GlobalConfig.getInstance().setWorldGuardSupport(false);
             getLog().warning("WorldGuard could not be found. Flags won't be available.");
         }
     }

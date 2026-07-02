@@ -15,7 +15,8 @@ import fr.nocsy.mcpets.data.Category;
 import fr.nocsy.mcpets.data.CategoryType;
 import fr.nocsy.mcpets.data.sql.PlayerData;
 import fr.nocsy.mcpets.data.config.Language;
-import fr.nocsy.mcpets.data.config.GlobalConfig;
+import fr.nocsy.mcpets.utils.MenuPaginationHelper;
+import fr.nocsy.mcpets.utils.MenuPaginationHelper.PaginationConfig;
 
 /**
  * Menu to display the list of available mounts for a player
@@ -33,7 +34,11 @@ public class MountMenu {
     @Getter
     private final UUID owner;
 
+    @Getter
+    private final int page;
+
     public MountMenu(final Player p, final int page) {
+        this.page = page;
         // Load the data from the player
         // Mainly for the pet stats
         PlayerData.get(p.getUniqueId());
@@ -49,51 +54,30 @@ public class MountMenu {
             }
         }
 
-        // Count the amount of mounts that are being selected at that page
-        // One page is up to 53 mounts, so the page P has already seen 53 * P mounts
-        // 53 mounts because we gotta leave one spot available for the pager everytime
+        PaginationConfig config = MenuPaginationHelper.calculatePagination(page, availableMounts.size());
+        
         final List<Pet> selectedMounts = new ArrayList<>();
-        // Let's see if we need to add a pager to the inventory
-        // Either we have more than 53 mounts or we are at a page greater than 0
-        boolean addPager = page > 0;
-        int pageSize = 53;
-        if (GlobalConfig.getInstance().getAdaptiveInventory() > 0) {
-            pageSize = GlobalConfig.getInstance().getAdaptiveInventory() - 1;
-        }
-        for (int i = pageSize * page; i < availableMounts.size(); i++) {
-            // We can not have more than 53 mounts selected at a given page
-            if (selectedMounts.size() >= 53) {
-                addPager = true;
-                break;
-            }
+        for (int i = config.startIndex(); i < config.startIndex() + config.itemsToShow() && i < availableMounts.size(); i++) {
             selectedMounts.add(availableMounts.get(i));
         }
-
-        // We can now easily compute the inventory size in the adaptive case
-        // by taking the amount of mounts selected and adding one for the pager
-        // then we round it up to the nearest multiple of 9
-        int invSize = GlobalConfig.getInstance().getAdaptiveInventory();
-        if (invSize <= 0) {
-            invSize = selectedMounts.size() + 1;
-            while (invSize % 9 != 0) {
-                invSize++;
-            }
-        }
-
-        // Let's fill the view with the selected mounts
-        inventory = new PetInventoryHolder(invSize, title, petInvType).getInventory();
+        
+        inventory = new PetInventoryHolder(config.invSize(), title, petInvType).getInventory();
+        int slot = config.startSlot();
         for (final Pet mount : selectedMounts) {
-            inventory.addItem(mount.buildItem(mount.getIcon(), true));
+            inventory.setItem(slot++, mount.buildItem(mount.getIcon(), true));
         }
-
-        // If we need to add a pager, we do so
-        if (addPager) {
-            inventory.setItem(invSize - 1, Items.page(page, p));
+        
+        if (config.needsPreviousButton()) {
+            inventory.setItem(0, Items.previousPage(page, p, 1));
+        }
+        
+        if (config.needsNextButton()) {
+            inventory.setItem(config.invSize() - 1, Items.nextPage(page, p, 1));
         }
     }
 
     public void open(final Player p) {
-        if (p.getUniqueId().equals(owner) && !Category.getCategories(CategoryType.MOUNT).isEmpty()) {
+        if (page == 0 && p.getUniqueId().equals(owner) && !Category.getCategories(CategoryType.MOUNT).isEmpty()) {
             CategoriesMenu.openFiltered(p, CategoryType.MOUNT);
             return;
         }
