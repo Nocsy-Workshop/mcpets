@@ -32,6 +32,8 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean mountable;
     @Getter
+    private boolean showNameTag;
+    @Getter
     private boolean rightClickToOpen;
     @Getter
     private boolean leftClickToOpen;
@@ -163,6 +165,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("Nameable", true);
         if (getConfig().get("Mountable") == null)
             getConfig().set("Mountable", true);
+        if (getConfig().get("ShowNameTag") == null)
+            getConfig().set("ShowNameTag", true);
         if (getConfig().get("DistanceTeleport") == null)
             getConfig().set("DistanceTeleport", 30);
         if (getConfig().get("MaxNameLength") == null)
@@ -257,6 +261,7 @@ public class GlobalConfig extends AbstractConfig {
         sneakMode = getConfig().getBoolean("SneakMode");
         nameable = getConfig().getBoolean("Nameable");
         mountable = getConfig().getBoolean("Mountable");
+        showNameTag = getConfig().getBoolean("ShowNameTag");
         dismountOnDamaged = getConfig().getBoolean("DismountOnDamaged");
         spawnPetOnReconnect = getConfig().getBoolean("SpawnPetOnReconnect");
         distanceTeleport = getConfig().getInt("DistanceTeleport");

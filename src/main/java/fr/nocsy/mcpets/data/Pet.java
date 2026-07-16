@@ -112,6 +112,10 @@ public class Pet {
 
     @Setter
     @Getter
+    private boolean showNameTag = true;
+
+    @Setter
+    @Getter
     private boolean despawnOnDismount;
 
     @Getter
@@ -1289,13 +1293,15 @@ public class Pet {
 
                     activeMob.getEntity().getBukkitEntity().customName(customName);
 
-                    new BukkitRunnable() {
+                    if (showNameTag) {
+                        new BukkitRunnable() {
 
-                        @Override
-                        public void run() {
-                            setNameTag(currentName, false);
-                        }
-                    }.runTaskLater(MCPets.getInstance(), 10L);
+                            @Override
+                            public void run() {
+                                setNameTag(currentName, false);
+                            }
+                        }.runTaskLater(MCPets.getInstance(), 10L);
+                    }
 
                     if (save) {
                         final PlayerData pd = PlayerData.get(owner);
@@ -1308,12 +1314,14 @@ public class Pet {
 
                 activeMob.getEntity().getBukkitEntity().customName(Utils.toComponent(currentName));
 
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        setNameTag(currentName, true);
-                    }
-                }.runTaskLater(MCPets.getInstance(), 10L);
+                if (showNameTag) {
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            setNameTag(currentName, true);
+                        }
+                    }.runTaskLater(MCPets.getInstance(), 10L);
+                }
 
                 Debugger.send("§7Applying name " + name + " to pet " + id);
                 if (save) {
@@ -1346,6 +1354,7 @@ public class Pet {
         pet.setTamingProgressSkill(tamingProgressSkill);
         pet.setTamingOverSkill(tamingOverSkill);
         pet.setMountable(mountable);
+        pet.setShowNameTag(showNameTag);
         pet.setMountPermission(mountPermission);
         pet.setDespawnOnDismount(despawnOnDismount);
         pet.setMountType(mountType);
