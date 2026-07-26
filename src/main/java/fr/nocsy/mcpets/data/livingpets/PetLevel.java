@@ -296,6 +296,9 @@ public class PetLevel {
         announce(owner);
         playSkill(owner);
         evolve(owner, false);
+
+        // Refresh the rendered name/nametag in case the prefix/suffix reflects the level
+        pet.setDisplayName(pet.getCurrentName(), false);
     }
 
     public double getFlatDamageModifier() {

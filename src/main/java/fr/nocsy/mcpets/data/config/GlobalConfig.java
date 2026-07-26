@@ -24,6 +24,10 @@ public class GlobalConfig extends AbstractConfig {
     @Getter
     private boolean overrideDefaultName;
     @Getter
+    private String namePrefix;
+    @Getter
+    private String nameSuffix;
+    @Getter
     private int adaptiveInventory;
     @Getter
     private boolean useDefaultMythicMobNames;
@@ -143,6 +147,10 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("DefaultName", "§9Pet of %player%");
         if (getConfig().get("OverrideDefaultName") == null)
             getConfig().set("OverrideDefaultName", true);
+        if (getConfig().get("NamePrefix") == null)
+            getConfig().set("NamePrefix", "");
+        if (getConfig().get("NameSuffix") == null)
+            getConfig().set("NameSuffix", "");
         if (getConfig().get("EnableClickBackToMenu") == null)
             getConfig().set("EnableClickBackToMenu", true);
         if (getConfig().get("UseDefaultMythicMobsNames") == null)
@@ -254,6 +262,8 @@ public class GlobalConfig extends AbstractConfig {
         prefix = getConfig().getString("Prefix");
         defaultName = getConfig().getString("DefaultName");
         overrideDefaultName = getConfig().getBoolean("OverrideDefaultName");
+        namePrefix = getConfig().getString("NamePrefix");
+        nameSuffix = getConfig().getString("NameSuffix");
         useDefaultMythicMobNames = getConfig().getBoolean("UseDefaultMythicMobsNames");
         rightClickToOpen = getConfig().getBoolean("RightClickToOpenMenu");
         leftClickToOpen = getConfig().getBoolean("LeftClickToOpenMenu");

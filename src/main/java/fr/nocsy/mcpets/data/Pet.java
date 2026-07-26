@@ -144,6 +144,16 @@ public class Pet {
 
     @Getter
     @Setter
+    // Per-pet override for NamePrefix. null = use global config.
+    private String namePrefix;
+
+    @Getter
+    @Setter
+    // Per-pet override for NameSuffix. null = use global config.
+    private String nameSuffix;
+
+    @Getter
+    @Setter
     private String despawnSkill;
 
     @Getter
@@ -1247,6 +1257,23 @@ public class Pet {
         setDisplayName(name, save, false);
     }
 
+    /**
+     * Wraps a base name with the fixed prefix/suffix (per-pet override, falling back
+     * to the global config), resolving placeholders like %mcpets_pet_level_name% in
+     * the process. The player-editable name itself is never affected, only what gets
+     * rendered on the custom name / name tag.
+     */
+    private String applyNameAffixes(final String baseName) {
+        final String prefix = Optional.ofNullable(namePrefix).orElse(GlobalConfig.getInstance().getNamePrefix());
+        final String suffix = Optional.ofNullable(nameSuffix).orElse(GlobalConfig.getInstance().getNameSuffix());
+
+        if ((prefix == null || prefix.isEmpty()) && (suffix == null || suffix.isEmpty()))
+            return baseName;
+
+        final String wrapped = Optional.ofNullable(prefix).orElse("") + baseName + Optional.ofNullable(suffix).orElse("");
+        return Utils.applyPlaceholders(owner, wrapped);
+    }
+
     public void setDisplayName(String name, final boolean save, final boolean stripColor) {
 
         boolean isDefaultName = false;
@@ -1286,10 +1313,11 @@ public class Pet {
             currentName = name;
             if (isStillHere()) {
                 if (currentName == null || currentName.equalsIgnoreCase(Language.TAG_TO_REMOVE_NAME.getMessage())) {
-                    Component customName = Utils.toComponent(GlobalConfig.getInstance().getDefaultName()
+                    final String renderedDefaultName = applyNameAffixes(GlobalConfig.getInstance().getDefaultName()
                             .replace("%player%", Optional.ofNullable(Bukkit.getOfflinePlayer(owner).getName()).orElse("Unknown"))
                             .replace("%pet_id%", id)
                             .replace("%pet_name%", icon.getItemMeta().getDisplayName()));
+                    Component customName = Utils.toComponent(renderedDefaultName);
 
                     activeMob.getEntity().getBukkitEntity().customName(customName);
 
@@ -1298,7 +1326,7 @@ public class Pet {
 
                             @Override
                             public void run() {
-                                setNameTag(currentName, false);
+                                setNameTag(renderedDefaultName, false);
                             }
                         }.runTaskLater(MCPets.getInstance(), 10L);
                     }
@@ -1312,13 +1340,14 @@ public class Pet {
                     return;
                 }
 
-                activeMob.getEntity().getBukkitEntity().customName(Utils.toComponent(currentName));
+                final String renderedName = applyNameAffixes(currentName);
+                activeMob.getEntity().getBukkitEntity().customName(Utils.toComponent(renderedName));
 
                 if (showNameTag) {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            setNameTag(currentName, true);
+                            setNameTag(renderedName, true);
                         }
                     }.runTaskLater(MCPets.getInstance(), 10L);
                 }
@@ -1355,6 +1384,8 @@ public class Pet {
         pet.setTamingOverSkill(tamingOverSkill);
         pet.setMountable(mountable);
         pet.setShowNameTag(showNameTag);
+        pet.setNamePrefix(namePrefix);
+        pet.setNameSuffix(nameSuffix);
         pet.setMountPermission(mountPermission);
         pet.setDespawnOnDismount(despawnOnDismount);
         pet.setMountType(mountType);
