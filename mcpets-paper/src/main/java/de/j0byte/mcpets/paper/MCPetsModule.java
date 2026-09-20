@@ -39,7 +39,9 @@ public final class MCPetsModule extends AbstractModule {
     protected void configure() {
         bind(JavaPlugin.class).toInstance(this.plugin);
         bind(Plugin.class).toInstance(this.plugin);
-        bind(Logger.class).toInstance(this.plugin.getLogger());
+        // Nicht bind(Logger.class): Guice hat fuer java.util.logging.Logger schon eine
+        // eingebaute Bindung, ein zweite laesst den Injector scheitern. Siehe PluginLogger.
+        bind(Logger.class).annotatedWith(PluginLogger.class).toInstance(this.plugin.getLogger());
         bind(Shark.class).toInstance(this.shark);
         bind(ConfigStore.class).toInstance(this.store);
     }

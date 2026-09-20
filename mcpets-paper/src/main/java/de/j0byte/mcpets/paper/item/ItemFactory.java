@@ -2,6 +2,7 @@ package de.j0byte.mcpets.paper.item;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.j0byte.mcpets.paper.PluginLogger;
 import de.j0byte.mcpets.paper.config.ItemConfig;
 import de.j0byte.shark.api.Shark;
 import de.j0byte.shark.gui.SharkInventories;
@@ -46,7 +47,9 @@ public class ItemFactory {
 
     @Inject
     public ItemFactory(
-            @NotNull final Plugin plugin, @NotNull final Shark shark, @NotNull final Logger logger) {
+            @NotNull final Plugin plugin,
+            @NotNull final Shark shark,
+            @PluginLogger @NotNull final Logger logger) {
 
         this.shark = shark;
         this.logger = logger;

@@ -3,6 +3,7 @@ package de.j0byte.mcpets.paper.menu;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import de.j0byte.mcpets.paper.PluginLogger;
 import de.j0byte.mcpets.api.document.PetSettings;
 import de.j0byte.mcpets.api.message.PetSyncMessage;
 import de.j0byte.mcpets.paper.config.ConfigManager;
@@ -52,7 +53,7 @@ public class MenuService {
             @NotNull final Shark shark,
             @NotNull final ItemFactory items,
             @NotNull final Provider<RenameDialog> renameDialog,
-            @NotNull final Logger logger) {
+            @PluginLogger @NotNull final Logger logger) {
 
         this.configs = configs;
         this.data = data;

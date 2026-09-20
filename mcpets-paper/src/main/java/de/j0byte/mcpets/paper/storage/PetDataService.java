@@ -2,6 +2,7 @@ package de.j0byte.mcpets.paper.storage;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.j0byte.mcpets.paper.PluginLogger;
 import de.j0byte.mcpets.api.document.PetProfile;
 import de.j0byte.mcpets.api.document.PetSettings;
 import de.j0byte.mcpets.paper.config.PetDefinition;
@@ -35,7 +36,8 @@ public class PetDataService {
     private final Map<String, PetSettings> settings = new ConcurrentHashMap<>();
 
     @Inject
-    public PetDataService(@NotNull final PetStorage storage, @NotNull final Logger logger) {
+    public PetDataService(
+            @NotNull final PetStorage storage, @PluginLogger @NotNull final Logger logger) {
         this.storage = storage;
         this.logger = logger;
     }

@@ -2,6 +2,7 @@ package de.j0byte.mcpets.paper.config;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.j0byte.mcpets.paper.PluginLogger;
 import de.j0byte.chameleon.api.config.ConfigFile;
 import de.j0byte.chameleon.api.config.ConfigSection;
 import de.j0byte.chameleon.api.config.ConfigStore;
@@ -39,7 +40,8 @@ public class ConfigManager {
     private Map<String, MenuConfig> menus = Map.of();
 
     @Inject
-    public ConfigManager(@NotNull final ConfigStore store, @NotNull final Logger logger) {
+    public ConfigManager(
+            @NotNull final ConfigStore store, @PluginLogger @NotNull final Logger logger) {
         this.store = store;
         this.logger = logger;
     }

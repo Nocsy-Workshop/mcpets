@@ -2,6 +2,7 @@ package de.j0byte.mcpets.paper.storage;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.j0byte.mcpets.paper.PluginLogger;
 import de.j0byte.mcpets.api.message.PetSyncMessage;
 import de.j0byte.mcpets.paper.config.ConfigManager;
 import de.j0byte.mcpets.paper.config.GeneralConfig;
@@ -44,7 +45,7 @@ public class PetSyncService {
     public PetSyncService(
             @NotNull final Octopus octopus,
             @NotNull final ConfigManager configs,
-            @NotNull final Logger logger) {
+            @PluginLogger @NotNull final Logger logger) {
 
         this.octopus = octopus;
         this.configs = configs;

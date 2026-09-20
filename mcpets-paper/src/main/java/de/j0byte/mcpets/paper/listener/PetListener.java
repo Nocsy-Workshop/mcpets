@@ -2,6 +2,7 @@ package de.j0byte.mcpets.paper.listener;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.j0byte.mcpets.paper.PluginLogger;
 import de.j0byte.mcpets.api.document.PetProfile;
 import de.j0byte.mcpets.paper.config.ConfigManager;
 import de.j0byte.mcpets.paper.pet.PetService;
@@ -38,7 +39,7 @@ public class PetListener implements Listener {
             @NotNull final PetDataService data,
             @NotNull final PetService pets,
             @NotNull final Octopus octopus,
-            @NotNull final Logger logger) {
+            @PluginLogger @NotNull final Logger logger) {
 
         this.configs = configs;
         this.data = data;

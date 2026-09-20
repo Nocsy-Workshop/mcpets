@@ -2,6 +2,7 @@ package de.j0byte.mcpets.paper.command;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.j0byte.mcpets.paper.PluginLogger;
 import de.j0byte.mcpets.api.message.PetSyncMessage;
 import de.j0byte.mcpets.paper.config.ConfigManager;
 import de.j0byte.mcpets.paper.config.PetDefinition;
@@ -60,7 +61,7 @@ public class PetsCommand {
             @NotNull final PetDataService data,
             @NotNull final PetSyncService sync,
             @NotNull final Shark shark,
-            @NotNull final Logger logger) {
+            @PluginLogger @NotNull final Logger logger) {
 
         this.configs = configs;
         this.menus = menus;
