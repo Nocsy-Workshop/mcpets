@@ -66,6 +66,11 @@ public class LivingPetsListener implements Listener {
         Pet pet = Pet.getFromEntity(entity);
 
         if (pet != null && pet.getPetStats() != null) {
+            PetStats stats = pet.getPetStats();
+            // A replaced entity may still carry the pet's metadata.
+            if (stats.getPet().getActiveMob() != null &&
+                    !entity.getUniqueId().equals(stats.getPet().getActiveMob().getEntity().getUniqueId())) return;
+            if (!stats.beginDeathNotification()) return;
             PetDeathEvent event = new PetDeathEvent(pet);
             Utils.callEvent(event);
         }
@@ -260,10 +265,7 @@ public class LivingPetsListener implements Listener {
     // Launch the respawn timer on death
     public void respawnCooldownHandler(PetDeathEvent e) {
         Pet pet = e.getPet();
-        // Set the pet as dead
-        pet.getPetStats().setDead();
-        // Start the respawn timer
-        pet.getPetStats().launchRespawnTimer();
+        pet.getPetStats().processDeath();
     }
 
     @EventHandler
@@ -285,6 +287,7 @@ public class LivingPetsListener implements Listener {
         if (pet.getPetStats() != null) {
             PetStats stats = pet.getPetStats();
             stats.setPet(e.getPet());
+            if (!stats.prepareSpawn()) return;
 
             // Launch the regeneration timer
             stats.launchRegenerationTimer();

@@ -34,6 +34,10 @@ public class PetStats {
     @Getter
     // Handles the health of the Pet
     private double currentHealth;
+    // Saved health may reach zero before the death event is delivered.
+    private boolean deathNotified;
+    private boolean deathProcessed;
+    private UUID spawnedEntityId;
     @Getter
     private PetTimer regenerationTimer;
 
@@ -81,6 +85,7 @@ public class PetStats {
      * Update the pet's health for the stats
      */
     public void updateHealth() {
+        if (deathNotified || deathProcessed) return;
         if (!pet.isStillHere()) return;
         currentHealth = pet.getActiveMob().getEntity().getHealth();
     }
@@ -135,6 +140,10 @@ public class PetStats {
 
         regenerationTimer = new PetTimer(Integer.MAX_VALUE, 20, null);
         regenerationTimer.launch(() -> {
+            if (isDead() || deathNotified || deathProcessed) {
+                regenerationTimer.stop(null);
+                return;
+            }
             if (pet.isStillHere()) {
                 double value = Math.min(currentHealth + currentLevel.getRegeneration(), currentLevel.getMaxHealth());
                 pet.getActiveMob().getEntity().setHealth(value);
@@ -201,17 +210,45 @@ public class PetStats {
     public void setHealth(double value) {
         value = Math.min(value, currentLevel.getMaxHealth());
 
+        if (deathNotified || deathProcessed) return;
         if (!pet.isStillHere()) return;
         pet.getActiveMob().getEntity().setHealth(value);
-        currentHealth = value;
+        // setHealth can synchronously dispatch death events.
+        if (!deathNotified && !deathProcessed) currentHealth = value;
     }
 
     /**
-     * Set the pet as dead
+     * Record a death without modifying the entity. Use setHealth(0) to kill a living pet.
      */
     public void setDead() {
-        setHealth(0);
         currentHealth = 0;
+    }
+
+    /** Claim the notification before calling listeners that may re-enter. */
+    public boolean beginDeathNotification() {
+        if (deathNotified) return false;
+        deathNotified = true;
+        setDead();
+        return true;
+    }
+
+    public void processDeath() {
+        if (deathProcessed) return;
+        deathProcessed = true;
+        initializingRun = false;
+        setDead();
+        launchRespawnTimer();
+    }
+
+    /** Reset death processing only when a new entity has spawned. */
+    public boolean prepareSpawn() {
+        if (!pet.isStillHere()) return false;
+        UUID entityId = pet.getActiveMob().getEntity().getUniqueId();
+        if (entityId.equals(spawnedEntityId)) return false;
+        spawnedEntityId = entityId;
+        deathNotified = false;
+        deathProcessed = false;
+        return true;
     }
 
     /**
