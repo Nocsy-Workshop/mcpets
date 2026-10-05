@@ -5,6 +5,7 @@ import fr.nocsy.mcpets.utils.PDCTag;
 import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
+import fr.nocsy.mcpets.data.config.GlobalConfig;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -36,6 +37,8 @@ public class PetSkin {
     @Getter
     private ItemStack icon;
     @Getter
+    private ItemStack lockedIcon;
+    @Getter
     private String permission;
     @Getter
     private String pathId;
@@ -53,9 +56,10 @@ public class PetSkin {
     /**
      * Load the PetSkin object in the cache
      */
-    public static void load(String pathId, Pet objectPet, String modelSkinId, String permission, ItemStack icon) {
+    public static void load(String pathId, Pet objectPet, String modelSkinId, String permission, ItemStack icon, ItemStack lockedIcon) {
         PetSkin petSkin = new PetSkin(pathId, objectPet, modelSkinId, permission);
         petSkin.setIcon(icon);
+        petSkin.setLockedIcon(lockedIcon);
 
         ArrayList<PetSkin> listSkins = petSkins.get(objectPet.getId());
         if (listSkins == null)
@@ -69,7 +73,7 @@ public class PetSkin {
      * Fetch the PetSkin from the icon
      */
     public static PetSkin fromIcon(ItemStack it) {
-        if (it.hasItemMeta()) {
+        if (it != null && it.hasItemMeta()) {
             String tagVal = PDCTag.get(it.getItemMeta());
             if (tagVal == null) return null;
             String[] code = tagVal.split(";");
@@ -106,7 +110,9 @@ public class PetSkin {
         if (skins == null || skins.isEmpty())
             return false;
 
-        skins = skins.stream().filter(petSkin -> p.hasPermission(petSkin.getPermission())).toList();
+        if (!GlobalConfig.getInstance().isShowLockedSkins()) {
+            skins = skins.stream().filter(petSkin -> petSkin.hasPermission(p)).toList();
+        }
 
         int invSize = Math.min(skins.size(), 54);
         while (invSize <= 0 || invSize % 9 != 0)
@@ -118,12 +124,35 @@ public class PetSkin {
                 PetInventoryHolder.Type.PET_SKINS_MENU).getInventory();
 
         for (PetSkin petSkin : skins) {
-            inventory.addItem(petSkin.getIcon());
+            if (petSkin.hasPermission(p)) {
+                inventory.addItem(petSkin.getIcon());
+            } else {
+                inventory.addItem(petSkin.getDisplayIcon(true));
+            }
         }
 
         p.openInventory(inventory);
         addMetada(p);
         return true;
+    }
+
+
+    /**
+     * Check whether a player may use this skin.
+     */
+    public boolean hasPermission(Player p) {
+        return permission == null || permission.isEmpty() || p.hasPermission(permission);
+    }
+
+    /**
+     * Return the normal or locked icon for GUI display.
+     */
+    private ItemStack getDisplayIcon(boolean locked) {
+        ItemStack display = locked && lockedIcon != null ? lockedIcon.clone() : icon.clone();
+        ItemMeta meta = display.getItemMeta();
+        PDCTag.set(meta, "MCPetsSkins;" + objectPet.getId() + ";" + uuid);
+        display.setItemMeta(meta);
+        return display;
     }
 
     /**
@@ -165,6 +194,19 @@ public class PetSkin {
         if (icon != null) {
             this.icon = icon;
             prepareIcon();
+        }
+    }
+
+
+    /**
+     * Set the locked PetSkin icon.
+     */
+    private void setLockedIcon(ItemStack lockedIcon) {
+        if (lockedIcon != null) {
+            this.lockedIcon = lockedIcon;
+            ItemMeta meta = this.lockedIcon.getItemMeta();
+            PDCTag.set(meta, "MCPetsSkins;" + objectPet.getId() + ";" + uuid);
+            this.lockedIcon.setItemMeta(meta);
         }
     }
 

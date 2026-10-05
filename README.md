@@ -90,3 +90,36 @@ Icon:
 ```
 
 MiniMessage formatting is also preserved when formatted pet names are inserted into MCPets language placeholders, inventory titles, and other Adventure components.
+
+
+### Locked pet skin previews
+
+MCPets can optionally show pet skins in the skins GUI even when the player does not have permission to use them. Existing behaviour remains the default.
+
+Enable it in `config.yml`:
+
+```yaml
+ShowLockedSkins: true
+```
+
+Each skin can optionally define a separate `LockedIcon`. It uses the same item format as `Icon`, including MiniMessage formatting:
+
+```yaml
+Skins:
+  ruby:
+    MythicMob: RubyPet
+    Permission: mcpets.skin.ruby
+    Icon:
+      Material: RED_DYE
+      Name: '<red><bold>Ruby Skin</bold></red>'
+      Description:
+        - '<gray>Click to equip.</gray>'
+    LockedIcon:
+      Material: BARRIER
+      Name: '<red><bold>Ruby Skin - Locked</bold></red>'
+      Description:
+        - '<gray>You have not unlocked this skin yet.</gray>'
+        - '<yellow>Purchase it from the store to unlock it.</yellow>'
+```
+
+If `LockedIcon` is omitted, the normal skin icon is still shown while locked. Locked skins cannot be applied even if the inventory interaction is manipulated externally. The message shown when a locked skin is clicked is configurable through the `SKIN_LOCKED` language entry.
