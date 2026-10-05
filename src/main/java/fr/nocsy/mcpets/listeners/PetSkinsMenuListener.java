@@ -42,6 +42,11 @@ public class PetSkinsMenuListener implements Listener {
             return;
         }
 
+        if (!petSkin.hasPermission(p)) {
+            Language.SKIN_LOCKED.sendMessage(p);
+            return;
+        }
+
         final Pet pet = Pet.fromOwner(p.getUniqueId());
         if (pet == null) {
             Language.REVOKED_BEFORE_CHANGES.sendMessage(p);
@@ -53,8 +58,6 @@ public class PetSkinsMenuListener implements Listener {
             Language.SKIN_APPLIED.sendMessage(p);
         else
             Language.SKIN_COULD_NOT_APPLY.sendMessage(p);
-
-        pet.setActiveSkin(petSkin);
         p.closeInventory();
     }
 

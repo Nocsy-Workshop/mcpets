@@ -70,3 +70,56 @@ Download more pets on [MCModels.net](https://mcmodels.net/)
 
 ![image](https://cdn.discordapp.com/attachments/884364895108366336/909534639650136064/partnered.png)
 
+
+## Text formatting (MiniMessage)
+
+MCPets supports [Adventure MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting for player-facing text in language and pet configuration files. Existing legacy `&` and `§` colour/formatting codes remain supported for backwards compatibility.
+
+Examples:
+
+```yaml
+# Language message
+pet_summoned: '<gradient:#ff8a00:#ffd000><bold>Your pet has been summoned!</bold></gradient>'
+
+# Pet icon
+Icon:
+  Name: '<gradient:#ff5f6d:#ffc371><bold>Baby Phoenix</bold></gradient>'
+  Description:
+    - '<gray>A <gold>legendary</gold> companion.</gray>'
+    - '<yellow>Ready for adventure!</yellow>'
+```
+
+MiniMessage formatting is also preserved when formatted pet names are inserted into MCPets language placeholders, inventory titles, and other Adventure components.
+
+
+### Locked pet skin previews
+
+MCPets can optionally show pet skins in the skins GUI even when the player does not have permission to use them. Existing behaviour remains the default.
+
+Enable it in `config.yml`:
+
+```yaml
+ShowLockedSkins: true
+```
+
+Each skin can optionally define a separate `LockedIcon`. It uses the same item format as `Icon`, including MiniMessage formatting:
+
+```yaml
+Skins:
+  ruby:
+    MythicMob: RubyPet
+    Permission: mcpets.skin.ruby
+    Icon:
+      Material: RED_DYE
+      Name: '<red><bold>Ruby Skin</bold></red>'
+      Description:
+        - '<gray>Click to equip.</gray>'
+    LockedIcon:
+      Material: BARRIER
+      Name: '<red><bold>Ruby Skin - Locked</bold></red>'
+      Description:
+        - '<gray>You have not unlocked this skin yet.</gray>'
+        - '<yellow>Purchase it from the store to unlock it.</yellow>'
+```
+
+If `LockedIcon` is omitted, the normal skin icon is still shown while locked. Locked skins cannot be applied even if the inventory interaction is manipulated externally. The message shown when a locked skin is clicked is configurable through the `SKIN_LOCKED` language entry.

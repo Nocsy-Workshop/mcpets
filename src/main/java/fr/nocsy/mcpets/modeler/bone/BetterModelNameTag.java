@@ -1,7 +1,7 @@
 package fr.nocsy.mcpets.modeler.bone;
 
 import kr.toxicity.model.api.nms.ModelNametag;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import fr.nocsy.mcpets.utils.Utils;
 
 public class BetterModelNameTag implements AbstractNameTag {
 
@@ -13,7 +13,7 @@ public class BetterModelNameTag implements AbstractNameTag {
 
     @Override
     public void setString(String string) {
-        delegate.component(LegacyComponentSerializer.legacySection().deserialize(string));
+        delegate.component(Utils.toComponent(string));
     }
 
     @Override

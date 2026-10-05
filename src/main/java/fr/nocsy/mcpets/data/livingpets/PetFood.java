@@ -287,12 +287,12 @@ public class PetFood {
 
                 if (p.hasPermission(unlockedPetObject.getPermission())) {
                     Debugger.send("§7The player §c" + p.getName() + "§7 tried to unlock a pet using an unlock item but they already own the pet.");
-                    Language.PETUNLOCKED_ALREADY.sendMessageFormatted(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
+                    Language.PETUNLOCKED_ALREADY.sendMessageFormatted(p, new FormatArg("%petName%", Utils.getItemDisplayName(unlockedPetObject.getIcon())));
                     return false;
                 }
 
                 Utils.givePermission(p.getUniqueId(), unlockedPetObject.getPermission());
-                Language.PETUNLOCKED.sendMessageFormatted(p, new FormatArg("%petName%", unlockedPetObject.getIcon().getItemMeta().getDisplayName()));
+                Language.PETUNLOCKED.sendMessageFormatted(p, new FormatArg("%petName%", Utils.getItemDisplayName(unlockedPetObject.getIcon())));
                 triggered = true;
             }
             case BUFF_DAMAGE, BUFF_RESISTANCE, BUFF_POWER -> {

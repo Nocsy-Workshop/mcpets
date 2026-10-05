@@ -405,8 +405,12 @@ public class PetConfig extends AbstractConfig {
             final String skinPerm = getConfig().getString(key + ".Permission");
 
             final ItemStack skinIcon = legacyItemRead(null, false, "", "§cSkin icon (not set)", key + ".Icon");
+            ItemStack lockedIcon = null;
+            if (getConfig().get(key + ".LockedIcon") != null) {
+                lockedIcon = legacyItemRead(null, false, "", "§cLocked skin", key + ".LockedIcon");
+            }
 
-            PetSkin.load(key, pet, mythicMobId, skinPerm, skinIcon);
+            PetSkin.load(key, pet, mythicMobId, skinPerm, skinIcon, lockedIcon);
         }
     }
 

@@ -57,6 +57,8 @@ public class GlobalConfig extends AbstractConfig {
     private int maxActiveMounts;
     @Getter
     private boolean activateBackMenuIcon;
+    @Getter
+    private boolean showLockedSkins;
 
     @Getter
     private double percentHealthOnRespawn;
@@ -173,6 +175,8 @@ public class GlobalConfig extends AbstractConfig {
             getConfig().set("PercentHealthOnRespawn", 0.2);
         if (getConfig().get("ActivateBackMenuIcon") == null)
             getConfig().set("ActivateBackMenuIcon", true);
+        if (getConfig().get("ShowLockedSkins") == null)
+            getConfig().set("ShowLockedSkins", false);
         if (getConfig().get("AutoSaveDelay") == null)
             getConfig().set("AutoSaveDelay", 3600);
 
@@ -263,6 +267,7 @@ public class GlobalConfig extends AbstractConfig {
         maxNameLength = getConfig().getInt("MaxNameLength");
         enableClickBackToMenu = getConfig().getBoolean("EnableClickBackToMenu");
         activateBackMenuIcon = getConfig().getBoolean("ActivateBackMenuIcon");
+        showLockedSkins = getConfig().getBoolean("ShowLockedSkins");
         adaptiveInventory = getConfig().getInt("InventorySize");
         percentHealthOnRespawn = getConfig().getDouble("PercentHealthOnRespawn");
         autoRespawn = getConfig().getBoolean("AutoRespawn");
