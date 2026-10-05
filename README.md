@@ -70,3 +70,23 @@ Download more pets on [MCModels.net](https://mcmodels.net/)
 
 ![image](https://cdn.discordapp.com/attachments/884364895108366336/909534639650136064/partnered.png)
 
+
+## Text formatting (MiniMessage)
+
+MCPets supports [Adventure MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting for player-facing text in language and pet configuration files. Existing legacy `&` and `§` colour/formatting codes remain supported for backwards compatibility.
+
+Examples:
+
+```yaml
+# Language message
+pet_summoned: '<gradient:#ff8a00:#ffd000><bold>Your pet has been summoned!</bold></gradient>'
+
+# Pet icon
+Icon:
+  Name: '<gradient:#ff5f6d:#ffc371><bold>Baby Phoenix</bold></gradient>'
+  Description:
+    - '<gray>A <gold>legendary</gold> companion.</gray>'
+    - '<yellow>Ready for adventure!</yellow>'
+```
+
+MiniMessage formatting is also preserved when formatted pet names are inserted into MCPets language placeholders, inventory titles, and other Adventure components.

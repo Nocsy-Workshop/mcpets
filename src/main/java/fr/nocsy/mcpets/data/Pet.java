@@ -1259,7 +1259,7 @@ public class Pet {
                 name = GlobalConfig.getInstance().getDefaultName()
                         .replace("%player%", Optional.ofNullable(Bukkit.getOfflinePlayer(owner).getName()).orElse("Unknown"))
                         .replace("%pet_id%", id)
-                        .replace("%pet_name%", icon.getItemMeta().getDisplayName());
+                        .replace("%pet_name%", Utils.getItemDisplayName(icon));
             }
         }
 
@@ -1285,7 +1285,7 @@ public class Pet {
                     Component customName = Utils.toComponent(GlobalConfig.getInstance().getDefaultName()
                             .replace("%player%", Optional.ofNullable(Bukkit.getOfflinePlayer(owner).getName()).orElse("Unknown"))
                             .replace("%pet_id%", id)
-                            .replace("%pet_name%", icon.getItemMeta().getDisplayName()));
+                            .replace("%pet_name%", Utils.getItemDisplayName(icon)));
 
                     activeMob.getEntity().getBukkitEntity().customName(customName);
 

@@ -47,6 +47,7 @@ public class Utils {
             Pattern.compile("(?i)§x§([A-F0-9])§([A-F0-9])§([A-F0-9])§([A-F0-9])§([A-F0-9])§([A-F0-9])");
 
     private static final Pattern RAW_HEX_PATTERN = Pattern.compile("(?i)(?<![<:#])#([A-F0-9]{6})");
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     public static ItemStack createHead(final String name, final List<Component> lore, final String base64) {
         final ItemStack item = new ItemStack(Material.PLAYER_HEAD);
@@ -229,25 +230,35 @@ public class Utils {
         text = convertLegacyToMiniMessage(text);
 
         try {
-            return MiniMessage.miniMessage().deserialize(text).decoration(TextDecoration.ITALIC, false);
+            return MINI_MESSAGE.deserialize(text).decoration(TextDecoration.ITALIC, false);
         } catch (final Exception ex) {
             return Component.text(text).decoration(TextDecoration.ITALIC, false);
         }
     }
 
-    public static Component toComponentWithPrefix(String text) {
+    public static Component toComponentWithPrefix(final String text) {
         if (text == null) return Component.empty();
+        return toComponent(GlobalConfig.getInstance().getPrefix() + text);
+    }
 
-        text = GlobalConfig.getInstance().getPrefix() + text;
-        text = convertRawHexToMiniMessage(text);
-        text = convertSectionHexToMiniMessage(text);
-        text = convertLegacyToMiniMessage(text);
+    /**
+     * Serialize an Adventure component back to MiniMessage. This is useful when a
+     * formatted value is inserted into another configurable MiniMessage string.
+     */
+    public static String toMiniMessage(final Component component) {
+        if (component == null) return "";
+        return MINI_MESSAGE.serialize(component);
+    }
 
-        try {
-            return MiniMessage.miniMessage().deserialize(text).decoration(TextDecoration.ITALIC, false);
-        } catch (final Exception ex) {
-            return Component.text(text).decoration(TextDecoration.ITALIC, false);
-        }
+    /**
+     * Return an item's display name as MiniMessage so gradients, hex colours and
+     * decorations survive when the name is used in language placeholders.
+     */
+    public static String getItemDisplayName(final ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return "";
+
+        final Component displayName = item.getItemMeta().displayName();
+        return displayName == null ? "" : toMiniMessage(displayName);
     }
 
     public static List<Component> toComponents(String text) {

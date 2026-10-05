@@ -2,6 +2,7 @@ package fr.nocsy.mcpets.data;
 
 import fr.nocsy.mcpets.MCPets;
 import fr.nocsy.mcpets.utils.PDCTag;
+import fr.nocsy.mcpets.utils.Utils;
 import fr.nocsy.mcpets.data.config.FormatArg;
 import fr.nocsy.mcpets.data.config.Language;
 import fr.nocsy.mcpets.data.inventories.PetInventoryHolder;
@@ -113,7 +114,7 @@ public class PetSkin {
 
         Inventory inventory = new PetInventoryHolder(invSize,
                 Language.PET_SKINS_TITLE.getMessageFormatted(
-                        new FormatArg("%pet%", pet.getIcon().getItemMeta().getDisplayName())),
+                        new FormatArg("%pet%", Utils.getItemDisplayName(pet.getIcon()))),
                 PetInventoryHolder.Type.PET_SKINS_MENU).getInventory();
 
         for (PetSkin petSkin : skins) {
